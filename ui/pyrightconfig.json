@@ -1,0 +1,6 @@
+{
+  "include": ["app"],
+  "pythonVersion": "3.7",
+  "reportMissingImports": true,
+  "reportMissingTypeStubs": false
+}

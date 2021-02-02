@@ -8,11 +8,28 @@ default:
 .format_job: &format_job
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
-ui-lint:
+ui-black:
   <<: *format_job
   before_script:
-    - cd ${CI_JOB_NAME/-lint/}
+    - cd ${CI_JOB_NAME/-black/}
   script:
-    - black --check --diff
+    - black --check --diff .
+  allow_failure: true
+
+ui-docs:
+  <<: *format_job
+  before_script:
+    - cd ${CI_JOB_NAME/-docs/}
+  script:
     - pydocstyle
-    - pyright
+  allow_failure: true
+
+ui-pyright:
+  <<: *format_job
+  before_script:
+    - cd ${CI_JOB_NAME/-pyright/}
+    - poetry install
+    - source .venv/bin/activate
+  script:
+    - pyright .
+  allow_failure: true
