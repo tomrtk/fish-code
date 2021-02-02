@@ -21,7 +21,7 @@ repos:
         files: "^(src|tests)"
         args: [--check-only]
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 5.0.2
+    rev: 5.1.1
     hooks:
       - id: pydocstyle
         files: "^src"
