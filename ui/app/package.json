@@ -3,11 +3,11 @@
     "compile-css": "postcss styles.css -o static/styles.dist.css"
   },
   "dependencies": {
-    "autoprefixer": "^10.2.1",
-    "tailwindcss": "^2.0.2"
+    "autoprefixer": "10.2.1",
+    "tailwindcss": "2.0.2"
   },
   "devDependencies": {
-    "postcss": "^8.2.4",
-    "postcss-cli": "^8.3.1"
+    "postcss": "8.2.4",
+    "postcss-cli": "8.3.1"
   }
 }
