@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "poetry-demo"
+version = "0.1.0"
+description = ""
+authors = ["R0flcopt3r <12752060+R0flcopt3r@users.noreply.github.com>"]
+
+[tool.poetry.scripts]
+app = "poetry_demo.__main__:main"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+numpy = "^1.19.5"
+matplotlib = "^3.3.3"
+pytest = "^6.2.1"
+Flask = "^1.1.2"
+
+
+[tool.poetry.dev-dependencies]
+debugpy = "^1.2.1"
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

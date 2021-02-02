@@ -1,0 +1,64 @@
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello</title>
+    <link
+      href="{{ url_for('static', filename='styles.dist.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-50">
+    <div class="mx-auto rounded-lg shadow-lg max-w-4xl mx-2 my-6">
+      <header class="relative bg-indigo-200 rounded-t-lg mb-4 text-center">
+        <div class="py-4 md:py-6">
+          <h1 class="text-2xl md:text-4xl lg:text-5xl uppercase">srcery</h1>
+          <p>a dark color scheme</p>
+        </div>
+        <button class="absolute right-5 bottom-5">
+          <svg
+            class="fill-current text-blue-500"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            height="32px"
+            version="1.1"
+            viewBox="0 0 32 32"
+            width="32px"
+            xml:space="preserve"
+          >
+            <path
+              d="M4,10h24c1.104,0,2-0.896,2-2s-0.896-2-2-2H4C2.896,6,2,6.896,2,8S2.896,10,4,10z
+                                                        M28,14H4c-1.104,0-2,0.896-2,2
+                                                        s0.896,2,2,2h24c1.104,0,2-0.896,2-2S29.104,14,28,14z
+                                                          M28,22H4c-1.104,0-2,0.896-2,2s0.896,2,2,2h24c1.104,0,2-0.896,2-2
+                                                          S29.104,22,28,22z"
+            />
+          </svg>
+        </button>
+      </header>
+      <main class="container mx-auto h-96">
+        <div class="mx-auto max-w-3xl flex flex-row justify-between min-h">
+          <div
+            class="flex justify-center items-center justify-items-center rounded-lg h-48 w-48 bg-green-100"
+          >
+            <div class="">{{ msg }}</div>
+            <ul>
+              <li><a href="/jobs">Jobs</a></li>
+              <li><a href="/jobs/new">NewJob</a></li>
+              <!-- <li><a href="/new_job">NewJob</a></li> -->
+            </ul>
+          </div>
+          <div
+            class="flex justify-center items-center rounded-lg h-48 w-48 bg-green-100"
+          >
+            <div class="">helle</div>
+          </div>
+          <div
+            class="flex justify-center items-center rounded-lg h-48 w-48 bg-green-100"
+          >
+            <div class="">helle</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

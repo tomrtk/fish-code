@@ -1,0 +1,18 @@
+default:
+  tags:
+    - bachelor
+
+# .lint_job: &lint_job
+# .test_job: &test_job
+
+.format_job: &format_job
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+ui:
+  <<: *format_job
+  before_script:
+    - cd $CI_JOB_NAME
+    - poetry shell
+  script:
+    - black
+    - poetry

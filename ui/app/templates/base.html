@@ -1,0 +1,28 @@
+<html lang="no">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello</title>
+    <link
+      href="{{ url_for('static', filename='styles.dist.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-gray-100">
+    <div class="h-screen p-6">
+      <div
+        class="bg-white max-h-full flex flex-col mx-auto container rounded-lg shadow-lg"
+      >
+        <header
+          class="flex-none flex flex-row justify-end bg-gray-200 rounded-t-lg"
+        >
+          <img
+            class="m-2"
+            src="{{ url_for('static', filename='nina.png') }}"
+            alt="NINA Logo"
+          />
+        </header>
+        {% block main %}{% endblock %}
+      </div>
+    </div>
+  </body>
+</html>
