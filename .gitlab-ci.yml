@@ -36,3 +36,13 @@ pyright:
           - ml
           - tracing
           - ui
+
+release:
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+  stage: .post
+  before_script:
+    - npm install -g semantic-release @semantic-release/gitlab
+  script:
+    - semantic-release
+  only:
+    - master
