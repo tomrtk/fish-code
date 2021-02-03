@@ -10,8 +10,6 @@ default:
 
 style:
   <<: *format_job
-  before_script:
-    - cd ${CI_JOB_NAME/-black/}
   script:
     - isort --check --diff .
     - black --check --diff .
@@ -23,12 +21,18 @@ docs:
     - pydocstyle
   allow_failure: true
 
-ui-pyright:
+pyright:
   <<: *format_job
   before_script:
-    - cd ${CI_JOB_NAME/-pyright/}
+    - cd ${MODULE}
     - poetry install
     - source .venv/bin/activate
   script:
     - pyright .
   allow_failure: true
+  parallel:
+    matrix:
+      - MODULE:
+          - ml
+          - tracing
+          - ui
