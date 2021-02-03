@@ -14,9 +14,9 @@ matplotlib = "^3.3.3"
 pytest = "^6.2.1"
 Flask = "^1.1.2"
 
-
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
@@ -52,4 +52,4 @@ exclude = '''
     | README.md
 )/
 '''
-verbose=true
+verbose = true
