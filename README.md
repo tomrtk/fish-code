@@ -2,6 +2,13 @@
 
 Various small python scripts for testing your Python development environment.
 
+## Getting started
+
+```
+pre-commit install
+pre-commit install --hook-type commit-msg  # Enable commitlint
+```
+
 # LSP
 
 The`type_hinting_demo` uses type hinting, use it to see that this works properly
