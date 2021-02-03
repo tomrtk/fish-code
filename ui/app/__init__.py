@@ -1,16 +1,13 @@
-from flask import Flask, render_template, url_for
 from typing import NamedTuple
 
-app = Flask(__name__)
+from flask import Flask, render_template, url_for
 
-app.config["TEMPLATES_AUTO_RELOAD"] = True
-
-app.run(debug=True)
 
 class Job(NamedTuple):
     id: int
     name: str
     status: str
+
 
 class Detection(NamedTuple):
     id: int
@@ -20,31 +17,55 @@ class Detection(NamedTuple):
     video_path: str
 
 
+app = Flask(__name__)
 
-@app.route('/')
+app.config["TEMPLATES_AUTO_RELOAD"] = True
+
+
+@app.route("/")
 def index():
-    return render_template('index.html', msg="Gjoevik")
+    return render_template("index.html", msg="Gjoevik")
 
-@app.route('/projects')
+
+@app.route("/projects")
 def projects_page():
-    jobs = [ Job(**{"id": i, "name": f"Test{i}", "status": "Pending"})
-            for i in range(1, 100)]
+    jobs = [
+        Job(**{"id": i, "name": f"Test{i}", "status": "Pending"})
+        for i in range(1, 100)
+    ]
 
-    return render_template('projects.html', jobs=jobs)
+    return render_template("projects.html", jobs=jobs)
 
-@app.route('/projects/new')
+
+@app.route("/projects/new")
 def new_project_page():
 
-    return render_template('new.html')
+    return render_template("new.html")
 
-@app.route('/report')
+
+@app.route("/report")
 def report_page():
-    detections = [ Detection(**{"id": i, "report_type": f"Type{i}", "start": "Now", "stop": "Later", "video_path": "C:\\"})
-            for i in range(1, 100)]
+    detections = [
+        Detection(
+            **{
+                "id": i,
+                "report_type": f"Type{i}",
+                "start": "Now",
+                "stop": "Later",
+                "video_path": "C:\\",
+            }
+        )
+        for i in range(1, 100)
+    ]
 
-    return render_template('result.html', detections=detections)
+    return render_template("result.html", detections=detections)
 
-@app.route('/image')
+
+@app.route("/image")
 def image():
 
-    return render_template('image.html')
+    return render_template("image.html")
+
+
+if __name__ == "__main__":
+    app.run(debug=True)

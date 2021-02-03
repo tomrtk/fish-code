@@ -20,3 +20,37 @@ debugpy = "^1.2.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+src_paths = ["app"]
+multi_line_output = 3
+
+[tool.black]
+line-length = 80
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+/(
+      \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | \.pytest_cache
+    | \.ipynb_checkpoints
+    | __pycache__
+    | _build
+    | buck-out
+    | build
+    | dist
+    | rapport
+    | opppgave
+    | hdr-bilder
+    | venv
+    | node_modules
+    | README.md
+)/
+'''
+verbose=true

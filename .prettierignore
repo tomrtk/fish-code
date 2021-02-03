@@ -1,0 +1,4 @@
+__pycache__/
+node_modules/
+ui/app/static/
+.venv/

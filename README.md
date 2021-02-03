@@ -7,7 +7,6 @@ Various small python scripts for testing your Python development environment.
 The`type_hinting_demo` uses type hinting, use it to see that this works properly
 for you.
 
-
 # Poetry
 
 The `poetry_demo` module is to test and see if Poetry works on your machine.
@@ -16,7 +15,7 @@ inside `/flask_demo/`.
 
 **Initial:**
 
-``` sh
+```sh
 poetry install
 ```
 
@@ -28,7 +27,7 @@ poetry run app
 
 **Running Flask:**
 
-``` sh
+```sh
 export FLASK_APP=flask_demo/web.py
 
 # Optional
@@ -42,4 +41,3 @@ poetry run flask run
 Inside `/emacs_config.el` there is a DAP debug template. Use it as inspiration
 for creating templates for other implementations of DAP. The specific template
 will run the `poetry_demo` module with `__main__.py` as the entry.
-

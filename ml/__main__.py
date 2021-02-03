@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
+import time
+
 import numpy as np
 from poetry_demo import some_lib
-import time
 
 
 def test_me(var):
