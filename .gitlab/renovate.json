@@ -1,4 +1,11 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:base", ":label(renovate)", ":dependencyDashboard"]
+  "extends": ["config:base", ":label(renovate)", ":dependencyDashboard"],
+  "packageRules": [
+    {
+      "matchDatasources": ["github-tags", "pypi"],
+      "matchPackagePatterns": ["^(psf\\/)?black$"],
+      "versioning": "pep440"
+    }
+  ]
 }
