@@ -39,6 +39,7 @@ def projects_page():
 
 @app.route("/projects/new")
 def new_project_page():
+    hello()
     hello = "Hello, World!"
 
     return render_template("new.html")
@@ -70,3 +71,18 @@ def image():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+def noncompliant():
+    foo()  # Noncompliant
+    foo = sum
+
+    func()  # Noncompliant
+
+    def func():
+        pass
+
+    MyClass()  # Noncompliant
+
+    class MyClass:
+        pass

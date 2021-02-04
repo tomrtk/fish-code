@@ -6,7 +6,7 @@ plugins:
       languages:
         - python:
             python_version: 3
-  sonar-python:
+  pylint:
     enabled: true
 
 exclude_patterns:
