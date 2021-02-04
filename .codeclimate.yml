@@ -2,3 +2,7 @@ version: "2"
 plugins:
   sonar-python:
     enabled: true
+exclude_patterns:
+  - "ui/app/static/"
+  - "ui/app/templates/"
+  - "**/.venv/"
