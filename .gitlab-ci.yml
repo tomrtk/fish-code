@@ -1,28 +1,32 @@
 default:
   tags:
     - bachelor
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+include:
+  - template: Code-Quality.gitlab-ci.yml
 
 # .lint_job: &lint_job
 # .test_job: &test_job
 
-.format_job: &format_job
-  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
-
 style:
-  <<: *format_job
   script:
     - isort --check --diff .
     - black --check --diff .
-  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: false
 
 docs:
-  <<: *format_job
   script:
     - pydocstyle
-  allow_failure: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: true
 
 pyright:
-  <<: *format_job
   before_script:
     - cd ${MODULE}
     - poetry install
@@ -36,9 +40,12 @@ pyright:
           - ml
           - tracing
           - ui
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
 
+# Publish new releases/tags when applicable from the commits
 release:
-  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
   stage: .post
   script:
     - semantic-release
