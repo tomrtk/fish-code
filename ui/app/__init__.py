@@ -39,6 +39,7 @@ def projects_page():
 
 @app.route("/projects/new")
 def new_project_page():
+    hello = "Hello, World!"
 
     return render_template("new.html")
 
