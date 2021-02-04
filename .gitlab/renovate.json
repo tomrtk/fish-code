@@ -3,8 +3,9 @@
   "extends": ["config:base", ":label(renovate)", ":dependencyDashboard"],
   "packageRules": [
     {
-      "matchDatasources": ["github-tags", "pypi"],
-      "matchPackagePatterns": ["black$"],
+      "matchDatasources": ["github-tags"],
+      "matchManagers": [" pre-commit"],
+      "matchPackagePatterns": ["^psf\\/black"],
       "versioning": "pep440"
     }
   ]

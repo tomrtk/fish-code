@@ -1,8 +1,19 @@
 version: "2"
 plugins:
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - python:
+            python_version: 3
   sonar-python:
     enabled: true
+
 exclude_patterns:
+  - "**/.venv/"
+  - "**/node_modules/"
+  - "**/spec/"
+  - "**/test/"
+  - "**/tests/"
   - "ui/app/static/"
   - "ui/app/templates/"
-  - "**/.venv/"
