@@ -3,14 +3,6 @@ default:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
-include:
-  - template: Code-Quality.gitlab-ci.yml
-
-code_quality:
-  services: # Shut off Docker-in-Docker
-  tags:
-    - cq-sans-dind # Set this job to only run on our new specialized runner
-
 # .lint_job: &lint_job
 # .test_job: &test_job
 
