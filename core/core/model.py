@@ -31,6 +31,7 @@ class Job:
     def __init__(self, id: int, name: str) -> None:
         self.id = id
         self.name = name
+        self._status = Status.PENDING
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
@@ -40,6 +41,11 @@ class Job:
         if not isinstance(other, Job):
             return False
         return self.name == other.name and self.id == other.id
+
+    @property
+    def progress(self) -> int:
+        # TODO: Calculate progress from number of frames completed in associated videos.
+        return 0
 
     def add_video(self, video: Video) -> bool:
         raise NotImplementedError
