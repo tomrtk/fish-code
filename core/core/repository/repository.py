@@ -4,12 +4,15 @@ All Repositories inherits from a Abstract Repository for the base object. The
 abstract class defines the methods all repositories needs to implement.
 """
 import abc
+import logging
 from typing import List, Optional, Set, Tuple
 
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.orm.session import Session
 
 from core import model
+
+logger = logging.getLogger(__name__)
 
 
 class NotFound(Exception):
@@ -23,6 +26,7 @@ class AbstractProjectRepository(abc.ABC):
 
     def __init__(self) -> None:
         self.cache = set()  # type: Set[model.Project]
+        logger.debug("Project repository created")
 
     def add(self, project: model.Project) -> None:
         """Add a project to repository.
@@ -34,6 +38,7 @@ class AbstractProjectRepository(abc.ABC):
         """
         self._add(project)
         self.cache.add(project)
+        logger.debug("Add project to repository")
 
     def get(self, number: str) -> Optional[model.Project]:
         """Get a project from the project number.
@@ -51,6 +56,9 @@ class AbstractProjectRepository(abc.ABC):
         project = self._get(number)
         if project:
             self.cache.add(project)
+            logger.debug("Get project with number %s")
+        else:
+            logger.info("Project with number %s not found", number)
         return project
 
     def list(self) -> List[model.Project]:
@@ -111,9 +119,11 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
         self.session.add(project)
 
     def _get(self, number: str) -> Optional[model.Project]:
-        result = self.session.query(model.Project).filter_by(number=number).first()
+        result = (
+            self.session.query(model.Project).filter_by(number=number).first()
+        )
 
         return result
 
     def _list(self) -> List[model.Project]:
-        return self.session.query(model.Project).all()
+        return self.session.query(model.Project).all()  # type: ignore
