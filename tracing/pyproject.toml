@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "tracing"
+version = "0.1.0"
+description = ""
+authors = ["R0flcopt3r <12752060+R0flcopt3r@users.noreply.github.com>"]
+
+
+[tool.poetry.scripts]
+tracing = "tracing.__main__:main"
+api = "tracing.main:main"
+
+[tool.poetry.dependencies]
+python = "3.8.8"
+sort = { git = "https://github.com/R0flcopt3r/sort"}
+fastapi = "^0.63.0"
+uvicorn = "^0.13.4"
+pydantic = "^1.8"
+
+[tool.poetry.dev-dependencies]
+requests = "^2.25.1"
+pytest = "^5.2"
+pycocotools = "^2.0.2"
+scikit-image = "^0.18.1"
+matplotlib = "^3.3.4"
+numpy = "^1.20.1"
+debugpy = "^1.2.1"
+mypy = "^0.800"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
