@@ -8,7 +8,7 @@ def test_main(capsys):
 
     out, err = capsys.readouterr()
 
-    assert out == "Core started\n"
+    assert out == ""
     assert err == ""
 
 
@@ -18,5 +18,5 @@ def test_main_debug(capsys):
 
     out, err = capsys.readouterr()
 
-    assert out == "Core started in debug mode\n"
+    assert out == ""
     assert err == ""
