@@ -49,6 +49,16 @@ pyright:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
 
+tests:
+  before_script:
+    - poetry install
+  script:
+    - poetry run pytest --cov --cov-report xml
+    - poetry run coverage report
+  artifacts:
+    reports:
+      cobertura: coverage.xml
+
 # Publish new releases/tags when applicable from the commits
 release:
   stage: .post
