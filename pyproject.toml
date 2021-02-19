@@ -1,15 +1,11 @@
 [tool.poetry]
-name = "poetry-demo"
+name = "code"
 version = "0.1.0"
 description = ""
 authors = ["R0flcopt3r <12752060+R0flcopt3r@users.noreply.github.com>"]
 
-[tool.poetry.scripts]
-app = "poetry_demo.__main__:main"
-
 [tool.poetry.dependencies]
 python = "^3.7"
-Flask = "^1.1.2"
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"
