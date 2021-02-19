@@ -1,8 +1,9 @@
 """Mapping of tables in DB to objects in domain model."""
 import logging
 
-from sqlalchemy import Column, Date, ForeignKey, Integer, MetaData, Table, Text, event
+from sqlalchemy import Column, ForeignKey, Integer, MetaData, Table, Text
 from sqlalchemy.orm import mapper, relationship
+from sqlalchemy.orm.collections import attribute_mapped_collection
 
 from core import model
 
@@ -46,7 +47,7 @@ def start_mappers():
         properties={
             "_jobs": relationship(
                 jobs_mapper,
-                collection_class=set,
+                collection_class=attribute_mapped_collection("id"),
                 cascade="all, delete",
             )
         },
