@@ -1,11 +1,24 @@
 from core.model import Job, Project
+import pytest
 
+@pytest.fixture
+def make_test_project():
+      project = Project("Test name", "Test project number", "Test description")
+      project.add_job(Job(1, "Test job name 1"))
+      project.add_job(Job(2, "Test job name 2"))
+      project.add_job(Job(3, "Test job name 3"))
+      yield project
 
-def test_make_project_and_add_job():
-    project = Project("Test name", "Test project number", "Test description")
-    project.add_job(Job("Test job name 1"))
-    project.add_job(Job("Test job name 1"))
-    project.add_job(Job("Test job name 2"))
-    project.add_job(Job("Test job name 3"))
+def test_make_project_and_add_job(make_test_project):
+    project = make_test_project
+    project.add_job(Job(1, "Test job name 1"))
+    project.add_job(Job(4, "This test is new"))
 
-    assert project.number_of_jobs == 3
+    assert project.number_of_jobs == 4
+
+def test_make_project_get_jobs(make_test_project):
+    project = make_test_project
+    jobs = project.get_jobs()
+
+    assert isinstance(jobs, list)
+    assert isinstance(jobs[0], Job)

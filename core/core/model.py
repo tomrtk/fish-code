@@ -1,10 +1,11 @@
 """ Module defining the domain model entities.
 """
 from __future__ import annotations
+from typing import Optional
 
 import logging
 from enum import Enum
-from typing import List, Set
+from typing import List, Set, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -27,17 +28,18 @@ class Video:
 class Job:
     """TODO"""
 
-    def __init__(self, name: str) -> None:
+    def __init__(self, id: int, name: str) -> None:
+        self.id = id
         self.name = name
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
-        return hash(self.name)
+        return hash((self.id, self.name))
 
     def __eq__(self, other) -> bool:
         if not isinstance(other, Job):
             return False
-        return self.name == other.name
+        return self.name == other.name and self.id == other.id
 
     def add_video(self, video: Video) -> bool:
         raise NotImplementedError
@@ -90,7 +92,7 @@ class Project:
         self.name = name
         self.number = number
         self.description = description
-        self._jobs = set()  # type: Set[Job]
+        self._jobs = dict()  # type: Dict[int, Job]
 
     def __str__(self):
         """Print class members."""
@@ -111,7 +113,7 @@ class Project:
         )
 
     def __hash__(self) -> int:
-        """Hash of object used in eg. `set()` to avoid duplicate."""
+        """Hash of object used in eg. `dict()` or `set()` to avoid duplicate."""
         return hash(
             (self.name, self.number, self.description, frozenset(self._jobs))
         )
@@ -131,31 +133,64 @@ class Project:
 
         Returns
         -------
-            :   int
-                Number of jobs in project.
+        int
+            Number of jobs in project
         """
         return len(self._jobs)
 
     def add_job(self, job: Job) -> None:
-        """Add job to project.
+        """Add job to project
 
         Parameter
         ---------
         job     :   Job
                     Job to be added to project.
         """
-        self._jobs.add(job)
+        if job.id in self._jobs.keys():
+            logger.log(logging.INFO, f"Attempted to add job with existing ID: {job.id}")
+        else:
+            self._jobs[job.id] = job
 
-    def remove_job(self, number: str) -> bool:
-        """Remove job from project.
+    def remove_job(self, id: int) -> bool:
+        """Remove job from project
 
         Parameters
         ----------
-        number  :   str
-                    Project number of job to be removed.
-        """
-        raise NotImplementedError
+        id      :   int
+                    Job id of job to be removed.
 
+        Returns
+        -------
+        bool
+            True if the job was successfully removed
+        """
+        if id in self._jobs.keys():
+            del self._jobs[id]
+            return True
+        else:
+            return False
+
+
+    def get_job(self, id: int) -> Optional[Job]:
+        """Retrieve job from project
+
+        Parameters
+        ----------
+        id  :   int
+            ID of the job to be retrieved from the project
+
+        Returns
+        -------
+        Optional[Job]
+            Optional of type Job associated with the id
+        """
+        if id in self._jobs.keys():
+            return self._jobs[id]
+        else:
+            return None
+
+    def get_jobs(self) -> list[Job]:
+        return list(self._jobs.values())
 
 class Scheduler:
     def __init__(self) -> None:
