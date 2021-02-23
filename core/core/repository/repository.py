@@ -25,7 +25,6 @@ class AbstractProjectRepository(abc.ABC):
     """Abstract project repository defining minimum API of repository."""
 
     def __init__(self) -> None:
-        self.cache = set()  # type: Set[model.Project]
         logger.debug("Project repository created")
 
     def add(self, project: model.Project) -> None:
@@ -37,10 +36,9 @@ class AbstractProjectRepository(abc.ABC):
                     Project to add to repository.
         """
         self._add(project)
-        self.cache.add(project)
         logger.debug("Add project to repository")
 
-    def get(self, number: str) -> Optional[model.Project]:
+    def get(self, id: int) -> Optional[model.Project]:
         """Get a project from the project number.
 
         Parameters
@@ -53,12 +51,11 @@ class AbstractProjectRepository(abc.ABC):
             : Optional[Project]
             Project with corresponding number if found.
         """
-        project = self._get(number)
+        project = self._get(id)
         if project:
-            self.cache.add(project)
-            logger.debug("Get project with number %s")
+            logger.debug("Get project with number %s", id)
         else:
-            logger.info("Project with number %s not found", number)
+            logger.info("Project with number %s not found", id)
         return project
 
     def list(self) -> List[model.Project]:
@@ -118,10 +115,8 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
     def _add(self, project: model.Project) -> None:
         self.session.add(project)
 
-    def _get(self, number: str) -> Optional[model.Project]:
-        result = (
-            self.session.query(model.Project).filter_by(number=number).first()
-        )
+    def _get(self, id: int) -> Optional[model.Project]:
+        result = self.session.query(model.Project).filter_by(id=id).first()
 
         return result
 

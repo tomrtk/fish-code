@@ -1,7 +1,16 @@
 """Mapping of tables in DB to objects in domain model."""
 import logging
 
-from sqlalchemy import Column, Date, ForeignKey, Integer, MetaData, Table, Text, event
+from sqlalchemy import (
+    Column,
+    Date,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Text,
+)
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
@@ -30,7 +39,7 @@ projects = Table(
 jobs = Table(
     "jobs",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("id", Integer, primary_key=True, nullable=False, unique=True),
     Column("name", Text(NAME_SIZE), nullable=False),
     Column("project_id", Integer, ForeignKey("projects.id")),
 )

@@ -1,16 +1,16 @@
 """ Module defining the domain model entities.
 """
 from __future__ import annotations
-from typing import Optional
 
 import logging
 from enum import Enum
-from typing import List, Set, Dict
+from typing import Any, Dict, List, Optional, Set
+from uuid import UUID
 
 logger = logging.getLogger(__name__)
 
 
-class Status(Enum):
+class Status(str, Enum):
     """Enum for job progress."""
 
     PENDING = "Pending"
@@ -29,9 +29,9 @@ class Job:
     """TODO"""
 
     def __init__(self, id: int, name: str) -> None:
-        self.id = id
-        self.name = name
-        self._status = Status.PENDING
+        self.id: int = id
+        self.name: str = name
+        self._status: Status = Status.PENDING
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
@@ -45,7 +45,16 @@ class Job:
     @property
     def progress(self) -> int:
         # TODO: Calculate progress from number of frames completed in associated videos.
-        return 0
+        import random
+
+        return random.randrange(0, 100, 1)
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "status": self._status.value,
+            "progress": self.progress,
+        }
 
     def add_video(self, video: Video) -> bool:
         raise NotImplementedError
@@ -95,10 +104,10 @@ class Project:
     """
 
     def __init__(self, name: str, number: str, description: str) -> None:
-        self.name = name
-        self.number = number
-        self.description = description
-        self._jobs = dict()  # type: Dict[int, Job]
+        self.name: str = name
+        self.number: str = number
+        self.description: str = description
+        self.jobs: Dict[int, Job] = dict()
 
     def __str__(self):
         """Print class members."""
@@ -121,7 +130,7 @@ class Project:
     def __hash__(self) -> int:
         """Hash of object used in eg. `dict()` or `set()` to avoid duplicate."""
         return hash(
-            (self.name, self.number, self.description, frozenset(self._jobs))
+            (self.name, self.number, self.description, frozenset(self.jobs))
         )
 
     @classmethod
@@ -133,29 +142,40 @@ class Project:
             description=project_data["description"],
         )
 
+    def to_dict(self) -> Dict[str, Any]:
+        """Only an example method of a "named constructor"."""
+        return {
+            "name": self.name,
+            "number": self.number,
+            "description": self.description,
+            "jobs": self.jobs,
+        }
+
     @property
     def number_of_jobs(self) -> int:
         """Get number of jobs associated with project.
 
         Returns
         -------
-        int
-            Number of jobs in project
+            :   int
+                Number of jobs in project.
         """
-        return len(self._jobs)
+        return len(self.jobs)
 
     def add_job(self, job: Job) -> None:
-        """Add job to project
+        """Add job to project.
 
         Parameter
         ---------
         job     :   Job
                     Job to be added to project.
         """
-        if job.id in self._jobs.keys():
-            logger.log(logging.INFO, f"Attempted to add job with existing ID: {job.id}")
+        if job.id in self.jobs.keys():
+            logger.log(
+                logging.INFO, f"Attempted to add job with existing ID: {job.id}"
+            )
         else:
-            self._jobs[job.id] = job
+            self.jobs[job.id] = job
 
     def remove_job(self, id: int) -> bool:
         """Remove job from project
@@ -170,12 +190,11 @@ class Project:
         bool
             True if the job was successfully removed
         """
-        if id in self._jobs.keys():
-            del self._jobs[id]
+        if id in self.jobs.keys():
+            del self.jobs[id]
             return True
         else:
             return False
-
 
     def get_job(self, id: int) -> Optional[Job]:
         """Retrieve job from project
@@ -190,13 +209,14 @@ class Project:
         Optional[Job]
             Optional of type Job associated with the id
         """
-        if id in self._jobs.keys():
-            return self._jobs[id]
+        if id in self.jobs.keys():
+            return self.jobs[id]
         else:
             return None
 
     def get_jobs(self) -> list[Job]:
-        return list(self._jobs.values())
+        return list(self.jobs.values())
+
 
 class Scheduler:
     def __init__(self) -> None:
