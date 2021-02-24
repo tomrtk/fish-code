@@ -54,11 +54,13 @@ tests:
   before_script:
     - cd ${MODULE}
     - poetry install
+    - source .venv/bin/activate
+    - python3 --version
   script:
-    - poetry run pytest
-    - poetry run coverage -m pytest
-    - poetry run coverage xml
-    - poetry run coverage report
+    - pytest
+    - coverage -m pytest
+    - coverage xml
+    - coverage report
   allow_failure: true
   parallel:
     matrix:
