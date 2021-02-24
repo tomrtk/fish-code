@@ -63,7 +63,7 @@ class AbstractProjectRepository(abc.ABC):
         return self._list()
 
     @abc.abstractmethod
-    def _add(self, project: model.Project) -> None:
+    def _add(self, project: model.Project) -> int:
         raise NotImplementedError
 
     @abc.abstractmethod
