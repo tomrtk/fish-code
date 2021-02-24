@@ -8,11 +8,15 @@ ui_pipeline:
     include:
       - local: ui/ui-pipeline.yml
     strategy: depend
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-    - when: never
+  only:
+    changes:
+      - ui/*
+
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  #     changes:
+  #       - ui/*
+  #   - when: never
 
 # Publish new releases/tags when applicable from the commits
 release:
