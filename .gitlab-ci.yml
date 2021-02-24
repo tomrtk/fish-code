@@ -57,7 +57,7 @@ tests:
   script:
     - poetry run pytest
     - poetry run coverage -m pytest
-    - coverage xml
+    - poetry run coverage xml
     - poetry run coverage report
   allow_failure: true
   parallel:
