@@ -38,7 +38,6 @@ def get_runtime_repo(session=Depends(make_db)):
     try:
         yield sessionRepo
     finally:
-        print("Ferdig")
         sessionRepo.session.commit()
         sessionRepo.session.close()
 
@@ -67,6 +66,7 @@ class ProjectBase(BaseModel):
 
 
 class Project(ProjectBase):
+    id: int
     jobs: Dict[int, Job] = {}
 
     class Config:

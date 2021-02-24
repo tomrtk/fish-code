@@ -104,6 +104,7 @@ class Project:
     """
 
     def __init__(self, name: str, number: str, description: str) -> None:
+        self.id: int
         self.name: str = name
         self.number: str = number
         self.description: str = description
@@ -137,6 +138,7 @@ class Project:
     def from_dict(cls, project_data: dict) -> Project:
         """Only an example method of a "named constructor"."""
         return cls(
+            id=project_data["id"],
             name=project_data["name"],
             number=project_data["number"],
             description=project_data["description"],

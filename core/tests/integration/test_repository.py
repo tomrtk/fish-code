@@ -24,15 +24,15 @@ def test_add_project(sqlite_session_factory):
     )
 
     # Add projects into repository
-    repo.add(project1)
-    repo.add(project2)
-    repo.add(project2)
+    project1 = repo.add(project1)
+    project2 = repo.add(project2)
+    project3 = repo.add(project2)
 
     session.commit()
 
     # Check that projects in repository is the same as original
-    assert repo.get("ABC-123") == project1
-    assert repo.get("ABC-101") == project2
+    assert repo.get(1) == project1
+    assert repo.get(2) == project2
     assert repo.list() == [project1, project2]
     assert len(repo) == 2
 
@@ -57,14 +57,14 @@ def test_add_project_with_jobs(sqlite_session_factory):
     project2.add_job(model.Job(6, "Project 2: Test job 3"))
 
     # Add projects into repository
-    repo.add(project1)
-    repo.add(project2)
-    repo.add(project2)
+    project1 = repo.add(project1)
+    project2 = repo.add(project2)
+    project3 = repo.add(project2)
 
-    session.commit()
+    repo.session.commit()
 
     # Check that projects in repository is the same as original
-    assert repo.get("ABC-123") == project1
-    assert repo.get("ABC-101") == project2
+    assert repo.get(1) == project1
+    assert repo.get(2) == project2
     assert repo.list() == [project1, project2]
     assert len(repo) == 2

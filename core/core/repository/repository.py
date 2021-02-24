@@ -27,7 +27,7 @@ class AbstractProjectRepository(abc.ABC):
     def __init__(self) -> None:
         logger.debug("Project repository created")
 
-    def add(self, project: model.Project) -> None:
+    def add(self, project: model.Project) -> model.Project:
         """Add a project to repository.
 
         Parameters
@@ -35,8 +35,9 @@ class AbstractProjectRepository(abc.ABC):
         project :   Project
                     Project to add to repository.
         """
-        self._add(project)
+        result = self._add(project)
         logger.debug("Add project to repository")
+        return result
 
     def get(self, id: int) -> Optional[model.Project]:
         """Get a project from the project number.
@@ -63,7 +64,7 @@ class AbstractProjectRepository(abc.ABC):
         return self._list()
 
     @abc.abstractmethod
-    def _add(self, project: model.Project) -> None:
+    def _add(self, project: model.Project) -> model.Project:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -112,8 +113,10 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
         super().__init__()
         self.session = session
 
-    def _add(self, project: model.Project) -> None:
+    def _add(self, project: model.Project) -> model.Project:
         self.session.add(project)
+        self.session.flush()
+        return project
 
     def _get(self, id: int) -> Optional[model.Project]:
         result = self.session.query(model.Project).filter_by(id=id).first()

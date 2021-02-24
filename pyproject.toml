@@ -58,9 +58,11 @@ minversion = "6.0"
 addopts = "-ra -q"
 testpaths = [
     "ui/tests",
+    "core",
 ]
 
 [tool.coverage.run]
 source = [
     "ui/app",
+    "core",
 ]
