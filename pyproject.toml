@@ -18,9 +18,6 @@ python = "^3.7"
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"
 pip = "^21.0.1"
-pytest = "^6.2.2"
-pytest-cov = "^2.11.1"
-coverage = {extras = ["toml"], version = "^5.4"}
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -59,16 +56,3 @@ exclude = '''
 )/
 '''
 verbose = true
-
-# pyproject.toml
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "ui/tests",
-]
-
-[tool.coverage.run]
-source = [
-    "ui/app",
-]
