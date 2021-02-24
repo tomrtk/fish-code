@@ -9,15 +9,11 @@ style:
   script:
     - isort --check --diff .
     - black --check --diff .
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 docs:
   script:
     - pydocstyle
   allow_failure: true
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 pyright:
   before_script:
@@ -25,8 +21,6 @@ pyright:
   script:
     - poetry run pyright .
   allow_failure: true
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 tests:
   before_script:
@@ -37,5 +31,3 @@ tests:
   artifacts:
     reports:
       cobertura: coverage.xml
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
