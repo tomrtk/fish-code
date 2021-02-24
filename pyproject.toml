@@ -1,8 +1,16 @@
 [tool.poetry]
 name = "code"
 version = "0.1.0"
-description = ""
-authors = ["R0flcopt3r <12752060+R0flcopt3r@users.noreply.github.com>"]
+description = """
+Application to detect fish and generate a report viewable
+inside an iterface before being exported as raw data.
+"""
+authors = [
+"Birger Johan Nordølum",
+"Eirik Osland Lavik",
+"Kristian André Dahl Haugen",
+"Tom-Ruben Traavik Kvalvaag"
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"
