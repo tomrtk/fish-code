@@ -4,11 +4,13 @@ default:
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 style:
+  before_script:
+    - pwd
   script:
     - isort --check --diff .
     - black --check --diff .
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
 docs:
   script:
