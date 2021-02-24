@@ -55,7 +55,9 @@ tests:
     - cd ${MODULE}
     - poetry install
   script:
-    - poetry run pytest --cov --cov-report xml
+    - poetry run pytest
+    - poetry run coverage -m pytest
+    - coverage xml
     - poetry run coverage report
   allow_failure: true
   parallel:
