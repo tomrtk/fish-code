@@ -25,7 +25,6 @@ class AbstractProjectRepository(abc.ABC):
     """Abstract project repository defining minimum API of repository."""
 
     def __init__(self) -> None:
-        self.cache = set()  # type: Set[model.Project]
         logger.debug("Project repository created")
 
     def add(self, project: model.Project) -> None:
@@ -37,7 +36,6 @@ class AbstractProjectRepository(abc.ABC):
                     Project to add to repository.
         """
         self._add(project)
-        self.cache.add(project)
         logger.debug("Add project to repository")
 
     def get(self, number: str) -> Optional[model.Project]:
@@ -55,7 +53,6 @@ class AbstractProjectRepository(abc.ABC):
         """
         project = self._get(number)
         if project:
-            self.cache.add(project)
             logger.debug("Get project with number %s")
         else:
             logger.info("Project with number %s not found", number)
