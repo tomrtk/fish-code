@@ -3,14 +3,16 @@ default:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
 style:
   before_script:
     - pwd
   script:
     - isort --check --diff .
     - black --check --diff .
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
 
 docs:
   script:
