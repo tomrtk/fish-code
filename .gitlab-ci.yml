@@ -45,16 +45,26 @@ pyright:
           - ml
           - tracing
           - ui
+          - core
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
 
 tests:
   before_script:
+    - cd ${MODULE}
     - poetry install
   script:
     - poetry run pytest --cov --cov-report xml
     - poetry run coverage report
+  allow_failure: true
+  parallel:
+    matrix:
+      - MODULE:
+          - ml
+          - tracing
+          - ui
+          - core
   artifacts:
     reports:
       cobertura: coverage.xml
