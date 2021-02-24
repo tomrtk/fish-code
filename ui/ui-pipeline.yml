@@ -9,9 +9,6 @@ style:
     - black --check --diff .
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-    - when: never
 
 docs:
   script:
@@ -19,9 +16,6 @@ docs:
   allow_failure: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-    - when: never
 
 pyright:
   before_script:
@@ -31,9 +25,6 @@ pyright:
   allow_failure: true
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-    - when: never
 
 tests:
   before_script:
@@ -46,6 +37,3 @@ tests:
       cobertura: coverage.xml
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-    - when: never
