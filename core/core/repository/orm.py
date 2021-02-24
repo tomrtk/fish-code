@@ -21,18 +21,17 @@ metadata = MetaData()
 projects = Table(
     "projects",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("project_id", Integer, primary_key=True, autoincrement=True),
     Column("name", Text(NAME_SIZE), nullable=False),
-    Column("number", Text(NAME_SIZE), nullable=False, unique=True),
     Column("description", Text(DESCRIPTION_SIZE)),
 )
 
 jobs = Table(
     "jobs",
     metadata,
-    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("job_id", Integer, primary_key=True, autoincrement=True),
     Column("name", Text(NAME_SIZE), nullable=False),
-    Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("project_id", Integer, ForeignKey("projects.project_id")),
 )
 
 
@@ -47,7 +46,7 @@ def start_mappers():
         properties={
             "_jobs": relationship(
                 jobs_mapper,
-                collection_class=attribute_mapped_collection("id"),
+                collection_class=set,
                 cascade="all, delete",
             )
         },

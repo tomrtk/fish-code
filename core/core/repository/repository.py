@@ -38,7 +38,7 @@ class AbstractProjectRepository(abc.ABC):
         self._add(project)
         logger.debug("Add project to repository")
 
-    def get(self, number: str) -> Optional[model.Project]:
+    def get(self, project_id: int) -> Optional[model.Project]:
         """Get a project from the project number.
 
         Parameters
@@ -51,7 +51,7 @@ class AbstractProjectRepository(abc.ABC):
             : Optional[Project]
             Project with corresponding number if found.
         """
-        project = self._get(number)
+        project = self._get(project_id)
         if project:
             logger.debug("Get project with number %s")
         else:
@@ -115,9 +115,11 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
     def _add(self, project: model.Project) -> None:
         self.session.add(project)
 
-    def _get(self, number: str) -> Optional[model.Project]:
+    def _get(self, project_id: int) -> Optional[model.Project]:
         result = (
-            self.session.query(model.Project).filter_by(number=number).first()
+            self.session.query(model.Project)
+            .filter_by(project_id=project_id)
+            .first()
         )
 
         return result

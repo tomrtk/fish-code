@@ -5,17 +5,17 @@ from core.model import Job, Project
 
 @pytest.fixture
 def make_test_project():
-    project = Project("Test name", "Test project number", "Test description")
-    project.add_job(Job(1, "Test job name 1"))
-    project.add_job(Job(2, "Test job name 2"))
-    project.add_job(Job(3, "Test job name 3"))
+    project = Project("Test name", "Test description")
+    project.add_job(Job("Test job name 1"))
+    project.add_job(Job("Test job name 2"))
+    project.add_job(Job("Test job name 3"))
     yield project
 
 
 def test_make_project_and_add_job(make_test_project):
     project = make_test_project
-    project.add_job(Job(1, "Test job name 1"))
-    project.add_job(Job(4, "This test is new"))
+    project.add_job(Job("Test job name 1"))
+    project.add_job(Job("This test is new"))
 
     assert project.number_of_jobs == 4
 
