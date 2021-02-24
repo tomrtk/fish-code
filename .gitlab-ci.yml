@@ -58,7 +58,7 @@ tests:
     - python3 --version
   script:
     - pytest
-    - coverage -m pytest
+    - coverage run -m pytest
     - coverage xml
     - coverage report
   allow_failure: true
