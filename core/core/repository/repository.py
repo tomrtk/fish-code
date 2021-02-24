@@ -53,9 +53,9 @@ class AbstractProjectRepository(abc.ABC):
         """
         project = self._get(project_id)
         if project:
-            logger.debug("Get project with number %s")
+            logger.debug("Get project with number %s", project_id)
         else:
-            logger.info("Project with number %s not found", number)
+            logger.info("Project with id %s not found", project_id)
         return project
 
     def list(self) -> List[model.Project]:
@@ -110,10 +110,12 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
 
     def __init__(self, session: Session) -> None:
         super().__init__()
+        logger.debug("Repository initialised")
         self.session = session
 
     def _add(self, project: model.Project) -> None:
         self.session.add(project)
+        logger.debug("Added project '%s' to repository", project.name)
 
     def _get(self, project_id: int) -> Optional[model.Project]:
         result = (
