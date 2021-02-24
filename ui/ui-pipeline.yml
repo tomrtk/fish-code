@@ -1,11 +1,16 @@
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+variables:
+  CHILD_PWD: "ui"
+
 default:
   tags:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
-
-workflow:
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
+  before_script:
+    - cd $CHILD_PWD
 
 style:
   before_script:
