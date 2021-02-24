@@ -10,8 +10,7 @@ style:
     - isort --check --diff .
     - black --check --diff .
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: on_success
+    - if: $CI_MERGE_REQUEST_ID
 
 docs:
   script:

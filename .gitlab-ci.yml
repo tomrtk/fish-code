@@ -13,10 +13,9 @@ ui_pipeline:
     include:
       - local: ui/ui-pipeline.yml
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-        - ui/*
-      when: on_success
+    - if: $CI_MERGE_REQUEST_ID
+      # changes:
+      #   - ui/*
 
 # Publish new releases/tags when applicable from the commits
 release:
