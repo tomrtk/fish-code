@@ -9,23 +9,25 @@ default:
   tags:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
-  before_script:
-    - cd $CHILD_PWD
 
 style:
   before_script:
+    - cd $CHILD_PWD
     - pwd
   script:
     - isort --check --diff .
     - black --check --diff .
 
 docs:
+  before_script:
+    - cd $CHILD_PWD
   script:
     - pydocstyle
   allow_failure: true
 
 pyright:
   before_script:
+    - cd $CHILD_PWD
     - poetry install
   script:
     - poetry run pyright .
@@ -33,6 +35,7 @@ pyright:
 
 tests:
   before_script:
+    - cd $CHILD_PWD
     - poetry install
   script:
     - poetry run pytest --cov --cov-report xml
