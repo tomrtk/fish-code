@@ -1,0 +1,31 @@
+default:
+  tags:
+    - bachelor
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+style:
+  script:
+    - isort --check --diff .
+    - black --check --diff .
+
+docs:
+  script:
+    - pydocstyle
+  allow_failure: true
+
+pyright:
+  before_script:
+    - poetry install
+  script:
+    - poetry run pyright .
+  allow_failure: true
+
+tests:
+  before_script:
+    - poetry install
+  script:
+    - poetry run pytest --cov --cov-report xml
+    - poetry run coverage report
+  artifacts:
+    reports:
+      cobertura: coverage.xml
