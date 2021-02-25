@@ -138,7 +138,6 @@ class Project:
     def from_dict(cls, project_data: dict) -> Project:
         """Only an example method of a "named constructor"."""
         return cls(
-            id=project_data["id"],
             name=project_data["name"],
             number=project_data["number"],
             description=project_data["description"],
