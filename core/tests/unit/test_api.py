@@ -8,7 +8,10 @@ from core.repository.orm import metadata, start_mappers
 
 
 def make_test_db():
-    engine = create_engine("sqlite:///:memory:")
+    engine = create_engine(
+        "sqlite:///:memory:",
+        connect_args={"check_same_thread": False},
+    )
     metadata.create_all(engine)
     session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     start_mappers()
