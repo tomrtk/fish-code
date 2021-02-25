@@ -30,7 +30,7 @@ pyright:
     - cd $CHILD_PWD
     - poetry install
   script:
-    - poetry run pyright .
+    - pyright .
   allow_failure: true
 
 tests:
