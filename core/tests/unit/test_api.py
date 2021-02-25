@@ -8,10 +8,7 @@ from core.repository.orm import metadata, start_mappers
 
 
 def make_test_db():
-    engine = create_engine(
-        "sqlite:///:memory:",
-        connect_args={"check_same_thread": False},
-    )
+    engine = create_engine("sqlite:///:memory:")
     metadata.create_all(engine)
     session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     start_mappers()
@@ -22,7 +19,6 @@ def make_test_db():
 
 
 core.dependency_overrides[make_db] = make_test_db
-client = TestClient(core)
 
 
 def test_get_projects():
@@ -44,6 +40,7 @@ def test_post_project():
         )
         assert response.status_code == 200
         response = response.json()
+        print(response)
         assert response == {
             "id": 1,
             "name": "Project name",
