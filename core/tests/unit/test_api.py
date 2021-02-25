@@ -26,25 +26,28 @@ client = TestClient(core)
 
 
 def test_get_projects():
-    response = client.get("/projects/")
+    with TestClient(core) as client:
+        response = client.get("/projects/")
 
-    assert response.status_code == 200
+        assert response.status_code == 200
 
 
 def test_post_project():
-    response = client.post(
-        "/projects/",
-        json={
+    with TestClient(core) as client:
+        response = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
+        )
+        assert response.status_code == 200
+        response = response.json()
+        assert response == {
+            "id": 1,
             "name": "Project name",
             "number": "AB-123",
             "description": "A project description",
-        },
-    )
-    assert response.status_code == 200
-    assert response.json() == {
-        "id": 1,
-        "name": "Project name",
-        "number": "AB-123",
-        "description": "A project description",
-        "jobs": {},
-    }
+            "jobs": {},
+        }
