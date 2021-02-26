@@ -38,6 +38,10 @@ class AbstractProjectRepository(abc.ABC):
         self._add(project)
         logger.debug("Add project to repository")
 
+    def save(self) -> None:
+        """Saves the current state of the repository"""
+        self._save()
+
     def get(self, project_id: int) -> Optional[model.Project]:
         """Get a project from the project number.
 
@@ -64,6 +68,10 @@ class AbstractProjectRepository(abc.ABC):
 
     @abc.abstractmethod
     def _add(self, project: model.Project) -> int:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def _save(self) -> None:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -116,6 +124,9 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
     def _add(self, project: model.Project) -> None:
         self.session.add(project)
         logger.debug("Added project '%s' to repository", project.name)
+
+    def _save(self):
+        self.session.commit()
 
     def _get(self, project_id: int) -> Optional[model.Project]:
         result = (

@@ -64,3 +64,32 @@ def test_add_project_with_jobs(sqlite_session_factory):
     assert repo.get(2) == project2
     assert repo.list() == [project1, project2]
     assert len(repo) == 2
+
+
+def test_save_project(sqlite_session_factory):
+    # Create a db session
+    session1 = sqlite_session_factory()
+    # Create a project repository
+    repo1 = SqlAlchemyProjectRepository(session1)
+
+    project1 = model.Project("DB test", "Test prosjekt")
+    project1.add_job(model.Job("Project 1: Test job 1"))
+    project1.add_job(model.Job("Project 1: Test job 2"))
+
+    repo1.add(project1)
+    project_get = repo1.get(1)
+
+    assert project_get != None
+    assert project_get.project_id == 1
+
+    project_get.description = "Changed description"
+    repo1.save()
+    session1.close()
+
+    session2 = sqlite_session_factory()
+    repo2 = SqlAlchemyProjectRepository(session2)
+
+    project_after = repo2.get(1)
+    assert project_after.description == "Changed description"
+    assert project_after.project_id == 1
+    assert hex(id(project_get)) != hex(id(project_after))
