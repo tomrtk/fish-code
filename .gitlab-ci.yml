@@ -12,10 +12,12 @@ ui_pipeline:
   trigger:
     include:
       - local: ui/ui-pipeline.yml
+    strategy: depend
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
         - ui/*
+
 
 # Publish new releases/tags when applicable from the commits
 release:
