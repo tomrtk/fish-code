@@ -33,18 +33,31 @@ pyright:
     - poetry run pyright .
   allow_failure: true
 
-tests:
+# tests:
+#   before_script:
+#     - cd $CHILD_PWD
+#     - poetry config experimental.new-installer false
+#     - poetry install
+#     - source .venv/bin/activate
+#     - python3 --version
+#   script:
+#     - pytest
+#     - coverage run -m pytest
+#     - coverage xml
+#     - coverage report
+#   artifacts:
+#     reports:
+#       cobertura: $CHILD_PWD/coverage.xml
+
+testtox:
   before_script:
     - cd $CHILD_PWD
-    - poetry config experimental.new-installer false
-    - poetry install
-    - source .venv/bin/activate
+    # - poetry config experimental.new-installer false
+    # - poetry install
+    # - source .venv/bin/activate
     - python3 --version
   script:
-    - pytest
-    - coverage run -m pytest
-    - coverage xml
-    - coverage report
+    - tox
   artifacts:
     reports:
       cobertura: $CHILD_PWD/coverage.xml
