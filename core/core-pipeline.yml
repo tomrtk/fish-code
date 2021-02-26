@@ -55,6 +55,7 @@ testtox:
     # - poetry config experimental.new-installer false
     # - poetry install
     # - source .venv/bin/activate
+    - pip install tox
     - python3 --version
   script:
     - tox
