@@ -21,13 +21,6 @@ pydocstyle = "^5.1.1"
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.coverage.run]
-omit = [
-    "*/.local/*",
-    "*/.cache/*",
-    "*/__init__.py",
-    ]
-
 [tool.isort]
 profile = "black"
 multi_line_output = 3
@@ -60,3 +53,15 @@ exclude = '''
 )/
 '''
 verbose = true
+
+[tool.coverage.run]
+source = [
+    "core",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]

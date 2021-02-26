@@ -3,57 +3,33 @@ default:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
-# .lint_job: &lint_job
-# .test_job: &test_job
+stages:
+  - test
+  - release
 
-style:
-  script:
-    - isort --check --diff .
-    - black --check --diff .
+ui_pipeline:
+  stage: test
+  trigger:
+    include:
+      - local: ui/ui-pipeline.yml
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: false
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - ui/*
 
-docs:
-  script:
-    - pydocstyle
+core_pipeline:
+  stage: test
+  trigger:
+    include:
+      - local: core/core-pipeline.yml
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-
-pyright:
-  before_script:
-    - cd ${MODULE}
-    - poetry install
-    - source .venv/bin/activate
-  script:
-    - pyright .
-  allow_failure: true
-  parallel:
-    matrix:
-      - MODULE:
-          - ml
-          - tracing
-          - ui
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-
-tests:
-  before_script:
-    - poetry install
-  script:
-    - poetry run pytest --cov --cov-report xml
-    - poetry run coverage report
-  artifacts:
-    reports:
-      cobertura: coverage.xml
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - core/*
 
 # Publish new releases/tags when applicable from the commits
 release:
-  stage: .post
+  stage: release
   script:
     - semantic-release
   only:
