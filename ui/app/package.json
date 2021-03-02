@@ -3,12 +3,11 @@
     "compile-css": "postcss styles.css -o static/styles.min.css",
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
-  "dependencies": {
-    "tailwindcss": "2.0.2"
-  },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.2.1",
     "autoprefixer": "10.2.4",
     "postcss": "8.2.4",
-    "postcss-cli": "8.3.1"
+    "postcss-cli": "8.3.1",
+    "tailwindcss": "^2.0.3"
   }
 }

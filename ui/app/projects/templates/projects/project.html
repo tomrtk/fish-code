@@ -1,0 +1,171 @@
+{% extends "base.html" %} {% block main %}
+<main class="container flex flex-col mx-auto p-8">
+  <div class="border-b-2 mb-4">
+    <ul class="">
+      <li class="inline">
+        <a href="{{ url_for('index') }}">Home</a>
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">
+        <a
+          href="{{ url_for('projects_bp.projects_index')
+                                  }}"
+          >Projects</a
+        >
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">Vårflom i Mjøsa</li>
+    </ul>
+  </div>
+  <div class="text-center">
+    <h2 class="py-1 mb-3 text-3xl relative">
+      Vårflom i Mjøsa
+      <span class="absolute right-2 text-lg text-gray-500 italic"
+        >#2324234</span
+      >
+    </h2>
+
+    <div class="mx-auto flex flex-row mb-2 w-4/5">
+      <div class="w-2/5 mr-8">
+        <div class="group rounded shadow-lg relative">
+          <a
+            class="w-full absolute inset-x-0 top-0 hidden group-hover:inline-block py-1 text-white group-hover:bg-black group-hover:bg-opacity-50"
+            href="/"
+          >
+            Change picture
+          </a>
+          <img
+            class="object-contain"
+            src="{{ url_for('static', filename='nemo.png') }}"
+            alt="Project Logo"
+          />
+        </div>
+      </div>
+      <div class="w-3/5 text-left">
+        <p class="mb-4 text-justify">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non
+          scelerisque tellus. Quisque porttitor rhoncus nulla eget gravida.
+          Nullam non purus mauris. Proin ac odio ornare lacus pulvinar
+          ullamcorper consectetur in justo. Aliquam a urna quam. Vestibulum sem
+          lectus, scelerisque non nulla a, ultricies rutrum lacus. Ut non
+          vehicula turpis.
+        </p>
+        <div class="flex flex-row">
+          <div class="w-1/2">
+            <!-- <div class="flex flex-row"> -->
+            <!--   <span class="inline-block w-16">Nummer</span>2324234 -->
+            <!-- </div> -->
+            <div class="">
+              <span class="inline-block w-16">Location</span>Mjøsa, Glomma,
+              Lågen, ...
+            </div>
+            <div>
+              <span class="inline-block w-16">Date</span
+              ><time datetime="2018-07-07">July 7 2020 - ...</time>
+            </div>
+          </div>
+          <div class="w-1/2">
+            <div><span class="inline-block w-16">Job Count</span>45</div>
+            <div class="flex flex-row items-center">
+              <span class="inline-block w-16">Aktiv</span>
+              <span class="text-green-600"> Ja </span>
+            </div>
+            <!-- <div><span>Klasser</span>Mort, Abbor, Vedebuk</div> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="flex-none text-center">
+    <h3 class="py-1 mb-3 text-2xl border-b">Jobs</h3>
+  </div>
+  <nav class="flex flex-none justify-end mb-4">
+    <a
+      class="transition duration-1000 transform hover:rotate-90 rounded-full p-2 bg-gray-100 shadow border border-gray-200 hover:bg-gray-200 flex flex-row items-center"
+      href="{{ url_for('projects_bp.projects_job_new', project_id = 0) }}"
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+        ></path>
+      </svg>
+    </a>
+  </nav>
+  <div class="">
+    <div
+      class="w-1/3 border border-gray-200 p-3 rounded-md shadow-lg bg-gray-100"
+    >
+      <div>
+        <div class="mb-2 relative">
+          <h3
+            class="text-xl font-medium mb-1 truncate flex flex-row justify-between"
+          >
+            Helgevideo
+            <span class="text-gray-500 italic right text-sm absolute right-1"
+              >#100</span
+            >
+          </h3>
+          <div><span class="inline-block w-16">Locations</span>Lågen</div>
+          <div>
+            <span class="inline-block w-16">Date</span
+            ><time datetime="2018-07-07">July 7 2020 - Aug 18 2020</time>
+          </div>
+          <div class="flex flex-row items-center">
+            <span class="inline-block w-16">Status</span>
+            <span class="text-green-600">Ikke begynt</span>
+          </div>
+          <div><span>Classes</span>Abbor, Mort, Stingsild, Vedebuk</div>
+          <div><span>Observations</span>3000</div>
+        </div>
+        <div class="flex flex-row justify-end">
+          <a
+            class="text-white py-1 px-3 border-2 border-blue-500 rounded bg-blue-500 hover:bg-blue-200 hover:border-2 hover:text-black"
+            href="{{ url_for('projects_bp.projects_job', project_id = 1, job_id
+                = 1) }}"
+            >Open</a
+          >
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}
