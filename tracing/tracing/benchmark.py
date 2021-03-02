@@ -11,7 +11,7 @@ import skimage.io as io
 from pycocotools.coco import COCO
 from sort import sort
 
-from . import tracker
+from tracing import tracker
 
 
 def count_SORT(tracks: List[Any]):
