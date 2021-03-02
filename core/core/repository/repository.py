@@ -39,7 +39,7 @@ class AbstractProjectRepository(abc.ABC):
         logger.debug("Add project to repository")
 
     def save(self) -> None:
-        """Saves the current state of the repository"""
+        """Save the current state of the repository."""
         self._save()
 
     def get(self, project_id: int) -> Optional[model.Project]:

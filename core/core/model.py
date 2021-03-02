@@ -1,5 +1,4 @@
-""" Module defining the domain model entities.
-"""
+"""Module defining the domain model entities."""
 from __future__ import annotations
 
 import logging
@@ -19,13 +18,15 @@ class Status(Enum):
 
 
 class Video:
-    """TODO"""
+    """TODO."""
 
     def __init__(self) -> None:
         pass
 
 
 class Job:
+    """Class representation of a job."""
+
     def __init__(self, name: str) -> None:
         self._status = Status.PENDING
         self.name = name
@@ -35,35 +36,39 @@ class Job:
         return hash(self.name)
 
     def __eq__(self, other) -> bool:
+        """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
         return self.name == other.name
 
     def add_video(self, video: Video) -> bool:
+        """Add a video to this job in order to be processed."""
         raise NotImplementedError
 
     def remove_video(self, video_id: int) -> bool:
+        """Remove an existing video from this job."""
         raise NotImplementedError
 
     def list_videos(self) -> List[Video]:
+        """Retrieve a list of all videos in this job."""
         raise NotImplementedError
 
     def status(self) -> Status:
-        """Gets the job status for this job"""
+        """Get the job status for this job."""
         return self._status
 
     def start(self) -> None:
-        """Marks the job as started"""
+        """Mark the job as started."""
         logger.debug("Job '%s' starting", self.name)
         self._status = Status.RUNNING
 
     def pause(self) -> None:
-        """Marks the job as paused"""
+        """Mark the job as paused."""
         logger.debug("Job '%s' paused", self.name)
         self._status = Status.PAUSED
 
     def complete(self) -> None:
-        """Marks the job as completed"""
+        """Mark the job as completed."""
         logger.debug("Job '%s' marked as completed", self.name)
         self._status = Status.DONE
 
@@ -141,7 +146,7 @@ class Project:
         return len(self._jobs)
 
     def add_job(self, job: Job) -> None:
-        """Add job to project
+        """Add job to project.
 
         Parameter
         ---------
@@ -157,7 +162,7 @@ class Project:
             self._jobs.add(job)
 
     def get_jobs(self):
-        """Gets all jobs from the project
+        """Retrieve all jobs from the project.
 
         Returns
         -------
@@ -167,7 +172,7 @@ class Project:
         return list(self._jobs)
 
     def remove_job(self, job: Job) -> bool:
-        """Remove job from project
+        """Remove job from project.
 
         Parameters
         ----------
@@ -192,8 +197,11 @@ class Project:
 
 
 class Scheduler:
+    """Scheduler to orchestrate jobs across projects."""
+
     def __init__(self) -> None:
         self._jobs = set()  # type: Set[Job]
 
     def add_job(self, job: Job) -> None:
+        """Add a job to the scheduler to be processed."""
         self._jobs.add(job)
