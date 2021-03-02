@@ -80,7 +80,6 @@ def test_save_project(sqlite_session_factory):
     project_get = repo1.get(1)
 
     assert project_get != None
-    assert project_get.project_id == 1
 
     project_get.description = "Changed description"
     repo1.save()
@@ -90,6 +89,6 @@ def test_save_project(sqlite_session_factory):
     repo2 = SqlAlchemyProjectRepository(session2)
 
     project_after = repo2.get(1)
+    assert project_after != None
     assert project_after.description == "Changed description"
-    assert project_after.project_id == 1
     assert hex(id(project_get)) != hex(id(project_after))
