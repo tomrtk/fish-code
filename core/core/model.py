@@ -14,6 +14,7 @@ class Status(Enum):
 
     PENDING = "Pending"
     RUNNING = "Running"
+    PAUSED = "Paused"
     DONE = "Done"
 
 
@@ -25,9 +26,8 @@ class Video:
 
 
 class Job:
-    """TODO"""
-
     def __init__(self, name: str) -> None:
+        self._status = Status.PENDING
         self.name = name
 
     def __hash__(self) -> int:
@@ -48,11 +48,24 @@ class Job:
     def list_videos(self) -> List[Video]:
         raise NotImplementedError
 
-    def start(self) -> None:
-        raise NotImplementedError
+    def status(self) -> Status:
+        """Gets the job status for this job"""
+        return self._status
 
-    def stop(self) -> None:
-        raise NotImplementedError
+    def start(self) -> None:
+        """Marks the job as started"""
+        logger.debug("Job '%s' starting", self.name)
+        self._status = Status.RUNNING
+
+    def pause(self) -> None:
+        """Marks the job as paused"""
+        logger.debug("Job '%s' paused", self.name)
+        self._status = Status.PAUSED
+
+    def complete(self) -> None:
+        """Marks the job as completed"""
+        logger.debug("Job '%s' marked as completed", self.name)
+        self._status = Status.DONE
 
 
 class Project:

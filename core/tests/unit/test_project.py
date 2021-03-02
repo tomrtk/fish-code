@@ -1,6 +1,6 @@
 import pytest
 
-from core.model import Job, Project
+from core.model import Job, Project, Status
 
 
 @pytest.fixture
@@ -40,3 +40,15 @@ def test_remove_job(make_test_project):
     project.add_job(jobs[1])
 
     assert len(project.get_jobs()) == 3
+
+
+def test_status_job():
+    job = Job("test")
+
+    assert job.status() == Status.PENDING
+    job.start()
+    assert job.status() == Status.RUNNING
+    job.pause()
+    assert job.status() == Status.PAUSED
+    job.complete()
+    assert job.status() == Status.DONE
