@@ -5,17 +5,17 @@ from core.model import Job, Project, Status
 
 @pytest.fixture
 def make_test_project() -> Project:
-    project = Project("Test name", "Test description")
-    project.add_job(Job("Test job name 1"))
-    project.add_job(Job("Test job name 2"))
-    project.add_job(Job("Test job name 3"))
+    project = Project("Test name", "NINA-123", "Test description")
+    project.add_job(Job("Test job name 1", "Test description 1"))
+    project.add_job(Job("Test job name 2", "Test description 2"))
+    project.add_job(Job("Test job name 3", "Test description 3"))
     return project
 
 
 def test_make_project_and_add_job(make_test_project):
     project = make_test_project
-    project.add_job(Job("Test job name 1"))
-    project.add_job(Job("This test is new"))
+    project.add_job(Job("Test job name 1", "Test description 1"))
+    project.add_job(Job("This test is new", "Test description 2"))
 
     assert project.number_of_jobs == 4
 
@@ -43,7 +43,7 @@ def test_remove_job(make_test_project):
 
 
 def test_status_job():
-    job = Job("test")
+    job = Job("test", "test description")
 
     assert job.status() == Status.PENDING
     job.start()

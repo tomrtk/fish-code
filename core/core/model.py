@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import List, Set
+from typing import List, Optional, Set
 
 logger = logging.getLogger(__name__)
 
 
-class Status(Enum):
+class Status(str, Enum):
     """Enum for job progress."""
 
     PENDING = "Pending"
@@ -27,19 +27,33 @@ class Video:
 class Job:
     """Class representation of a job."""
 
-    def __init__(self, name: str) -> None:
-        self._status = Status.PENDING
-        self.name = name
+    def __init__(
+        self, name: str, description: str, status: Status = Status.PENDING
+    ) -> None:
+        self.id: Optional[int] = None
+        self.name: str = name
+        self.description: str = description
+        self._status: Status = status
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
-        return hash(self.name)
+        return hash((type(self),) + tuple(self.__dict__.values()))
 
     def __eq__(self, other) -> bool:
         """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
-        return self.name == other.name
+        if self.id:
+            return (
+                self.name == other.name
+                and self.description == other.description
+                and other.id == self.id
+            )
+        return self.name == other.name and self.description == other.description
+
+    def __repr__(self):
+        """Override of default __repr__. Gives object representation as a string."""
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     def add_video(self, video: Video) -> bool:
         """Add a video to this job in order to be processed."""
@@ -81,6 +95,8 @@ class Project:
 
     Parameters
     ----------
+    id      :   int
+            Project internal id number
     name    :   str
             Project name
     number  :   str
@@ -104,10 +120,12 @@ class Project:
         Returns a list of associated _jobs_.
     """
 
-    def __init__(self, name: str, description: str) -> None:
-        self.name = name
-        self.description = description
-        self._jobs = set()
+    def __init__(self, name: str, number: str, description: str) -> None:
+        self.id: int
+        self.name: str = name
+        self.number: str = number
+        self.description: str = description
+        self._jobs: Set[Job] = set()
 
     def __str__(self):
         """Print class members."""
@@ -120,17 +138,27 @@ class Project:
         """
         if not isinstance(other, Project):
             return False
-        return other.name == self.name and other.description == self.description
+        return (
+            other.id == self.id
+            and other.name == self.name
+            and other.description == self.description
+            and other.number == self.number
+        )
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `dict()` or `set()` to avoid duplicate."""
-        return hash((self.name, self.description, frozenset(self._jobs)))
+        return hash((type(self),) + tuple(self.__dict__.values()))
+
+    def __repr__(self):
+        """Override of default __repr__. Gives object representation as a string."""
+        return str(self.__class__) + ": " + str(self.__dict__)
 
     @classmethod
     def from_dict(cls, project_data: dict) -> Project:
         """Only an example method of a "named constructor"."""
         return cls(
             name=project_data["name"],
+            number=project_data["number"],
             description=project_data["description"],
         )
 
@@ -145,7 +173,7 @@ class Project:
         """
         return len(self._jobs)
 
-    def add_job(self, job: Job) -> None:
+    def add_job(self, job: Job) -> Project:
         """Add job to project.
 
         Parameter
@@ -160,6 +188,7 @@ class Project:
         else:
             logger.debug("Added job '%s' to project", job.name)
             self._jobs.add(job)
+        return self
 
     def get_jobs(self):
         """Retrieve all jobs from the project.
