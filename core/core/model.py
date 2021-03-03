@@ -29,6 +29,7 @@ class Video:
         pass
 
     def exists(self) -> bool:
+        """Checks if the file path is a valid file."""
         return os.path.isfile(self._path)
 
     def num_frames(self) -> int:
