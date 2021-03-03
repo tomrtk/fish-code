@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import pytest
+
 from tracing.tracker import BBox, Detection, Object
 
 
