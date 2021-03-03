@@ -11,7 +11,7 @@ api = "tracing.main:main"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-sort = { git = "https://github.com/R0flcopt3r/sort"}
+sort = { git = "https://github.com/R0flcopt3r/sort" }
 fastapi = "^0.63.0"
 uvicorn = "^0.13.4"
 pydantic = "^1.8"
@@ -25,15 +25,20 @@ matplotlib = "^3.3.4"
 numpy = "^1.20.1"
 debugpy = "^1.2.1"
 mypy = "^0.800"
+coverage = {extras = ["toml"], version = "^5.5"}
+pytest-cov = "^2.11.1"
+isort = "^5.7.0"
+black = "^20.8b1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.isort]
-line_length = 80
 profile = "black"
+line_length = 80
 multi_line_output = 3
+src_paths=["tracing", "tests"]
 
 [tool.black]
 line-length = 80
@@ -62,3 +67,15 @@ exclude = '''
     | README.md
 )/
 '''
+
+[tool.coverage.run]
+source = [
+    "tracing",
+]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
