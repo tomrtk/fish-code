@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os.path
 from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Set
@@ -19,10 +20,14 @@ class Status(str, Enum):
 
 
 class Video:
-    """TODO."""
+    """Class associated with one video file."""
 
-    def __init__(self) -> None:
+    def __init__(self, path: str) -> None:
+        self._path = path
         pass
+
+    def exists(self) -> bool:
+        return os.path.isfile(self._path)
 
 
 @dataclass
