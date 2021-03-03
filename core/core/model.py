@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Set
 
+from cv2 import cv2
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,6 +30,15 @@ class Video:
 
     def exists(self) -> bool:
         return os.path.isfile(self._path)
+
+    def num_frames(self) -> int:
+        """Provide number of frames in a video. Returns 0 if file is not found."""
+        try:
+            cap = cv2.VideoCapture(self._path)
+            return int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        except cv2.error:
+            logger.debug("Could not read frame count in video '%s'", self._path)
+            return 0
 
 
 @dataclass
