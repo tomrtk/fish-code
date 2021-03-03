@@ -64,3 +64,13 @@ def test_object_to_dict(detection):
         ],
         "label": 1,
     } == obj.to_dict()
+
+
+def test_object_to_dict_no_detect():
+    obj = Object(1)
+
+    assert {
+        "track_id": 1,
+        "detections": [],
+        "label": None,
+    } == obj.to_dict()
