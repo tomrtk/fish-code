@@ -1,0 +1,175 @@
+{% extends "base.html" %} {% block main %}
+<main class="container flex flex-col mx-auto p-8">
+  <div class="border-b-2 mb-4">
+    <ul class="">
+      <li class="inline">
+        <a href="{{ url_for('index') }}">Home</a>
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">
+        <a
+          href="{{ url_for('projects_bp.projects_index')
+                                  }}"
+          >Projects</a
+        >
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <a
+        href="{{ url_for('projects_bp.projects_project', project_id=1)
+                                  }}"
+        >Vårflom i Mjøsa</a
+      >
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">Job 1</li>
+    </ul>
+  </div>
+  <div class="flex-none text-center relative">
+    <h3 class="py-1 mb-3 text-2xl">
+      Job 1<span class="absolute right-2 text-lg text-gray-500 italic"
+        >#303030</span
+      >
+    </h3>
+  </div>
+  <div>
+    <div class="mx-auto w-3/5 text-left mb-8">
+      <p class="mb-4 pb-2 border-b-2">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non
+        scelerisque tellus. Quisque porttitor rhoncus nulla eget gravida. Nullam
+        non purus mauris. Proin ac odio ornare lacus pulvinar ullamcorper
+        consectetur in justo. Aliquam a urna quam. Vestibulum sem lectus,
+        scelerisque non nulla a, ultricies rutrum lacus. Ut non vehicula turpis.
+      </p>
+      <div class="flex flex-row mb-4 pb-2 border-b-2">
+        <div class="w-1/2">
+          <div class="flex flex-row">
+            <span class="inline-block w-16">Nummer</span>2324234
+          </div>
+          <div class="">
+            <span class="inline-block w-16">Sted</span>Mjøsa, Glomma, Lågen, ...
+          </div>
+          <div>
+            <span class="inline-block w-16">Dato</span
+            ><time datetime="2018-07-07">July 7</time>
+          </div>
+        </div>
+        <div class="w-1/2">
+          <div><span class="inline-block w-16">Video</span>100</div>
+          <div class="flex flex-row items-center">
+            <span class="inline-block w-16">Aktiv</span>
+            <span class="text-green-600"> Ja </span>
+          </div>
+          <!-- <div><span>Klasser</span>Mort, Abbor, Vedebuk</div> -->
+        </div>
+      </div>
+      <div>
+        <h4 class="text-lg">Total counts:</h4>
+        <ul class="ml-8">
+          <li class="inline">Salmon: 5,</li>
+          <li class="inline">Trout: 2,</li>
+          <li class="inline">Pike: 3,</li>
+          <li class="inline">Tuna: 5</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="flex-none text-center mb-2">
+    <div>
+      <h3 class="py-1 mb-3 text-2xl">Detections</h3>
+      <div class="border-2">
+        <table class="bg-gray-100 table-auto w-full">
+          <thead class="bg-gray-200 border-b">
+            <tr class="text-lg">
+              <td class="w-16 px-2">No.</td>
+              <td class="px-2">Type</td>
+              <td class="px-2">Start</td>
+              <td class="px-2">Stop</td>
+              <td class="px-2">Video</td>
+            </tr>
+          </thead>
+          <tbody class="">
+            {% for detection in detections %}
+            <tr class="space-y-1">
+              <td class="px-2">{{ detection.id }}</td>
+              <td class="px-2">{{ detection.report_type }}</td>
+              <td class="px-2">{{ detection.start }}</td>
+              <td class="px-2">{{ detection.stop }}</td>
+              <td class="px-2">{{ detection.video_path }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="flex-none text-center mb-2">
+    <h3 class="py-1 mb-3 text-2xl">Videos</h3>
+    <div class="border-2">
+      <table class="bg-gray-100 table-auto w-full">
+        <thead class="bg-gray-200 border-b">
+          <tr class="text-lg">
+            <td class="w-16 px-2">No.</td>
+            <td class="px-2">Lokasjon</td>
+            <td class="px-2">Status</td>
+            <td class="px-2">Filsti</td>
+          </tr>
+        </thead>
+        <tbody class="">
+          {% for video in videos %}
+          <tr class="space-y-1">
+            <td class="px-2">{{ video.id }}</td>
+            <td class="px-2">{{ video.location }}</td>
+            <td class="px-2">{{ video.status }}</td>
+            <td class="px-2">{{ video.video_path }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</main>
+{% endblock %}

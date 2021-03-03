@@ -1,0 +1,136 @@
+{% extends "base.html" %} {% block main %}
+<main class="container flex flex-col mx-auto p-8">
+  <div class="border-b-2 mb-4">
+    <ul class="">
+      <li class="inline">
+        <a href="{{ url_for('index') }}">Home</a>
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">
+        <a
+          href="{{ url_for('projects_bp.projects_index')
+                                  }}"
+          >Projects</a
+        >
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">
+        <a
+          href="{{ url_for('projects_bp.projects_project', project_id=1)
+                                  }}"
+          >Vårflom i Mjøsa</a
+        >
+      </li>
+      <li class="inline">
+        <svg
+          class="inline w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"
+          ></path>
+        </svg>
+      </li>
+      <li class="inline">New Job</li>
+    </ul>
+  </div>
+  <h1 class="text-center py-1 mb-3 text-3xl">New Job</h1>
+  <div class="mb-10">
+    <form
+      enctype="multipart/form-data"
+      method="post"
+      action=""
+      class="mx-auto max-w-2xl border-2 p-4 rounded-lg bg-gray-100"
+    >
+      <div class="flex flew-col mb-8 justify-center space-x-8">
+        <div class="flex-1">
+          <label class="block" for="project_name"
+            ><span>Job Name <span class="text-red-800">*</span></span>
+            <input
+              id="project_name"
+              name="project_name"
+              class="block w-full"
+              type="text"
+              maxlength="255"
+              value=""
+            />
+          </label>
+          <label class="block" for="description"
+            ><span>Description <span class="text-red-800">*</span></span>
+            <textarea
+              class="block w-full"
+              id="description"
+              name="description"
+            ></textarea>
+          </label>
+        </div>
+        <div class="flex-1">
+          <label class="block" for="location-select"
+            ><span>Description <span class="text-red-800">*</span></span>
+            <select name="location" id="location-select" class="block w-full">
+              <option value="">--Please choose an option--</option>
+              <option value="dog">Dog</option>
+              <option value="cat">Cat</option>
+              <option value="hamster">Hamster</option>
+              <option value="parrot">Parrot</option>
+              <option value="spider">Spider</option>
+              <option value="goldfish">Goldfish</option>
+            </select>
+          </label>
+        </div>
+      </div>
+      <div class="flex flex-row justify-end">
+        <button
+          type="button"
+          class="mr-4 text-black py-2 px-3 border-2 border-gray-300 rounded bg-gray-300 hover:bg-blue-200 hover:border-2 hover:text-black"
+        >
+          Cancel
+        </button>
+        <input
+          id="saveForm"
+          type="submit"
+          name="submit"
+          value="Create"
+          class="text-white py-2 px-3 border-2 border-blue-500 rounded bg-blue-500 hover:bg-blue-200 hover:border-2 hover:text-black"
+        />
+      </div>
+    </form>
+  </div>
+</main>
+{% endblock %}
