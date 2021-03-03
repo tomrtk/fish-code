@@ -1,3 +1,4 @@
+"""Module defines BBox, Detection, Object and Tracker."""
 from __future__ import annotations
 
 from typing import Any, Dict, List
@@ -10,7 +11,7 @@ class BBox:
     """Bounding box class."""
 
     def __init__(self, x1: float, y1: float, x2: float, y2: float) -> None:
-        """Creates a bounding box from four floats
+        """Create a bounding box from four floats.
 
         Parameters
         ----------
@@ -26,7 +27,7 @@ class BBox:
 
     @classmethod
     def from_list(cls, list: List[float]) -> BBox:
-        """Creates a bounding box from a list
+        """Create a bounding box from a list.
 
         Paramters
         ---------
@@ -42,8 +43,7 @@ class BBox:
         return cls(*list)
 
     def to_list(self) -> List[float]:
-        """
-        Returns the boundingbox as a list
+        """Return the boundingbox as a list.
 
         Returns
         -------
@@ -54,8 +54,7 @@ class BBox:
 
     @classmethod
     def from_xywh(cls, bbox: List[float]) -> BBox:
-        """
-        Creates a bounding box from x, y, width, height
+        """Create a bounding box from x, y, width, height.
 
         Paramters
         ---------
@@ -69,14 +68,15 @@ class BBox:
         return cls(bbox[0], bbox[1], bbox[2] + bbox[0], bbox[3] + bbox[1])
 
     def __eq__(self, o: BBox) -> bool:
-        """Checks if the two boundingboxes are witin 1 percent of eachother.
+        """Check if the two boundingboxes are witin 1 percent of eachother.
 
         Parameters
         ----------
         o : BBox
            Other BBox
 
-        Returns
+        Return
+        ------
         bool :
             If they're equal
         """
@@ -94,6 +94,13 @@ class BBox:
         )
 
     def to_dict(self) -> Dict[str, float]:
+        """Convert boundingbox to dict.
+
+        Return
+        ------
+        Dict[str, float] :
+            {"x1": float, "y1": float, "x2": float, "y2": float}
+        """
         return {
             "x1": self.x1,
             "y1": self.y1,
@@ -103,8 +110,7 @@ class BBox:
 
 
 class Detection:
-    """Defines a Detection as BBox, detection score, associated frame and a
-    benchmark variable"""
+    """Defines a Detection as BBox, detection score, associated frame and a benchmark variable."""
 
     def __init__(
         self,
@@ -114,7 +120,7 @@ class Detection:
         frame: int,
         true_track_id: int = 0,
     ) -> None:
-        """Create a detection
+        """Create a detection.
 
         Paramters
         ---------
@@ -134,16 +140,23 @@ class Detection:
         self.true_track_id = true_track_id
 
     def to_SORT(self) -> np.ndarray:
-        """Converts a detection to work with SORT
+        """Convert a detection to work with SORT.
 
-        Returns
-        -------
+        Return
+        ------
         np.ndarray(1,5) :
             Detection as [x1, y1, x2, y2, score]
         """
         return np.array(np.append(self.bbox.to_list(), self.score))
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert self to dict.
+
+        Return
+        ------
+        Dict[str, Any] :
+            {"bbox" : Dict[str, float], "label": int, "score": float, "frame": int }
+        """
         return {
             "bbox": self.bbox.to_dict(),
             "label": self.label,
@@ -153,31 +166,80 @@ class Detection:
 
     @classmethod
     def from_dict(cls, dict: Dict[str, Any]) -> Detection:
+        """Create a detection from a dictionary.
+
+        See Also
+        --------
+        cls.to_dict()
+        """
         return cls(
             BBox(**dict["bbox"]), dict["label"], dict["score"], dict["frame"]
         )
 
     @classmethod
-    def from_api(cls, dict: Dict[str, Any], frame):
+    def from_api(cls, dict: Dict[str, Any], frame: int):
+        """Specialized from_dict used when converting from API.
+
+        Paramter
+        --------
+        dict : Dict[str, Any]
+            { "bbox" : Dict[str, float], "label": int, "score": float }
+        frame : int
+            The frame number to the frame where this detection was created
+
+        See Also
+        --------
+        cls.from_dict()
+        cls.to_dict()
+        tracing.api.Detection
+        """
         return cls(BBox(**dict["bbox"]), dict["label"], dict["score"], frame)
 
 
 class Object:
-    """Defines a object as tracking ID, detections and label"""
+    """Defines a object as tracking ID, detections and label."""
 
     def __init__(self, track_id: int) -> None:
+        """Create a minimal Object.
+
+        Parameter
+        ---------
+        track_id : int
+            Tracking id given from the tracker
+
+        See Also
+        --------
+        tracing.tracker.Tracker
+        """
         self.track_id = track_id
         self.detections = list()  # type: List[Detection]
         self.label = None
 
     def update(self, detection: Detection) -> None:
+        """Update the detections for this Object.
+
+        Also updates it's label based on the labels found in it's detections.
+
+
+        Parameter
+        ---------
+        detection : Detection
+            A new detection to add to the detection list.
+        """
         self.detections.append(detection)
         self.label = np.bincount(self._extract_labels()).argmax()
 
     def _extract_labels(self) -> np.ndarray:
+        """Return a list of labels from associated detections."""
         return np.array([detection.label for detection in self.detections])
 
     def to_dict(self) -> Dict[str, Any]:
+        """Convert to a dict.
+
+        See Also
+        --------
+        tracing.tracker.Detection.to_dict()
+        """
         return {
             "track_id": self.track_id,
             "detections": [detect.to_dict() for detect in self.detections],
@@ -186,35 +248,33 @@ class Object:
 
 
 class Tracker:
-    """Abstraction over SORT. Keeps a dict of Objects"""
+    """Abstraction over SORT. Keeps a dict of Objects."""
 
     def __init__(self, tracker: sort.Sort) -> None:
-        """Creates a Tracker with a Sort instance and an empty dict with objects.
+        """Create a Tracker with a Sort instance and an empty dict with objects.
 
-        Parameters
-        ----------
+        Parameter
+        ---------
         tracker : sort.Sort
             A Sort tracker.
         """
-
         self.tracker = tracker
         self.objects = {}  # type: dict[int, Object]
 
     def update(self, detecions: List[Detection]) -> np.ndarray:
-        """Updates the Tracker.
+        """Update the Tracker.
 
-        Paramters
-        ---------
+        Paramter
+        --------
         detections : List[Detections]
             Detections to track. If there are no detections for a given frame,
             this must still be called with an empty list.
 
 
-        Returns
-        -------
+        Return
+        ------
         np.ndarray(2,5) :
             A list of tracked objects as [x1, y1, x2, y2, track_id]
-
         """
         if len(detecions) == 0:
             tracks = np.empty((0, 5))
@@ -229,7 +289,8 @@ class Tracker:
         return tracks
 
     def _connect_bb(self, tracked: np.ndarray, detect: List[Detection]) -> None:
-        """Re-associates boundingboxes with a detection to determine the label
+        """Re-associate boundingboxes with a detection to determine the label.
+
         Parameters
         ----------
         tracked : np.ndarray
@@ -249,9 +310,12 @@ class Tracker:
                     )
 
     def _update_object(self, track_id: int, detection: Detection) -> None:
-        """Updates tracked objects. If it is a new Object it will be created
-        Parameters
-        ----------
+        """Update tracked objects.
+
+        If it is a new Object it will be created
+
+        Parameter
+        ---------
         track_id : int
             The tracking id of the object to update
         detection : Detection
@@ -263,11 +327,13 @@ class Tracker:
         self.objects[track_id].update(detection)
 
     def get_objects(self) -> dict[int, Object]:
-        """Returns the object dict"""
+        """Return the object dict."""
         return self.objects
 
     def get_false_positive(self) -> int:
+        """Get the false positives from the tracker. Used for benchmarking."""
         return self.tracker.false_positives
 
     def get_misses(self) -> int:
+        """Get the misses from the tracker. Used for benchmarking."""
         return self.tracker.miss

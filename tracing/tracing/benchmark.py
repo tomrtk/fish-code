@@ -1,3 +1,9 @@
+"""Script for benchmarking and testing different algorithms.
+
+This file is not needed for the tracing module to functions, but it kept around
+for easy testing.
+"""
+
 import json
 import os
 from typing import Any, List
@@ -13,7 +19,7 @@ from tracing import tracker
 
 
 def count_SORT(tracks: List[Any]):
-    """Counts idividual objects from sort"""
+    """Count idividual objects from sort."""
     count_individ_sort = set()
     for track_id in tracks:
         for track_id2 in track_id:
@@ -30,7 +36,7 @@ def show_image(
     fig: Any,
     idx: int,
 ):
-
+    """For displaying images with boundingboxes."""
     I = io.imread(path)  # type: ignore
     ax1.imshow(I)
 
@@ -53,6 +59,7 @@ def show_image(
 
 
 def main():
+    """Entrypoint."""
     track_bbs_ids = []
 
     sort_tracker = tracker.Tracker(sort.Sort(1, 1))
