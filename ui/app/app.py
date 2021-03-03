@@ -1,29 +1,28 @@
 import os
-from typing import List
 
-import requests
-from flask import Flask, json, render_template, url_for
-from livereload import Server
+from flask import Flask, render_template
 
 from app.model import *
 from app.projects.projects import projects_bp
 
 
-def create_app(test_config=None):
+def create_app(test_config=None):  # type: ignore
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
+
+    app.config.from_mapping(  # type: ignore
         SECRET_KEY="dev",
         BACKEND_URL="http://127.0.0.1:9955",
     )
+
     # app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
+        app.config.from_pyfile("config.py", silent=True)  # type: ignore
     else:
         # load the test config if passed in
-        app.config.from_mapping(test_config)
+        app.config.from_mapping(test_config)  # type: ignore
 
     # ensure the instance folder exists
     try:
@@ -34,11 +33,11 @@ def create_app(test_config=None):
     app.register_blueprint(projects_bp, url_prefix="/projects")
 
     @app.route("/")
-    def index():
+    def index():  # type: ignore
         return render_template("index.html", msg="Gjoevik")
 
     @app.route("/report")
-    def report_page():
+    def report_page():  # type: ignore
         detections = [
             Detection(
                 **{
@@ -55,12 +54,11 @@ def create_app(test_config=None):
         return render_template("report/result.html", detections=detections)
 
     @app.route("/image")
-    def image():
-
+    def image():  # type: ignore
         return render_template("image.html")
 
     @app.errorhandler(500)
-    def handle_exception(e):
+    def handle_exception(e):  # type: ignore
         return "This page does not exist", 500
 
     return app

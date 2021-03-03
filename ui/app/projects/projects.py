@@ -21,12 +21,12 @@ def projects_project_new():
 
 
 @projects_bp.route("/<int:project_id>")
-def projects_project(project_id):
+def projects_project(project_id: int):
     return render_template("projects/project.html")
 
 
 @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
-def projects_job(project_id, job_id):
+def projects_job(project_id: int, job_id: int):
     detections = [
         Detection(
             **{
@@ -59,7 +59,7 @@ def projects_job(project_id, job_id):
 
 
 @projects_bp.route("/<int:project_id>/jobs/new")
-def projects_job_new(project_id):
+def projects_job_new(project_id: int):
     return render_template(
         "projects/job_new.html",
     )
