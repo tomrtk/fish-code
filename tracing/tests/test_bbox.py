@@ -34,10 +34,30 @@ def test_bbox_from_list(bbox_list):
     assert bbox_list[3] == bbox.y2
 
 
+def test_bbox_from_list_five():
+    with pytest.raises(ValueError):
+        bbox = BBox.from_list([10, 10, 10, 10, 10])
+
+
+def test_bbox_from_list_three():
+    with pytest.raises(ValueError):
+        bbox = BBox.from_list([10, 10, 10])
+
+
 def test_bbox_from_xywh(bbox_list):
     bbox = BBox.from_xywh(bbox_list)
 
     np.testing.assert_allclose([10, 10, 20, 20], bbox.to_list())
+
+
+def test_bbox_from_xywh_five():
+    with pytest.raises(ValueError):
+        bbox = BBox.from_xywh([10, 10, 10, 10, 10])
+
+
+def test_bbox_from_xywh_three():
+    with pytest.raises(ValueError):
+        bbox = BBox.from_xywh([10, 10, 10])
 
 
 def test_bbox__eq__same(bbox_list):

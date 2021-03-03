@@ -40,6 +40,9 @@ class BBox:
             Bounding box
 
         """
+        if len(list) != 4:
+            raise ValueError(f"Length of bbox is {len(list)}, expected 4")
+
         return cls(*list)
 
     def to_list(self) -> List[float]:
@@ -65,6 +68,9 @@ class BBox:
         BBox :
             Boundingbox
         """
+        if len(bbox) != 4:
+            raise ValueError(f"Length of bbox is {len(bbox)}, expected 4")
+
         return cls(bbox[0], bbox[1], bbox[2] + bbox[0], bbox[3] + bbox[1])
 
     def __eq__(self, o: BBox) -> bool:
