@@ -17,6 +17,18 @@ core_pipeline:
       changes:
         - core/*
 
+ui_pipeline:
+  stage: test
+  variables:
+    CHILD_PWD: "ui"
+  trigger:
+    include: ui/ui-pipeline.yml
+    strategy: depend
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - ui/*
+
 # Publish new releases/tags when applicable from the commits
 release:
   stage: release
