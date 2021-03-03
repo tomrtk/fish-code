@@ -1,3 +1,5 @@
+"""Initilization of the application."""
+
 import os
 
 from flask import Flask, render_template
@@ -7,7 +9,7 @@ from app.projects.projects import projects_bp
 
 
 def create_app(test_config=None):  # type: ignore
-    # create and configure the app
+    """Application factory to setup the loading of the application."""
     app = Flask(__name__, instance_relative_config=True)
 
     app.config.from_mapping(  # type: ignore

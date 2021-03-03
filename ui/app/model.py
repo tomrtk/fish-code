@@ -1,9 +1,12 @@
+"""Collection of classes that fullfills the mocking."""
 from dataclasses import dataclass
 from typing import List
 
 
 @dataclass
 class Job:
+    """Hold the job details."""
+
     progress: int
     name: str
     status: str
@@ -11,6 +14,8 @@ class Job:
 
 @dataclass
 class Project:
+    """Hold the project details."""
+
     description: str
     name: str
     number: str
@@ -19,11 +24,15 @@ class Project:
 
 @dataclass
 class Projects:
+    """Hold the projects."""
+
     projects: List[Project]
 
 
 @dataclass
 class Detection:
+    """Hold the detection details."""
+
     id: int
     report_type: str
     start: int
@@ -33,6 +42,8 @@ class Detection:
 
 @dataclass
 class Video:
+    """Hold the video details."""
+
     id: int
     location: str
     status: str

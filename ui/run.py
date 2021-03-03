@@ -1,3 +1,9 @@
+"""Small script to run the application.
+
+Includes an option for running using livereload.  This helps out a lot
+when developing.
+"""
+
 import argparse
 import os
 from typing import Optional, Sequence
@@ -7,19 +13,15 @@ from livereload import Server
 import app.app as web
 
 
-def create_livereload_wrapper(app):
-    return Server(app.wsgi_app)
-
-
 def serve():
+    """Serve the application."""
     app = web.create_app()
 
     if (
         "FLASK_LIVERELOAD" in os.environ
         and os.environ["FLASK_LIVERELOAD"] == "1"
     ):
-        server = create_livereload_wrapper(app)
-        server.serve()
+        Server(app.wsgi_app).serve()
     else:
         app.run()
 
