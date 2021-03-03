@@ -24,22 +24,37 @@ class Status(str, Enum):
 class Video:
     """Class associated with one video file."""
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, frames: int) -> None:
         self._path = path
-        pass
+        self.frames = frames
 
     def exists(self) -> bool:
         """Checks if the file path is a valid file."""
         return os.path.isfile(self._path)
 
-    def num_frames(self) -> int:
-        """Provide number of frames in a video. Returns 0 if file is not found."""
-        try:
-            cap = cv2.VideoCapture(self._path)
-            return int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-        except cv2.error:
-            logger.debug("Could not read frame count in video '%s'", self._path)
-            return 0
+    @classmethod
+    def from_path(cls, path: str) -> Video:
+        return cls(
+            path=path,
+            frames=_get_num_frames(path),
+        )
+
+
+def _get_num_frames(path: str) -> int:
+    """Provide number of frames in a video. Returns 0 if file is not found."""
+    try:
+        cap = cv2.VideoCapture(path)
+        return int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    except cv2.error:
+        logger.debug("Could not read frame count in video '%s'", path)
+        return 0
+
+
+class Frame:
+    """Class representation of a frame within a video."""
+
+    def __init__(self):
+        pass
 
 
 @dataclass
