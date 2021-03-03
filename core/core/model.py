@@ -24,6 +24,33 @@ class Video:
         pass
 
 
+class Object:
+    """Class representation of an object that has been detected and tracked."""
+
+    def __init__(self, label: int) -> None:
+        """Create an Object.
+
+        Parameters
+        ----------
+        label : int
+            The label given to it by the tracker and detector
+        """
+        self.label: int = label
+        self.probability: float = 0.0
+
+    def __eq__(self, o: object) -> bool:
+        """Check if two Objects are same.
+
+        Currently, this doesn't do much, but in the future, it should implement to
+        check detections as well.
+        """
+        return (
+            isinstance(o, Object)
+            and self.label == o.label
+            and self.probability == o.probability
+        )
+
+
 class Job:
     """Class representation of a job."""
 
@@ -34,6 +61,7 @@ class Job:
         self.name: str = name
         self.description: str = description
         self._status: Status = status
+        self._objects: List[Object] = list()
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
@@ -54,6 +82,44 @@ class Job:
     def __repr__(self):
         """Override of default __repr__. Gives object representation as a string."""
         return str(self.__class__) + ": " + str(self.__dict__)
+
+    def add_object(self, obj: Object) -> None:
+        """Add an object to a job.
+
+        Parameter
+        ---------
+        obj : Object
+            An object to add
+        """
+        self._objects.append(obj)
+
+    def number_of_objects(self) -> int:
+        """Return number of objects.
+
+        Return
+        ------
+        int :
+            Number of objects
+        """
+        return len(self._objects)
+
+    def get_object(self, idx: int) -> Optional[Object]:
+        """Return object at index.
+
+        Paramter
+        --------
+        idx : int
+            Index in the list
+
+        Return
+        ------
+        Optional[Object] :
+            Object at index idx. If none are found, returns None.
+        """
+        try:
+            return self._objects[idx]
+        except IndexError:
+            return None
 
     def add_video(self, video: Video) -> bool:
         """Add a video to this job in order to be processed."""
