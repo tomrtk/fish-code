@@ -29,11 +29,12 @@ class Video:
         self.frames = frames
 
     def exists(self) -> bool:
-        """Checks if the file path is a valid file."""
+        """Check if the file path is a valid file."""
         return os.path.isfile(self._path)
 
     @classmethod
     def from_path(cls, path: str) -> Video:
+        """Create and populate a video object from a file path."""
         return cls(
             path=path,
             frames=_get_num_frames(path),
