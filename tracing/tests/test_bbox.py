@@ -65,6 +65,7 @@ def test_bbox__eq__same(bbox_list):
     bbox = BBox(*bbox_list)
     other_bbox = BBox(*bbox_list)
     assert bbox == other_bbox
+    assert bbox == bbox
 
     tol = 0.009
     other_bbox.x1 -= bbox.x1 * tol
