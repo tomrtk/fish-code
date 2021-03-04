@@ -82,7 +82,3 @@ def track_frames(
 
     objects = [Object(**obj.to_dict()) for obj in trk.get_objects().values()]
     return objects
-
-
-if __name__ == "__main__":
-    uvicorn.run(tracking, host="0.0.0.0", port=8000)
