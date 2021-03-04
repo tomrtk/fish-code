@@ -37,7 +37,7 @@ class Job:
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
-        return hash((type(self),) + tuple(self.__dict__.values()))
+        return hash((type(self),) + (self.name, self.description, self.id))
 
     def __eq__(self, other) -> bool:
         """Check if job is equal to another object."""
