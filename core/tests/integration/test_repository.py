@@ -18,8 +18,10 @@ def test_add_project(sqlite_session_factory):
     repo = SqlAlchemyProjectRepository(session)
 
     # Create a project to add to repository
-    project1 = model.Project("DB test", "Test prosjekt")
-    project2 = model.Project("en til DB test", "Test prosjekt ABC-101")
+    project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
+    project2 = model.Project(
+        "en til DB test", "NINA-124", "Test prosjekt ABC-101"
+    )
 
     # Add projects into repository
     repo.add(project1)
@@ -43,14 +45,16 @@ def test_add_project_with_jobs(sqlite_session_factory):
     repo = SqlAlchemyProjectRepository(session)
 
     # Create a project to add to repository
-    project1 = model.Project("DB test", "Test prosjekt")
-    project1.add_job(model.Job("Project 1: Test job 1"))
-    project1.add_job(model.Job("Project 1: Test job 2"))
-    project1.add_job(model.Job("Project 1: Test job 3"))
-    project2 = model.Project("en til DB test", "Test prosjekt ABC-101")
-    project2.add_job(model.Job("Project 2: Test job 1"))
-    project2.add_job(model.Job("Project 2: Test job 2"))
-    project2.add_job(model.Job("Project 2: Test job 3"))
+    project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
+    project1.add_job(model.Job("Project 1: Test job 1", "Test description 1"))
+    project1.add_job(model.Job("Project 1: Test job 2", "Test description 2"))
+    project1.add_job(model.Job("Project 1: Test job 3", "Test description 3"))
+    project2 = model.Project(
+        "en til DB test", "NINA-124", "Test prosjekt ABC-101"
+    )
+    project2.add_job(model.Job("Project 2: Test job 1", "Test description 1"))
+    project2.add_job(model.Job("Project 2: Test job 2", "Test description 2"))
+    project2.add_job(model.Job("Project 2: Test job 3", "Test description 3"))
 
     # Add projects into repository
     repo.add(project1)
@@ -72,9 +76,9 @@ def test_save_project(sqlite_session_factory):
     # Create a project repository
     repo1 = SqlAlchemyProjectRepository(session1)
 
-    project1 = model.Project("DB test", "Test prosjekt")
-    project1.add_job(model.Job("Project 1: Test job 1"))
-    project1.add_job(model.Job("Project 1: Test job 2"))
+    project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
+    project1.add_job(model.Job("Project 1: Test job 1", "Test description 1"))
+    project1.add_job(model.Job("Project 1: Test job 2", "Test description 2"))
 
     repo1.add(project1)
     project_get = repo1.get(1)
