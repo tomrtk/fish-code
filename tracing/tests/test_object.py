@@ -27,6 +27,8 @@ def test_object_update_other(detection):
 
     obj.update(detection)
 
+    assert obj.label == detection.label
+
     other_label = 69
     other_detection = detection
     other_detection.label = other_label
