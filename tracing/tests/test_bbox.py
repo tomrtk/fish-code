@@ -23,6 +23,7 @@ def test_bbox_to_list(bbox_list):
     bbox = BBox(*bbox_list)
 
     np.testing.assert_allclose(bbox.to_list(), bbox_list)
+    assert isinstance(bbox.to_list(), list)
 
 
 def test_bbox_from_list(bbox_list):
@@ -98,3 +99,4 @@ def test_bbox_to_dict(bbox_list):
         "x2": 30.0,
         "y2": 40.0,
     } == BBox.from_list(bbox_list).to_dict()
+    assert isinstance(BBox.from_list(bbox_list).to_dict(), dict)
