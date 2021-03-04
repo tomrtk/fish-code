@@ -27,7 +27,7 @@ class AbstractProjectRepository(abc.ABC):
     def __init__(self) -> None:
         logger.debug("Project repository created")
 
-    def add(self, project: model.Project) -> None:
+    def add(self, project: model.Project) -> model.Project:
         """Add a project to repository.
 
         Parameters
@@ -35,8 +35,8 @@ class AbstractProjectRepository(abc.ABC):
         project :   Project
                     Project to add to repository.
         """
-        self._add(project)
         logger.debug("Add project to repository")
+        return self._add(project)
 
     def save(self) -> None:
         """Save the current state of the repository."""
@@ -67,19 +67,19 @@ class AbstractProjectRepository(abc.ABC):
         return self._list()
 
     @abc.abstractmethod
-    def _add(self, project: model.Project) -> int:
+    def _add(self, project: model.Project) -> model.Project:  # pragma: no cover
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _save(self) -> None:
+    def _save(self) -> None:  # pragma: no cover
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _get(self, reference) -> Optional[model.Project]:
+    def _get(self, reference) -> Optional[model.Project]:  # pragma: no cover
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _list(self) -> List[model.Project]:
+    def _list(self) -> List[model.Project]:  # pragma: no cover
         raise NotImplementedError
 
     def __len__(self) -> int:
@@ -121,18 +121,18 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
         logger.debug("Repository initialised")
         self.session = session
 
-    def _add(self, project: model.Project) -> None:
+    def _add(self, project: model.Project) -> model.Project:
         self.session.add(project)
+        self._save()
         logger.debug("Added project '%s' to repository", project.name)
+        return project
 
     def _save(self):
         self.session.commit()
 
     def _get(self, project_id: int) -> Optional[model.Project]:
         result = (
-            self.session.query(model.Project)
-            .filter_by(project_id=project_id)
-            .first()
+            self.session.query(model.Project).filter_by(id=project_id).first()
         )
 
         return result
