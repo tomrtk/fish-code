@@ -29,6 +29,18 @@ ui_pipeline:
       changes:
         - ui/*
 
+tracing_pipeline:
+  stage: test
+  variables:
+    CHILD_PWD: "tracing"
+  trigger:
+    include:
+      - local: tracing/tracing-pipeline.yml
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - tracing/*
+
 # Publish new releases/tags when applicable from the commits
 release:
   stage: release
