@@ -3,7 +3,7 @@
 
 """Script for benchmarking and testing different algorithms.
 
-This file is not needed for the tracing module to functions, but it kept around
+This file is not needed for the tracing module to function, but it's kept around
 for easy testing.
 """
 

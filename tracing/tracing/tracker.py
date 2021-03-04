@@ -191,7 +191,7 @@ class Detection:
         dict : Dict[str, Any]
             { "bbox" : Dict[str, float], "label": int, "score": float }
         frame : int
-            The frame number to the frame where this detection was created
+            The frame number where this detection was found
 
         See Also
         --------
