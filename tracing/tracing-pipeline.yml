@@ -40,4 +40,4 @@ tests:
     - poetry run coverage report
   artifacts:
     reports:
-      cobertura: ui/coverage.xml
+      cobertura: tracing/coverage.xml
