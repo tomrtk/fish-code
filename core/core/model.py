@@ -34,7 +34,14 @@ class Video:
 
     @classmethod
     def from_path(cls, path: str) -> Video:
-        """Create and populate a video object from a file path."""
+        """Named constructor to create a `Video` from path.
+
+        Examples
+        --------
+        >>> video = Video.from_path("video.mp4")
+        >>> type(video)
+        <class 'core.model.Video'>
+        """
         return cls(
             path=path,
             frames=_get_num_frames(path),
