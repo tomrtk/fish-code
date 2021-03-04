@@ -66,29 +66,38 @@ def test_bbox__eq__same(bbox_list):
     other_bbox = BBox(*bbox_list)
     assert bbox == other_bbox
 
+    tol = 0.009
+    other_bbox.x1 -= bbox.x1 * tol
+    other_bbox.y1 -= bbox.y1 * tol
+    other_bbox.x2 -= bbox.x2 * tol
+    other_bbox.y2 -= bbox.y2 * tol
 
-def test_bbox__eq__over_tolerance(bbox_list):
+    assert bbox == other_bbox
+
+    other_bbox.x1 += bbox.x1 * tol
+    other_bbox.y1 += bbox.y1 * tol
+    other_bbox.x2 += bbox.x2 * tol
+    other_bbox.y2 += bbox.y2 * tol
+
+    assert bbox == other_bbox
+
+
+def test_bbox__eq__not_same(bbox_list):
     bbox = BBox(*bbox_list)
 
-    tol = 0.11
-
+    tol = 0.011
     other_bbox = BBox(*bbox_list)
-    other_bbox.x1 += tol
-    other_bbox.y1 += tol
-    other_bbox.x2 += tol
-    other_bbox.y2 += tol
+    other_bbox.x1 += bbox.x1 * tol
+    other_bbox.y1 += bbox.y1 * tol
+    other_bbox.x2 += bbox.x2 * tol
+    other_bbox.y2 += bbox.y2 * tol
     assert not bbox == other_bbox
 
-
-def test_bbox__eq__under_tolerance(bbox_list):
-    bbox = BBox(*bbox_list)
-
-    tol = 0.11
     other_bbox = BBox(*bbox_list)
-    other_bbox.x1 -= tol
-    other_bbox.y1 -= tol
-    other_bbox.x2 -= tol
-    other_bbox.y2 -= tol
+    other_bbox.x1 -= bbox.x1 * tol
+    other_bbox.y1 -= bbox.y1 * tol
+    other_bbox.x2 -= bbox.x2 * tol
+    other_bbox.y2 -= bbox.y2 * tol
     assert not bbox == other_bbox
 
 
