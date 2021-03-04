@@ -47,7 +47,7 @@ class Job:
             return (
                 self.name == other.name
                 and self.description == other.description
-                and other.id == self.id
+                and self.id == other.id
             )
         return self.name == other.name and self.description == other.description
 
