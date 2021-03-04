@@ -1,8 +1,7 @@
 """Entrypoint to start API."""
-from . import api
-
-
 import uvicorn
+
+from . import api
 
 
 def main():
