@@ -15,7 +15,7 @@ def detection(bbox):
     return Detection(bbox, 1, 1.0, 1)
 
 
-def test_object_update_same(detection):
+def test_object_update(detection):
     obj = Object(1)
     other_detection = copy.copy(detection)
     other_detection.frame = 2
@@ -43,6 +43,15 @@ def test_object_update_other(detection):
     obj.update(other_detection)
 
     assert obj.label == other_label
+
+
+def test_object_update_same(detection):
+    obj = Object(1)
+
+    obj.update(detection)
+
+    with pytest.raises(ValueError):
+        obj.update(detection)
 
 
 def test_object_to_dict(detection):

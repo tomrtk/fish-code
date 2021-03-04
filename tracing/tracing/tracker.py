@@ -232,6 +232,11 @@ class Object:
         detection : Detection
             A new detection to add to the detection list.
         """
+        if detection.frame in [detect.frame for detect in self.detections]:
+            raise ValueError(
+                f"A detection with frame number {detection.frame} already exist"
+            )
+
         self.detections.append(detection)
         self.label = np.bincount(self._extract_labels()).argmax()
 
