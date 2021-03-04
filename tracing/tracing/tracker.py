@@ -183,7 +183,7 @@ class Detection:
         )
 
     @classmethod
-    def from_api(cls, dict: Dict[str, Any], frame: int):
+    def from_api(cls, dict: Dict[str, Any], frame: int) -> Detection:
         """Specialized from_dict used when converting from API.
 
         Paramter
