@@ -1,7 +1,7 @@
 """Mapping of tables in DB to objects in domain model."""
 import logging
 
-from sqlalchemy import Column, ForeignKey, Integer, MetaData, Table, Text
+from sqlalchemy import Column, Enum, ForeignKey, Integer, MetaData, Table, Text
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
@@ -21,17 +21,20 @@ metadata = MetaData()
 projects = Table(
     "projects",
     metadata,
-    Column("project_id", Integer, primary_key=True, autoincrement=True),
+    Column("id", Integer, primary_key=True, autoincrement=True),
     Column("name", Text(NAME_SIZE), nullable=False),
+    Column("number", Text(NAME_SIZE)),
     Column("description", Text(DESCRIPTION_SIZE)),
 )
 
 jobs = Table(
     "jobs",
     metadata,
-    Column("job_id", Integer, primary_key=True, autoincrement=True),
+    Column("id", Integer, primary_key=True, autoincrement=True),
     Column("name", Text(NAME_SIZE), nullable=False),
-    Column("project_id", Integer, ForeignKey("projects.project_id")),
+    Column("_status", Enum(model.Status), nullable=False),
+    Column("description", Text(DESCRIPTION_SIZE)),
+    Column("project_id", Integer, ForeignKey("projects.id")),
 )
 
 

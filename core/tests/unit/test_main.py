@@ -1,10 +1,12 @@
 """ Unit test of main function with command arguments."""
+import logging
+
 from core.main import main
 
 
 def test_main(capsys):
     """Happy case test of main with no arguments."""
-    main()
+    main(["--test"])
 
     out, err = capsys.readouterr()
 
@@ -12,11 +14,9 @@ def test_main(capsys):
     assert err == ""
 
 
-def test_main_debug(capsys):
-    """Happy case test of main with arguments."""
-    main(["--debug"])
+def test_main_debug(caplog):
+    """Happy case test of main with debug argument."""
+    with caplog.at_level(logging.DEBUG):
+        main(["--debug", "--test"])
 
-    out, err = capsys.readouterr()
-
-    assert out == ""
-    assert err == ""
+        assert caplog.records[0].getMessage() == "Core started in debug mode"

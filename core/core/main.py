@@ -3,10 +3,12 @@ import argparse
 import logging
 from typing import Optional, Sequence
 
+import uvicorn
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from core import model
+from core.api import core
 
 # Workaround to get proper import.
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
@@ -20,15 +22,20 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     # Handle any command argument.
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("--host", default="0.0.0.0", type=str, help="IP")
+    parser.add_argument("--port", default="8000", type=int, help="Port")
+    parser.add_argument("--test", default=False, action="store_true")
     args = parser.parse_args(argsv)
 
-    # Temporary use of arguments.
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
-        logging.info("Core started in debug mode")
+        logger.debug("Core started in debug mode")
     else:
         logging.basicConfig(level=logging.INFO)
-        logging.info("Core started")
+        logger.info("Core started")
+
+    if not args.test:  # only part not tested in tests
+        uvicorn.run(core, host=args.host, port=args.port)
 
     return 0
 
