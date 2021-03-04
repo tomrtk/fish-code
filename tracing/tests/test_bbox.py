@@ -7,7 +7,7 @@ from tracing.tracker import BBox
 ### Bounding Box BBox ###
 @pytest.fixture
 def bbox_list():
-    return [10.0, 10.0, 10.0, 10.0]
+    return [10.0, 20.0, 30.0, 40.0]
 
 
 def test_bbox_init(bbox_list):
@@ -47,7 +47,7 @@ def test_bbox_from_list_three():
 def test_bbox_from_xywh(bbox_list):
     bbox = BBox.from_xywh(bbox_list)
 
-    np.testing.assert_allclose([10, 10, 20, 20], bbox.to_list())
+    np.testing.assert_allclose([10, 20, 40, 60], bbox.to_list())
 
 
 def test_bbox_from_xywh_five():
@@ -94,7 +94,7 @@ def test_bbox__eq__under_tolerance(bbox_list):
 def test_bbox_to_dict(bbox_list):
     assert {
         "x1": 10.0,
-        "y1": 10.0,
-        "x2": 10.0,
-        "y2": 10.0,
+        "y1": 20.0,
+        "x2": 30.0,
+        "y2": 40.0,
     } == BBox.from_list(bbox_list).to_dict()

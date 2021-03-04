@@ -5,7 +5,7 @@ from tracing.tracker import BBox, Detection, Object
 
 @pytest.fixture
 def bbox():
-    return BBox(*[10, 10, 10, 10])
+    return BBox(*[10, 20, 30, 40])
 
 
 @pytest.fixture
@@ -53,9 +53,9 @@ def test_object_to_dict(detection):
             {
                 "bbox": {
                     "x1": 10.0,
-                    "y1": 10.0,
-                    "x2": 10.0,
-                    "y2": 10.0,
+                    "y1": 20.0,
+                    "x2": 30.0,
+                    "y2": 40.0,
                 },
                 "label": 1,
                 "score": 1.0,
