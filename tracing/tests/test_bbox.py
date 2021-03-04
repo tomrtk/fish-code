@@ -67,7 +67,7 @@ def test_bbox__eq__same(bbox_list):
     assert bbox == other_bbox
     assert bbox == bbox
 
-    tol = 0.009
+    tol = 0.009  # Less than one percent difference should be considered equal
     other_bbox.x1 -= bbox.x1 * tol
     other_bbox.y1 -= bbox.y1 * tol
     other_bbox.x2 -= bbox.x2 * tol
@@ -86,7 +86,9 @@ def test_bbox__eq__same(bbox_list):
 def test_bbox__eq__not_same(bbox_list):
     bbox = BBox(*bbox_list)
 
-    tol = 0.011
+    tol = (
+        0.011  # More than one percent difference should be considered not equal
+    )
     other_bbox = BBox(*bbox_list)
     other_bbox.x1 += bbox.x1 * tol
     other_bbox.y1 += bbox.y1 * tol
