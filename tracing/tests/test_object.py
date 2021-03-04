@@ -1,3 +1,5 @@
+import copy
+
 import pytest
 
 from tracing.tracker import BBox, Detection, Object
@@ -15,7 +17,7 @@ def detection(bbox):
 
 def test_object_update_same(detection):
     obj = Object(1)
-    other_detection = detection
+    other_detection = copy.copy(detection)
     other_detection.frame = 2
     obj.update(other_detection)
 
@@ -30,12 +32,12 @@ def test_object_update_other(detection):
     assert obj.label == detection.label
 
     other_label = 69
-    other_detection = detection
+    other_detection = copy.copy(detection)
     other_detection.label = other_label
     other_detection.frame = 2
     obj.update(other_detection)
 
-    other_detection = detection
+    other_detection = copy.copy(detection)
     other_detection.label = other_label
     other_detection.frame = 3
     obj.update(other_detection)
