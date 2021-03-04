@@ -1,3 +1,6 @@
+# pragma: no cover
+# noqa: D104
+
 """Script for benchmarking and testing different algorithms.
 
 This file is not needed for the tracing module to functions, but it kept around
