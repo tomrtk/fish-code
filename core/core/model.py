@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from enum import Enum
 from typing import List, Optional, Set
 
@@ -24,6 +25,26 @@ class Video:
         pass
 
 
+@dataclass
+class BBox:
+    """Class representing a Bounding box."""
+
+    x1: float
+    y1: float
+    x2: float
+    y2: float
+
+
+@dataclass
+class Detection:
+    """Class representing a Detection."""
+
+    bbox: BBox
+    score: float
+    label: int
+    frame: int
+
+
 class Object:
     """Class representation of an object that has been detected and tracked."""
 
@@ -37,6 +58,7 @@ class Object:
         """
         self.label: int = label
         self.probability: float = 0.0
+        self._detections: list[Detection] = list()
 
     def __eq__(self, o: object) -> bool:
         """Check if two Objects are same.
@@ -48,7 +70,45 @@ class Object:
             isinstance(o, Object)
             and self.label == o.label
             and self.probability == o.probability
+            and len(self._detections) == len(o._detections)
         )
+
+    def add_detection(self, detection: Detection) -> None:
+        """Add a detection to the object.
+
+        Parameter
+        ---------
+        detection : Detection
+        """
+        self._detections.append(detection)
+
+    def number_of_detections(self) -> int:
+        """Return the number of detections.
+
+        Return
+        ------
+        int :
+           Number of detections
+        """
+        return len(self._detections)
+
+    def get_detection(self, idx: int) -> Optional[Detection]:
+        """Return the detection at index idx.
+
+        Parameter
+        ---------
+        idx: int
+            Index
+
+        Return
+        ------
+        Optional[Detection] :
+            Detection at index idx or None if none found.
+        """
+        try:
+            return self._detections[idx]
+        except IndexError:
+            return None
 
 
 class Job:

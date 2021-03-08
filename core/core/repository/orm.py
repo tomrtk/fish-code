@@ -13,6 +13,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection, collection
+from sqlalchemy.sql.sqltypes import PickleType
 
 from core import model
 
@@ -61,14 +62,37 @@ objects = Table(
     Column("probability", Float, nullable=False),
 )
 
+detections = Table(
+    "detections",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("score", Float, nullable=False),
+    Column("label", Integer, nullable=False),
+    Column("bbox", PickleType, nullable=False),
+    Column("frame", Integer, nullable=False),
+    Column("object_id", Integer, ForeignKey("objects.id")),
+)
+
 
 def start_mappers():
     """Map the relationships between tables defines above and domain model objects."""
     logger.info("Starting mappers")
 
+    detection_mapper = mapper(
+        model.Detection,
+        detections,
+    )
+
     object_mapper = mapper(
         model.Object,
         objects,
+        properties={
+            "_detections": relationship(
+                detection_mapper,
+                collection_class=list,
+                cascade="all, delete",
+            )
+        },
     )
 
     jobs_mapper = mapper(
