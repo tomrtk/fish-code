@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "yi"
+name = "app"
 version = "0.1.0"
 description = """
 Application to detect fish and generate a report viewable
