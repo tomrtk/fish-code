@@ -1,0 +1,64 @@
+# ci/child-pipeline.yml
+#
+# Must provide the PIPELINE_ROOT variable to the pipeline for making sure
+# it runs the jobs from inside the correct folder.
+
+default:
+  tags:
+    - bachelor
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+stages:
+  - style
+  - quality
+  - test
+
+variables:
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+  POETRY_CACHE_DIR: $CI_PROJECT_DIR/.cache/poetry
+  POETRY_VIRTUALENVS_CREATE: "true"
+  POETRY_VIRTUALENVS_IN_PROJECT: "false"
+  POETRY_VIRTUALENVS_PATH: $CI_PROJECT_DIR/.cache/poetry/venv
+
+cache:
+  key: $PIPELINE_ROOT
+  paths:
+    - .cache/pip
+    - .cache/poetry
+    - $PIPELINE_ROOT/poetry.lock
+
+style:
+  stage: style
+  before_script:
+    - cd $PIPELINE_ROOT
+  script:
+    - isort --check --diff .
+    - black --check --diff .
+
+docs:
+  stage: style
+  before_script:
+    - cd $PIPELINE_ROOT
+  script:
+    - pydocstyle
+  allow_failure: true
+
+pyright:
+  stage: quality
+  before_script:
+    - cd $PIPELINE_ROOT
+    - poetry install
+  script:
+    - poetry run pyright .
+
+tests:
+  stage: test
+  before_script:
+    - cd $PIPELINE_ROOT
+    - poetry install
+  script:
+    - poetry run pytest --cov --cov-report xml
+    - poetry run coverage report
+  artifacts:
+    reports:
+      cobertura: $PIPELINE_ROOT/coverage.xml

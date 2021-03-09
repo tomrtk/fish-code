@@ -4,42 +4,35 @@ default:
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 stages:
-  - test
+  - childs
   - release
 
-core_pipeline:
-  stage: test
-  trigger:
-    include:
-      - local: core/core-pipeline.yml
+.child-pipeline:
+  stage: childs
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
-        - core/*
-
-ui_pipeline:
-  stage: test
+        - $CI_JOB_NAME/**/*
   variables:
-    CHILD_PWD: "ui"
+    PIPELINE_ROOT: $CI_JOB_NAME
+
+core:
+  extends: .child-pipeline
+  trigger:
+    include: core/core-pipeline.yml
+    strategy: depend
+
+tracing:
+  extends: .child-pipeline
+  trigger:
+    include: tracing/tracing-pipeline.yml
+    strategy: depend
+
+ui:
+  extends: .child-pipeline
   trigger:
     include: ui/ui-pipeline.yml
     strategy: depend
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-      changes:
-        - ui/*
-
-tracing_pipeline:
-  stage: test
-  variables:
-    CHILD_PWD: "tracing"
-  trigger:
-    include:
-      - local: tracing/tracing-pipeline.yml
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-      changes:
-        - tracing/*
 
 # Publish new releases/tags when applicable from the commits
 release:
