@@ -6,6 +6,17 @@ from core.repository.object import SqlAlchemyObjectRepository
 pytestmark = pytest.mark.usefixtures("mappers")
 
 
+@pytest.fixture
+def make_test_obj() -> model.Object:
+    obj = model.Object(1)
+    obj.add_detection(model.Detection(model.BBox(*[10, 20, 30, 40]), 1.0, 1, 1))
+    obj.add_detection(model.Detection(model.BBox(*[15, 25, 35, 45]), 0.8, 2, 2))
+    obj.add_detection(model.Detection(model.BBox(*[20, 30, 40, 50]), 0.1, 1, 3))
+    obj.add_detection(model.Detection(model.BBox(*[25, 35, 45, 55]), 0.5, 1, 4))
+
+    return obj
+
+
 def test_add_object(sqlite_session_factory):
     session = sqlite_session_factory()
 
@@ -60,3 +71,21 @@ def test_remove_object(sqlite_session_factory):
     repo.save()
 
     assert len(repo.list()) == 0
+
+
+def test_add_full_object(sqlite_session_factory, make_test_obj: model.Object):
+    session = sqlite_session_factory()
+    repo = SqlAlchemyObjectRepository(session)
+
+    obj = make_test_obj
+
+    repo.add(obj)
+    repo.save()
+    assert (len(repo.list())) == 1
+
+    obj_get = repo.get(1)
+
+    assert (
+        obj_get._detections[1].score == obj._detections[1].score
+        and obj_get._detections[2].frame == obj._detections[2].frame
+    )
