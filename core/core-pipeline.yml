@@ -2,44 +2,5 @@ workflow:
   rules:
     - if: $CI_MERGE_REQUEST_ID
 
-variables:
-  CHILD_PWD: "core"
-
-default:
-  tags:
-    - bachelor
-  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
-
-style:
-  before_script:
-    - cd $CHILD_PWD
-    - pwd
-  script:
-    - isort --check --diff .
-    - black --check --diff .
-
-docs:
-  before_script:
-    - cd $CHILD_PWD
-  script:
-    - pydocstyle --convention=numpy
-  allow_failure: true
-
-pyright:
-  before_script:
-    - cd $CHILD_PWD
-    - poetry install
-  script:
-    - poetry run pyright .
-  allow_failure: true
-
-testtox:
-  before_script:
-    - cd $CHILD_PWD
-    - pip install tox
-    - python3 --version
-  script:
-    - tox
-  artifacts:
-    reports:
-      cobertura: $CHILD_PWD/coverage.xml
+include:
+  - ci/child-pipeline.yml
