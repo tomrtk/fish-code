@@ -101,7 +101,7 @@ class SqlAlchemyObjectRepository(AbstractObjectRepository):
         self.session.commit()
 
     def remove(self, obj: model.Object) -> None:
-        """Delete Object from repository.
+        """Delete object from repository.
 
         Parameter
         ---------
