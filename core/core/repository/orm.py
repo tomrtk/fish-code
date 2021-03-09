@@ -1,9 +1,18 @@
 """Mapping of tables in DB to objects in domain model."""
 import logging
 
-from sqlalchemy import Column, Enum, ForeignKey, Integer, MetaData, Table, Text
+from sqlalchemy import (
+    Column,
+    Enum,
+    Float,
+    ForeignKey,
+    Integer,
+    MetaData,
+    Table,
+    Text,
+)
 from sqlalchemy.orm import mapper, relationship
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm.collections import attribute_mapped_collection, collection
 
 from core import model
 
@@ -37,11 +46,42 @@ jobs = Table(
     Column("project_id", Integer, ForeignKey("projects.id")),
 )
 
+object_job_assoc = Table(
+    "object_job_assoc",
+    metadata,
+    Column("job_id", Integer, ForeignKey("jobs.id")),
+    Column("obj_id", Integer, ForeignKey("objects.id")),
+)
+
+objects = Table(
+    "objects",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("label", Integer, nullable=False),
+    Column("probability", Float, nullable=False),
+)
+
 
 def start_mappers():
     """Map the relationships between tables defines above and domain model objects."""
     logger.info("Starting mappers")
-    jobs_mapper = mapper(model.Job, jobs)
+
+    object_mapper = mapper(
+        model.Object,
+        objects,
+    )
+
+    jobs_mapper = mapper(
+        model.Job,
+        jobs,
+        properties={
+            "_objects": relationship(
+                object_mapper,
+                secondary=object_job_assoc,
+                cascade="all",
+            )
+        },
+    )
 
     projects_mapper = mapper(
         model.Project,

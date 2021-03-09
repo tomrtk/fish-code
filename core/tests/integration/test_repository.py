@@ -96,3 +96,27 @@ def test_save_project(sqlite_session_factory):
     assert project_after != None
     assert project_after.description == "Changed description"
     assert hex(id(project_get)) != hex(id(project_after))
+
+
+def test_add_job_with_objects(sqlite_session_factory):
+    session1 = sqlite_session_factory()
+    repo1 = SqlAlchemyProjectRepository(session1)
+    project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
+    job1 = model.Job("DB test", "Description")
+
+    job1.add_object(model.Object(1))
+    job1.add_object(model.Object(2))
+    assert job1.number_of_objects() == 2
+
+    project1.add_job(job1)
+    repo1.add(project1)
+    project_get = repo1.get(1)
+    assert project_get.get_jobs()[0].number_of_objects() == 2
+
+    repo1.save()
+    session1.close()
+
+    session2 = sqlite_session_factory()
+    repo2 = SqlAlchemyProjectRepository(session2)
+    project_get2 = repo2.get(1)
+    assert project_get2.get_jobs()[0].number_of_objects() == 2
