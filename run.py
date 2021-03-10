@@ -5,8 +5,8 @@ from typing import List, Optional, Sequence
 
 from app.run import serve
 
-from core.main import main as core_main
-from tracing.main import main as tracing_main
+from core.main import main as core_main  # type: ignore
+from tracing.main import main as tracing_main  # type: ignore
 
 logger = logging.getLogger(__name__)
 

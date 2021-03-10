@@ -8,9 +8,9 @@ import logging
 import os
 
 import waitress
-from livereload import Server
+from livereload import Server  # type: ignore
 
-import app.app as web
+import app.app as web  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -20,19 +20,19 @@ def serve(
 ) -> None:
     """Serve the application."""
     if production:
-        ui_wsgi = web.create_app().wsgi_app
+        ui_wsgi = web.create_app().wsgi_app  # type: ignore
         logger.setLevel(logging.INFO)
         logger.info("Starting server in production")
-        waitress.serve(ui_wsgi, host=host, port=port)
+        waitress.serve(ui_wsgi, host=host, port=port)  # type: ignore
     else:
 
-        app = web.create_app()
+        app = web.create_app()  # type: ignore
 
         if (
             "FLASK_LIVERELOAD" in os.environ
             and os.environ["FLASK_LIVERELOAD"] == "1"
         ):
-            Server(app.wsgi_app).serve()
+            Server(app.wsgi_app).serve()  # type: ignore
         else:
             app.run()
 
