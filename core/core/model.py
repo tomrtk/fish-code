@@ -221,6 +221,14 @@ class Frame:
 
 
 @dataclass
+class Frame:
+    """Simple dataclass representing frame."""
+
+    idx: int
+    detections: List[Detection]
+
+
+@dataclass
 class BBox:
     """Class representing a Bounding box."""
 
