@@ -15,6 +15,16 @@ import app.app as web  # type: ignore
 logger = logging.getLogger(__name__)
 
 
+def serve_debug() -> None:
+    """Workaround for avoiding lamdba. Starts UI in debug."""
+    serve(production=False)
+
+
+def serve_prod() -> None:
+    """Workaround for avoiding lamdba. Starts UI in production."""
+    serve(production=True)
+
+
 def serve(
     production: bool = True, port: int = 5000, host: str = "0.0.0.0"
 ) -> None:

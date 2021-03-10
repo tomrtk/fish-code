@@ -3,7 +3,7 @@ import logging
 from multiprocessing import Process
 from typing import List, Optional, Sequence
 
-from app.run import serve
+from app.run import serve_debug, serve_prod  # type: ignore
 
 from core.main import main as core_main  # type: ignore
 from tracing.main import main as tracing_main  # type: ignore
@@ -30,15 +30,12 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     processes: List[Process] = list()
 
     if not main_args.dev:
-        ui_main = lambda: serve()
-        ui_process = Process(target=ui_main)
-        ui_process.daemon = True
-        processes.append(ui_process)
+        ui_process = Process(target=serve_prod)
     else:
-        ui_main = lambda: serve(production=False)
-        ui_process = Process(target=ui_main)
-        ui_process.daemon = True
-        processes.append(ui_process)
+        ui_process = Process(target=serve_debug)
+
+    ui_process.daemon = True
+    processes.append(ui_process)
 
     core_process = Process(target=core_main)
     core_process.daemon = True
