@@ -21,7 +21,7 @@ variables:
   POETRY_VIRTUALENVS_PATH: $CI_PROJECT_DIR/.cache/poetry/venv
 
 cache:
-  key: $PIPELINE_ROOT
+  key: $CI_COMMIT_REF_SLUG
   paths:
     - .cache/pip
     - .cache/poetry
