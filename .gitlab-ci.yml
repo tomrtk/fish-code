@@ -44,6 +44,8 @@ root:
   trigger:
     include: ci/code-pipeline.yml
     strategy: depend
+  variables:
+    PIPELINE_ROOT: root
 
 # Publish new releases/tags when applicable from the commits
 release:
