@@ -6,6 +6,7 @@ default:
 stages:
   - childs
   - release
+  - root
 
 .child-pipeline:
   stage: childs
@@ -39,6 +40,16 @@ detection:
   trigger:
     include: detection/detection-pipeline.yml
     strategy: depend
+
+root:
+  stage: root
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+  trigger:
+    include: code-pipeline.yml
+    strategy: depend
+
+
 
 # Publish new releases/tags when applicable from the commits
 release:
