@@ -5,6 +5,7 @@ default:
 
 stages:
   - childs
+  - core
   - release
 
 .child-pipeline:
@@ -33,6 +34,18 @@ ui:
   trigger:
     include: ui/ui-pipeline.yml
     strategy: depend
+
+root:
+  stage: core
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - tests/**/*
+  trigger:
+    include: ci/code-pipeline.yml
+    strategy: depend
+  variables:
+    PIPELINE_ROOT: root
 
 # Publish new releases/tags when applicable from the commits
 release:

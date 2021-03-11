@@ -1,12 +1,11 @@
-# ci/child-pipeline.yml
-#
-# Must provide the PIPELINE_ROOT variable to the pipeline for making sure
-# it runs the jobs from inside the correct folder.
-
 default:
   tags:
     - bachelor
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
 
 stages:
   - style
@@ -25,40 +24,30 @@ cache:
   paths:
     - .cache/pip
     - .cache/poetry
-    - $PIPELINE_ROOT/poetry.lock
+    - ./poetry.lock
 
 style:
   stage: style
-  before_script:
-    - cd $PIPELINE_ROOT
   script:
-    - isort --check --diff .
-    - black --check --diff .
+    - isort --check --diff ./*.py
+    - black --check --diff ./*.py
 
 docs:
   stage: style
-  before_script:
-    - cd $PIPELINE_ROOT
   script:
-    - pydocstyle
+    - pydocstyle ./*.py
   allow_failure: true
 
 pyright:
   stage: quality
   before_script:
-    - cd $PIPELINE_ROOT
     - poetry install
   script:
-    - poetry run pyright .
+    - poetry run pyright ./*.py
 
 tests:
   stage: test
   before_script:
-    - cd $PIPELINE_ROOT
     - poetry install
   script:
-    - poetry run pytest --cov --cov-report xml
-    - poetry run coverage report
-  artifacts:
-    reports:
-      cobertura: $PIPELINE_ROOT/coverage.xml
+    - poetry run pytest

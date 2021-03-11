@@ -71,3 +71,10 @@ exclude = '''
 )/
 '''
 verbose = true
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q"
+testpaths = [
+    "tests",
+]
