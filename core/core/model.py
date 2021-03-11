@@ -216,13 +216,6 @@ def _get_video_metadata(path) -> Tuple[int, ...]:
 class Frame:
     """Class representation of a frame within a video."""
 
-    def __init__(self):
-        pass
-
-
-class Frame:
-    """Class representation of a frame within a video."""
-
     def __init__(self, nr: int, timestamp: int):
         self.nr = nr
         self.detections = Set[int]
