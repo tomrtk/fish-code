@@ -337,6 +337,24 @@ class Object:
         self.track_id: int
         self.time_in = datetime(1, 1, 1)
         self.time_out = datetime(1, 1, 1)
+        self._calc_label()
+
+    def _calc_label(self) -> None:
+        """Calculate label."""
+        if len(self._detections) == 0:
+            return
+
+        self.label = np.bincount(
+            [detect.label for detect in self._detections]
+        ).argmax()
+
+        self.probability = sum(
+            [
+                detect.probability
+                for detect in self._detections
+                if detect.label == self.label
+            ]
+        ) / len(self._detections)
 
     @classmethod
     def from_api(
@@ -387,6 +405,7 @@ class Object:
         detection : Detection
         """
         self._detections.append(detection)
+        self._calc_label()
 
     def number_of_detections(self) -> int:
         """Return the number of detections.
