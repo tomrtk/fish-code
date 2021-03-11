@@ -25,6 +25,9 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--host", default="0.0.0.0", type=str, help="IP")
     parser.add_argument("--port", default="8000", type=int, help="Port")
     parser.add_argument("--test", default=False, action="store_true")
+    parser.add_argument(
+        "--dev", default=False, action="store_true"
+    )  # No ops, needed for root-app.
     args = parser.parse_args(argsv)
 
     if args.debug:
