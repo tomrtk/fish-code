@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 
 NAME_SIZE: int = 60
 DESCRIPTION_SIZE: int = 255
+PATH_SIZE: int = 255
 
 metadata = MetaData()
 
@@ -73,6 +74,14 @@ detections = Table(
     Column("object_id", Integer, ForeignKey("objects.id")),
 )
 
+videos = Table(
+    "videos",
+    metadata,
+    Column("id", Integer, primary_key=True, autoincrement=True),
+    Column("_path", Text(PATH_SIZE), nullable=False),
+    Column("frames", Integer, nullable=False),
+)
+
 
 def start_mappers():
     """Map the relationships between tables defines above and domain model objects."""
@@ -117,4 +126,9 @@ def start_mappers():
                 cascade="all, delete",
             )
         },
+    )
+
+    videos_mapper = mapper(
+        model.Video,
+        videos,
     )
