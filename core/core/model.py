@@ -9,7 +9,6 @@ from typing import List, Optional, Set, Tuple
 
 import ffmpeg
 import numpy as np
-from cv2 import cv2
 
 logger = logging.getLogger(__name__)
 
@@ -165,16 +164,6 @@ def _get_video_metadata(path) -> Tuple[int, ...]:
             "Unable to get video metadata from %s. Error: %s", path, e.stderr
         )
         raise FileNotFoundError
-
-
-def _get_num_frames(path: str) -> int:
-    """Provide number of frames in a video. Returns 0 if file is not found."""
-    try:
-        cap = cv2.VideoCapture(path)
-        return int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    except cv2.error:
-        logger.debug("Could not read frame count in video '%s'", path)
-        return 0
 
 
 class Frame:
