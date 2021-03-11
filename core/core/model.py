@@ -23,7 +23,54 @@ class Status(str, Enum):
 
 
 class Video:
-    """Class associated with one video file.
+    """Video class.
+
+    This class provides various functions to retrieve data from a video file.
+
+    Parameters
+    ----------
+    path    :   str
+            Path to this video file as a string
+    frames  :   int
+            Number of frames in the video
+    fps     :   int
+            Frames per second in the video
+    width   :   int
+            Width in pixels
+    height  :   int
+            Height in pixels
+
+    Attribute
+    ---------
+    _path   :   str
+            Path to the video file associated with the video.
+    frames  :   int
+            Number of frames in the video
+    fps     :   int
+            Frames per second in the video
+    width   :   int
+            Width in pixels
+    height  :   int
+            Height in pixels
+
+    Methods
+    -------
+    exists()
+        Checks if the path is valid, by checking if its a file on the disk.
+    from_path(path: str)
+        Named constructor that creates and populates a video object with
+        metadata read from the file. Raises FileNotFoundError if the
+        file could not be read, or is not a video file.
+
+    Examples
+    --------
+    >>> video = Video.from_path("test.mp4")
+    >>> one_frame = video[5]
+    >>> print(one_frame.shape)
+    (720, 1280, 3)
+    >>> many_frames = video[5,10]
+    >>> print(many_frames.shape)
+    (5, 720, 1280, 3)
 
     Raises
     ------
