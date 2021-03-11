@@ -1,0 +1,53 @@
+default:
+  tags:
+    - bachelor
+  image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+
+stages:
+  - style
+  - quality
+  - test
+
+variables:
+  PIP_CACHE_DIR: $CI_PROJECT_DIR/.cache/pip
+  POETRY_CACHE_DIR: $CI_PROJECT_DIR/.cache/poetry
+  POETRY_VIRTUALENVS_CREATE: "true"
+  POETRY_VIRTUALENVS_IN_PROJECT: "false"
+  POETRY_VIRTUALENVS_PATH: $CI_PROJECT_DIR/.cache/poetry/venv
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - .cache/pip
+    - .cache/poetry
+    - ./poetry.lock
+
+style:
+  stage: style
+  script:
+    - isort --check --diff ./*.py
+    - black --check --diff ./*.py
+
+docs:
+  stage: style
+  script:
+    - pydocstyle ./*.py
+  allow_failure: true
+
+pyright:
+  stage: quality
+  before_script:
+    - poetry install
+  script:
+    - poetry run pyright ./*.py
+
+tests:
+  stage: test
+  before_script:
+    - poetry install
+  script:
+    - poetry run pytest
