@@ -34,6 +34,12 @@ ui:
     include: ui/ui-pipeline.yml
     strategy: depend
 
+detection:
+  extends: .child-pipeline
+  trigger:
+    include: detection/detection-pipeline.yml
+    strategy: depend
+
 # Publish new releases/tags when applicable from the commits
 release:
   stage: release

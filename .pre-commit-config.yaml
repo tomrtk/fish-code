@@ -34,6 +34,14 @@ repos:
         additional_dependencies: [toml]
         files: ^ui/
         args: ["--settings-path", "ui"]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.7.0
+    hooks:
+      - id: isort
+        name: Sort imports (detection)
+        additional_dependencies: [toml]
+        files: ^detection/
+        args: ["--settings-path", "detection"]
   - repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:
