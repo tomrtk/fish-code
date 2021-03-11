@@ -84,6 +84,32 @@ def add_projects(
     return repo.add(model.Project(**project.dict()))
 
 
+@core.get("/projects/{project_id}/", response_model=schema.Project)
+def get_project(
+    project_id: int,
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+):
+    """Retrieve a single project.
+
+    Get a project from a GET request on endpoint.
+
+    Returns
+    -------
+    Project
+        Single project from project_id
+
+    Raises
+    ------
+    HTTPException
+        If no project with _project_id_ found. Status code: 404.
+    """
+    project = repo.get(project_id)
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    return project
+
+
 @core.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
 def list_project_jobs(
     project_id: int,
@@ -142,3 +168,35 @@ def add_job_to_project(
     else:
         logger.warning("Job not added, project %s not found,", project_id)
         raise HTTPException(status_code=404, detail="Project not found")
+
+
+@core.get("/projects/{project_id}/jobs/{job_id}", response_model=schema.Job)
+def get_job_from_project(
+    project_id: int,
+    job_id: int,
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+):
+    """Retrieve a single job from a project.
+
+    Returns
+    -------
+    Job
+        Job with `job_id`.
+
+    Raises
+    ------
+    HTTPException
+        If no project with _project_id_ found. Status code: 404.
+    HTTPException
+        If no job with _job_id_ found. Status code: 404.
+    """
+    project = repo.get(project_id)
+
+    if not project:
+        logger.warning("Project %s not found,", project_id)
+        raise HTTPException(status_code=404, detail="Project not found")
+    elif project.get_job(job_id) is None:
+        logger.warning("Job %s not found,", job_id)
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    return project.get_job(job_id)
