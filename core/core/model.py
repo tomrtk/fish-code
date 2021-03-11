@@ -2,9 +2,13 @@
 from __future__ import annotations
 
 import logging
+import os.path
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set
+from typing import List, Optional, Set, Tuple
+
+import ffmpeg
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +23,200 @@ class Status(str, Enum):
 
 
 class Video:
-    """TODO."""
+    """Video class.
 
-    def __init__(self) -> None:
+    This class provides various functions to retrieve data from a video file.
+
+    Parameters
+    ----------
+    path    :   str
+            Path to this video file as a string
+    frames  :   int
+            Number of frames in the video
+    fps     :   int
+            Frames per second in the video
+    width   :   int
+            Width in pixels
+    height  :   int
+            Height in pixels
+
+    Attribute
+    ---------
+    _path   :   str
+            Path to the video file associated with the video.
+    frames  :   int
+            Number of frames in the video
+    fps     :   int
+            Frames per second in the video
+    width   :   int
+            Width in pixels
+    height  :   int
+            Height in pixels
+
+    Methods
+    -------
+    exists()
+        Checks if the path is valid, by checking if its a file on the disk.
+    from_path(path: str)
+        Named constructor that creates and populates a video object with
+        metadata read from the file. Raises FileNotFoundError if the
+        file could not be read, or is not a video file.
+
+    Examples
+    --------
+    >>> video = Video.from_path("test.mp4")
+    >>> one_frame = video[5]
+    >>> print(one_frame.shape)
+    (720, 1280, 3)
+    >>> many_frames = video[5,10]
+    >>> print(many_frames.shape)
+    (5, 720, 1280, 3)
+
+    Raises
+    ------
+    FileNotFoundError
+        If error reading video file when creating `from_path()`.
+    """
+
+    def __init__(
+        self, path: str, frames: int, fps: int, width: int, height: int
+    ) -> None:
+        self._path: str = path
+        self.frames: int = frames
+        self.fps: int = fps
+        self.width: int = width
+        self.height: int = height
+
+    def __get__(self, key) -> np.ndarray:
+        """Get one frame of video.
+
+        Used by `__getitem__` when only one key is given.
+
+        Returns
+        -------
+        numpy.ndarray
+            One frame of video as `ndarray`.
+        """
+        if key < 0 or key >= self.frames:
+            raise IndexError
+
+        # ffmpeg filter docs:
+        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
+        frame, _ = (
+            ffmpeg.input(self._path)
+            .filter("select", "gte(n, {})".format(key))
+            .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
+            .run(capture_stdout=True)
+        )
+        return np.frombuffer(frame, np.uint8).reshape(
+            [self.height, self.width, 3]
+        )
+
+    def __getitem__(self, interval: slice):
+        """Get a slice of video.
+
+        Get a interval of frames from video, `variable[start:stop:step].
+        Note `step` is not implemented and will raise a `exception`.
+
+        Examples
+        --------
+        >>> video = Video.from_path("test.mp4")
+        >>> one_frame = video[5]
+        >>> print(one_frame.shape)
+        (720, 1280, 3)
+        >>> many_frames = video[5,10]
+        >>> print(many_frames.shape)
+        (5, 720, 1280, 3)
+
+        Returns
+        -------
+        numpy.ndarray
+            Interval of frames returned in format `(frame, height, width, channels)`
+
+        See Also
+        --------
+        __get__     :   Used when only start in slice given.
+
+        """
+        # If only one key is given
+        if type(interval) == int:
+            return self.__get__(interval)
+
+        if interval.stop > self.frames and interval.start >= 0:
+            raise IndexError
+
+        # Slice stepping is not implemented.
+        if interval.step != None:
+            raise NotImplementedError
+
+        numbers = interval.stop - interval.start
+
+        # ffmpeg filter docs:
+        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
+        frame, _ = (
+            ffmpeg.input(self._path)
+            .filter(
+                "select",
+                "between(n,{},{})".format(interval.start, interval.stop),
+            )
+            .output(
+                "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
+            )
+            .run(capture_stdout=True)
+        )
+        return np.frombuffer(frame, np.uint8).reshape(
+            [-1, self.height, self.width, 3]
+        )
+
+    def exists(self) -> bool:
+        """Check if the file path is a valid file."""
+        return os.path.isfile(self._path)
+
+    @classmethod
+    def from_path(cls, path: str) -> Video:
+        """Named constructor to create a `Video` from path.
+
+        Examples
+        --------
+        >>> video = Video.from_path("video.mp4")
+        >>> type(video)
+        <class 'core.model.Video'>
+        """
+        height, width, fps, frame_numbers = _get_video_metadata(path)
+
+        return cls(
+            path=path,
+            frames=frame_numbers,
+            fps=fps,
+            width=width,
+            height=height,
+        )
+
+
+def _get_video_metadata(path) -> Tuple[int, ...]:
+    """Get metadata from video using `ffmpeg`."""
+    try:
+        probe = ffmpeg.probe(path)
+        video_info = next(
+            s for s in probe["streams"] if s["codec_type"] == "video"
+        )
+        return (
+            int(video_info["height"]),
+            int(video_info["width"]),
+            int(video_info["r_frame_rate"].split("/")[0]),
+            int(video_info["nb_frames"]),
+        )
+    except ffmpeg.Error as e:
+        logger.error(
+            "Unable to get video metadata from %s. Error: %s", path, e.stderr
+        )
+        raise FileNotFoundError
+
+
+class Frame:
+    """Class representation of a frame within a video."""
+
+    def __init__(self):
         pass
 
 
