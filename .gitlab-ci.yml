@@ -4,8 +4,8 @@ default:
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 stages:
-  - root
   - childs
+  - core
   - release
 
 .child-pipeline:
@@ -36,14 +36,14 @@ ui:
     strategy: depend
 
 root:
-  stage: root
+  stage: core
   rules:
     - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - tests/**/*
   trigger:
-    include: ./code-pipeline.yml
+    include: ci/code-pipeline.yml
     strategy: depend
-
-
 
 # Publish new releases/tags when applicable from the commits
 release:
