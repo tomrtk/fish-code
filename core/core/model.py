@@ -213,13 +213,6 @@ def _get_video_metadata(path) -> Tuple[int, ...]:
         raise FileNotFoundError
 
 
-class Frame:
-    """Class representation of a frame within a video."""
-
-    def __init__(self):
-        pass
-
-
 @dataclass
 class Frame:
     """Simple dataclass representing frame."""
