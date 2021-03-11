@@ -12,6 +12,9 @@ uvicorn = {extras = ["standard"], version = "^0.13.4"}
 async-exit-stack = "^1.0.1"
 async_generator = "^1.10"
 pydantic = "^1.8.1"
+pre-commit = "^2.10.1"
+ffmpeg-python = "^0.2.0"
+numpy = "^1.20.1"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"
