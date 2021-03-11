@@ -80,6 +80,35 @@ def test_add_project():
         }
 
 
+def test_get_project():
+    """Test retrieving a single project."""
+    with TestClient(core) as client:
+        response_post_project = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
+        )
+        assert response_post_project.status_code == 200
+
+        project_data = response_post_project.json()
+        assert "id" in project_data
+        project_id = project_data["id"]
+
+        response_get_project = client.get(f"/projects/{project_id}")
+        assert response_get_project.json() == {
+            "description": "A project description",
+            "id": project_id,
+            "name": "Project name",
+            "number": "AB-123",
+        }
+
+        response_wrong_project = client.get("/projects/13")
+        assert response_wrong_project.status_code == 404
+
+
 def test_add_and_get_job():
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(core) as client:
@@ -126,6 +155,60 @@ def test_add_and_get_job():
                 "_status": "Pending",
             }
         ]
+
+
+def test_get_job():
+    """Test posting a new job to a project and getting list of jobs."""
+    with TestClient(core) as client:
+        response_post_project = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
+        )
+        assert response_post_project.status_code == 200
+
+        project_data = response_post_project.json()
+        assert "id" in project_data
+
+        project_id = project_data["id"]
+
+        response_get_project = client.get(f"/projects/{project_id}")
+        assert response_get_project.json() == {
+            "description": "A project description",
+            "id": project_id,
+            "name": "Project name",
+            "number": "AB-123",
+        }
+
+        response_post_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={"name": "Job name", "description": "Job description"},
+        )
+        assert response_post_job.status_code == 200
+
+        job_data = response_post_job.json()
+        assert "id" in job_data
+
+        job_id = job_data["id"]
+
+        response_get_job = client.get(f"/projects/{project_id}/jobs/{job_id}")
+        assert response_get_job.status_code == 200
+
+        assert response_get_job.json() == {
+            "description": "Job description",
+            "id": job_id,
+            "name": "Job name",
+            "_status": "Pending",
+        }
+
+        response = client.get(f"/projects/999999/jobs/{job_id}")
+        assert response.status_code == 404
+
+        response = client.get(f"/projects/{project_id}/jobs/99999")
+        assert response.status_code == 404
 
 
 def test_project_not_existing():

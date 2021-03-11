@@ -28,6 +28,21 @@ def test_make_project_get_jobs(make_test_project):
     assert isinstance(jobs[0], Job)
 
 
+def test_get_job(make_test_project):
+    project = make_test_project
+
+    new_job = Job("New Job", "New Job Desc")
+    new_job.id = 1
+
+    project.add_job(new_job)
+
+    valid_job = project.get_job(1)
+    assert valid_job.name == "New Job"
+
+    missing_job = project.get_job(13)
+    assert missing_job == None
+
+
 def test_remove_job(make_test_project):
     project = make_test_project
     jobs = project.get_jobs()
