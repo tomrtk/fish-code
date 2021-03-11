@@ -326,6 +326,25 @@ class Project:
         """
         return list(self._jobs)
 
+    def get_job(self, job_id: int) -> Optional[Job]:
+        """Retrive a single job from the project.
+
+        Parameters
+        ----------
+        job_id : int
+            Index of the job we seek. 0 is not valid.
+
+        Returns
+        -------
+        Job
+            The job object if found.
+        """
+        for job in self._jobs:
+            if job.id == job_id:
+                return job
+
+        return None
+
     def remove_job(self, job: Job) -> bool:
         """Remove job from project.
 
