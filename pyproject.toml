@@ -11,9 +11,18 @@ authors = [
 "Kristian André Dahl Haugen",
 "Tom-Ruben Traavik Kvalvaag"
 ]
+packages = [
+    { include = "./ui" },
+    { include = "./core" },
+    { include = "./tracing" },
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.7"
+core = {path = "core"}
+tracing = {path = "tracing"}
+app = {path = "ui"}
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"
