@@ -1,4 +1,4 @@
-"""Pydantic schema of objects sendt and received over API."""
+"""Pydantic schema of objects sent and received over API."""
 
 from pydantic import BaseModel
 
