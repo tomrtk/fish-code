@@ -233,11 +233,35 @@ class BBox:
 
 @dataclass
 class Detection:
-    """Class representing a Detection."""
+    """Class representing a Detection.
+
+    Parameter
+    ---------
+    bbox: BBox
+        A bounding box
+    probaility: float
+        Probability from detection
+    label: int
+        Class label from detection
+    frame: int
+        Which frame it belongs to
+
+    Example
+    -------
+    >>> bbox = BBox(10,20,30,40)
+    >>> detection = (bbox, 0.8, 1, 4)
+    >>> print(detection)
+    (BBox(x1=10, y1=20, x2=30, y2=40), 0.8, 1, 4)
+    """
+
+    bbox: BBox
+    probability: float
+    label: int
+    frame: int
 
     @classmethod
     def from_api(
-        cls, bbox: Dict[Any, str], score: float, label: int, frame: int
+        cls, bbox: Dict[Any, str], probability: float, label: int, frame: int
     ) -> Detection:
         """Create Detection class from tracker.
 
@@ -245,8 +269,8 @@ class Detection:
         ---------
         bbox: Dict[Any, str]
             Dict representation of BBox
-        score: float
-            Probability score from detection
+        probaility: float
+            Probability from detection
         label: int
             Class label from detection
         frame: int
@@ -256,12 +280,7 @@ class Detection:
         Detection :
             A detection object
         """
-        return cls(BBox(**bbox), score, label, frame)
-
-    bbox: BBox
-    score: float
-    label: int
-    frame: int
+        return cls(BBox(**bbox), probability, label, frame)
 
 
 class Object:

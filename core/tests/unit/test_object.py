@@ -27,6 +27,6 @@ def test_get_object(make_test_obj: Object):
 
     det = obj.get_detection(1)
 
-    assert det.score == 0.8 and det.label == 2
+    assert det.probability == 0.8 and det.label == 2
 
     assert obj.get_detection(10) == None
