@@ -67,7 +67,7 @@ detections = Table(
     "detections",
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
-    Column("score", Float, nullable=False),
+    Column("probability", Float, nullable=False),
     Column("label", Integer, nullable=False),
     Column("bbox", PickleType, nullable=False),
     Column("frame", Integer, nullable=False),

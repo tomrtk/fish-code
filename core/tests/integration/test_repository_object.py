@@ -86,6 +86,6 @@ def test_add_full_object(sqlite_session_factory, make_test_obj: model.Object):
     obj_get = repo.get(1)
 
     assert (
-        obj_get._detections[1].score == obj._detections[1].score
+        obj_get._detections[1].probability == obj._detections[1].probability
         and obj_get._detections[2].frame == obj._detections[2].frame
     )

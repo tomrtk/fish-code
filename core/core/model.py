@@ -5,7 +5,7 @@ import logging
 import os.path
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import ffmpeg
 import numpy as np
@@ -213,11 +213,12 @@ def _get_video_metadata(path) -> Tuple[int, ...]:
         raise FileNotFoundError
 
 
+@dataclass
 class Frame:
-    """Class representation of a frame within a video."""
+    """Simple dataclass representing frame."""
 
-    def __init__(self):
-        pass
+    idx: int
+    detections: List[Detection]
 
 
 @dataclass
@@ -232,12 +233,54 @@ class BBox:
 
 @dataclass
 class Detection:
-    """Class representing a Detection."""
+    """Class representing a Detection.
+
+    Parameter
+    ---------
+    bbox: BBox
+        A bounding box
+    probaility: float
+        Probability from detection
+    label: int
+        Class label from detection
+    frame: int
+        Which frame it belongs to
+
+    Example
+    -------
+    >>> bbox = BBox(10,20,30,40)
+    >>> detection = (bbox, 0.8, 1, 4)
+    >>> print(detection)
+    (BBox(x1=10, y1=20, x2=30, y2=40), 0.8, 1, 4)
+    """
 
     bbox: BBox
-    score: float
+    probability: float
     label: int
     frame: int
+
+    @classmethod
+    def from_api(
+        cls, bbox: Dict[Any, str], probability: float, label: int, frame: int
+    ) -> Detection:
+        """Create Detection class from tracker.
+
+        Parameter
+        ---------
+        bbox: Dict[Any, str]
+            Dict representation of BBox
+        probaility: float
+            Probability from detection
+        label: int
+            Class label from detection
+        frame: int
+            Which frame it belongs to
+        Return
+        ------
+        Detection :
+            A detection object
+        """
+        return cls(BBox(**bbox), probability, label, frame)
 
 
 class Object:
@@ -254,6 +297,35 @@ class Object:
         self.label: int = label
         self.probability: float = 0.0
         self._detections: list[Detection] = list()
+        self.track_id: int
+
+    @classmethod
+    def from_api(
+        cls, track_id: int, detections: List[Dict[Any, str]], label: int
+    ) -> Object:
+        """Create Object class from tracker.
+
+        Parameter
+        ---------
+        track_id : int
+            track_id from tracker
+        detections : List[Dict[Any,str]]
+            List of detections associated.
+        label : int
+            Class label
+
+        Return
+        ------
+        Object :
+            Fully featured Object.
+        """
+        obj = cls(label)
+        obj._detections = [
+            Detection.from_api(**detect) for detect in detections
+        ]
+        obj.track_id = track_id
+
+        return obj
 
     def __eq__(self, o: object) -> bool:
         """Check if two Objects are same.
