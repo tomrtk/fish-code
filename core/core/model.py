@@ -195,6 +195,25 @@ class Video:
             height=height,
         )
 
+    def timestamp_at(self, idx: int) -> datetime:
+        """Return timestamp at index in video.
+
+        Parameter
+        ---------
+        idx : int
+
+        Return
+        ------
+        datetime :
+
+        """
+        if idx > self.frames:
+            raise IndexError
+        if idx < 0:
+            raise IndexError
+
+        return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
+
 
 def parse_str_to_date(path: str) -> Optional[datetime]:
     """Parse string to date.
