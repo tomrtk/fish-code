@@ -105,7 +105,7 @@ def test_get_project():
             "number": "AB-123",
         }
 
-        response_wrong_project = client.get("/projects/13")
+        response_wrong_project = client.get("/projects/999999")
         assert response_wrong_project.status_code == 404
 
 
