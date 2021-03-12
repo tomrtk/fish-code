@@ -63,6 +63,8 @@ pyright:
 tests:
   stage: test
   extends: .cache_settings
+  tags:
+    - eirik
   before_script:
     - poetry install
   script:

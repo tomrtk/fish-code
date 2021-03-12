@@ -11,4 +11,4 @@ class Detection(BaseModel):
     x2: float
     y2: float
     confidence: float
-    label: str
+    label: int
