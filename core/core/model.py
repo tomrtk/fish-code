@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import logging
 import os.path
+import re
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -86,6 +88,7 @@ class Video:
         self.fps: int = fps
         self.width: int = width
         self.height: int = height
+        self.timestamp = parse_str_to_date(self._path)
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -191,6 +194,40 @@ class Video:
             width=width,
             height=height,
         )
+
+
+def parse_str_to_date(path: str) -> Optional[datetime]:
+    """Parse string to date.
+
+    Parameter
+    ---------
+    path: str
+        string to parse to date on the format:
+        `[yyyy-mm-dd_hh-mm-ss]`
+
+
+    Return
+    ------
+    datetime :
+        parsed datetime object, or None if unsuccessfull
+
+    """
+    date = re.compile(r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\]").search(path)
+
+    if not date:
+        logger.error(f"no date found in path, {path}")
+        return None
+
+    date_temp = date[0][1:-1].split("_")
+
+    year, month, day, hour, minute, second = [
+        int(x) for x in date_temp[0].split("-") + date_temp[1].split("-")
+    ]
+
+    try:
+        return datetime(year, month, day, hour, minute, second)
+    except ValueError:
+        return None
 
 
 def _get_video_metadata(path) -> Tuple[int, ...]:
