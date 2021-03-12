@@ -5,7 +5,7 @@ import logging
 import os.path
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
@@ -335,6 +335,8 @@ class Object:
         self.probability: float = 0.0
         self._detections: list[Detection] = list()
         self.track_id: int
+        self.time_in = datetime(1, 1, 1)
+        self.time_out = datetime(1, 1, 1)
 
     @classmethod
     def from_api(
