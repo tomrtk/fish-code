@@ -46,10 +46,10 @@ root:
   rules:
     - if: $CI_MERGE_REQUEST_ID
   trigger:
-    include: code-pipeline.yml
+    include: ci/code-pipeline.yml
     strategy: depend
-
-
+  variables:
+    PIPELINE_ROOT: $CI_JOB_NAME
 
 # Publish new releases/tags when applicable from the commits
 release:
