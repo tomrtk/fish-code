@@ -26,6 +26,7 @@ def test_production_make_db():
         response = client.get("/projects/")
 
         assert response.status_code == 200
+    core.dependency_overrides[make_db] = make_test_db
 
 
 def make_test_db():
