@@ -19,7 +19,7 @@ def detection_json():
             "y2": 10.0,
         },
         "label": 1,
-        "score": 1.0,
+        "probability": 1.0,
         "frame": 1,
     }
 
@@ -32,7 +32,7 @@ def test_detection_to_SORT(detection):
             detection.bbox.y1,
             detection.bbox.x2,
             detection.bbox.y2,
-            detection.score,
+            detection.probability,
         ],
     )
 
@@ -53,7 +53,7 @@ def test_detection_from_dict_miss_element(detection):
             "x2": 10.0,
             "y2": 10.0,
         },
-        "score": 1.0,
+        "probability": 1.0,
         "frame": 1,
     }
     with pytest.raises(KeyError):
@@ -68,7 +68,7 @@ def test_detection_from_api_miss_element(detection):
             "x2": 10.0,
             "y2": 10.0,
         },
-        "score": 1.0,
+        "probability": 1.0,
     }
     with pytest.raises(KeyError):
         Detection.from_api(json_wrong, 1).to_dict() == detection.to_dict()

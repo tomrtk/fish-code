@@ -20,10 +20,11 @@ def test_track():
                                 "y2": 2.0,
                             },
                             "label": 1,
-                            "score": 1.0,
+                            "probability": 1.0,
                             "frame": 0,
                         }
                     ],
+                    "timestamp": None,
                 },
                 {
                     "idx": 1,
@@ -36,10 +37,11 @@ def test_track():
                                 "y2": 3.0,
                             },
                             "label": 1,
-                            "score": 1.0,
+                            "probability": 1.0,
                             "frame": 1,
                         }
                     ],
+                    "timestamp": None,
                 },
                 {
                     "idx": 3,
@@ -52,10 +54,11 @@ def test_track():
                                 "y2": 4.0,
                             },
                             "label": 1,
-                            "score": 1.0,
+                            "probability": 1.0,
                             "frame": 2,
                         }
                     ],
+                    "timestamp": None,
                 },
             ],
         )
