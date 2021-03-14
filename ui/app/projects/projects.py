@@ -1,5 +1,8 @@
 """Blueprint for the projects module."""
-from flask import Blueprint, render_template
+import json
+import os
+
+from flask import Blueprint, redirect, render_template, request, url_for
 
 from app.model import Detection, Video
 
@@ -63,12 +66,41 @@ def projects_job(project_id: int, job_id: int):
     )
 
 
-@projects_bp.route("/<int:project_id>/jobs/new")
+def path_to_dict(path):
+    """Polute endpoint with stuff."""
+    d = {"text": os.path.basename(path)}
+    if os.path.isdir(path):
+        d["type"] = "directory"
+        d["children"] = [
+            path_to_dict(os.path.join(path, x)) for x in os.listdir(path)
+        ]
+    else:
+        d["type"] = "file"
+    return d
+
+
+@projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
 def projects_job_new(project_id: int):
     """Create new job inside a project."""
+    data = path_to_dict("/Users/mt/Downloads")
+
+    if request.method == "POST":
+        print(request.form)
+        return redirect(
+            url_for("projects_bp.projects_project", project_id=project_id)
+        )
+
     return render_template(
         "projects/job_new.html",
     )
+
+
+@projects_bp.route("/json")
+def projects_json():
+    """Create new job inside a project."""
+    data = path_to_dict("/Users/mt/Downloads")
+
+    return data
 
 
 @projects_bp.route("/jobs")

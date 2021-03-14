@@ -3,8 +3,12 @@
     <meta charset="UTF-8" />
     <title>Hello</title>
     <link
-      href="{{ url_for('static', filename='styles.min.css') }}"
+      href="{{ url_for('static', filename='dist/css/style.min.css') }}"
       rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/js/jstree/themes/default/style.min.css') }}"
     />
   </head>
   <body class="bg-gray-100 overflow-y-scroll">
@@ -17,12 +21,54 @@
         >
           <img
             class="m-2"
-            src="{{ url_for('static', filename='nina.png') }}"
+            src="{{ url_for('static', filename='dist/images/nina.png') }}"
             alt="NINA Logo"
           />
         </header>
         {% block main %}{% endblock %}
       </div>
     </div>
+    <script src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"></script>
+    <script>
+      $(function () {
+        $("#jstree").jstree({
+          sort: 1,
+          core: {
+            data: {
+              url: "/projects/json",
+              dataType: "json", // needed only if you do not supply JSON headers
+            },
+            themes: {
+              name: "default",
+            },
+          },
+          checkbox: {
+            keep_selected_style: false,
+          },
+          plugins: [
+            "checkbox",
+            "contextmenu",
+            "dnd",
+            "search",
+            "state",
+            "types",
+            "wholerow",
+          ],
+        });
+
+        $("#jstree").on(
+          "select_node.jstree deselect_node.jstree",
+          function (e) {
+            var selected_titles = [];
+            var selectedIndexes = $("#jstree").jstree("get_selected", true);
+            $.each(selectedIndexes, function () {
+              selected_titles.push(this["text"]);
+            });
+            $("#tree_data").val(JSON.stringify(selected_titles));
+          }
+        );
+      });
+    </script>
   </body>
 </html>
