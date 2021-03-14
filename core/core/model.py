@@ -275,6 +275,7 @@ class Frame:
 
     idx: int
     detections: List[Detection]
+    timestamp: Optional[datetime] = None
 
 
 @dataclass
