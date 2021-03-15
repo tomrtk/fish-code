@@ -46,24 +46,35 @@
           checkbox: {
             keep_selected_style: false,
           },
-          plugins: [
-            "checkbox",
-            "contextmenu",
-            "dnd",
-            "search",
-            "state",
-            "types",
-            "wholerow",
-          ],
+          plugins: ["checkbox", "sort", "types", "wholerow"],
+          sort: function (a, b) {
+            return this.get_type(a) === this.get_type(b)
+              ? this.get_text(a) > this.get_text(b)
+                ? 1
+                : -1
+              : this.get_type(a) >= this.get_type(b)
+              ? 1
+              : -1;
+          },
+          types: {
+            "#": { max_children: 1, max_depth: 4, valid_children: ["root"] },
+            root: {
+              icon: "/static/3.3.11/assets/images/tree_icon.png",
+              valid_children: ["default"],
+            },
+            default: {
+              valid_children: ["default", "file"],
+              icon: "glyphicon glyphicon-flash",
+            },
+          },
         });
-
         $("#jstree").on(
           "select_node.jstree deselect_node.jstree",
           function (e) {
             var selected_titles = [];
             var selectedIndexes = $("#jstree").jstree("get_selected", true);
             $.each(selectedIndexes, function () {
-              selected_titles.push(this["text"]);
+              selected_titles.push($("#jstree").jstree().get_path(this, "/"));
             });
             $("#tree_data").val(JSON.stringify(selected_titles));
           }

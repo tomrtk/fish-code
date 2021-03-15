@@ -42,10 +42,9 @@
           ></path>
         </svg>
       </li>
-      <li class="inline">New Project</li>
+      <li class="inline font-medium">New Project</li>
     </ul>
   </div>
-  <h1 class="text-center text-3xl mb-6">New Project</h1>
   <div class="mb-10">
     <form
       enctype="multipart/form-data"
@@ -69,8 +68,8 @@
           <label class="block" for="project_name"
             ><span>Organization <span class="text-red-800">*</span></span>
             <input
-              id="project_name"
-              name="project_name"
+              id="project_org"
+              name="project_org"
               class="block w-full"
               type="text"
               maxlength="255"
@@ -81,8 +80,8 @@
             ><span>Description <span class="text-red-800">*</span></span>
             <textarea
               class="block w-full"
-              id="description"
-              name="description"
+              id="project_desc"
+              name="project_desc"
             ></textarea>
           </label>
         </div>
@@ -90,8 +89,8 @@
           <label class="block" for="project_name"
             ><span>Project ID <span class="text-red-800">*</span></span>
             <input
-              id="project_name"
-              name="project_name"
+              id="project_id"
+              name="project_id"
               class="block w-full"
               type="text"
               maxlength="255"
@@ -127,12 +126,13 @@
         </div>
       </div>
       <div class="flex flex-row justify-end">
-        <button
-          type="button"
+        <a
           class="mr-4 text-black py-2 px-3 border-2 border-gray-300 rounded bg-gray-300 hover:bg-blue-200 hover:border-2 hover:text-black"
+          href="{{ url_for('projects_bp.projects_index')
+                                  }}"
         >
           Cancel
-        </button>
+        </a>
         <input
           id="saveForm"
           type="submit"

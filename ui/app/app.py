@@ -5,32 +5,29 @@ import os
 from flask import Flask, render_template
 
 from app.model import *
-from app.projects.projects import projects_bp
+from app.projects.projects import construct_projects_bp
 
 
 def create_app(test_config=None):  # type: ignore
     """Application factory to setup the loading of the application."""
-    app = Flask(__name__, instance_relative_config=True)
-
-    app.config.from_mapping(  # type: ignore
-        SECRET_KEY="dev",
-        BACKEND_URL="http://127.0.0.1:9955",
-    )
-
-    # app.config["TEMPLATES_AUTO_RELOAD"] = True
+    app = Flask(__name__, instance_relative_config=False)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)  # type: ignore
+        app.config.from_pyfile("config.cfg", silent=False)  # type: ignore
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)  # type: ignore
+
+    print(app.config["BACKEND_URL"])
 
     # ensure the instance folder exists
     try:
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    projects_bp = construct_projects_bp(app.config)
 
     app.register_blueprint(projects_bp, url_prefix="/projects")
 
