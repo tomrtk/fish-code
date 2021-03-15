@@ -41,7 +41,7 @@ class Detection(BaseModel):
 
     bbox: BBox
     label: int
-    score: float
+    probability: float
     frame: int
 
 

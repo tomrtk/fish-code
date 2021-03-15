@@ -122,7 +122,7 @@ class Detection:
         self,
         bbox: BBox,
         label: int,
-        score: float,
+        probability: float,
         frame: int,
         true_track_id: int = 0,
     ) -> None:
@@ -141,7 +141,7 @@ class Detection:
         """
         self.bbox = bbox
         self.label = label
-        self.score = score
+        self.probability = probability
         self.frame = frame
         self.true_track_id = true_track_id
 
@@ -153,7 +153,7 @@ class Detection:
         np.ndarray(1,5) :
             Detection as [x1, y1, x2, y2, score]
         """
-        return np.array(np.append(self.bbox.to_list(), self.score))
+        return np.array(np.append(self.bbox.to_list(), self.probability))
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert self to dict.
@@ -166,7 +166,7 @@ class Detection:
         return {
             "bbox": self.bbox.to_dict(),
             "label": self.label,
-            "score": self.score,
+            "probability": self.probability,
             "frame": self.frame,
         }
 
@@ -179,7 +179,10 @@ class Detection:
         cls.to_dict()
         """
         return cls(
-            BBox(**dict["bbox"]), dict["label"], dict["score"], dict["frame"]
+            BBox(**dict["bbox"]),
+            dict["label"],
+            dict["probability"],
+            dict["frame"],
         )
 
     @classmethod
@@ -199,7 +202,9 @@ class Detection:
         cls.to_dict()
         tracing.api.Detection
         """
-        return cls(BBox(**dict["bbox"]), dict["label"], dict["score"], frame)
+        return cls(
+            BBox(**dict["bbox"]), dict["label"], dict["probability"], frame
+        )
 
 
 class Object:
@@ -316,7 +321,11 @@ class Tracker:
                     self._update_object(
                         int(t[4]),
                         Detection(
-                            d.bbox, d.label, d.score, d.frame, d.true_track_id
+                            d.bbox,
+                            d.label,
+                            d.probability,
+                            d.frame,
+                            d.true_track_id,
                         ),
                     )
 
