@@ -71,7 +71,7 @@ def test_object_to_dict(detection):
                     "y2": 40.0,
                 },
                 "label": 1,
-                "score": 1.0,
+                "probability": 1.0,
                 "frame": 1,
             },
         ],
