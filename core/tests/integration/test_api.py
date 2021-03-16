@@ -277,12 +277,6 @@ def test_set_job_status():
             "_status": "Pending",
         }
 
-        # Should not be able to complete a pending job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/complete",
-        )
-        assert response_post_job.status_code == 403
-
         # Start job and check its started
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/{job_id}/start",
@@ -313,12 +307,6 @@ def test_set_job_status():
             "_status": "Paused",
         }
 
-        # Should not be able to complete a paused job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/complete",
-        )
-        assert response_post_job.status_code == 403
-
         # Should not be able to pause a paused job
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/{job_id}/pause",
@@ -336,21 +324,3 @@ def test_set_job_status():
             "name": "Job name",
             "_status": "Running",
         }
-
-        # Should be able to complete a running job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/complete",
-        )
-        assert response_post_job.status_code == 200
-        assert response_post_job.json() == {
-            "description": "Job description",
-            "id": job_id,
-            "name": "Job name",
-            "_status": "Done",
-        }
-
-        # Should be able to complete a completed job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/complete",
-        )
-        assert response_post_job.status_code == 403
