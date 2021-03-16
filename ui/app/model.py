@@ -1,4 +1,5 @@
 """Collection of classes that fullfills the mocking."""
+import json
 from dataclasses import dataclass
 from typing import List
 
@@ -19,7 +20,22 @@ class Project:
     description: str
     name: str
     number: str
-    jobs: List[Job]
+
+    def to_json(self) -> str:
+        """Convert boundingbox to dict.
+
+        Return
+        ------
+        Dict[str, float] :
+            {"x1": float, "y1": float, "x2": float, "y2": float}
+        """
+        return json.dumps(
+            {
+                "name": self.name,
+                "number": self.number,
+                "description": self.description,
+            }
+        )
 
 
 @dataclass
