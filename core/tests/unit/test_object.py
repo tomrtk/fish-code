@@ -30,3 +30,17 @@ def test_get_object(make_test_obj: Object):
     assert det.probability == 0.8 and det.label == 2
 
     assert obj.get_detection(10) == None
+
+
+def test_calc_label(make_test_obj: Object):
+    obj = make_test_obj
+
+    assert round(obj.probability, 2) == 0.4
+    assert obj.label == 1
+
+    obj.add_detection(Detection(BBox(*[25, 35, 45, 55]), 0.5, 2, 4))
+    obj.add_detection(Detection(BBox(*[25, 35, 45, 55]), 0.3, 2, 4))
+    obj.add_detection(Detection(BBox(*[25, 35, 45, 55]), 0.8, 2, 4))
+
+    assert round(obj.probability, 3) == 0.343
+    assert obj.label == 2
