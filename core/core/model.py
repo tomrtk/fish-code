@@ -417,7 +417,7 @@ class Object:
         self._calc_label()
 
         return {
-            "track_id" : self.track_id,
+            "track_id": self.track_id,
             "label": self.label,
             "probability": self.probability,
             "time_in": self.time_in,
@@ -546,6 +546,16 @@ class Job:
             return self._objects[idx]
         except IndexError:
             return None
+
+    def get_result(self) -> List[Dict[str, Any]]:
+        """Return result from all objects.
+
+        Return
+        ------
+        List[Dict[str, Any]] :
+
+        """
+        return [obj.get_results() for obj in self._objects]
 
     def add_video(self, video: Video) -> bool:
         """Add a video to this job in order to be processed."""

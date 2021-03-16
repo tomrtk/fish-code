@@ -85,3 +85,17 @@ def test_job_status(make_test_job: Job):
     with pytest.raises(JobStatusException):
         job.start()
     assert job.status() == Status.DONE
+
+
+def test_get_result(make_test_job: Job):
+    job = make_test_job
+
+    results = job.get_result()
+
+    assert len(results) == 4
+
+    assert "track_id" in results[0]
+    assert "label" in results[0]
+    assert "probability" in results[0]
+    assert "time_in" in results[0]
+    assert "time_out" in results[0]
