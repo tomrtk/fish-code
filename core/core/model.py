@@ -356,7 +356,7 @@ class Object:
         self.label: int = label
         self.probability: float = 0.0
         self._detections: list[Detection] = list()
-        self.track_id: int
+        self.track_id: Optional[int] = None
         self.time_in = datetime(1, 1, 1)
         self.time_out = datetime(1, 1, 1)
         self._calc_label()
@@ -405,6 +405,24 @@ class Object:
         obj.track_id = track_id
 
         return obj
+
+    def get_results(self) -> Dict[str, Any]:
+        """Return information on this object.
+
+        Return
+        ------
+        Dict[str, Any] :
+
+        """
+        self._calc_label()
+
+        return {
+            "track_id" : self.track_id,
+            "label": self.label,
+            "probability": self.probability,
+            "time_in": self.time_in,
+            "time_out": self.time_out,
+        }
 
     def __eq__(self, o: object) -> bool:
         """Check if two Objects are same.
