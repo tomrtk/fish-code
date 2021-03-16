@@ -601,6 +601,8 @@ class Project:
     number  :   str
             A unique project number. This number is a reference to external
             reference number used by the user.
+    location    :   str
+            Optional string representing the location for this project.
     description :   str
                     Project description.
 
@@ -619,11 +621,18 @@ class Project:
         Returns a list of associated _jobs_.
     """
 
-    def __init__(self, name: str, number: str, description: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        number: str,
+        description: str,
+        location: str = "Unknown location",
+    ) -> None:
         self.id: int
         self.name: str = name
         self.number: str = number
         self.description: str = description
+        self.location: str = location
         self._jobs: Set[Job] = set()
 
     def __str__(self):
@@ -642,6 +651,7 @@ class Project:
             and other.name == self.name
             and other.description == self.description
             and other.number == self.number
+            and other.location == self.location
         )
 
     def __hash__(self) -> int:
@@ -659,6 +669,7 @@ class Project:
             name=project_data["name"],
             number=project_data["number"],
             description=project_data["description"],
+            location=project_data["location"],
         )
 
     @property

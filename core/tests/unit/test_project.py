@@ -7,11 +7,21 @@ from core.model import Job, Project
 @pytest.fixture
 def make_test_project() -> Project:
     """Create a test project for testing."""
-    project = Project("Test name", "NINA-123", "Test description")
+    project = Project(
+        "Test name", "NINA-123", "Test description", "Test location"
+    )
     project.add_job(Job("Test job name 1", "Test description 1"))
     project.add_job(Job("Test job name 2", "Test description 2"))
     project.add_job(Job("Test job name 3", "Test description 3"))
     return project
+
+
+def test_project_location(make_test_project):
+    """Test optional location string in constructor."""
+    project = make_test_project
+    assert project.location == "Test location"
+    project = Project("Test name", "123", "Desc")
+    assert project.location == "Unknown location"
 
 
 def test_make_project_and_add_job(make_test_project):

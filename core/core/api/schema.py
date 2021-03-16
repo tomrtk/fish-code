@@ -1,4 +1,6 @@
 """Pydantic shema of object recived and sent on API."""
+from typing import Optional
+
 from pydantic import BaseModel
 
 from core import model
@@ -46,6 +48,7 @@ class ProjectBase(HashableBaseModel):
     name: str
     number: str
     description: str
+    location: Optional[str] = "Unknown location"
 
 
 class Project(ProjectBase):
