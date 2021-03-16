@@ -5,12 +5,12 @@ from typing import List, Optional
 
 import requests
 
-from core.model import Frame, Object
+import core.model
 
 
 def to_track(
-    frames: List[Frame], host: str = "localhost", port: str = "8001"
-) -> Optional[List[Object]]:
+    frames: List[core.model.Frame], host: str = "localhost", port: str = "8001"
+) -> Optional[List[core.model.Object]]:
     """Send frames to tracker.
 
     Parameter
@@ -34,6 +34,6 @@ def to_track(
     )
 
     if response.status_code == 200:
-        return [Object.from_api(**obj) for obj in response.json()]
+        return [core.model.Object.from_api(**obj) for obj in response.json()]
 
     return None

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import numpy as np
 import pytest
 
@@ -6,7 +8,7 @@ from core.model import Video
 
 @pytest.fixture
 def make_test_video() -> Video:
-    return Video.from_path("./tests/unit/test.mp4")
+    return Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
 
 
 def test_video_exists(make_test_video):
@@ -20,12 +22,13 @@ def test_video_exists(make_test_video):
     assert video_invalid.exists() == True
 
 
-def test_video_members(make_test_video):
+def test_video_members(make_test_video: Video):
     video = make_test_video
     assert video.frames == 70
     assert video.fps == 25
     assert video.width == 1280
     assert video.height == 720
+    assert video.timestamp == datetime(2020, 3, 28, 12, 30, 10)
 
     video_raw = Video("/some/path", 8, 25, 512, 512)
     assert video_raw.frames == 8
@@ -57,3 +60,19 @@ def test_getitem_exceptions(make_test_video):
 
     with pytest.raises(NotImplementedError) as excinfo:
         _ = video[0:10:2]
+
+
+def test_timestamp_at(make_test_video: Video):
+    video = make_test_video
+
+    assert video.timestamp_at(0) == datetime(2020, 3, 28, 12, 30, 10)
+
+    assert video.timestamp_at(30) == datetime(2020, 3, 28, 12, 30, 11)
+
+    assert video.timestamp_at(video.frames) == datetime(2020, 3, 28, 12, 30, 12)
+
+    with pytest.raises(IndexError):
+        video.timestamp_at(-1)
+
+    with pytest.raises(IndexError):
+        video.timestamp_at(video.frames + 1)

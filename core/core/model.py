@@ -3,12 +3,16 @@ from __future__ import annotations
 
 import logging
 import os.path
+import re
 from dataclasses import dataclass
+from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import ffmpeg
 import numpy as np
+
+import core
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +90,7 @@ class Video:
         self.fps: int = fps
         self.width: int = width
         self.height: int = height
+        self.timestamp = parse_str_to_date(self._path)
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -192,6 +197,59 @@ class Video:
             height=height,
         )
 
+    def timestamp_at(self, idx: int) -> datetime:
+        """Return timestamp at index in video.
+
+        Parameter
+        ---------
+        idx : int
+
+        Return
+        ------
+        datetime :
+
+        """
+        if idx > self.frames:
+            raise IndexError
+        if idx < 0:
+            raise IndexError
+
+        return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
+
+
+def parse_str_to_date(path: str) -> Optional[datetime]:
+    """Parse string to date.
+
+    Parameter
+    ---------
+    path: str
+        string to parse to date on the format:
+        `[yyyy-mm-dd_hh-mm-ss]`
+
+
+    Return
+    ------
+    datetime :
+        parsed datetime object, or None if unsuccessfull
+
+    """
+    date = re.compile(r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\]").search(path)
+
+    if not date:
+        logger.error(f"no date found in path, {path}")
+        return None
+
+    date_temp = date[0][1:-1].split("_")
+
+    year, month, day, hour, minute, second = [
+        int(x) for x in date_temp[0].split("-") + date_temp[1].split("-")
+    ]
+
+    try:
+        return datetime(year, month, day, hour, minute, second)
+    except ValueError:
+        return None
+
 
 def _get_video_metadata(path) -> Tuple[int, ...]:
     """Get metadata from video using `ffmpeg`."""
@@ -219,6 +277,7 @@ class Frame:
 
     idx: int
     detections: List[Detection]
+    timestamp: Optional[datetime] = None
 
 
 @dataclass
@@ -298,6 +357,26 @@ class Object:
         self.probability: float = 0.0
         self._detections: list[Detection] = list()
         self.track_id: int
+        self.time_in = datetime(1, 1, 1)
+        self.time_out = datetime(1, 1, 1)
+        self._calc_label()
+
+    def _calc_label(self) -> None:
+        """Calculate label."""
+        if len(self._detections) == 0:
+            return
+
+        self.label = np.bincount(
+            [detect.label for detect in self._detections]
+        ).argmax()
+
+        self.probability = sum(
+            [
+                detect.probability
+                for detect in self._detections
+                if detect.label == self.label
+            ]
+        ) / len(self._detections)
 
     @classmethod
     def from_api(
@@ -348,6 +427,7 @@ class Object:
         detection : Detection
         """
         self._detections.append(detection)
+        self._calc_label()
 
     def number_of_detections(self) -> int:
         """Return the number of detections.
@@ -389,6 +469,7 @@ class Job:
         self.description: str = description
         self._status: Status = status
         self._objects: List[Object] = list()
+        self.videos: List[Video] = list()
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
@@ -459,6 +540,19 @@ class Job:
     def list_videos(self) -> List[Video]:
         """Retrieve a list of all videos in this job."""
         raise NotImplementedError
+
+    def _process_job(self) -> None:
+        raise NotImplementedError
+        frames: List[Frame] = list()
+
+        for video in self.videos:
+            # frames = interface.detector.predict(Video[start:end])
+            for frame in frames:
+                frame.timestamp = video.timestamp_at(frame.idx)
+
+        objects = core.interface.to_track(frames)
+        if objects:
+            self._objects = objects
 
     def status(self) -> Status:
         """Get the job status for this job."""
