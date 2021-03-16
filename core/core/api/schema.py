@@ -48,7 +48,7 @@ class ProjectBase(HashableBaseModel):
     name: str
     number: str
     description: str
-    location: Optional[str] = "Unknown location"
+    location: Optional[str] = None
 
 
 class Project(ProjectBase):

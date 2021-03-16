@@ -78,7 +78,7 @@ def test_add_project():
             "name": "Project name",
             "number": "AB-123",
             "description": "A project description",
-            "location": "Unknown location",
+            "location": None,
         }
 
 
@@ -132,7 +132,7 @@ def test_get_project():
             "id": project_id,
             "name": "Project name",
             "number": "AB-123",
-            "location": "Unknown location",
+            "location": None,
         }
 
         response_wrong_project = client.get("/projects/999999")
@@ -211,7 +211,7 @@ def test_get_job():
             "description": "A project description",
             "name": "Project name",
             "number": "AB-123",
-            "location": "Unknown location",
+            "location": None,
         }
 
         response_post_job = client.post(

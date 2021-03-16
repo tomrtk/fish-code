@@ -21,7 +21,7 @@ def test_project_location(make_test_project):
     project = make_test_project
     assert project.location == "Test location"
     project = Project("Test name", "123", "Desc")
-    assert project.location == "Unknown location"
+    assert project.location == None
 
 
 def test_make_project_and_add_job(make_test_project):

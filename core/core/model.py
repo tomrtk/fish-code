@@ -626,13 +626,13 @@ class Project:
         name: str,
         number: str,
         description: str,
-        location: str = "Unknown location",
+        location: Optional[str] = None,
     ) -> None:
         self.id: int
         self.name: str = name
         self.number: str = number
         self.description: str = description
-        self.location: str = location
+        self.location: Optional[str] = location
         self._jobs: Set[Job] = set()
 
     def __str__(self):
