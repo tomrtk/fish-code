@@ -290,6 +290,30 @@ def test_get_job():
         assert response.status_code == 404
 
 
+def test_get_done_job():
+    with TestClient(core) as client:
+
+        response = client.get("/projects/1/jobs/")
+        assert response.status_code == 200
+        data = response.json()
+
+        assert len(data) == 1
+
+        assert "id" in data[0]
+        assert "_status" in data[0]
+        assert "_objects" in data[0]
+
+        objs = data[0]["_objects"]
+        assert len(objs) == 2
+
+        for obj in objs:
+            assert "label" in obj
+            assert "probability" in obj
+            assert "track_id" in obj
+            assert "time_in" in obj
+            assert "time_out" in obj
+
+
 def test_project_not_existing():
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(core) as client:
