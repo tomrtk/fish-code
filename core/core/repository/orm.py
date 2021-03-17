@@ -36,6 +36,7 @@ projects = Table(
     Column("name", Text(NAME_SIZE), nullable=False),
     Column("number", Text(NAME_SIZE)),
     Column("description", Text(DESCRIPTION_SIZE)),
+    Column("location", Text(DESCRIPTION_SIZE), nullable=True),
 )
 
 jobs = Table(
