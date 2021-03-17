@@ -283,10 +283,12 @@ def test_set_job_status():
 
         response_get_project = client.get(f"/projects/{project_id}")
         assert response_get_project.json() == {
-            "description": "A project description",
             "id": project_id,
             "name": "Project name",
             "number": "AB-123",
+            "description": "A project description",
+            "location": None,
+            "jobs": [],
         }
 
         response_post_job = client.post(
