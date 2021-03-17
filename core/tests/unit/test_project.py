@@ -61,7 +61,7 @@ def test_get_job(make_test_project):
 def test_remove_job(make_test_project):
     """Test removing a job from the project by id."""
     project = make_test_project
-    jobs = project.get_jobs()
+    jobs = project.get_jobs().copy()
 
     assert project.remove_job(jobs[1]) == True
     assert len(project.get_jobs()) == 2
