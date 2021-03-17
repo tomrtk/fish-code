@@ -479,7 +479,7 @@ class Job:
         """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
-        if self.id:
+        if self.id and other.id:
             return (
                 self.name == other.name
                 and self.description == other.description
