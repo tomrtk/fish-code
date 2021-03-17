@@ -6,7 +6,9 @@ from pathlib import Path
 import core.interface as interface
 from core.model import BBox, Detection, Frame, Video
 
-TEST_VIDEO_PATH = Path("./tests/integration/test_data/test_video_abbor.mp4")
+TEST_VIDEO_PATH = Path(
+    "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000.mp4"
+)
 
 
 @pytest.fixture
@@ -28,7 +30,7 @@ def test_detection_api_interface(
     """Test detection interface in core with detection api."""
     frames = make_images
     detection_interface = interface.Detector()
-    model_name = detection_interface.available_models[0]
+    model_name = detection_interface.available_models[0].name
 
     # Test detecting with many frames
     frames = detection_interface.predict(frames, model_name)
