@@ -1,10 +1,15 @@
 """Tests for API."""
+import pytest
+from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
+from starlette.responses import Response
 
 from core import model
 from core.api import core, make_db, schema
+from core.api.api import get_runtime_repo
+from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
 
 
@@ -25,11 +30,13 @@ def test_pydantic_schema():  # noqa: D103
 def test_production_make_db():
     """Test production FastAPI dependency `make_db`."""
     core.dependency_overrides[make_db] = make_db
+    core.dependency_overrides[get_runtime_repo] = get_runtime_repo
     with TestClient(core) as client:
         response = client.get("/projects/")
 
         assert response.status_code == 200
     core.dependency_overrides[make_db] = make_test_db
+    core.dependency_overrides[get_runtime_repo] = get_test_repo
 
 
 def make_test_db():
@@ -47,8 +54,39 @@ def make_test_db():
         clear_mappers()
 
 
+def get_test_repo(session=Depends(make_test_db)):
+    sessionRepo = ProjectRepository(session)
+
+    proj = model.Project("test", "test", "test")
+    job = model.Job("Test Name", "Test Description", status=model.Status.DONE)
+    obj1 = model.Object(1)
+    obj1.add_detection(model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1))
+    obj1.add_detection(model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2))
+    obj1.add_detection(model.Detection(model.BBox(20, 30, 40, 50), 0.7, 2, 3))
+    obj1.track_id = 1
+    job.add_object(obj1)
+
+    obj2 = model.Object(2)
+    obj2.add_detection(model.Detection(model.BBox(40, 50, 60, 70), 0.7, 2, 2))
+    obj2.add_detection(model.Detection(model.BBox(45, 55, 65, 75), 0.6, 2, 3))
+    obj2.add_detection(model.Detection(model.BBox(50, 60, 70, 100), 0.7, 1, 4))
+    obj2.track_id = 2
+    job.add_object(obj2)
+
+    proj = proj.add_job(job)
+    sessionRepo.add(proj)
+    sessionRepo.save()
+
+    try:
+        yield sessionRepo
+    finally:
+        sessionRepo.session.commit()
+        sessionRepo.session.close()
+
+
 # Override what database to use for tests
 core.dependency_overrides[make_db] = make_test_db
+core.dependency_overrides[get_runtime_repo] = get_test_repo
 
 
 def test_get_projects():
