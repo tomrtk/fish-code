@@ -200,3 +200,102 @@ def get_job_from_project(
         raise HTTPException(status_code=404, detail="Job not found")
 
     return project.get_job(job_id)
+
+
+@core.post(
+    "/projects/{project_id}/jobs/{job_id}/start", response_model=schema.Job
+)
+def set_job_status_start(
+    project_id: int,
+    job_id: int,
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+):
+    """Mark the job to be processed.
+
+    Returns
+    -------
+    Job
+        Job with updated status.
+
+    Raises
+    ------
+    HTTPException
+        If no project with _project_id_ found. Status code: 404.
+    HTTPException
+        If no job with _job_id_ found. Status code: 404.
+    HTTPException
+        If job is already running or completed. Status code: 403.
+    """
+    project = repo.get(project_id)
+
+    if not project:
+        logger.warning("Project %s not found,", project_id)
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    job = project.get_job(job_id)
+
+    if job is None:
+        logger.warning("Job %s not found,", job_id)
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    try:
+        job.start()
+        repo.save()
+    except model.JobStatusException:
+        logger.warning(
+            "Cannot start job %s, it's already running or completed.", job_id
+        )
+        raise HTTPException(
+            status_code=403,
+            detail="Cannot start job, it's already running or completed.",
+        )
+
+    return job
+
+
+@core.post(
+    "/projects/{project_id}/jobs/{job_id}/pause", response_model=schema.Job
+)
+def set_job_status_pause(
+    project_id: int,
+    job_id: int,
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+):
+    """Mark the job to be paused.
+
+    Returns
+    -------
+    Job
+        Job with updated status.
+
+    Raises
+    ------
+    HTTPException
+        If no project with _project_id_ found. Status code: 404.
+    HTTPException
+        If no job with _job_id_ found. Status code: 404.
+    HTTPException
+        If job is already paused or completed. Status code: 403.
+    """
+    project = repo.get(project_id)
+
+    if not project:
+        logger.warning("Project %s not found,", project_id)
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    job = project.get_job(job_id)
+
+    if job is None:
+        logger.warning("Job %s not found,", job_id)
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    try:
+        job.pause()
+        repo.save()
+    except model.JobStatusException:
+        logger.warning("Cannot pause job %s, it's not running..", job_id)
+        raise HTTPException(
+            status_code=403, detail="Cannot pause job, it's not running.."
+        )
+
+    return job

@@ -560,18 +560,30 @@ class Job:
 
     def start(self) -> None:
         """Mark the job as started."""
+        if self._status is Status.DONE or self._status is Status.RUNNING:
+            raise JobStatusException
         logger.debug("Job '%s' starting", self.name)
         self._status = Status.RUNNING
 
     def pause(self) -> None:
         """Mark the job as paused."""
+        if self._status is not Status.RUNNING:
+            raise JobStatusException
         logger.debug("Job '%s' paused", self.name)
         self._status = Status.PAUSED
 
     def complete(self) -> None:
         """Mark the job as completed."""
+        if self._status is not Status.RUNNING:
+            raise JobStatusException
         logger.debug("Job '%s' marked as completed", self.name)
         self._status = Status.DONE
+
+
+class JobStatusException(Exception):
+    """Exception when job attempt to change into invalid state."""
+
+    pass
 
 
 class Project:
