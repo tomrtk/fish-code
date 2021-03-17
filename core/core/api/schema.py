@@ -1,4 +1,5 @@
 """Pydantic shema of object recived and sent on API."""
+from datetime import datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
@@ -21,17 +22,37 @@ class JobBase(HashableBaseModel):
     description: str
 
 
-class Job(JobBase):
-    """`Job` class used to send object on API."""
+class Object(BaseModel):
+    """Base model for `Object` class used in API."""
 
-    id: int
-    status: model.Status
+    label: int
+    probability: float
+    track_id: int
+    time_in: datetime
+    time_out: datetime
 
     class Config:
         """Pydantic configuration options."""
 
         orm_mode = True
-        fields = {"status": "_status"}
+
+
+class Job(JobBase):
+    """`Job` class used to send object on API."""
+
+    id: int
+    status: model.Status
+    objects: List[Object] = []
+
+    def __hash__(self) -> int:
+        """Hash status data in job."""
+        return hash((type(self),) + (self.name, self.description, self.id))
+
+    class Config:
+        """Pydantic configuration options."""
+
+        orm_mode = True
+        fields = {"status": "_status", "objects": "_objects"}
         underscore_attrs_are_private = False
         use_enum_values = True
 

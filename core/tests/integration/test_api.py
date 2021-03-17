@@ -215,6 +215,7 @@ def test_add_and_get_job():
             "description": "Job description",
             "id": job_id,
             "_status": "Pending",
+            "_objects": [],
         }
 
         response = client.get(f"/projects/{project_id}/jobs")
@@ -227,6 +228,7 @@ def test_add_and_get_job():
                 "description": "Job description",
                 "id": job_id,
                 "_status": "Pending",
+                "_objects": [],
             }
         ]
 
@@ -278,6 +280,7 @@ def test_get_job():
             "id": job_id,
             "name": "Job name",
             "_status": "Pending",
+            "_objects": [],
         }
 
         response = client.get(f"/projects/999999/jobs/{job_id}")
@@ -352,6 +355,7 @@ def test_set_job_status():
             "id": job_id,
             "name": "Job name",
             "_status": "Pending",
+            "_objects": [],
         }
 
         # Start job and check its started
@@ -364,6 +368,7 @@ def test_set_job_status():
             "id": job_id,
             "name": "Job name",
             "_status": "Running",
+            "_objects": [],
         }
 
         # Should not be able to start a started job
@@ -382,6 +387,7 @@ def test_set_job_status():
             "id": job_id,
             "name": "Job name",
             "_status": "Paused",
+            "_objects": [],
         }
 
         # Should not be able to pause a paused job
@@ -400,4 +406,5 @@ def test_set_job_status():
             "id": job_id,
             "name": "Job name",
             "_status": "Running",
+            "_objects": [],
         }
