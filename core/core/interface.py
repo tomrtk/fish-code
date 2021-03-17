@@ -121,7 +121,7 @@ class Detector:  # pragma: no cover
             If `frames` is of wrong dimensions. Should be 3 or 4 with shape:
             `(height, width, channels) or (frame, height, width, channels)`
         """
-        if model_name not in self.available_models:
+        if not any(model_name == m.name for m in self.available_models):
             logger.warning(
                 "`model_name` is unknown, %s is not %s",
                 model_name,
