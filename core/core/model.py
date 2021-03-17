@@ -633,7 +633,7 @@ class Project:
         self.number: str = number
         self.description: str = description
         self.location: Optional[str] = location
-        self._jobs: Set[Job] = set()
+        self.jobs: List[Job] = list()
 
     def __str__(self):
         """Print class members."""
@@ -681,7 +681,7 @@ class Project:
         int
             Number of jobs in project
         """
-        return len(self._jobs)
+        return len(self.jobs)
 
     def add_job(self, job: Job) -> Project:
         """Add job to project.
@@ -691,13 +691,13 @@ class Project:
         job     :   Job
                     Job to be added to project.
         """
-        if job in self._jobs:
+        if job in self.jobs:
             logger.debug(
                 "Attempted to add existing job '%s' to a project", job.name
             )
         else:
             logger.debug("Added job '%s' to project", job.name)
-            self._jobs.add(job)
+            self.jobs.append(job)
         return self
 
     def get_jobs(self):
@@ -708,7 +708,7 @@ class Project:
          :  List[Job]
             List containing all jobs within the project
         """
-        return list(self._jobs)
+        return self.jobs
 
     def get_job(self, job_id: int) -> Optional[Job]:
         """Retrive a single job from the project.
@@ -723,7 +723,7 @@ class Project:
         Job
             The job object if found.
         """
-        for job in self._jobs:
+        for job in self.jobs:
             if job.id == job_id:
                 return job
 
@@ -742,8 +742,8 @@ class Project:
         bool
             True if the job was successfully removed
         """
-        if job in self._jobs:
-            self._jobs.remove(job)
+        if job in self.jobs:
+            self.jobs.remove(job)
             logger.debug("Removed job with name '%s' from a project", job.name)
             return True
         else:

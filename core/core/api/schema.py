@@ -1,5 +1,5 @@
 """Pydantic shema of object recived and sent on API."""
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -55,6 +55,7 @@ class Project(ProjectBase):
     """`Project` class used to send object on API."""
 
     id: int
+    jobs: List[Job] = []
 
     class Config:
         """Pydantic configuration options."""

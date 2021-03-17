@@ -121,9 +121,9 @@ def start_mappers():
         model.Project,
         projects,
         properties={
-            "_jobs": relationship(
+            "jobs": relationship(
                 jobs_mapper,
-                collection_class=set,
+                collection_class=list,
                 cascade="all, delete",
             )
         },
