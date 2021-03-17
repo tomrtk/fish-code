@@ -10,7 +10,10 @@ from core.repository.orm import metadata, start_mappers
 
 def test_pydantic_schema():  # noqa: D103
     job = schema.Job(
-        id=1, name="Test", description="Testing", _status=model.Status.PENDING
+        id=1,
+        name="Test",
+        description="Testing",
+        _status=model.Status.PENDING,
     )
 
     jobs = set()
