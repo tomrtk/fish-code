@@ -71,6 +71,32 @@ def test_add_project_with_jobs(sqlite_session_factory):
     assert len(repo) == 2
 
 
+def test_add_project_with_location(sqlite_session_factory):
+    """Test that location gets saved to the database."""
+    session1 = sqlite_session_factory()
+    repo1 = SqlAlchemyProjectRepository(session1)
+
+    # Create a project to add to repository
+    projectA = model.Project("aaa", "bbb", "ccc", "ddd")
+    projectB = model.Project("111", "222", "333")
+
+    # Add projects into repository
+    repo1.add(projectA)
+    repo1.add(projectB)
+    repo1.save()
+
+    session2 = sqlite_session_factory()
+    repo2 = SqlAlchemyProjectRepository(session2)
+
+    assert repo2.get(1).location == "ddd"
+    assert repo2.get(2).location is None
+
+    repo2.get(2).location = "444"
+    repo2.save()
+
+    assert repo2.get(2).location == "444"
+
+
 def test_save_project(sqlite_session_factory):
     """Tests saving the project to disk, and retrieving it afterwards."""
     # Create a db session
