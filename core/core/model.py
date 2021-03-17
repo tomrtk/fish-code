@@ -479,7 +479,7 @@ class Job:
         """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
-        if self.id:
+        if self.id and other.id:
             return (
                 self.name == other.name
                 and self.description == other.description
@@ -601,6 +601,8 @@ class Project:
     number  :   str
             A unique project number. This number is a reference to external
             reference number used by the user.
+    location    :   str
+            Optional string representing the location for this project.
     description :   str
                     Project description.
 
@@ -619,12 +621,19 @@ class Project:
         Returns a list of associated _jobs_.
     """
 
-    def __init__(self, name: str, number: str, description: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        number: str,
+        description: str,
+        location: Optional[str] = None,
+    ) -> None:
         self.id: int
         self.name: str = name
         self.number: str = number
         self.description: str = description
-        self._jobs: Set[Job] = set()
+        self.location: Optional[str] = location
+        self.jobs: List[Job] = list()
 
     def __str__(self):
         """Print class members."""
@@ -642,6 +651,7 @@ class Project:
             and other.name == self.name
             and other.description == self.description
             and other.number == self.number
+            and other.location == self.location
         )
 
     def __hash__(self) -> int:
@@ -659,6 +669,7 @@ class Project:
             name=project_data["name"],
             number=project_data["number"],
             description=project_data["description"],
+            location=project_data["location"],
         )
 
     @property
@@ -670,7 +681,7 @@ class Project:
         int
             Number of jobs in project
         """
-        return len(self._jobs)
+        return len(self.jobs)
 
     def add_job(self, job: Job) -> Project:
         """Add job to project.
@@ -680,13 +691,13 @@ class Project:
         job     :   Job
                     Job to be added to project.
         """
-        if job in self._jobs:
+        if job in self.jobs:
             logger.debug(
                 "Attempted to add existing job '%s' to a project", job.name
             )
         else:
             logger.debug("Added job '%s' to project", job.name)
-            self._jobs.add(job)
+            self.jobs.append(job)
         return self
 
     def get_jobs(self):
@@ -697,7 +708,7 @@ class Project:
          :  List[Job]
             List containing all jobs within the project
         """
-        return list(self._jobs)
+        return self.jobs
 
     def get_job(self, job_id: int) -> Optional[Job]:
         """Retrive a single job from the project.
@@ -712,7 +723,7 @@ class Project:
         Job
             The job object if found.
         """
-        for job in self._jobs:
+        for job in self.jobs:
             if job.id == job_id:
                 return job
 
@@ -731,8 +742,8 @@ class Project:
         bool
             True if the job was successfully removed
         """
-        if job in self._jobs:
-            self._jobs.remove(job)
+        if job in self.jobs:
+            self.jobs.remove(job)
             logger.debug("Removed job with name '%s' from a project", job.name)
             return True
         else:

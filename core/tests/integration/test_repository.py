@@ -20,7 +20,7 @@ def test_add_project(sqlite_session_factory):
     # Create a project to add to repository
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
     project2 = model.Project(
-        "en til DB test", "NINA-124", "Test prosjekt ABC-101"
+        "en til DB test", "NINA-124", "Test prosjekt ABC-101", "Some location"
     )
 
     # Add projects into repository
@@ -34,6 +34,7 @@ def test_add_project(sqlite_session_factory):
     assert repo.get(1) == project1
     assert repo.get(2) == project2
     assert repo.list() == [project1, project2]
+    assert repo.get(2).location == "Some location"
     assert len(repo) == 2
 
 
@@ -70,7 +71,34 @@ def test_add_project_with_jobs(sqlite_session_factory):
     assert len(repo) == 2
 
 
+def test_add_project_with_location(sqlite_session_factory):
+    """Test that location gets saved to the database."""
+    session1 = sqlite_session_factory()
+    repo1 = SqlAlchemyProjectRepository(session1)
+
+    # Create a project to add to repository
+    projectA = model.Project("aaa", "bbb", "ccc", "ddd")
+    projectB = model.Project("111", "222", "333")
+
+    # Add projects into repository
+    repo1.add(projectA)
+    repo1.add(projectB)
+    repo1.save()
+
+    session2 = sqlite_session_factory()
+    repo2 = SqlAlchemyProjectRepository(session2)
+
+    assert repo2.get(1).location == "ddd"
+    assert repo2.get(2).location is None
+
+    repo2.get(2).location = "444"
+    repo2.save()
+
+    assert repo2.get(2).location == "444"
+
+
 def test_save_project(sqlite_session_factory):
+    """Tests saving the project to disk, and retrieving it afterwards."""
     # Create a db session
     session1 = sqlite_session_factory()
     # Create a project repository
@@ -99,6 +127,7 @@ def test_save_project(sqlite_session_factory):
 
 
 def test_add_job_with_objects(sqlite_session_factory):
+    """Test adding a job with attached objects."""
     session1 = sqlite_session_factory()
     repo1 = SqlAlchemyProjectRepository(session1)
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")

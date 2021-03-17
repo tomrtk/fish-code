@@ -36,6 +36,7 @@ projects = Table(
     Column("name", Text(NAME_SIZE), nullable=False),
     Column("number", Text(NAME_SIZE)),
     Column("description", Text(DESCRIPTION_SIZE)),
+    Column("location", Text(DESCRIPTION_SIZE), nullable=True),
 )
 
 jobs = Table(
@@ -120,9 +121,9 @@ def start_mappers():
         model.Project,
         projects,
         properties={
-            "_jobs": relationship(
+            "jobs": relationship(
                 jobs_mapper,
-                collection_class=set,
+                collection_class=list,
                 cascade="all, delete",
             )
         },
