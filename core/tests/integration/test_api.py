@@ -78,6 +78,36 @@ def test_add_project():
             "name": "Project name",
             "number": "AB-123",
             "description": "A project description",
+            "location": None,
+            "jobs": [],
+        }
+
+
+def test_add_project_with_location():
+    """Test posting a new project with location string."""
+    with TestClient(core) as client:
+        response = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+                "location": "Testing",
+            },
+        )
+        assert response.status_code == 200
+        project_data = response.json()
+        assert "id" in project_data
+        project_id = project_data["id"]
+
+        response = response.json()
+        assert response == {
+            "id": project_id,
+            "name": "Project name",
+            "number": "AB-123",
+            "description": "A project description",
+            "location": "Testing",
+            "jobs": [],
         }
 
 
@@ -104,6 +134,8 @@ def test_get_project():
             "id": project_id,
             "name": "Project name",
             "number": "AB-123",
+            "location": None,
+            "jobs": [],
         }
 
         response_wrong_project = client.get("/projects/999999")
@@ -178,10 +210,12 @@ def test_get_job():
 
         response_get_project = client.get(f"/projects/{project_id}")
         assert response_get_project.json() == {
-            "description": "A project description",
             "id": project_id,
+            "description": "A project description",
             "name": "Project name",
             "number": "AB-123",
+            "location": None,
+            "jobs": [],
         }
 
         response_post_job = client.post(
@@ -249,10 +283,12 @@ def test_set_job_status():
 
         response_get_project = client.get(f"/projects/{project_id}")
         assert response_get_project.json() == {
-            "description": "A project description",
             "id": project_id,
             "name": "Project name",
             "number": "AB-123",
+            "description": "A project description",
+            "location": None,
+            "jobs": [],
         }
 
         response_post_job = client.post(
