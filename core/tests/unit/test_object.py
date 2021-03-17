@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import pytest
+from sqlalchemy.sql.sqltypes import Integer
 
 from core.model import BBox, Detection, Object
 
@@ -40,6 +41,7 @@ def test_calc_label(make_test_obj: Object):
 
     assert round(obj.probability, 2) == 0.4
     assert obj.label == 1
+    assert isinstance(obj.label, int)
 
     obj.add_detection(Detection(BBox(*[25, 35, 45, 55]), 0.5, 2, 4))
     obj.add_detection(Detection(BBox(*[25, 35, 45, 55]), 0.3, 2, 4))

@@ -366,9 +366,9 @@ class Object:
         if len(self._detections) == 0:
             return
 
-        self.label = np.bincount(
-            [detect.label for detect in self._detections]
-        ).argmax()
+        self.label = int(
+            np.bincount([detect.label for detect in self._detections]).argmax()
+        )
 
         self.probability = sum(
             [
