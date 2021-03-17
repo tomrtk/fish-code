@@ -8,6 +8,7 @@ workflow:
     - if: $CI_MERGE_REQUEST_ID
 
 stages:
+  - prep
   - style
   - quality
   - test
@@ -19,35 +20,52 @@ variables:
   POETRY_VIRTUALENVS_IN_PROJECT: "false"
   POETRY_VIRTUALENVS_PATH: $CI_PROJECT_DIR/.cache/poetry/venv
 
-cache:
-  key: $CI_COMMIT_REF_SLUG-$PIPELINE_ROOT
-  paths:
-    - .cache/pip
-    - .cache/poetry
-    - ./poetry.lock
+.cache_settings:
+  cache:
+    key: $CI_COMMIT_REF_SLUG-$PIPELINE_ROOT
+    paths:
+      - .cache/pip
+      - .cache/poetry
+      - poetry.lock
+
+build_cache:
+  stage: prep
+  extends: .cache_settings
+  script:
+    - poetry install
+  variables:
+    GIT_DEPTH: "3"
 
 style:
   stage: style
   script:
     - isort --check --diff ./*.py
     - black --check --diff ./*.py
+  cache: {}
 
 docs:
   stage: style
   script:
     - pydocstyle ./*.py
   allow_failure: true
+  cache: {}
 
 pyright:
   stage: quality
+  extends: .cache_settings
   before_script:
     - poetry install
   script:
     - poetry run pyright ./*.py
+  cache:
+    policy: pull
 
 tests:
   stage: test
+  extends: .cache_settings
   before_script:
     - poetry install
   script:
     - poetry run pytest
+  cache:
+    policy: pull
