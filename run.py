@@ -1,3 +1,4 @@
+"""Start all sub-packages as a new prosess."""
 import argparse
 import logging
 from multiprocessing import Process
@@ -6,6 +7,7 @@ from typing import List, Optional, Sequence
 from app.run import serve_debug, serve_prod  # type: ignore
 
 from core.main import main as core_main  # type: ignore
+from detection.main import main as detection_main  # type: ignore
 from tracing.main import main as tracing_main  # type: ignore
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,10 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     tracing_process = Process(target=tracing_main)
     tracing_process.daemon = True
     processes.append(tracing_process)
+
+    detection_process = Process(target=detection_main)
+    detection_process.daemon = True
+    processes.append(detection_process)
 
     # Start all processes
     for p in processes:

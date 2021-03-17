@@ -1,7 +1,11 @@
 """Test of detection API."""
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from detection.api import detection_api
+
+TEST_FILE_PATH = Path("./tests/test_data/")
 
 
 def test_list_models():
@@ -10,7 +14,9 @@ def test_list_models():
         response = client.get("/models/")
 
         assert response.status_code == 200
-        assert response.json() == ["fishy"]
+        result = response.json()
+        assert "fishy" in result
+        assert len(result["fishy"]) == 9
 
 
 def test_predict():
@@ -19,14 +25,21 @@ def test_predict():
         response = client.post(
             "/predictions/fishy/",
             files=[
-                ("images", open("./tests/test_data/mort3.png", "rb")),
+                (
+                    "images",
+                    open(str((TEST_FILE_PATH / "mort3.png").resolve()), "rb"),
+                ),
+                (
+                    "images",
+                    open(str((TEST_FILE_PATH / "abbor.png").resolve()), "rb"),
+                ),
             ],
         )
 
         assert response.status_code == 200
         data = response.json()
 
-        assert len(data) == 1
+        assert len(data) == 2
 
         # Testing if all keys are present
         assert "0" in data
@@ -44,14 +57,18 @@ def test_predict_no_results():
         response = client.post(
             "/predictions/fishy/",
             files=[
-                ("images", open("./tests/test_data/white.jpg", "rb")),
+                (
+                    "images",
+                    open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
+                ),
             ],
         )
 
         assert response.status_code == 200
         data = response.json()
 
-        assert len(data) == 0
+        assert len(data) == 1
+        assert len(data["0"]) == 0
 
 
 def test_predict_wrong_model_name():
@@ -60,7 +77,10 @@ def test_predict_wrong_model_name():
         response = client.post(
             "/predictions/test/",
             files=[
-                ("images", open("./tests/test_data/white.jpg", "rb")),
+                (
+                    "images",
+                    open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
+                ),
             ],
         )
 
@@ -73,7 +93,10 @@ def test_predict_wrong_image_data_format():
         response = client.post(
             "/predictions/test/",
             files=[
-                ("images", open("./tests/test_data/test.txt", "rb")),
+                (
+                    "images",
+                    open(str((TEST_FILE_PATH / "test.txt").resolve()), "rb"),
+                ),
             ],
         )
 
