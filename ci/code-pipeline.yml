@@ -32,7 +32,7 @@ build_cache:
   stage: prep
   extends: .cache_settings
   script:
-    - poetry install
+    - poetry install --no-dev
   variables:
     GIT_DEPTH: "3"
 
@@ -54,7 +54,7 @@ pyright:
   stage: quality
   extends: .cache_settings
   before_script:
-    - poetry install
+    - poetry install --no-dev
   script:
     - poetry run pyright ./*.py
   cache:
@@ -64,7 +64,7 @@ tests:
   stage: test
   extends: .cache_settings
   before_script:
-    - poetry install
+    - poetry install --no-dev
   script:
     - poetry run pytest
   cache:

@@ -35,7 +35,7 @@ build_cache:
   before_script:
     - cd $PIPELINE_ROOT
   script:
-    - poetry install
+    - poetry install --no-dev
   variables:
     GIT_DEPTH: "3"
 
@@ -62,7 +62,7 @@ pyright:
   extends: .cache_settings
   before_script:
     - cd $PIPELINE_ROOT
-    - poetry install
+    - poetry install --no-dev
   script:
     - poetry run pyright .
   cache:
@@ -73,7 +73,7 @@ tests:
   extends: .cache_settings
   before_script:
     - cd $PIPELINE_ROOT
-    - poetry install
+    - poetry install --no-dev
   script:
     - poetry run pytest --cov --cov-report xml
     - poetry run coverage report
