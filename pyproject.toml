@@ -15,6 +15,7 @@ packages = [
     { include = "./ui" },
     { include = "./core" },
     { include = "./tracing" },
+    { include = "./detection" },
 ]
 
 
@@ -23,6 +24,7 @@ python = "^3.7"
 core = {path = "core"}
 tracing = {path = "tracing"}
 app = {path = "ui"}
+detection = {path = "detection"}
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"
@@ -78,3 +80,5 @@ addopts = "-ra -q"
 testpaths = [
     "tests",
 ]
+log_cli = "True"
+log_level = "DEBUG"

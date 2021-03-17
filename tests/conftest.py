@@ -1,6 +1,8 @@
+"""Pytest fixtures used in tests."""
 import pytest
 
 from tracing.main import main as tracing_main  # type: ignore
+from detection.main import main as detection_main
 from multiprocessing import Process
 import time
 import requests
@@ -23,8 +25,12 @@ def tracing_api():
     tracing_process.terminate()
 
 
-def check_api(max_tries: int = 4, host: str = "localhost", port: str = "8000"):
-    """check if an endpoint is reachable.
+def check_api(
+    max_tries: int = 4,
+    host: str = "localhost",
+    port: str = "8000",
+):
+    """Check if an endpoint is reachable.
 
     Sleeps for 2 seconds if unreachable.
 
@@ -51,3 +57,20 @@ def check_api(max_tries: int = 4, host: str = "localhost", port: str = "8000"):
         max_try -= 1
         print("waiting for api")
         time.sleep(2)
+
+
+@pytest.fixture
+def detection_api():
+    """Start detection API.
+
+    Makes sure that the API is running via `check_api()`
+
+    See Also
+    --------
+    check_api()
+    """
+    detection_process = Process(target=detection_main, args=(None,))
+    detection_process.start()
+    check_api(max_tries=60, host="localhost", port="8003")
+    yield
+    detection_process.terminate()

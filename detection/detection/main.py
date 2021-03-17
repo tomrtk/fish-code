@@ -28,7 +28,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--port",
-        default="8003",
+        default=8003,
         type=int,
         help="Port for API to run on, defaults to `8003`.",
     )
