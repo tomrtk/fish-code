@@ -3,6 +3,7 @@ import logging
 
 from sqlalchemy import (
     Column,
+    DateTime,
     Enum,
     Float,
     ForeignKey,
@@ -62,6 +63,9 @@ objects = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("label", Integer, nullable=False),
     Column("probability", Float, nullable=False),
+    Column("track_id", Integer, nullable=True),
+    Column("time_in", DateTime, nullable=False),
+    Column("time_out", DateTime, nullable=False),
 )
 
 detections = Table(
