@@ -1,7 +1,7 @@
 """Module defines BBox, Detection, Object and Tracker."""
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 import numpy as np
 from sort import sort
@@ -20,10 +20,10 @@ class BBox:
         x2 : second X coordinate
         y2 : second Y coordinate
         """
-        self.x1 = x1
-        self.y1 = y1
-        self.x2 = x2
-        self.y2 = y2
+        self.x1: float = x1
+        self.y1: float = y1
+        self.x2: float = x2
+        self.y2: float = y2
 
     @classmethod
     def from_list(cls, list: List[float]) -> BBox:
@@ -139,11 +139,11 @@ class Detection:
         true_track : int
             Used for benchmarking. This is a tracking id from the dataset
         """
-        self.bbox = bbox
-        self.label = label
-        self.probability = probability
-        self.frame = frame
-        self.true_track_id = true_track_id
+        self.bbox: BBox = bbox
+        self.label: int = label
+        self.probability: float = probability
+        self.frame: int = frame
+        self.true_track_id: int = true_track_id
 
     def to_SORT(self) -> np.ndarray:
         """Convert a detection to work with SORT.
@@ -222,9 +222,9 @@ class Object:
         --------
         tracing.tracker.Tracker
         """
-        self.track_id = track_id
-        self.detections = list()  # type: List[Detection]
-        self.label = None
+        self.track_id: int = track_id
+        self.detections: List[Detection] = list()
+        self.label: Optional[int] = None
 
     def update(self, detection: Detection) -> None:
         """Update the detections for this Object.
@@ -274,8 +274,8 @@ class Tracker:
         tracker : sort.Sort
             A Sort tracker.
         """
-        self.tracker = tracker
-        self.objects = {}  # type: dict[int, Object]
+        self.tracker: sort.Sort = tracker
+        self.objects: Dict[int, Object] = dict()
 
     def update(self, detecions: List[Detection]) -> np.ndarray:
         """Update the Tracker.
