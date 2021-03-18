@@ -1,6 +1,5 @@
 """Module defining detection API."""
 
-import os
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, List
@@ -19,9 +18,9 @@ model: Dict[str, Any] = dict()
 label: Dict[str, List[str]] = dict()
 
 # Handle paths for different working directories.
-if os.getcwd().split("/")[-1] == "code":
+if Path.cwd().name == "code":
     model_path = Path("./detection/detection/weights/")
-elif os.getcwd().split("/")[-1] == "detection":
+elif Path.cwd().name == "detection":
     model_path = Path("./detection/weights/")
 else:
     raise FileNotFoundError
