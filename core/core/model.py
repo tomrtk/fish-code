@@ -108,7 +108,7 @@ class Video:
         self.height: int = height
         self.output_width: int = output_width
         self.output_height: int = output_height
-        self.timestamp = parse_str_to_date(self._path)
+        self.timestamp: Optional[datetime] = parse_str_to_date(self._path)
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -632,16 +632,99 @@ class Job:
         return [obj.get_results() for obj in self._objects]
 
     def add_video(self, video: Video) -> bool:
-        """Add a video to this job in order to be processed."""
-        raise NotImplementedError
+        """Add a video to this job in order to be processed.
 
-    def remove_video(self, video_id: int) -> bool:
-        """Remove an existing video from this job."""
-        raise NotImplementedError
+        Parameter
+        ---------
+        video   :   Video
+            Video to add to this job. Must have a valid timestamp.
+
+        Return
+        ------
+        bool    :
+            True if video has a set timestamp, and is not already in the
+            videos list. False otherwise.
+
+        """
+        if video.timestamp is None:
+            logger.warning("Videos added to job must have set timestamp.")
+            return False
+
+        if video in self.videos:
+            logger.warning("Attempted to add an existing video to a job.")
+            return False
+
+        self.videos.append(video)
+        self.videos.sort(key=lambda x: x.timestamp.timestamp())
+        return True
+
+    def add_videos(self, videos: List[Video]) -> bool:
+        """Add a list of videos to this job in order to be processed.
+
+        Parameter
+        ---------
+        videos  :   List[Video]
+            List of videos to add. All must have a valid timestamp.
+
+        Return
+        ------
+        bool    :
+            True if all videos in the list has a timestamp, false otherwise.
+            No videos gets added if False is returned.
+        """
+        # TODO: Should also check for unique timestamps
+        for video in videos:
+            if video.timestamp is None:
+                logger.warning(
+                    "Videos added by list to job must all have timestamps."
+                )
+                return False
+
+            if video in self.videos:
+                logger.warning("Video has already been added to the job.")
+                return False
+
+        for video in videos:
+            self.videos.append(video)
+
+        self.videos.sort(key=lambda x: x.timestamp.timestamp())
+        return True
+
+    def remove_video(self, video: Video) -> bool:
+        """Remove an existing video from this job.
+
+        Parameter
+        ---------
+        video   :   Video
+            video to remove from the job.
+
+        Return
+        ------
+        bool    :
+            True if the video was removed from the job. False otherwise.
+        """
+        if video in self.videos:
+            self.videos.remove(video)
+            return True
+        else:
+            return False
 
     def list_videos(self) -> List[Video]:
         """Retrieve a list of all videos in this job."""
-        raise NotImplementedError
+        return self.videos.copy()
+
+    def total_frames(self) -> int:
+        """Get the total frames in all videos for this job.
+
+        Return
+        ------
+        int     :
+            Ammount of frames in total over all video objects in this job.
+        """
+        total_frames = 0
+        for video in self.videos:
+            total_frames += video.frames
+        return total_frames
 
     def _process_job(self) -> None:
         raise NotImplementedError

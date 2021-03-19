@@ -57,6 +57,13 @@ object_job_assoc = Table(
     Column("obj_id", Integer, ForeignKey("objects.id")),
 )
 
+video_job_assoc = Table(
+    "video_job_assoc",
+    metadata,
+    Column("job_id", Integer, ForeignKey("jobs.id")),
+    Column("video_id", Integer, ForeignKey("videos.id")),
+)
+
 objects = Table(
     "objects",
     metadata,
@@ -109,6 +116,11 @@ def start_mappers():
         },
     )
 
+    videos_mapper = mapper(
+        model.Video,
+        videos,
+    )
+
     jobs_mapper = mapper(
         model.Job,
         jobs,
@@ -117,7 +129,12 @@ def start_mappers():
                 object_mapper,
                 secondary=object_job_assoc,
                 cascade="all",
-            )
+            ),
+            "videos": relationship(
+                videos_mapper,
+                secondary=video_job_assoc,
+                cascade="all",
+            ),
         },
     )
 
@@ -131,9 +148,4 @@ def start_mappers():
                 cascade="all, delete",
             )
         },
-    )
-
-    videos_mapper = mapper(
-        model.Video,
-        videos,
     )

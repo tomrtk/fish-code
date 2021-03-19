@@ -1,7 +1,9 @@
 """Tests the job class functionality."""
+from datetime import timedelta
+
 import pytest
 
-from core.model import Job, JobStatusException, Object, Status
+from core.model import Job, JobStatusException, Object, Status, Video
 
 
 @pytest.fixture
@@ -34,6 +36,59 @@ def test_get_object(make_test_job: Job):
     assert obj.label == 2
 
     assert job.get_object(10) == None
+
+
+def test_job_processing(make_test_job):
+    """Test the processing of a job."""
+    job = make_test_job
+    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid2.timestamp = vid1.timestamp + timedelta(minutes=30)
+    job.add_videos([vid1, vid2])
+    job.start()
+
+
+def test_add_video(make_test_job):
+    """Test adding a video to the job."""
+    job = make_test_job
+    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    assert job.videos == []
+    assert job.add_video(vid1) == True
+    assert job.videos == [vid1]
+    assert job.add_video(vid1) == False
+    assert job.videos == [vid1]
+
+
+def test_add_list_videos(make_test_job):
+    """Test adding videos to the job with a list."""
+    job = make_test_job
+    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid3 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+
+    vid2.timestamp = None
+    vid3.timestamp = None
+    assert job.add_videos([vid1, vid3, vid2]) == False
+    assert job.videos == []
+
+    vid2.timestamp = vid1.timestamp + timedelta(minutes=30)
+    vid3.timestamp = vid2.timestamp + timedelta(minutes=30)
+
+    assert job.add_videos([vid3, vid1, vid2]) == True
+    assert job.videos == [vid1, vid2, vid3]
+    assert job.add_videos([vid3, vid2]) == False
+    assert job.videos == [vid1, vid2, vid3]
+
+
+def test_remove_video(make_test_job):
+    """Test removing a video from the job."""
+    job = make_test_job
+    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    job.add_video(vid1)
+    assert job.videos == [vid1]
+    assert job.remove_video(vid1) == True
+    assert job.videos == []
+    assert job.remove_video(vid1) == False
 
 
 def test_job_status(make_test_job: Job):
@@ -88,6 +143,7 @@ def test_job_status(make_test_job: Job):
 
 
 def test_get_result(make_test_job: Job):
+    """Test getting result objects from the job."""
     job = make_test_job
 
     results = job.get_result()
