@@ -497,13 +497,12 @@ class Job:
         """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
+        # Note: Will not be able to check equality if jobs do not have `id`,
+        # as this is the only unique parameter. A job without `id` is not
+        # seen by `repository` before, so it is a new `job`.
         if self.id and other.id:
-            return (
-                self.name == other.name
-                and self.description == other.description
-                and self.id == other.id
-            )
-        return self.name == other.name and self.description == other.description
+            return self.id == other.id
+        return False
 
     def __repr__(self):
         """Override of default __repr__. Gives object representation as a string."""

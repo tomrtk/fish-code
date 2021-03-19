@@ -27,7 +27,6 @@ def test_project_location(make_test_project):
 def test_make_project_and_add_job(make_test_project):
     """Tests creation of a project, and adding of jobs to it."""
     project = make_test_project
-    project.add_job(Job("Test job name 1", "Test description 1"))
     project.add_job(Job("This test is new", "Test description 2"))
 
     assert project.number_of_jobs == 4
