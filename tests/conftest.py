@@ -18,7 +18,7 @@ def tracing_api():
     --------
     check_api()
     """
-    tracing_process = Process(target=tracing_main)
+    tracing_process = Process(target=tracing_main, args=(None,))
     tracing_process.start()
     check_api(host="localhost", port="8001")
     yield
