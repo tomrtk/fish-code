@@ -149,3 +149,30 @@ def test_add_job_with_objects(sqlite_session_factory):
     repo2 = SqlAlchemyProjectRepository(session2)
     project_get2 = repo2.get(1)
     assert project_get2.get_jobs()[0].number_of_objects() == 2
+
+
+def test_regression_add_jobs_with_same_name(sqlite_session_factory):
+    """Test regression of not able to add two jobs with same name to project.
+
+    issue #88.
+    """
+    session = sqlite_session_factory()
+    repo = SqlAlchemyProjectRepository(session)
+    project = model.Project(
+        "Project name", "NINA-123", "Test prosjekt description"
+    )
+    repo.add(project)
+    repo.save()
+
+    job1 = model.Job("Job test", "Description")
+    job2 = model.Job("Job test", "Description")
+
+    repo_project = repo.get(1)
+    repo_project.add_job(job1)
+    repo.save()
+
+    repo_project = repo.get(1)
+    repo_project.add_job(job2)
+    repo.save()
+
+    assert len(repo.get(1).get_jobs()) == 2
