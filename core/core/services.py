@@ -10,8 +10,6 @@ logger = logging.getLogger(__name__)
 
 from typing import List
 
-from core.model import Video
-
 
 class VideoLoader:
     """Utility class to abstract away video files and turn them into an iterator of frames."""
@@ -35,16 +33,19 @@ class VideoLoader:
             all videos seemlessly.
         """
         batch = []
+        timestamps = []
         for video in self.videos:
             assert isinstance(video, Video), "VideoLoaded only support Video"
-            for frame in video:
+            for n, frame in enumerate(video):
                 batch.append(frame)
+                timestamps.append(video.timestamp_at(n))
                 if len(batch) == self.batchsize:
-                    yield np.array(batch)
+                    yield np.array(batch), timestamps
                     batch = []
+                    timestamps = []
 
         if len(batch) > 0:
-            yield np.array(batch)
+            yield np.array(batch), timestamps
 
 
 def process_job(job: Job) -> Job:
@@ -54,14 +55,18 @@ def process_job(job: Job) -> Job:
 
     video_loader = VideoLoader(job.videos, 50)
     det = Detector()
-    detections = list()
 
-    for batch in video_loader:
-        detections.append(det.predict(batch, "fishy"))
+    all_frames = []
+    for batch, timestamp in video_loader:
+        assert type(batch) is np.ndarray, "Batch must be of type np.ndarray"
+        frames = det.predict(batch, "fishy")
 
-    # TODO: Iterate over detections [frames] to set timestamps
+        # Iterate over all frames to set timestamps
+        for n, frame in enumerate(frames):
+            frame.timestamp = timestamp[n]
+            all_frames.append(frame)
 
-    objects = to_track(detections)
+    objects = to_track(all_frames)
 
     for obj in objects:
         job.add_object(obj)
