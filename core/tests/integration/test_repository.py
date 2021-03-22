@@ -47,15 +47,39 @@ def test_add_project_with_jobs(sqlite_session_factory):
 
     # Create a project to add to repository
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
-    project1.add_job(model.Job("Project 1: Test job 1", "Test description 1"))
-    project1.add_job(model.Job("Project 1: Test job 2", "Test description 2"))
-    project1.add_job(model.Job("Project 1: Test job 3", "Test description 3"))
+    project1.add_job(
+        model.Job(
+            "Project 1: Test job 1", "Test description 1", "Test location"
+        )
+    )
+    project1.add_job(
+        model.Job(
+            "Project 1: Test job 2", "Test description 2", "Test location"
+        )
+    )
+    project1.add_job(
+        model.Job(
+            "Project 1: Test job 3", "Test description 3", "Test location"
+        )
+    )
     project2 = model.Project(
         "en til DB test", "NINA-124", "Test prosjekt ABC-101"
     )
-    project2.add_job(model.Job("Project 2: Test job 1", "Test description 1"))
-    project2.add_job(model.Job("Project 2: Test job 2", "Test description 2"))
-    project2.add_job(model.Job("Project 2: Test job 3", "Test description 3"))
+    project2.add_job(
+        model.Job(
+            "Project 2: Test job 1", "Test description 1", "Test location"
+        )
+    )
+    project2.add_job(
+        model.Job(
+            "Project 2: Test job 2", "Test description 2", "Test location"
+        )
+    )
+    project2.add_job(
+        model.Job(
+            "Project 2: Test job 3", "Test description 3", "Test location"
+        )
+    )
 
     # Add projects into repository
     repo.add(project1)
@@ -105,8 +129,16 @@ def test_save_project(sqlite_session_factory):
     repo1 = SqlAlchemyProjectRepository(session1)
 
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
-    project1.add_job(model.Job("Project 1: Test job 1", "Test description 1"))
-    project1.add_job(model.Job("Project 1: Test job 2", "Test description 2"))
+    project1.add_job(
+        model.Job(
+            "Project 1: Test job 1", "Test description 1", "Test location"
+        )
+    )
+    project1.add_job(
+        model.Job(
+            "Project 1: Test job 2", "Test description 2", "Test location"
+        )
+    )
 
     repo1.add(project1)
     project_get = repo1.get(1)
@@ -131,7 +163,7 @@ def test_add_job_with_objects(sqlite_session_factory):
     session1 = sqlite_session_factory()
     repo1 = SqlAlchemyProjectRepository(session1)
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
-    job1 = model.Job("DB test", "Description")
+    job1 = model.Job("DB test", "Description", "Test location")
 
     job1.add_object(model.Object(1))
     job1.add_object(model.Object(2))
@@ -164,8 +196,8 @@ def test_regression_add_jobs_with_same_name(sqlite_session_factory):
     repo.add(project)
     repo.save()
 
-    job1 = model.Job("Job test", "Description")
-    job2 = model.Job("Job test", "Description")
+    job1 = model.Job("Job test", "Description", "Location")
+    job2 = model.Job("Job test", "Description", "Location")
 
     repo_project = repo.get(1)
     repo_project.add_job(job1)
