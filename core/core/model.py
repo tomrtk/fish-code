@@ -117,6 +117,20 @@ class Video:
                 output_height,
             )
 
+    def __iter__(self):
+        """Class iterator."""
+        self.current_frame = 0
+        return self
+
+    def __next__(self):
+        """Get next item from iterator."""
+        if self.current_frame < self.frames:
+            result = self.__get__(self.current_frame)
+            self.current_frame += 1
+            return result
+        else:
+            raise StopIteration
+
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
 
@@ -127,14 +141,17 @@ class Video:
         numpy.ndarray
             One frame of video as `ndarray`.
         """
-        if key < 0 or key >= self.frames:
+        if key < 0:
+            raise IndexError
+
+        if key >= self.frames:
             raise IndexError
 
         # ffmpeg filter docs:
         # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
         frame, _ = (
             ffmpeg.input(self._path)
-            .filter("select", "gte(n, {})".format(key))
+            .filter("select", "eq(n, {})".format(key))
             .filter(
                 "scale",
                 self.output_width,
@@ -142,7 +159,7 @@ class Video:
                 -1,
             )
             .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
-            .run(capture_stdout=True)
+            .run(quiet=True)
         )
         return np.frombuffer(frame, np.uint8).reshape(
             [self.output_height, self.output_width, 3]
@@ -222,7 +239,7 @@ class Video:
             .output(
                 "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
             )
-            .run(capture_stdout=True)
+            .run(quiet=True)
         )
 
         return np.frombuffer(frame, np.uint8).reshape(
