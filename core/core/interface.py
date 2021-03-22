@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 def to_track(
-    frames: List[core.model.Frame], host: str = "localhost", port: str = "8001"
+    frames: List[core.model.Frame], host: str = "127.0.0.1", port: str = "8001"
 ) -> Optional[List[core.model.Object]]:
     """Send frames to tracker.
 
@@ -89,7 +89,7 @@ class Detector:  # pragma: no cover
         `(height, width, channels) or (frame, height, width, channels)`
     """
 
-    def __init__(self, host: str = "localhost", port: str = "8003") -> None:
+    def __init__(self, host: str = "127.0.0.1", port: str = "8003") -> None:
         self.host: str = host
         self.port: str = port
         self.available_models: List[Model] = self._models()
