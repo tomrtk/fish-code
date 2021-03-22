@@ -141,7 +141,7 @@ def list_project_jobs(
 @core.post("/projects/{project_id}/jobs/", response_model=schema.Job)
 def add_job_to_project(
     project_id: int,
-    job: schema.JobBase,
+    job: schema.JobCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
 ):
     """Add a `Job` to a `Project` who has`project_id`.
@@ -155,10 +155,35 @@ def add_job_to_project(
     ------
     HTTPException
         If no project with _project_id_ found. Status code: 404.
+    HTTPException
+        If video path is not found. Status code: 404.
     """
     project = repo.get(project_id)
     if project:
-        new_job = model.Job(**job.dict())
+        # Create videos from list of paths
+        videos: List[model.Video] = []
+        errors = []
+        for video_path in job.videos:
+            try:
+                videos.append(model.Video.from_path(video_path))
+            except FileNotFoundError:
+                errors.append(video_path)
+
+        if len(errors) > 0:
+            raise HTTPException(
+                status_code=404, detail=f"Videos not found, paths: {errors}"
+            )
+
+        # create dict and remove videos from dict
+        job_dict = job.dict()
+        job_dict.pop("videos", None)
+        new_job = model.Job(**job_dict)
+
+        # Add each video to new job
+        for video in videos:
+            new_job.add_video(video)
+
+        # add job to project and save repo
         project = project.add_job(new_job)
         repo.save()
 

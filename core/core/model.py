@@ -551,7 +551,11 @@ class Job:
     """Class representation of a job."""
 
     def __init__(
-        self, name: str, description: str, status: Status = Status.PENDING
+        self,
+        name: str,
+        description: str,
+        location: str,
+        status: Status = Status.PENDING,
     ) -> None:
         self.id: Optional[int] = None
         self.name: str = name
@@ -559,6 +563,7 @@ class Job:
         self._status: Status = status
         self._objects: List[Object] = list()
         self.videos: List[Video] = list()
+        self.location: str = location
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
