@@ -1,6 +1,5 @@
 """Integration test between model and services."""
 import logging
-from datetime import timedelta
 
 import pytest
 from core.services import process_job, VideoLoader
@@ -35,8 +34,8 @@ def test_video_loader():
     video_loader = VideoLoader(videos, 10)
 
     results = []
-    for batch in video_loader:
+    for batch, _ in video_loader:
         results.append(len(batch))
 
-    assert results[0] == 10
-    assert len(results) == 14
+    assert results[0] == 10  # batch size == 10
+    assert len(results) == 7  # total num batches
