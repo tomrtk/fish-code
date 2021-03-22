@@ -651,19 +651,6 @@ class Job:
             total_frames += video.frames
         return total_frames
 
-    def _process_job(self) -> None:
-        raise NotImplementedError
-        frames: List[Frame] = list()
-
-        for video in self.videos:
-            # frames = interface.detector.predict(Video[start:end])
-            for frame in frames:
-                frame.timestamp = video.timestamp_at(frame.idx)
-
-        objects = core.interface.to_track(frames)
-        if objects:
-            self._objects = objects
-
     def status(self) -> Status:
         """Get the job status for this job."""
         return self._status
