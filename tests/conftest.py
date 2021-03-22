@@ -58,6 +58,9 @@ def check_api(
         print("waiting for api")
         time.sleep(2)
 
+    # Asserts false if endpoint is unreachable
+    assert ping(host, port)
+
 
 @pytest.fixture
 def detection_api():
