@@ -3,8 +3,12 @@
     <meta charset="UTF-8" />
     <title>Hello</title>
     <link
-      href="{{ url_for('static', filename='styles.min.css') }}"
+      href="{{ url_for('static', filename='dist/css/style.min.css') }}"
       rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='dist/js/jstree/themes/default/style.min.css') }}"
     />
   </head>
   <body class="bg-gray-100 overflow-y-scroll">
@@ -13,16 +17,70 @@
         class="bg-white flex flex-col mx-auto container rounded-lg shadow-lg"
       >
         <header
-          class="flex-none flex flex-row justify-end bg-gradient-to-r from-red-100 to-blue-200 rounded-t-lg"
+          class="flex-none flex flex-row justify-center bg-gradient-to-r from-nina-teal to-nina-orange rounded-t-lg"
         >
           <img
             class="m-2"
-            src="{{ url_for('static', filename='nina.png') }}"
+            src="{{ url_for('static', filename='dist/images/nina.png') }}"
             alt="NINA Logo"
           />
         </header>
         {% block main %}{% endblock %}
       </div>
     </div>
+    <script src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"></script>
+    <script>
+      $(function () {
+        $("#jstree").jstree({
+          sort: 1,
+          core: {
+            data: {
+              url: "/projects/json",
+              dataType: "json", // needed only if you do not supply JSON headers
+            },
+            themes: {
+              name: "default",
+            },
+          },
+          checkbox: {
+            keep_selected_style: false,
+          },
+
+          /*
+          types: {
+            folder: {
+              icon: "/static/dist/images/folder_icon.png",
+            },
+            file: {
+              icon: "/static/dist/images/file_icon.png",
+            },
+          },
+          */
+
+          plugins: ["checkbox", "sort", "types", "wholerow"],
+          sort: function (a, b) {
+            return this.get_type(a) === this.get_type(b)
+              ? this.get_text(a) > this.get_text(b)
+                ? 1
+                : -1
+              : this.get_type(a) >= this.get_type(b)
+              ? 1
+              : -1;
+          },
+        });
+        $("#jstree").on(
+          "select_node.jstree deselect_node.jstree",
+          function (e) {
+            var selected_titles = [];
+            var selectedIndexes = $("#jstree").jstree("get_selected", true);
+            $.each(selectedIndexes, function () {
+              selected_titles.push($("#jstree").jstree().get_path(this, "/"));
+            });
+            $("#tree_data").val(JSON.stringify(selected_titles));
+          }
+        );
+      });
+    </script>
   </body>
 </html>

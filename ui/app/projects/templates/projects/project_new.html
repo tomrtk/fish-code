@@ -42,16 +42,14 @@
           ></path>
         </svg>
       </li>
-      <li class="inline">New Project</li>
+      <li class="inline font-medium">New Project</li>
     </ul>
   </div>
-  <h1 class="text-center text-3xl mb-6">New Project</h1>
   <div class="mb-10">
     <form
       enctype="multipart/form-data"
       method="post"
-      action=""
-      class="mx-auto max-w-2xl border-2 p-4 rounded-lg bg-gray-100"
+      class="mx-auto max-w-2xl border-2 p-4 rounded-lg bg-gray-50"
     >
       <div class="flex flew-col mb-8 justify-center space-x-8">
         <div class="flex-1">
@@ -69,8 +67,8 @@
           <label class="block" for="project_name"
             ><span>Organization <span class="text-red-800">*</span></span>
             <input
-              id="project_name"
-              name="project_name"
+              id="project_org"
+              name="project_org"
               class="block w-full"
               type="text"
               maxlength="255"
@@ -81,8 +79,8 @@
             ><span>Description <span class="text-red-800">*</span></span>
             <textarea
               class="block w-full"
-              id="description"
-              name="description"
+              id="project_desc"
+              name="project_desc"
             ></textarea>
           </label>
         </div>
@@ -90,8 +88,8 @@
           <label class="block" for="project_name"
             ><span>Project ID <span class="text-red-800">*</span></span>
             <input
-              id="project_name"
-              name="project_name"
+              id="project_id"
+              name="project_id"
               class="block w-full"
               type="text"
               maxlength="255"
@@ -99,24 +97,12 @@
             />
           </label>
           <label class="block" for="startdate"
-            ><span
-              >Start date (yyyy/mm/dd) <span class="text-red-800">*</span></span
-            >
+            ><span>Location <span class="text-red-800">*</span></span>
             <input
-              id="startdate"
-              name="stardate"
+              id="project_location"
+              name="project_location"
               class="block w-full"
-              type="date"
-              maxlength="255"
-              value=""
-          /></label>
-          <label class="block" for="stopdate"
-            ><span>Stop date (yyyy/mm/dd)</span>
-            <input
-              id="stopdate"
-              name="stopdate"
-              class="block w-full"
-              type="date"
+              type="text"
               maxlength="255"
               value=""
           /></label>
@@ -127,18 +113,19 @@
         </div>
       </div>
       <div class="flex flex-row justify-end">
-        <button
-          type="button"
-          class="mr-4 text-black py-2 px-3 border-2 border-gray-300 rounded bg-gray-300 hover:bg-blue-200 hover:border-2 hover:text-black"
+        <a
+          class="mr-3 text-gray-800 py-1 px-3 rounded-lg bg-gray-200 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-300"
+          href="{{ url_for('projects_bp.projects_index')
+                                  }}"
         >
           Cancel
-        </button>
+        </a>
         <input
           id="saveForm"
           type="submit"
           name="submit"
           value="Create"
-          class="text-white py-2 px-3 border-2 border-blue-500 rounded bg-blue-500 hover:bg-blue-200 hover:border-2 hover:text-black"
+          class="cursor-pointer text-white py-1 px-3 rounded-lg bg-gray-700 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-600"
         />
       </div>
     </form>

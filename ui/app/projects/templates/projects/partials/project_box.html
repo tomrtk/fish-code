@@ -1,0 +1,56 @@
+<div class="border border-gray-200 p-4 rounded-md shadow-md bg-gray-100">
+  <div class="flex flex-col lg:flex-row mb-2">
+    <div class="lg:w-2/5 mr-2">
+      <img
+        class="rounded object-contain shadow-sm"
+        src="{{ url_for('static', filename='dist/images/nemo.png') }}"
+        alt="Project Logo"
+      />
+    </div>
+    <div class="lg:w-3/5">
+      <h3 class="text-xl font-medium mb-1 truncate">{{ project.name }}</h3>
+      <div>
+        <span class="inline-block w-16">Nummer</span>{{ project.number }}
+      </div>
+      <div>
+        <span class="inline-block w-16">Locations</span>{{ project.locations }}
+      </div>
+      <div>
+        <span class="inline-block w-16">Dato</span
+        ><time datetime="2018-07-07">{{ project.date }}</time>
+      </div>
+      <div>
+        <span class="inline-block w-16">Jobs</span>{{ project.job_count() }}
+      </div>
+      <div class="flex flex-row items-center">
+        <span class="inline-block w-16">Aktiv</span>
+        <span class="text-green-600">{{ project.status }}</span>
+      </div>
+    </div>
+  </div>
+  <div class="flex flex-row justify-between">
+    <button class="flex flex-row items-center">
+      <span id="project-id-1" class="mr-1">{{ project.description }}</span>
+      <svg
+        class="w-4 h-4 text-gray-400 hover:text-gray-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
+        ></path>
+      </svg>
+    </button>
+    <a
+      class="text-white py-1 px-3 rounded-lg bg-gray-700 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-600"
+      href="{{ url_for('projects_bp.projects_project', project_id
+                = project.id) }}"
+      >Open</a
+    >
+  </div>
+</div>

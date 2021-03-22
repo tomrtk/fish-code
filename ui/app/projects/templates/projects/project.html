@@ -44,14 +44,14 @@
           ></path>
         </svg>
       </li>
-      <li class="inline">Vårflom i Mjøsa</li>
+      <li class="inline">{{ project.name }}</li>
     </ul>
   </div>
   <div class="text-center">
     <h2 class="py-1 mb-3 text-3xl relative">
-      Vårflom i Mjøsa
+      {{ project.name }}
       <span class="absolute right-2 text-lg text-gray-500 italic"
-        >#2324234</span
+        >{{ project.number }}</span
       >
     </h2>
 
@@ -66,28 +66,17 @@
           </a>
           <img
             class="object-contain"
-            src="{{ url_for('static', filename='nemo.png') }}"
+            src="{{ url_for('static', filename='dist/images/nemo.png') }}"
             alt="Project Logo"
           />
         </div>
       </div>
       <div class="w-3/5 text-left">
-        <p class="mb-4 text-justify">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent non
-          scelerisque tellus. Quisque porttitor rhoncus nulla eget gravida.
-          Nullam non purus mauris. Proin ac odio ornare lacus pulvinar
-          ullamcorper consectetur in justo. Aliquam a urna quam. Vestibulum sem
-          lectus, scelerisque non nulla a, ultricies rutrum lacus. Ut non
-          vehicula turpis.
-        </p>
+        <p class="mb-4 text-justify">{{ project.description }}</p>
         <div class="flex flex-row">
           <div class="w-1/2">
-            <!-- <div class="flex flex-row"> -->
-            <!--   <span class="inline-block w-16">Nummer</span>2324234 -->
-            <!-- </div> -->
             <div class="">
-              <span class="inline-block w-16">Location</span>Mjøsa, Glomma,
-              Lågen, ...
+              <span class="inline-block w-16">MEPTY</span>
             </div>
             <div>
               <span class="inline-block w-16">Date</span
@@ -95,24 +84,24 @@
             </div>
           </div>
           <div class="w-1/2">
-            <div><span class="inline-block w-16">Job Count</span>45</div>
+            <div><span>Project Owner</span>{{ project.owner }}</div>
             <div class="flex flex-row items-center">
               <span class="inline-block w-16">Aktiv</span>
-              <span class="text-green-600"> Ja </span>
+              <span class="text-green-600">{{ project.status }}</span>
             </div>
-            <!-- <div><span>Klasser</span>Mort, Abbor, Vedebuk</div> -->
           </div>
         </div>
       </div>
     </div>
   </div>
   <div class="flex-none text-center">
-    <h3 class="py-1 mb-3 text-2xl border-b">Jobs</h3>
+    <h3 class="py-1 mb-3 text-xl border-b">Jobs ({{ project.job_count() }})</h3>
   </div>
   <nav class="flex flex-none justify-end mb-4">
     <a
       class="transition duration-1000 transform hover:rotate-90 rounded-full p-2 bg-gray-100 shadow border border-gray-200 hover:bg-gray-200 flex flex-row items-center"
-      href="{{ url_for('projects_bp.projects_job_new', project_id = 0) }}"
+      href="{{ url_for('projects_bp.projects_job_new',
+      project_id=project.id) }}"
     >
       <svg
         class="w-6 h-6"
@@ -131,40 +120,16 @@
     </a>
   </nav>
   <div class="">
-    <div
-      class="w-1/3 border border-gray-200 p-3 rounded-md shadow-lg bg-gray-100"
-    >
-      <div>
-        <div class="mb-2 relative">
-          <h3
-            class="text-xl font-medium mb-1 truncate flex flex-row justify-between"
-          >
-            Helgevideo
-            <span class="text-gray-500 italic right text-sm absolute right-1"
-              >#100</span
-            >
-          </h3>
-          <div><span class="inline-block w-16">Locations</span>Lågen</div>
-          <div>
-            <span class="inline-block w-16">Date</span
-            ><time datetime="2018-07-07">July 7 2020 - Aug 18 2020</time>
-          </div>
-          <div class="flex flex-row items-center">
-            <span class="inline-block w-16">Status</span>
-            <span class="text-green-600">Ikke begynt</span>
-          </div>
-          <div><span>Classes</span>Abbor, Mort, Stingsild, Vedebuk</div>
-          <div><span>Observations</span>3000</div>
-        </div>
-        <div class="flex flex-row justify-end">
-          <a
-            class="text-white py-1 px-3 border-2 border-blue-500 rounded bg-blue-500 hover:bg-blue-200 hover:border-2 hover:text-black"
-            href="{{ url_for('projects_bp.projects_job', project_id = 1, job_id
-                = 1) }}"
-            >Open</a
-          >
-        </div>
-      </div>
+    <div>
+      {% if project.job_count() > 0 %}
+      <ul class="flex md:flex-wrap flex-col md:flex-row">
+        {% for job in project.jobs %}
+        <li class="md:w-1/2 xl:w-1/3 p-2">
+          {% include "projects/partials/job_box.html" %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %} No jobs.{% endif %}
     </div>
   </div>
 </main>

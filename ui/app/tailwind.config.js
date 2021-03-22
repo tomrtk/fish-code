@@ -1,8 +1,13 @@
 module.exports = {
   purge: [],
-  darkMode: false, // or 'media' or 'class'
+  darkMode: false,
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        "nina-orange": "#E69D4E",
+        "nina-teal": "#82C3C9",
+      },
+    },
   },
   variants: {
     extend: {
