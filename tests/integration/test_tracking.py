@@ -4,6 +4,7 @@ import pytest
 
 from core import interface
 from core.model import BBox, Detection, Frame, Object
+from datetime import datetime
 
 
 @pytest.fixture
@@ -18,6 +19,7 @@ def make_frames() -> List[Frame]:
                 Detection(BBox(*[20, 30, 40, 50]), 0.1, 1, 0),
                 Detection(BBox(*[25, 35, 45, 55]), 0.5, 1, 0),
             ],
+            datetime(1, 1, 1, 1, 1, 1),
         ),
         Frame(
             1,
@@ -27,6 +29,7 @@ def make_frames() -> List[Frame]:
                 Detection(BBox(*[20, 30, 40, 50]), 0.1, 1, 1),
                 Detection(BBox(*[25, 35, 45, 55]), 0.5, 1, 1),
             ],
+            datetime(1, 1, 1, 1, 1, 2),
         ),
         Frame(
             2,
@@ -36,6 +39,7 @@ def make_frames() -> List[Frame]:
                 Detection(BBox(*[20, 30, 40, 50]), 0.1, 1, 2),
                 Detection(BBox(*[25, 35, 45, 55]), 0.5, 1, 2),
             ],
+            datetime(1, 1, 1, 1, 1, 3),
         ),
     ]
     return frames
