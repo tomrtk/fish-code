@@ -1,5 +1,6 @@
 """Services used in this application."""
 import logging
+from datetime import datetime
 
 import numpy as np
 
@@ -53,17 +54,28 @@ def process_job(job: Job) -> Job:
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
 
-    video_loader = VideoLoader(job.videos, 50)
+    batchsize: int = 50
+
+    video_loader = VideoLoader(job.videos, batchsize=batchsize)
     det = Detector()
 
     all_frames = []
-    for batch, timestamp in video_loader:
+    for batchnr, (batch, timestamp) in enumerate(video_loader):
         assert type(batch) is np.ndarray, "Batch must be of type np.ndarray"
         frames = det.predict(batch, "fishy")
 
         # Iterate over all frames to set timestamps
         for n, frame in enumerate(frames):
+            abs_frame_nr = batchnr * batchsize + n
+
             frame.timestamp = timestamp[n]
+
+            # Adds the absolute frame number to the frame before tracking.
+            # This help popuplate the timestamp for objects.
+            frame.detections = [
+                dets.set_frame(abs_frame_nr) for dets in frame.detections
+            ]
+            frame.idx = abs_frame_nr
             all_frames.append(frame)
 
     objects = to_track(all_frames)
