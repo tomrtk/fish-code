@@ -93,6 +93,9 @@ videos = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("_path", Text(PATH_SIZE), nullable=False),
     Column("frames", Integer, nullable=False),
+    Column("fps", Integer, nullable=False),
+    Column("width", Integer, nullable=False),
+    Column("height", Integer, nullable=False),
     Column("timestamp", DateTime),
 )
 
