@@ -6,6 +6,7 @@ from core.services import process_job, VideoLoader
 
 from core.model import Job, Video, Status
 from core.services import process_job
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +16,7 @@ def test_job_processing():
     """Test the processing of a job."""
     job = Job("Test Name", "Test Description")
     vid1 = Video.from_path(
-        "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000.mp4"
+        "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
     )
     job.add_videos([vid1])
     job.start()
@@ -27,7 +28,7 @@ def test_video_loader():
     """Tests the video loader utility class."""
     videos = [
         Video.from_path(
-            "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000.mp4"
+            "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
         ),
     ]
 
