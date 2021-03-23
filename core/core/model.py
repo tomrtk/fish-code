@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os.path
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
@@ -296,6 +296,28 @@ class Frame:
     detections: List[Detection]
     timestamp: Optional[datetime] = None
 
+    def to_json(self) -> Dict[str, Any]:
+        """Convert frame to json.
+
+        Return
+        ------
+        Dict[str, Any] :
+            Object as json:
+            {
+                "idx": int,
+                "detections": List[Detection],
+                "timestamp": None|str
+            }
+
+        """
+        return {
+            "idx": self.idx,
+            "detections": [det.to_json() for det in self.detections if det],
+            "timestamp": None
+            if not self.timestamp
+            else self.timestamp.isoformat(),
+        }
+
 
 @dataclass
 class BBox:
@@ -334,6 +356,38 @@ class Detection:
     probability: float
     label: int
     frame: int
+
+    def to_json(self) -> Dict[str, Any]:
+        """Convert to json.
+
+        Return
+        ------
+        Dict[str, Any] :
+            Detection as json,
+            {
+                "bbox": BBox,
+                "probability": float,
+                "label": int,
+                "frame": int,
+            }
+
+        """
+        return {
+            "bbox": asdict(self.bbox),
+            "probability": self.probability,
+            "label": self.label,
+            "frame": self.frame,
+        }
+
+    def set_frame(self, frame: int) -> Detection:
+        """update frame nr.
+        Parameter
+        ---------
+        frame: int
+
+        """
+        self.frame = frame
+        return self
 
     @classmethod
     def from_api(
