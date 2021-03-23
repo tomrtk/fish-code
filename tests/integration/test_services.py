@@ -21,6 +21,12 @@ def test_job_processing():
     job.add_videos([vid1])
     job.start()
     finished_job = process_job(job)
+    print(finished_job._objects)
+    assert len(finished_job._objects) > 0
+    for o in finished_job._objects:
+        assert isinstance(o.time_in, datetime)
+        assert isinstance(o.time_out, datetime)
+        assert o.time_in <= o.time_out
     assert finished_job.status() == Status.DONE
 
 
@@ -39,4 +45,4 @@ def test_video_loader():
         results.append(len(batch))
 
     assert results[0] == 10  # batch size == 10
-    assert len(results) == 7  # total num batches
+    assert len(results) == 5  # total num batches
