@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "compile-css": "postcss styles.css -o static/styles.min.css",
+    "compile-css": "postcss style.css -o static/dist/css/style.min.css",
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "devDependencies": {
