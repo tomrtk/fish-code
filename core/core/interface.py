@@ -2,6 +2,7 @@
 import io
 import logging
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -32,14 +33,30 @@ def to_track(
     Optional[List[Object]] :
         List of objects that have been tracked. None if none found.
     """
-    data = [asdict(frame) for frame in frames]
+
+    data = [frame.to_json() for frame in frames]
+
     response = requests.post(
         f"http://{host}:{port}/tracking/track",
         json=data,
     )
 
     if response.status_code == 200:
-        return [core.model.Object.from_api(**obj) for obj in response.json()]
+        objects = [core.model.Object.from_api(**obj) for obj in response.json()]
+        for o in objects:
+
+            times = sorted([det.frame for det in o._detections])
+
+            time_in = frames[times[0]].timestamp
+            if time_in == None:
+                time_in = datetime(1, 1, 1)
+            o.time_in = time_in
+
+            time_out = frames[times[-1]].timestamp
+            if time_out == None:
+                time_out = datetime(1, 1, 1)
+            o.time_out = time_out
+        return objects
 
     return None
 
