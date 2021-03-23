@@ -7,7 +7,7 @@ server is running.
 import logging
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
@@ -138,7 +138,7 @@ def list_project_jobs(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.post("/projects/{project_id}/jobs/", response_model=schema.Job)
+@core.post("/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED)
 def add_job_to_project(
     project_id: int,
     job: schema.JobCreate,
@@ -188,8 +188,8 @@ def add_job_to_project(
         repo.save()
 
         logger.debug("Job %s added to project %s", job, project_id)
+        return {"id": new_job.id}
 
-        return new_job
     else:
         logger.warning("Job not added, project %s not found,", project_id)
         raise HTTPException(status_code=404, detail="Project not found")

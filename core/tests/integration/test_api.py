@@ -214,21 +214,11 @@ def test_add_and_get_job():
             },
         )
 
-        assert response_job.status_code == 200
+        assert response_job.status_code == 201
 
         job_data = response_job.json()
         assert "id" in job_data
         job_id = job_data["id"]
-        response_job_json = response_job.json()
-        assert response_job_json == {
-            "name": "Job name",
-            "description": "Job description",
-            "id": job_id,
-            "_status": "Pending",
-            "_objects": [],
-            "videos": [],
-            "location": "test",
-        }
 
         response = client.get(f"/projects/{project_id}/jobs")
         assert response.status_code == 200
@@ -284,7 +274,7 @@ def test_get_job():
                 "location": "test",
             },
         )
-        assert response_post_job.status_code == 200
+        assert response_post_job.status_code == 201
 
         job_data = response_post_job.json()
         assert "id" in job_data
@@ -395,7 +385,7 @@ def test_set_job_status():
                 "location": "test",
             },
         )
-        assert response_post_job.status_code == 200
+        assert response_post_job.status_code == 201
 
         job_data = response_post_job.json()
         assert "id" in job_data
@@ -504,27 +494,7 @@ def test_add_and_get_job_with_videos():
             },
         )
 
-        assert response_job.status_code == 200
-
-        job_data = response_job.json()
-        assert "id" in job_data
-        job_id = job_data["id"]
-        response_job_json = response_job.json()
-        assert response_job_json == {
-            "name": "Job name",
-            "description": "Job description",
-            "id": job_id,
-            "_status": "Pending",
-            "_objects": [],
-            "videos": [
-                {
-                    "_path": "./tests/integration/test-abbor[2021-01-01_00-00-00]-000-small.mp4",
-                    "frames": 50,
-                    "timestamp": "2021-01-01T00:00:00",
-                }
-            ],
-            "location": "test",
-        }
+        assert response_job.status_code == 201
 
         # Test adding job with not a valid path to video
         response_job = client.post(
