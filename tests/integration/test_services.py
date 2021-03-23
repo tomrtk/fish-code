@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 @pytest.mark.usefixtures("tracing_api", "detection_api")
 def test_job_processing():
     """Test the processing of a job."""
-    job = Job("Test Name", "Test Description")
+    job = Job("Test Name", "Test Description", "Test Location")
     vid1 = Video.from_path(
         "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
     )

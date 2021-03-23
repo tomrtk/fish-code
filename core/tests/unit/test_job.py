@@ -9,7 +9,7 @@ from core.model import Job, JobStatusException, Object, Status, Video
 @pytest.fixture
 def make_test_job() -> Job:
     """Create a test job with some objects."""
-    job = Job("Test Name", "Test Description")
+    job = Job("Test Name", "Test Description", "Test location")
     job.add_object(Object(1))
     job.add_object(Object(2))
     job.add_object(Object(3))
