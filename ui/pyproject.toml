@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "app"
-version = "0.1.6"
+version = "0.2.0"
 description = """
 Application to detect fish and generate a report viewable
 inside an iterface before being exported as raw data.

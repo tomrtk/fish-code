@@ -1,0 +1,31 @@
+<div class="border border-gray-200 p-3 rounded-md shadow-lg bg-gray-100">
+  <div class="mb-2 relative">
+    <h3 class="text-xl font-medium mb-1 truncate flex flex-row justify-between">
+      {{ job.name }}
+      <span class="text-gray-500 italic right text-sm absolute right-1"
+        >{{ job.number }}</span
+      >
+    </h3>
+    <div>
+      <span class="inline-block w-16">Locations</span>{{ job.location }}
+    </div>
+    <div>
+      <span class="inline-block w-16">Date</span
+      ><time datetime="2018-07-07">July 7 2020 - Aug 18 2020</time>
+    </div>
+    <div class="flex flex-row items-center">
+      <span class="inline-block w-16">Status</span>
+      <span class="text-green-600">{{ job.status }}</span>
+    </div>
+    <div><span>Classes</span>Abbor, Mort, Stingsild, Vedebuk</div>
+    <div><span>Observations</span>3000</div>
+  </div>
+  <div class="flex flex-row justify-end">
+    <a
+      class="text-white py-1 px-3 rounded-lg bg-gray-700 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-600"
+      href="{{ url_for('projects_bp.projects_job', project_id =
+      project.id, job_id = job.id) }}"
+      >Open</a
+    >
+  </div>
+</div>

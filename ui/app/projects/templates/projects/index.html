@@ -48,64 +48,16 @@
       </svg>
     </a>
   </nav>
-  <div class="">
-    <div
-      class="w-1/2 border border-gray-200 p-4 rounded-md shadow-lg bg-gray-100"
-    >
-      <div>
-        <div class="flex flex-row mb-2">
-          <div class="w-2/5 mr-2">
-            <img
-              class="rounded object-contain shadow-sm"
-              src="{{ url_for('static', filename='nemo.png') }}"
-              alt="Project Logo"
-            />
-          </div>
-          <div class="w-3/5">
-            <h3 class="text-xl font-medium mb-1 truncate">Vårflom i Mjøsa</h3>
-            <div><span class="inline-block w-16">Nummer</span>2324234</div>
-            <div>
-              <span class="inline-block w-16">Sted</span>Mjøsa, Glomma, Lågen,
-              ...
-            </div>
-            <div>
-              <span class="inline-block w-16">Dato</span
-              ><time datetime="2018-07-07">July 7, 2018</time>
-            </div>
-            <div><span class="inline-block w-16">Jobber</span>45</div>
-            <div class="flex flex-row items-center">
-              <span class="inline-block w-16">Aktiv</span>
-              <span class="text-green-600"> Ja </span>
-            </div>
-          </div>
-        </div>
-        <div class="flex flex-row justify-between">
-          <button class="flex flex-row items-center">
-            <span id="project-id-1" class="mr-1">Beskrivelse</span>
-            <svg
-              class="w-4 h-4 text-gray-400 hover:text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 13l-3 3m0 0l-3-3m3 3V8m0 13a9 9 0 110-18 9 9 0 010 18z"
-              ></path>
-            </svg>
-          </button>
-          <a
-            class="text-white py-2 px-3 border-2 border-blue-500 rounded bg-blue-500 hover:bg-blue-200 hover:border-2 hover:text-black"
-            href="{{ url_for('projects_bp.projects_project', project_id
-                = 1) }}"
-            >Open</a
-          >
-        </div>
-      </div>
-    </div>
+  <div>
+    {% if projects|count > 0 %}
+    <ul class="flex md:flex-wrap flex-col md:flex-row">
+      {% for project in projects %}
+      <li class="md:w-1/2 p-2">
+        {% include "projects/partials/project_box.html" %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %} No projects.{% endif %}
   </div>
 </main>
 {% endblock %}
