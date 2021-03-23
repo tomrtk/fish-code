@@ -75,7 +75,7 @@ def track_frames(
     """
     for idx, frame in enumerate(frames):
         detections = [
-            tracker.Detection.from_api(detect.dict(), idx)
+            tracker.Detection.from_api(detect.dict(), frame.idx)
             for detect in frame.detections
         ]
         trk.update(detections)
