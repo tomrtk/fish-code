@@ -518,8 +518,8 @@ class Object:
         self.probability: float = 0.0
         self._detections: list[Detection] = list()
         self.track_id: Optional[int] = None
-        self.time_in = datetime(1, 1, 1)
-        self.time_out = datetime(1, 1, 1)
+        self.time_in: Optional[datetime] = None
+        self.time_out: Optional[datetime] = None
         self._calc_label()
 
     def _calc_label(self) -> None:
