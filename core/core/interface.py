@@ -33,7 +33,6 @@ def to_track(
     Optional[List[Object]] :
         List of objects that have been tracked. None if none found.
     """
-
     data = [frame.to_json() for frame in frames]
 
     response = requests.post(

@@ -455,7 +455,7 @@ class Detection:
         }
 
     def set_frame(self, frame: int) -> Detection:
-        """update frame nr.
+        """Update frame nr.
 
         Returns itself so it can be used in list comprehensions.
 
