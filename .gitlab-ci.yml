@@ -1,6 +1,6 @@
 default:
   tags:
-    - bachelor
+    - k8s
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 stages:
