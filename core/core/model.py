@@ -7,6 +7,7 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
 import ffmpeg
@@ -15,6 +16,9 @@ import numpy as np
 import core
 
 logger = logging.getLogger(__name__)
+
+VIDEO_DEFAULT_HEIGHT: int = 360
+VIDEO_DEFAULT_WIDTH: int = 640
 
 
 class Status(str, Enum):
@@ -33,29 +37,27 @@ class Video:
 
     Parameters
     ----------
-    path    :   str
-            Path to this video file as a string
-    frames  :   int
-            Number of frames in the video
-    fps     :   int
-            Frames per second in the video
-    width   :   int
-            Width in pixels
-    height  :   int
-            Height in pixels
+    path            :   str
+                        Path to this video file as a string
+    frames          :   int
+                        Number of frames in the video
+    fps             :   int
+                        Frames per second in the video
+    width           :   int
+                        Width in pixels
+    height          :   int
+                        Height in pixels
+    output_width    :   int
+                        Frame output width. Default to `VIDEO_DEFAULT_WIDTH`
+                        constant.
+    output_height   :   int
+                        Frame output height. Default to
+                        `VIDEO_DEFAULT_HEIGHT` constant.
 
     Attribute
     ---------
     _path   :   str
             Path to the video file associated with the video.
-    frames  :   int
-            Number of frames in the video
-    fps     :   int
-            Frames per second in the video
-    width   :   int
-            Width in pixels
-    height  :   int
-            Height in pixels
 
     Methods
     -------
@@ -65,6 +67,8 @@ class Video:
         Named constructor that creates and populates a video object with
         metadata read from the file. Raises FileNotFoundError if the
         file could not be read, or is not a video file.
+    timestamp_at(idx: int)
+        Return timestamp at index in video as a `datetime` object.
 
     Examples
     --------
@@ -75,6 +79,11 @@ class Video:
     >>> many_frames = video[5,10]
     >>> print(many_frames.shape)
     (5, 720, 1280, 3)
+    >>> len(video)
+    20
+    >>> many_frames = video[10:]
+    >>> print(many_frames.shape)
+    (10, 720, 1280, 3)
 
     Raises
     ------
@@ -83,14 +92,30 @@ class Video:
     """
 
     def __init__(
-        self, path: str, frames: int, fps: int, width: int, height: int
+        self,
+        path: str,
+        frames: int,
+        fps: int,
+        width: int,
+        height: int,
+        output_width: int = VIDEO_DEFAULT_WIDTH,
+        output_height: int = VIDEO_DEFAULT_HEIGHT,
     ) -> None:
         self._path: str = path
         self.frames: int = frames
         self.fps: int = fps
         self.width: int = width
         self.height: int = height
+        self.output_width: int = output_width
+        self.output_height: int = output_height
         self.timestamp = parse_str_to_date(self._path)
+
+        if output_height <= 0 or output_width <= 0:
+            raise ValueError(
+                "Output width and height must be positive, not %s, %s",
+                output_width,
+                output_height,
+            )
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -110,11 +135,17 @@ class Video:
         frame, _ = (
             ffmpeg.input(self._path)
             .filter("select", "gte(n, {})".format(key))
+            .filter(
+                "scale",
+                self.output_width,
+                self.output_height,
+                -1,
+            )
             .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
             .run(capture_stdout=True)
         )
         return np.frombuffer(frame, np.uint8).reshape(
-            [self.height, self.width, 3]
+            [self.output_height, self.output_width, 3]
         )
 
     def __getitem__(self, interval: slice):
@@ -144,17 +175,35 @@ class Video:
 
         """
         # If only one key is given
-        if type(interval) == int:
+        if isinstance(interval, int):
             return self.__get__(interval)
 
-        if interval.stop > self.frames and interval.start >= 0:
-            raise IndexError
+        if not isinstance(interval, slice):
+            raise TypeError("%s is not %s", type(interval), type(slice))
+
+        if isinstance(interval.stop, int) and interval.stop >= self.frames:
+            raise IndexError(
+                "Index for stop in slice more then frame count %s", self.frames
+            )
+
+        if interval.start < 0:
+            raise IndexError("Index for start in slice is less then 0")
 
         # Slice stepping is not implemented.
         if interval.step != None:
-            raise NotImplementedError
+            raise NotImplementedError("Step in slicing is not implemented")
 
-        numbers = interval.stop - interval.start
+        # If slicing with `video[0:] or video[0:-1]` all frames from start to
+        # end or end-1 of video is wanted.
+        if interval.stop == None:
+            stop = self.frames
+        elif interval.stop < 0:
+            stop = self.frames + interval.stop
+            print(stop)
+        else:
+            stop = interval.stop
+
+        numbers = stop - interval.start
 
         # ffmpeg filter docs:
         # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
@@ -162,23 +211,39 @@ class Video:
             ffmpeg.input(self._path)
             .filter(
                 "select",
-                "between(n,{},{})".format(interval.start, interval.stop),
+                "between(n,{},{})".format(interval.start, stop),
+            )
+            .filter(
+                "scale",
+                self.output_width,
+                self.output_height,
+                -1,
             )
             .output(
                 "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
             )
             .run(capture_stdout=True)
         )
+
         return np.frombuffer(frame, np.uint8).reshape(
-            [-1, self.height, self.width, 3]
+            [-1, self.output_height, self.output_width, 3]
         )
+
+    def __len__(self) -> int:
+        """Get length of video in frames."""
+        return self.frames
 
     def exists(self) -> bool:
         """Check if the file path is a valid file."""
         return os.path.isfile(self._path)
 
     @classmethod
-    def from_path(cls, path: str) -> Video:
+    def from_path(
+        cls,
+        path: str,
+        output_width: int = VIDEO_DEFAULT_WIDTH,
+        output_height: int = VIDEO_DEFAULT_HEIGHT,
+    ) -> Video:
         """Named constructor to create a `Video` from path.
 
         Examples
@@ -186,7 +251,15 @@ class Video:
         >>> video = Video.from_path("video.mp4")
         >>> type(video)
         <class 'core.model.Video'>
+
+        Raises
+        ------
+        FileNotFoundError
+            If `path` to file do not exists.
         """
+        if not Path(path).exists():
+            raise FileNotFoundError("Video file %s not found.", path)
+
         height, width, fps, frame_numbers = _get_video_metadata(path)
 
         return cls(
@@ -195,6 +268,8 @@ class Video:
             fps=fps,
             width=width,
             height=height,
+            output_width=output_width,
+            output_height=output_height,
         )
 
     def timestamp_at(self, idx: int) -> datetime:
