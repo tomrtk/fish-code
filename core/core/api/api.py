@@ -148,8 +148,8 @@ def add_job_to_project(
 
     Returns
     -------
-    Job
-        New job with `id`.
+    id :
+        The id of Job, {"id": int}
 
     Raises
     ------
