@@ -803,10 +803,6 @@ class Job:
         else:
             return False
 
-    def list_videos(self) -> List[Video]:
-        """Retrieve a list of all videos in this job."""
-        return self.videos.copy()
-
     def total_frames(self) -> int:
         """Get the total frames in all videos for this job.
 
