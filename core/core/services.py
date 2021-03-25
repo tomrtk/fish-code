@@ -87,13 +87,3 @@ def process_job(job: Job) -> Job:
 
     return job
 
-    # process
-    # det = core.interface.Detector()
-    # det.predict(np.ndarray(()), "fishy")
-
-    # grab 50 frames per video, regardless of file.
-    # Send 50 frames to api for detection
-    # Store detections
-    # Trace detections and turn into objects
-    # Post objects to api
-    # Mark job as complete

@@ -21,7 +21,6 @@ def test_job_processing():
     job.add_videos([vid1])
     job.start()
     finished_job = process_job(job)
-    print(finished_job._objects)
     assert len(finished_job._objects) > 0
     for o in finished_job._objects:
         assert isinstance(o.time_in, datetime)

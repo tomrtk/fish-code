@@ -433,7 +433,7 @@ class Detection:
     frame: int
 
     def to_json(self) -> Dict[str, Any]:
-        """Convert to json.
+        """Convert detection to json.
 
         Return
         ------
