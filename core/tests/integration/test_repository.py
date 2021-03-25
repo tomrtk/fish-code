@@ -1,4 +1,6 @@
 """Integration test between _repository_ and _SQLAlchemy_."""
+from typing import List
+
 import pytest
 
 from core import model
@@ -7,7 +9,7 @@ from core import model
 from core.repository import SqlAlchemyProjectRepository
 
 # Setup of DB mappings for tests
-pytestmark = pytest.mark.usefixtures("mappers")
+pytestmark = pytest.mark.usefixtures("mappers", "make_test_obj")
 
 
 def test_add_project(sqlite_session_factory):
@@ -158,15 +160,17 @@ def test_save_project(sqlite_session_factory):
     assert hex(id(project_get)) != hex(id(project_after))
 
 
-def test_add_job_with_objects(sqlite_session_factory):
+def test_add_job_with_objects(
+    sqlite_session_factory, make_test_obj: List[model.Object]
+):
     """Test adding a job with attached objects."""
     session1 = sqlite_session_factory()
     repo1 = SqlAlchemyProjectRepository(session1)
     project1 = model.Project("DB test", "NINA-123", "Test prosjekt")
     job1 = model.Job("DB test", "Description", "Test location")
 
-    job1.add_object(model.Object(1))
-    job1.add_object(model.Object(2))
+    job1.add_object(make_test_obj[0])
+    job1.add_object(make_test_obj[1])
     assert job1.number_of_objects() == 2
 
     project1.add_job(job1)

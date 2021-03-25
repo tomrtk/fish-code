@@ -1,47 +1,39 @@
+from typing import List
+
 import pytest
 
 from core import model
 from core.repository.object import SqlAlchemyObjectRepository
 
-pytestmark = pytest.mark.usefixtures("mappers")
+pytestmark = pytest.mark.usefixtures("mappers", "make_test_obj")
 
 
-@pytest.fixture
-def make_test_obj() -> model.Object:
-    obj = model.Object(1)
-    obj.add_detection(model.Detection(model.BBox(*[10, 20, 30, 40]), 1.0, 1, 1))
-    obj.add_detection(model.Detection(model.BBox(*[15, 25, 35, 45]), 0.8, 2, 2))
-    obj.add_detection(model.Detection(model.BBox(*[20, 30, 40, 50]), 0.1, 1, 3))
-    obj.add_detection(model.Detection(model.BBox(*[25, 35, 45, 55]), 0.5, 1, 4))
-
-    return obj
-
-
-def test_add_object(sqlite_session_factory):
+def test_add_object(sqlite_session_factory, make_test_obj: List[model.Object]):
+    """Test adding of object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyObjectRepository(session)
 
-    obj1 = model.Object(1)
-    obj2 = model.Object(2)
+    obj1 = make_test_obj[0]
 
     repo.add(obj1)
-    repo.add(obj2)
 
     repo.save()
 
     assert repo.get(1) == obj1
-    assert repo.get(2) == obj2
-    assert repo.list() == [obj1, obj2]
-    assert len(repo.list()) == 2
+    assert repo.list() == [obj1]
+    assert len(repo.list()) == 1
 
 
-def test_change_object(sqlite_session_factory):
+def test_change_object(
+    sqlite_session_factory, make_test_obj: List[model.Object]
+):
+    """Tests updating of object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyObjectRepository(session)
 
-    obj1 = model.Object(1)
+    obj1 = make_test_obj[0]
     repo.add(obj1)
     repo.save()
 
@@ -53,12 +45,15 @@ def test_change_object(sqlite_session_factory):
     assert repo.get(1).label == 2
 
 
-def test_remove_object(sqlite_session_factory):
+def test_remove_object(
+    sqlite_session_factory, make_test_obj: List[model.Object]
+):
+    """Tests removing of object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyObjectRepository(session)
 
-    obj1 = model.Object(1)
+    obj1 = make_test_obj[0]
     repo.add(obj1)
     repo.save()
 
@@ -73,11 +68,14 @@ def test_remove_object(sqlite_session_factory):
     assert len(repo.list()) == 0
 
 
-def test_add_full_object(sqlite_session_factory, make_test_obj: model.Object):
+def test_add_full_object(
+    sqlite_session_factory, make_test_obj: List[model.Object]
+):
+    """Tests adding full a object."""
     session = sqlite_session_factory()
     repo = SqlAlchemyObjectRepository(session)
 
-    obj = make_test_obj
+    obj = make_test_obj[0]
 
     repo.add(obj)
     repo.save()
