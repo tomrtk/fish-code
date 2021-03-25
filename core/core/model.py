@@ -122,8 +122,14 @@ class Video:
         self.current_frame = 0
         return self
 
-    def __next__(self):
-        """Get next item from iterator."""
+    def __next__(self) -> np.ndarray:
+        """Get next item from iterator.
+
+        Return
+        ------
+        np.ndarray
+            One frame of video as `ndarray`.
+        """
         if self.current_frame < self.frames:
             result = self.__get__(self.current_frame)
             self.current_frame += 1
