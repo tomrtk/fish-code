@@ -2,20 +2,77 @@
 @tailwind components;
 @tailwind utilities;
 
-/*
- * Example taken from the interwebs and needs more refining
- * https://code.iamkate.com/html-and-css/tabbed-panels/
- */
+@layer components {
+  /* Base style for buttons */
 
-/* .icon-document { */
-/*   background: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"></path></svg>') */
-/*     center center no-repeat; */
-/* } */
+  .btn {
+    @apply py-1 px-3 rounded-lg border-2 shadow-sm transition duration-300;
+  }
 
-/* .icon-file { */
-/*   background: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>') */
-/*     center center no-repeat; */
-/* } */
+  /* Regular & Form Buttons */
+
+  .btn-cancel {
+    @apply text-gray-900 bg-gray-200 border-gray-200 hover:border-gray-300 hover:bg-gray-300;
+  }
+
+  .btn-new {
+    @apply text-gray-600 bg-gray-100 border-gray-100 hover:text-gray-900 border font-semibold shadow;
+  }
+
+  .btn-submit {
+    @apply text-gray-50 bg-gray-700 border-gray-700 hover:border-gray-500 hover:bg-gray-500;
+  }
+
+  /* Status Buttons (Job Action) */
+
+  .btn-pending {
+    @apply text-gray-900 bg-gray-300 border-gray-300 hover:border-gray-200 hover:bg-gray-200;
+  }
+
+  .btn-pending::before {
+    content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
+    @apply float-left inline-block h-6 w-6 mr-1;
+  }
+
+  .btn-paused {
+    @apply text-gray-900 hover:text-gray-800 bg-yellow-400 border-yellow-400 hover:border-yellow-300 hover:bg-yellow-300;
+  }
+
+  .btn-paused::before {
+    content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
+    @apply float-left inline-block h-6 w-6 mr-1;
+  }
+
+  .btn-paused:hover::before {
+    content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
+    @apply float-left inline-block h-6 w-6 mr-1;
+  }
+
+  .btn-running {
+    @apply text-gray-900 bg-green-400 border-green-400 hover:border-green-300 hover:bg-green-300;
+  }
+
+  .btn-running::before {
+    content: url('data:image/svg+xml;utf8,<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>');
+    @apply animate-pulse float-left inline-block h-6 w-6 mr-1;
+  }
+
+  .btn-running:hover::before {
+    content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
+    @apply float-left inline-block h-6 w-6 mr-1;
+  }
+
+  .btn-done {
+    @apply text-green-300 bg-green-300 border-gray-200 hover:border-gray-300 hover:bg-gray-300;
+  }
+
+  .btn-done::before {
+    content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>');
+    @apply float-left inline-block h-6 w-6 mr-1;
+  }
+}
+
+/* Tabbed style inside a single job */
 
 .tabbed > input {
   display: none;
