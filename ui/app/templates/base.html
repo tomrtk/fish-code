@@ -1,4 +1,4 @@
-<html lang="no">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <title>Hello</title>
@@ -30,8 +30,14 @@
     </div>
     <script src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"></script>
     <script src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"></script>
-    <script>
+    <script type=text/javascript>
+      /* https://stackoverflow.com/a/3291856/182868 */
+      String.prototype.capitalize = function() {
+          return this.charAt(0).toUpperCase() + this.slice(1);
+      }
+
       $(function () {
+
         $("#jstree").jstree({
           sort: 1,
           core: {
@@ -80,6 +86,9 @@
             $("#tree_data").val(JSON.stringify(selected_titles));
           }
         );
+
+        {% block extra_js %}{% endblock %}
+
       });
     </script>
   </body>

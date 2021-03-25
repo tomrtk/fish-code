@@ -94,17 +94,17 @@
       </div>
     </div>
   </div>
-  <div class="flex-none text-center">
+  <div class="flex-none text-center mb-2">
     <h3 class="py-1 mb-3 text-xl border-b">Jobs ({{ project.job_count() }})</h3>
   </div>
-  <nav class="flex flex-none justify-end mb-4">
+  <nav class="flex flex-none justify-end mb-4 px-2">
     <a
-      class="transition duration-1000 transform hover:rotate-90 rounded-full p-2 bg-gray-100 shadow border border-gray-200 hover:bg-gray-200 flex flex-row items-center"
+      class="btn btn-new flex flex-row items-center"
       href="{{ url_for('projects_bp.projects_job_new',
       project_id=project.id) }}"
     >
       <svg
-        class="w-6 h-6"
+        class="w-6 h-6 mr-2"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -114,9 +114,10 @@
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
-          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+          d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
         ></path>
       </svg>
+      New Job
     </a>
   </nav>
   <div class="">

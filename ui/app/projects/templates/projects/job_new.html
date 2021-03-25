@@ -2,7 +2,7 @@
 <main class="container flex flex-col mx-auto p-8">
   <div class="border-b-2 mb-4">
     <ul class="">
-      <li class="inline italic">
+      <li class="inline">
         <a href="{{ url_for('index') }}">Home</a>
       </li>
       <li class="inline">
@@ -21,7 +21,7 @@
           ></path>
         </svg>
       </li>
-      <li class="inline italic">
+      <li class="inline">
         <a
           href="{{ url_for('projects_bp.projects_index')
                                   }}"
@@ -44,11 +44,11 @@
           ></path>
         </svg>
       </li>
-      <li class="inline italic">
+      <li class="inline">
         <a
           href="{{ url_for('projects_bp.projects_project', project_id=1)
                                   }}"
-          >Vårflom i Mjøsa</a
+          >{{ project_name }}</a
         >
       </li>
       <li class="inline">
@@ -128,7 +128,7 @@
       </div>
       <div class="flex flex-row justify-end">
         <a
-          class="mr-3 text-gray-800 py-1 px-3 rounded-lg bg-gray-200 border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-300"
+          class="btn btn-cancel mr-3"
           href="{{ url_for('projects_bp.projects_project', project_id=1)
                                   }}"
           >Cancel</a
@@ -138,7 +138,7 @@
           type="submit"
           name="submit"
           value="Create"
-          class="cursor-pointer text-white py-1 px-3 rounded-lg bg-gray-700 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-600"
+          class="cursor-pointer btn btn-submit"
         />
       </div>
     </form>

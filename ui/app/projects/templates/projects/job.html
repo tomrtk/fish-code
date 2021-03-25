@@ -1,3 +1,24 @@
+<!--
+{% block extra_js %}
+    /* http://localhost:5500/projects/job.project_id/jobs/job.if */
+    btn = $("#btn-toggle-job");
+
+    btn.bind("click", function () {
+      $.ajax({
+        type: "PUT",
+        url:
+          "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
+        dataType: "json",
+      }).done(function (data) {
+        btn.removeClass("btn-" + data["old_status"])
+        btn.text(data["new_status"].capitalize())
+        btn.addClass("btn-" + data["new_status"])
+      });
+      return false;
+    });
+{% endblock %}
+-->
+
 {% extends "base.html" %} {% block main %}
 <main class="container flex flex-col mx-auto p-8">
   <div class="border-b-2 mb-4">
@@ -85,23 +106,24 @@
             <span class="inline-block w-16">ID</span>{{ job.id }}
           </div>
           <div class="">
-            <span class="inline-block w-16">Sted</span>Mjøsa, Glomma, Lågen, ...
+            <span class="inline-block w-16">Location</span>Mjøsa, Glomma, Lågen,
+            ...
           </div>
           <div>
-            <span class="inline-block w-16">Dato</span
+            <span class="inline-block w-16">Date</span
             ><time datetime="2018-07-07">July 7</time>
           </div>
         </div>
         <div class="w-1/2">
           <div><span class="inline-block w-16">Video</span>100</div>
           <div class="flex flex-row items-center">
-            <span class="inline-block w-16">Aktiv</span>
-            <span class="text-green-600"> {{ job.status }} </span>
+            <span class="inline-block w-16">Status</span>
+            <span class="text-green-600"> {{ job._status }} </span>
           </div>
           <!-- <div><span>Klasser</span>Mort, Abbor, Vedebuk</div> -->
         </div>
       </div>
-      <div>
+      <div class="mb-8">
         <h4 class="text-lg">Total counts:</h4>
         <ul class="ml-8">
           <li class="inline">Salmon: 5,</li>
@@ -110,9 +132,19 @@
           <li class="inline">Tuna: 5</li>
         </ul>
       </div>
-      <div class="flex flex-row justify-end">
+      <div class="flex flex-row justify-between">
+        <div class="flex flex-row items-center">
+          <span class="mr-2">Status:</span
+          ><button
+            class="btn btn-{{ job._status|lower }} flex flex-row items-center"
+            type="submit"
+            id="btn-toggle-job"
+          >
+            {{ job._status }}
+          </button>
+        </div>
         <a
-          class="cursor-pointer text-white py-1 px-3 rounded-lg bg-gray-700 border-2 border-gray-700 hover:border-gray-600 hover:bg-gray-600"
+          class="btn btn-submit"
           href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
         >
           Export to CSV
@@ -123,7 +155,7 @@
   <div class="flex-none text-center mb-2 tabbed">
     <input name="tabbed" id="tabbed1" type="radio" checked />
     <section>
-      <h3 class="py-1 mb-3 text-2xl"><label for="tabbed1">Results</label></h3>
+      <h3 class="py-1 mb-3 text-2xl"><label for="tabbed1">Objects</label></h3>
       <div class="border-2">
         <table class="bg-gray-100 table-auto w-full">
           <thead class="bg-gray-200 border-b">
