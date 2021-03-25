@@ -61,7 +61,7 @@ def process_job(job: Job) -> Job:
 
     all_frames = []
     for batchnr, (batch, timestamp) in enumerate(video_loader):
-        assert type(batch) is np.ndarray, "Batch must be of type np.ndarray"
+        assert isinstance(batch, np.ndarray), "Batch must be of type np.ndarray"
         frames = det.predict(batch, "fishy")
 
         # Iterate over all frames to set timestamps
