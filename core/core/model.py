@@ -109,6 +109,7 @@ class Video:
         self.output_width: int = output_width
         self.output_height: int = output_height
         self.timestamp: Optional[datetime] = parse_str_to_date(self._path)
+        self._current_frame = 0
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -119,7 +120,7 @@ class Video:
 
     def __iter__(self):
         """Class iterator."""
-        self.current_frame = 0
+        self._current_frame = 0
         return self
 
     def __next__(self) -> np.ndarray:
@@ -130,9 +131,9 @@ class Video:
         np.ndarray
             One frame of video as `ndarray`.
         """
-        if self.current_frame < self.frames:
-            result = self.__get__(self.current_frame)
-            self.current_frame += 1
+        if self._current_frame < self.frames:
+            result = self.__get__(self._current_frame)
+            self._current_frame += 1
             return result
         else:
             raise StopIteration
