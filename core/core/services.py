@@ -86,4 +86,3 @@ def process_job(job: Job) -> Job:
     job.complete()
 
     return job
-

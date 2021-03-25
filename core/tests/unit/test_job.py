@@ -38,8 +38,6 @@ def test_get_object(make_test_job: Job):
     assert job.get_object(10) == None
 
 
-
-
 def test_add_video(make_test_job):
     """Test adding a video to the job."""
     job = make_test_job
