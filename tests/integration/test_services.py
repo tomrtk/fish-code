@@ -37,11 +37,13 @@ def test_video_loader():
         ),
     ]
 
-    video_loader = VideoLoader(videos, 10)
+    video_loader = VideoLoader(videos, 15)
 
     results = []
     for batch, _ in video_loader:
         results.append(len(batch))
 
-    assert results[0] == 10  # batch size == 10
-    assert len(results) == 5  # total num batches
+    assert results[0] == 15  # batch size == 15
+    assert results[2] == 15  # Keep using max batch size where it can
+    assert results[3] == 5  # Final 5 frames in the 50 frame video
+    assert len(results) == 4  # total num batches
