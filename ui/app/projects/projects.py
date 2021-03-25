@@ -1,13 +1,14 @@
 """Blueprint for the projects module."""
 import os
 import tempfile
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from flask import (
     Blueprint,
     Config,
     abort,
+    jsonify,
     redirect,
     render_template,
     request,
@@ -102,6 +103,17 @@ def construct_projects_bp(cfg: Config):
             "projects/job.html", job=job, detections=detections, videos=videos
         )
 
+    @projects_bp.route(
+        "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
+    )  # type: ignore
+    def projects_job_toggle(project_id: int, job_id: int):  # type: ignore
+        """Toogle job status."""
+        old_status, new_status = change_job_status(
+            project_id, job_id, endpoint_path
+        )
+
+        return jsonify(old_status=old_status, new_status=new_status), 201  # type: ignore
+
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
@@ -111,6 +123,7 @@ def construct_projects_bp(cfg: Config):
                 **{
                     "name": request.form["job_name"],
                     "description": request.form["job_description"],
+                    "_status": "Pending",
                 }
             )
 
@@ -120,8 +133,10 @@ def construct_projects_bp(cfg: Config):
                 url_for("projects_bp.projects_project", project_id=project_id)
             )
 
+        project = get_project(project_id, endpoint_path)
+
         return render_template(
-            "projects/job_new.html",
+            "projects/job_new.html", project_name=project.get_name()  # type: ignore
         )
 
     @projects_bp.route("/json")
@@ -257,6 +272,48 @@ def post_job(job: Job, project_id: int, endpoint: str):
     )
 
 
+def change_job_status(
+    project_id: int, job_id: int, endpoint: str
+) -> Tuple[str, str]:
+    """Change job status."""
+    try:
+        r_project = requests.get(f"{endpoint}/projects/{project_id}/")  # type: ignore
+        r_job = requests.get(f"{endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
+    except requests.ConnectionError:
+        return "API is not running!"  # type: ignore
+
+    if not r_project.status_code == requests.codes.ok:
+        print(f"Recived an err; {r_project.status_code}")
+        return None  # type: ignore
+
+    if not r_job.status_code == requests.codes.ok:
+        print(f"Recived an err; {r_job.status_code}")
+        return None  # type: ignore
+
+    job = Job.from_dict(
+        r_job.json(), project_id, r_project.json()["name"]  # type: ignore
+    )
+
+    old_status = job.get_status()
+
+    if job.get_status() == "pending" or job.get_status() == "paused":
+        r_post = requests.post(  # type:ignore
+            f"{endpoint}/projects/{project_id}/jobs/{job_id}/start"
+        )
+        if not r_post.status_code == requests.codes.ok:
+            print(f"Recived an err; {r_post.status_code}")
+    elif job.get_status() == "running":
+        r_post = requests.post(  # type:ignore
+            f"{endpoint}/projects/{project_id}/jobs/{job_id}/pause"
+        )
+        if not r_post.status_code == requests.codes.ok:
+            print(f"Recived an err; {r_post.status_code}")
+    else:
+        return "done"  # type: ignore
+
+    return old_status, r_post.json()["_status"].lower()  # type: ignore
+
+
 def check_api(endpoint: str) -> bool:
     """Check if API responds."""
     try:
@@ -274,8 +331,7 @@ def path_to_dict(path: str) -> Dict[str, str]:
         d["children"] = [  # type: ignore
             path_to_dict(os.path.join(path, x)) for x in os.listdir(path)
         ]
-        d["type"] = "folder"
     else:
-        d["type"] = "file"
+        d["icon"] = "jstree-file"
 
     return d

@@ -12,11 +12,11 @@ class Job:
 
     name: str
     description: str
+    _status: str
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
     progress: Optional[int] = None
-    _status: Optional[str] = None
     _objects: Optional[Any] = None
 
     def to_json(self) -> str:
@@ -27,6 +27,10 @@ class Job:
                 "description": self.description,
             }
         )
+
+    def get_status(self) -> str:
+        """Return status as proper."""
+        return self._status.lower()
 
     @classmethod
     def from_dict(
@@ -62,6 +66,10 @@ class Project:
             return 0
 
         return len(self.jobs)
+
+    def get_name(self) -> str:
+        """Return the projects name."""
+        return self.name
 
     def to_json(self) -> str:
         """Convert boundingbox to dict.
