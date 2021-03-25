@@ -38,14 +38,6 @@ def test_get_object(make_test_job: Job):
     assert job.get_object(10) == None
 
 
-def test_job_processing(make_test_job):
-    """Test the processing of a job."""
-    job = make_test_job
-    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
-    vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
-    vid2.timestamp = vid1.timestamp + timedelta(minutes=30)
-    job.add_videos([vid1, vid2])
-    job.start()
 
 
 def test_add_video(make_test_job):
