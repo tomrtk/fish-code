@@ -80,5 +80,9 @@ addopts = "-ra -q"
 testpaths = [
     "tests",
 ]
+filterwarnings = [
+    'ignore:the imp module is deprecated:DeprecationWarning',
+    'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+]
 log_cli = "True"
 log_level = "DEBUG"
