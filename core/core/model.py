@@ -814,10 +814,7 @@ class Job:
         int     :
             Ammount of frames in total over all video objects in this job.
         """
-        total_frames = 0
-        for video in self.videos:
-            total_frames += video.frames
-        return total_frames
+        return sum([v.frames for v in self.videos])
 
     def status(self) -> Status:
         """Get the job status for this job."""
