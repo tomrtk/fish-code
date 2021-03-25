@@ -316,36 +316,69 @@ class Video:
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
 
 
-def parse_str_to_date(path: str) -> Optional[datetime]:
+def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
     """Parse string to date.
+
+    Input can either be a string with a date, or a string with a date and
+    offset. If an offset is found, `offset_min` will be multiplied with the
+    offset and the result will be to the returned date.
 
     Parameter
     ---------
-    path: str
+    string: str
         string to parse to date on the format:
-        `[yyyy-mm-dd_hh-mm-ss]`
+        `[yyyy-mm-dd_hh-mm-ss]` or `[yyyy-mm-dd_hh-mm-ss]-xxx`
+    offset_min: int
+        Minutes to offset for each increment
 
 
     Return
     ------
     datetime :
-        parsed datetime object, or None if unsuccessfull
+        parsed datetime object, or None if unsuccessful
 
+    Example
+    -------
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10]-000.mp4")
+    datetime.datetime(2020, 3, 28, 12, 30, 10)
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10]-001.mp4")
+    datetime.datetime(2020, 3, 28, 13, 0, 10)
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10].mp4")
+    datetime.datetime(2020, 3, 28, 12, 30, 10)
+    >>> parse_str_to_date("test.mp4")
+    None
     """
-    date = re.compile(r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\]").search(path)
+    match = re.compile(
+        r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\](-\d{3})?"
+    ).search(string)
 
-    if not date:
-        logger.error(f"no date found in path, {path}")
+    if not match:
+        logger.warning(f"no date found in str, {string}")
         return None
 
-    date_temp = date[0][1:-1].split("_")
+    try:
+        # Offset is optional in the regex, (-\d{3})?. This tries to split on
+        # "]-", which means there exist an offset, [<datetime>]-<offset>. If it
+        # fails it means there are no offset.
+        timestamp, offset = match[0].split("]-")
 
-    year, month, day, hour, minute, second = [
-        int(x) for x in date_temp[0].split("-") + date_temp[1].split("-")
-    ]
+        # timestamp still has a "[" at the start. This strips it.
+        timestamp = timestamp[1:]
+        offset = int(offset)
+    except ValueError:
+        # No offset found, so only grab what's inside the brackets, and set
+        # offset to zero.
+        timestamp = match[0][1:-1]
+        offset = 0
+
+    date = "-".join(timestamp.split("_"))
+
+    year, month, day, hour, minute, second = [int(x) for x in date.split("-")]
 
     try:
-        return datetime(year, month, day, hour, minute, second)
+        return datetime(year, month, day, hour, minute, second) + timedelta(
+            minutes=offset_min * offset
+        )
     except ValueError:
         return None
 
