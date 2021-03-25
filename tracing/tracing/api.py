@@ -73,9 +73,9 @@ def track_frames(
 
     Using this endpoint will not make a persistant tracker.
     """
-    for idx, frame in enumerate(frames):
+    for frame in frames:
         detections = [
-            tracker.Detection.from_api(detect.dict(), idx)
+            tracker.Detection.from_api(detect.dict(), frame.idx)
             for detect in frame.detections
         ]
         trk.update(detections)

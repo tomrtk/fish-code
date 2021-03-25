@@ -12,7 +12,6 @@ logger = logging.getLogger(__name__)
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
     """Entrypoint to start API."""
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--host",

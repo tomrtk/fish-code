@@ -2,6 +2,7 @@
 import io
 import logging
 from dataclasses import asdict, dataclass
+from datetime import datetime
 from typing import Dict, List, Optional
 
 import numpy as np
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def to_track(
-    frames: List[core.model.Frame], host: str = "localhost", port: str = "8001"
+    frames: List[core.model.Frame], host: str = "127.0.0.1", port: str = "8001"
 ) -> Optional[List[core.model.Object]]:
     """Send frames to tracker.
 
@@ -31,15 +32,36 @@ def to_track(
     ------
     Optional[List[Object]] :
         List of objects that have been tracked. None if none found.
+
+    Raises
+    ------
+    RuntimeError
+        If time_{in,out} is None
+
     """
-    data = [asdict(frame) for frame in frames]
+    data = [frame.to_json() for frame in frames]
+
     response = requests.post(
         f"http://{host}:{port}/tracking/track",
         json=data,
     )
 
     if response.status_code == 200:
-        return [core.model.Object.from_api(**obj) for obj in response.json()]
+        objects = [core.model.Object.from_api(**obj) for obj in response.json()]
+        for o in objects:
+
+            times = sorted([det.frame for det in o._detections])
+
+            time_in = frames[times[0]].timestamp
+            if time_in == None:
+                raise RuntimeError("Expected type datetime, got None")
+            o.time_in = time_in
+
+            time_out = frames[times[-1]].timestamp
+            if time_out == None:
+                raise RuntimeError("Expected type datetime, got None")
+            o.time_out = time_out
+        return objects
 
     return None
 
@@ -89,7 +111,7 @@ class Detector:  # pragma: no cover
         `(height, width, channels) or (frame, height, width, channels)`
     """
 
-    def __init__(self, host: str = "localhost", port: str = "8003") -> None:
+    def __init__(self, host: str = "127.0.0.1", port: str = "8003") -> None:
         self.host: str = host
         self.port: str = port
         self.available_models: List[Model] = self._models()

@@ -1,10 +1,8 @@
 """Tests for API."""
-import pytest
 from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
-from starlette.responses import Response
 
 from core import model
 from core.api import core, make_db, schema
@@ -19,6 +17,7 @@ def test_pydantic_schema():  # noqa: D103
         name="Test",
         description="Testing",
         _status=model.Status.PENDING,
+        location="Test",
     )
 
     jobs = set()
@@ -55,10 +54,16 @@ def make_test_db():
 
 
 def get_test_repo(session=Depends(make_test_db)):
+    """Override dependency function to get repo for FastAPI."""
     sessionRepo = ProjectRepository(session)
 
     proj = model.Project("test", "test", "test")
-    job = model.Job("Test Name", "Test Description", status=model.Status.DONE)
+    job = model.Job(
+        "Test Name",
+        "Test Description",
+        status=model.Status.DONE,
+        location="Test location",
+    )
     obj1 = model.Object(1)
     obj1.add_detection(model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1))
     obj1.add_detection(model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2))
@@ -201,22 +206,19 @@ def test_add_and_get_job():
 
         response_job = client.post(
             f"/projects/{project_id}/jobs/",
-            json={"name": "Job name", "description": "Job description"},
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "location": "test",
+                "videos": [],
+            },
         )
 
-        assert response_job.status_code == 200
+        assert response_job.status_code == 201
 
         job_data = response_job.json()
         assert "id" in job_data
         job_id = job_data["id"]
-        response_job_json = response_job.json()
-        assert response_job_json == {
-            "name": "Job name",
-            "description": "Job description",
-            "id": job_id,
-            "_status": "Pending",
-            "_objects": [],
-        }
 
         response = client.get(f"/projects/{project_id}/jobs")
         assert response.status_code == 200
@@ -229,6 +231,8 @@ def test_add_and_get_job():
                 "id": job_id,
                 "_status": "Pending",
                 "_objects": [],
+                "videos": [],
+                "location": "test",
             }
         ]
 
@@ -263,9 +267,14 @@ def test_get_job():
 
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/",
-            json={"name": "Job name", "description": "Job description"},
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "videos": [],
+                "location": "test",
+            },
         )
-        assert response_post_job.status_code == 200
+        assert response_post_job.status_code == 201
 
         job_data = response_post_job.json()
         assert "id" in job_data
@@ -281,6 +290,8 @@ def test_get_job():
             "name": "Job name",
             "_status": "Pending",
             "_objects": [],
+            "videos": [],
+            "location": "test",
         }
 
         response = client.get(f"/projects/999999/jobs/{job_id}")
@@ -291,6 +302,7 @@ def test_get_job():
 
 
 def test_get_done_job():
+    """Test completed job with objects."""
     with TestClient(core) as client:
 
         response = client.get("/projects/1/jobs/")
@@ -326,7 +338,12 @@ def test_project_not_existing():
 
         response = client.post(
             "/projects/-1/jobs/",
-            json={"name": "Job name", "description": "Job description"},
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "videos": [],
+                "location": "test",
+            },
         )
         assert response.status_code == 404
 
@@ -361,9 +378,14 @@ def test_set_job_status():
 
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/",
-            json={"name": "Job name", "description": "Job description"},
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "videos": [],
+                "location": "test",
+            },
         )
-        assert response_post_job.status_code == 200
+        assert response_post_job.status_code == 201
 
         job_data = response_post_job.json()
         assert "id" in job_data
@@ -380,6 +402,8 @@ def test_set_job_status():
             "name": "Job name",
             "_status": "Pending",
             "_objects": [],
+            "videos": [],
+            "location": "test",
         }
 
         # Start job and check its started
@@ -393,6 +417,8 @@ def test_set_job_status():
             "name": "Job name",
             "_status": "Running",
             "_objects": [],
+            "videos": [],
+            "location": "test",
         }
 
         # Should not be able to start a started job
@@ -412,6 +438,8 @@ def test_set_job_status():
             "name": "Job name",
             "_status": "Paused",
             "_objects": [],
+            "videos": [],
+            "location": "test",
         }
 
         # Should not be able to pause a paused job
@@ -431,4 +459,52 @@ def test_set_job_status():
             "name": "Job name",
             "_status": "Running",
             "_objects": [],
+            "videos": [],
+            "location": "test",
         }
+
+
+def test_add_and_get_job_with_videos():
+    """Test posting a new job to a project with videos."""
+    with TestClient(core) as client:
+        # Setup of a project to test with
+        response = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
+        )
+        assert response.status_code == 200
+        project_data = response.json()
+        assert "id" in project_data
+        project_id = project_data["id"]
+
+        # Test adding job with valid path to a video
+        response_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "location": "test",
+                "videos": [
+                    "./tests/integration/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+                ],
+            },
+        )
+
+        assert response_job.status_code == 201
+
+        # Test adding job with not a valid path to video
+        response_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Bad job",
+                "description": "Bad job description",
+                "location": "bad location",
+                "videos": ["./video_not_existing.mp4"],
+            },
+        )
+
+        assert response_job.status_code == 404

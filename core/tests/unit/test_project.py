@@ -10,9 +10,15 @@ def make_test_project() -> Project:
     project = Project(
         "Test name", "NINA-123", "Test description", "Test location"
     )
-    project.add_job(Job("Test job name 1", "Test description 1"))
-    project.add_job(Job("Test job name 2", "Test description 2"))
-    project.add_job(Job("Test job name 3", "Test description 3"))
+    project.add_job(
+        Job("Test job name 1", "Test description 1", "Test location")
+    )
+    project.add_job(
+        Job("Test job name 2", "Test description 2", "Test location")
+    )
+    project.add_job(
+        Job("Test job name 3", "Test description 3", "Test location")
+    )
     return project
 
 
@@ -27,7 +33,9 @@ def test_project_location(make_test_project):
 def test_make_project_and_add_job(make_test_project):
     """Tests creation of a project, and adding of jobs to it."""
     project = make_test_project
-    project.add_job(Job("This test is new", "Test description 2"))
+    project.add_job(
+        Job("This test is new", "Test description 2", "Test location")
+    )
 
     assert project.number_of_jobs == 4
 
@@ -45,7 +53,7 @@ def test_get_job(make_test_project):
     """Test getting a single job from a project by id."""
     project = make_test_project
 
-    new_job = Job("New Job", "New Job Desc")
+    new_job = Job("New Job", "New Job Desc", "New test location")
     new_job.id = 1
 
     project.add_job(new_job)

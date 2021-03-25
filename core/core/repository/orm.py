@@ -47,6 +47,7 @@ jobs = Table(
     Column("name", Text(NAME_SIZE), nullable=False),
     Column("_status", Enum(model.Status), nullable=False),
     Column("description", Text(DESCRIPTION_SIZE)),
+    Column("location", Text(DESCRIPTION_SIZE)),
     Column("project_id", Integer, ForeignKey("projects.id")),
 )
 
@@ -55,6 +56,13 @@ object_job_assoc = Table(
     metadata,
     Column("job_id", Integer, ForeignKey("jobs.id")),
     Column("obj_id", Integer, ForeignKey("objects.id")),
+)
+
+video_job_assoc = Table(
+    "video_job_assoc",
+    metadata,
+    Column("job_id", Integer, ForeignKey("jobs.id")),
+    Column("video_id", Integer, ForeignKey("videos.id")),
 )
 
 objects = Table(
@@ -85,6 +93,10 @@ videos = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("_path", Text(PATH_SIZE), nullable=False),
     Column("frames", Integer, nullable=False),
+    Column("fps", Integer, nullable=False),
+    Column("width", Integer, nullable=False),
+    Column("height", Integer, nullable=False),
+    Column("timestamp", DateTime),
 )
 
 
@@ -109,6 +121,11 @@ def start_mappers():
         },
     )
 
+    videos_mapper = mapper(
+        model.Video,
+        videos,
+    )
+
     jobs_mapper = mapper(
         model.Job,
         jobs,
@@ -117,7 +134,12 @@ def start_mappers():
                 object_mapper,
                 secondary=object_job_assoc,
                 cascade="all",
-            )
+            ),
+            "videos": relationship(
+                videos_mapper,
+                secondary=video_job_assoc,
+                cascade="all",
+            ),
         },
     )
 
@@ -131,9 +153,4 @@ def start_mappers():
                 cascade="all, delete",
             )
         },
-    )
-
-    videos_mapper = mapper(
-        model.Video,
-        videos,
     )
