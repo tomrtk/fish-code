@@ -32,6 +32,12 @@ def to_track(
     ------
     Optional[List[Object]] :
         List of objects that have been tracked. None if none found.
+
+    Raises
+    ------
+    RuntimeError
+        If time_{in,out} is None
+
     """
     data = [frame.to_json() for frame in frames]
 
@@ -48,12 +54,12 @@ def to_track(
 
             time_in = frames[times[0]].timestamp
             if time_in == None:
-                time_in = datetime(1, 1, 1)
+                raise RuntimeError("Expected type datetime, got None")
             o.time_in = time_in
 
             time_out = frames[times[-1]].timestamp
             if time_out == None:
-                time_out = datetime(1, 1, 1)
+                raise RuntimeError("Expected type datetime, got None")
             o.time_out = time_out
         return objects
 
