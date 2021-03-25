@@ -1,21 +1,39 @@
 """Scheduler class to orchestrate processing of jobs."""
 import asyncio
 import logging
+import multiprocessing
 import random
+import time
+
+from core.model import Job
+from core.services import process_job
 
 logger = logging.getLogger(__name__)
 
 
-async def process_job(queue):
-    """Process a job."""
-    while True:
-        logger.info("worker created, awaiting job")
-        job: str = await queue.get()
+class Worker(multiprocessing.Process):
+    """Worker to process a job."""
 
-        logger.info("Starting job")
+    def __init__(self, task_queue, result_queue):
+        multiprocessing.Process.__init__(self)
+        self.task_queue = task_queue
+        self.result_queue = result_queue
 
-        await asyncio.sleep(random.uniform(0.05, 2))
-        print(job)
+    def run(self):
+        """Worker thread core loop."""
+        while True:
+            next_task = self.task_queue.get()
+            if next_task is None:
+                logger.info(f"Process {self.name} exiting, no more work to do.")
+                self.task_queue.task_done()
+                break
+            elif isinstance(next_task, Job):
+                logger.info(
+                    f"Process {self.name} received job '{next_task.name}'"
+                )
+                processed_job = process_job(next_task)
+                self.result_queue.put(processed_job)
+        return
 
 
 class Singleton(type):
@@ -36,18 +54,15 @@ class Scheduler(metaclass=Singleton):
     """Scheduler class to control processing of jobs."""
 
     def __init__(self) -> None:
-        self.queue = asyncio.Queue()
+        self.tasks = multiprocessing.JoinableQueue()
+        self.results = multiprocessing.Queue()
+
+        logger.info("Creating 2 job workers")
+        workers = [Worker(self.tasks, self.results) for i in range(2)]
+        for w in workers:
+            w.start()
 
     async def put_job(self, job: str):
         """Put a job into the scheduling queue."""
         logger.info("putting job in queue")
-        await self.queue.put(job)
-
-    async def spawn_processes(self):
-        """Spawns child processes for jobs in the queue."""
-        for i in range(10):
-            print("doing stuff")
-
-    async def complete_job(self):
-        """Complete a job."""
-        pass
+        self.tasks.put(job)
