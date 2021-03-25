@@ -656,7 +656,10 @@ class Job:
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
-        return hash((type(self),) + (self.name, self.description, self.id))
+        return hash(
+            (type(self),)
+            + (self.name, self.description, self.id, self.location)
+        )
 
     def __eq__(self, other) -> bool:
         """Check if job is equal to another object."""
