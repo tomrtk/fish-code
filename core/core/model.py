@@ -4,7 +4,7 @@ from __future__ import annotations
 import logging
 import os.path
 import re
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
@@ -108,7 +108,8 @@ class Video:
         self.height: int = height
         self.output_width: int = output_width
         self.output_height: int = output_height
-        self.timestamp = parse_str_to_date(self._path)
+        self.timestamp: Optional[datetime] = parse_str_to_date(self._path)
+        self._current_frame = 0
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -116,6 +117,26 @@ class Video:
                 output_width,
                 output_height,
             )
+
+    def __iter__(self):
+        """Class iterator."""
+        self._current_frame = 0
+        return self
+
+    def __next__(self) -> np.ndarray:
+        """Get next item from iterator.
+
+        Return
+        ------
+        np.ndarray
+            One frame of video as `ndarray`.
+        """
+        if self._current_frame < self.frames:
+            result = self.__get__(self._current_frame)
+            self._current_frame += 1
+            return result
+        else:
+            raise StopIteration
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -127,14 +148,17 @@ class Video:
         numpy.ndarray
             One frame of video as `ndarray`.
         """
-        if key < 0 or key >= self.frames:
+        if key < 0:
+            raise IndexError
+
+        if key >= self.frames:
             raise IndexError
 
         # ffmpeg filter docs:
         # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
         frame, _ = (
             ffmpeg.input(self._path)
-            .filter("select", "gte(n, {})".format(key))
+            .filter("select", "eq(n, {})".format(key))
             .filter(
                 "scale",
                 self.output_width,
@@ -142,7 +166,7 @@ class Video:
                 -1,
             )
             .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
-            .run(capture_stdout=True)
+            .run(quiet=True)
         )
         return np.frombuffer(frame, np.uint8).reshape(
             [self.output_height, self.output_width, 3]
@@ -222,7 +246,7 @@ class Video:
             .output(
                 "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
             )
-            .run(capture_stdout=True)
+            .run(quiet=True)
         )
 
         return np.frombuffer(frame, np.uint8).reshape(
@@ -354,6 +378,28 @@ class Frame:
     detections: List[Detection]
     timestamp: Optional[datetime] = None
 
+    def to_json(self) -> Dict[str, Any]:
+        """Convert frame to json.
+
+        Return
+        ------
+        Dict[str, Any] :
+            Object as json:
+            {
+                "idx": int,
+                "detections": List[Detection],
+                "timestamp": None|str
+            }
+
+        """
+        return {
+            "idx": self.idx,
+            "detections": [det.to_json() for det in self.detections if det],
+            "timestamp": None
+            if not self.timestamp
+            else self.timestamp.isoformat(),
+        }
+
 
 @dataclass
 class BBox:
@@ -392,6 +438,46 @@ class Detection:
     probability: float
     label: int
     frame: int
+
+    def to_json(self) -> Dict[str, Any]:
+        """Convert detection to json.
+
+        Return
+        ------
+        Dict[str, Any] :
+            Detection as json,
+            {
+                "bbox": BBox,
+                "probability": float,
+                "label": int,
+                "frame": int,
+            }
+
+        """
+        return {
+            "bbox": asdict(self.bbox),
+            "probability": self.probability,
+            "label": self.label,
+            "frame": self.frame,
+        }
+
+    def set_frame(self, frame: int) -> Detection:
+        """Update frame nr.
+
+        Returns itself so it can be used in list comprehensions.
+
+        Parameter
+        ---------
+        frame : int
+              The frame number the detection is found in.
+
+        Return
+        ------
+        Detection :
+                  Returns self.
+        """
+        self.frame = frame
+        return self
 
     @classmethod
     def from_api(
@@ -555,7 +641,11 @@ class Job:
     """Class representation of a job."""
 
     def __init__(
-        self, name: str, description: str, status: Status = Status.PENDING
+        self,
+        name: str,
+        description: str,
+        location: str,
+        status: Status = Status.PENDING,
     ) -> None:
         self.id: Optional[int] = None
         self.name: str = name
@@ -563,10 +653,14 @@ class Job:
         self._status: Status = status
         self._objects: List[Object] = list()
         self.videos: List[Video] = list()
+        self.location: str = location
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
-        return hash((type(self),) + (self.name, self.description, self.id))
+        return hash(
+            (type(self),)
+            + (self.name, self.description, self.id, self.location)
+        )
 
     def __eq__(self, other) -> bool:
         """Check if job is equal to another object."""
@@ -632,29 +726,92 @@ class Job:
         return [obj.get_results() for obj in self._objects]
 
     def add_video(self, video: Video) -> bool:
-        """Add a video to this job in order to be processed."""
-        raise NotImplementedError
+        """Add a video to this job in order to be processed.
 
-    def remove_video(self, video_id: int) -> bool:
-        """Remove an existing video from this job."""
-        raise NotImplementedError
+        Parameter
+        ---------
+        video   :   Video
+            Video to add to this job. Must have a valid timestamp.
 
-    def list_videos(self) -> List[Video]:
-        """Retrieve a list of all videos in this job."""
-        raise NotImplementedError
+        Return
+        ------
+        bool    :
+            True if video has a set timestamp, and is not already in the
+            videos list. False otherwise.
 
-    def _process_job(self) -> None:
-        raise NotImplementedError
-        frames: List[Frame] = list()
+        """
+        if video.timestamp is None:
+            logger.warning("Videos added to job must have set timestamp.")
+            return False
 
-        for video in self.videos:
-            # frames = interface.detector.predict(Video[start:end])
-            for frame in frames:
-                frame.timestamp = video.timestamp_at(frame.idx)
+        if video in self.videos:
+            logger.warning("Attempted to add an existing video to a job.")
+            return False
 
-        objects = core.interface.to_track(frames)
-        if objects:
-            self._objects = objects
+        self.videos.append(video)
+        self.videos.sort(key=lambda x: x.timestamp.timestamp())
+        return True
+
+    def add_videos(self, videos: List[Video]) -> bool:
+        """Add a list of videos to this job in order to be processed.
+
+        Parameter
+        ---------
+        videos  :   List[Video]
+            List of videos to add. All must have a valid timestamp.
+
+        Return
+        ------
+        bool    :
+            True if all videos in the list has a timestamp, false otherwise.
+            No videos gets added if False is returned.
+        """
+        # TODO: Should also check for unique timestamps
+        for video in videos:
+            if video.timestamp is None:
+                logger.warning(
+                    "Videos added by list to job must all have timestamps."
+                )
+                return False
+
+            if video in self.videos:
+                logger.warning("Video has already been added to the job.")
+                return False
+
+        for video in videos:
+            self.videos.append(video)
+
+        self.videos.sort(key=lambda x: x.timestamp.timestamp())
+        return True
+
+    def remove_video(self, video: Video) -> bool:
+        """Remove an existing video from this job.
+
+        Parameter
+        ---------
+        video   :   Video
+            video to remove from the job.
+
+        Return
+        ------
+        bool    :
+            True if the video was removed from the job. False otherwise.
+        """
+        if video in self.videos:
+            self.videos.remove(video)
+            return True
+        else:
+            return False
+
+    def total_frames(self) -> int:
+        """Get the total frames in all videos for this job.
+
+        Return
+        ------
+        int     :
+            Ammount of frames in total over all video objects in this job.
+        """
+        return sum([v.frames for v in self.videos])
 
     def status(self) -> Status:
         """Get the job status for this job."""

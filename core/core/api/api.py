@@ -7,7 +7,7 @@ server is running.
 import logging
 from typing import List
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
@@ -138,33 +138,58 @@ def list_project_jobs(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.post("/projects/{project_id}/jobs/", response_model=schema.Job)
+@core.post("/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED)
 def add_job_to_project(
     project_id: int,
-    job: schema.JobBase,
+    job: schema.JobCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
 ):
     """Add a `Job` to a `Project` who has`project_id`.
 
     Returns
     -------
-    Job
-        New job with `id`.
+    id :
+        The id of Job, {"id": int}
 
     Raises
     ------
     HTTPException
         If no project with _project_id_ found. Status code: 404.
+    HTTPException
+        If video path is not found. Status code: 404.
     """
     project = repo.get(project_id)
     if project:
-        new_job = model.Job(**job.dict())
+        # Create videos from list of paths
+        videos: List[model.Video] = []
+        errors = []
+        for video_path in job.videos:
+            try:
+                videos.append(model.Video.from_path(video_path))
+            except FileNotFoundError:
+                errors.append(video_path)
+
+        if len(errors) > 0:
+            raise HTTPException(
+                status_code=404, detail=f"Videos not found, paths: {errors}"
+            )
+
+        # create dict and remove videos from dict
+        job_dict = job.dict()
+        job_dict.pop("videos", None)
+        new_job = model.Job(**job_dict)
+
+        # Add each video to new job
+        for video in videos:
+            new_job.add_video(video)
+
+        # add job to project and save repo
         project = project.add_job(new_job)
         repo.save()
 
         logger.debug("Job %s added to project %s", job, project_id)
+        return {"id": new_job.id}
 
-        return new_job
     else:
         logger.warning("Job not added, project %s not found,", project_id)
         raise HTTPException(status_code=404, detail="Project not found")

@@ -20,6 +20,7 @@ class JobBase(HashableBaseModel):
 
     name: str
     description: str
+    location: str
 
 
 class Object(BaseModel):
@@ -37,12 +38,28 @@ class Object(BaseModel):
         orm_mode = True
 
 
+class Video(BaseModel):
+    """Video class used in API."""
+
+    path: str
+    frames: int
+    timestamp: Optional[datetime]
+
+    class Config:
+        """Pydantic configuration options."""
+
+        orm_mode = True
+        fields = {"path": "_path"}
+        underscore_attrs_are_private = False
+
+
 class Job(JobBase):
     """`Job` class used to send object on API."""
 
     id: int
     status: model.Status
     objects: List[Object] = []
+    videos: List[Video] = []
 
     def __hash__(self) -> int:
         """Hash status data in job."""
@@ -60,7 +77,7 @@ class Job(JobBase):
 class JobCreate(JobBase):
     """Class for new Job received on API."""
 
-    pass
+    videos: List[str]
 
 
 class ProjectBase(HashableBaseModel):
