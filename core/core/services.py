@@ -5,51 +5,17 @@ import threading
 from typing import List, Tuple
 
 import numpy as np
+from sqlalchemy import create_engine
+from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from core.interface import Detector, to_track
 from core.model import Job, Video
+from core.repository import SqlAlchemyProjectRepository as ProjectRepository
+from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
 job_queue = multiprocessing.JoinableQueue()
-
-
-def schedule():
-    """Scheduler function, gets run by the scheduler thread."""
-    logger.info("Scheduler started.")
-    while True:
-        next_task = job_queue.get()
-        if next_task is None:
-            job_queue.task_done()
-            break
-        elif isinstance(next_task, Tuple):
-            # TODO: This means a new job has been added.
-            raise NotImplementedError
-    logger.info(f"scheduler ending.")
-
-
-schedule_thread = threading.Thread(target=schedule)
-
-
-def stop_scheduler():
-    """Stop the scheduler thread."""
-    # TODO: Should have a timeout that api handles if it does not get picked up.
-    # For example when scheduler is not running.
-    job_queue.put(None)
-
-
-def start_scheduler():
-    """Start the scheduler thread."""
-    try:
-        schedule_thread.start()
-    except RuntimeError:
-        logger.error("Scheduler process is already started.")
-
-
-def queue_job(project_id: int, job_id: int):
-    """Enqueue a job."""
-    logger.info(f"Job {job_id} in project {project_id} scheduled to run")
-    job_queue.put((project_id, job_id))
 
 
 class VideoLoader:
@@ -89,8 +55,25 @@ class VideoLoader:
             yield np.array(batch), timestamps
 
 
-def process_job(job: Job) -> Job:
+def process_job(project_id: int, job_id: int):
     """Process all videos in a job and finds objects."""
+    # Setup of runtime stuff. Should be moved to its own place later.
+    engine = create_engine(
+        "sqlite:///data.db",
+        connect_args={"check_same_thread": False},
+    )
+    # Create tables from defines schema.
+    metadata.create_all(engine)
+    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    start_mappers()
+
+    repo = ProjectRepository(session())
+    job = repo.get(project_id).get_job(job_id)
+
+    if not job:
+        logger.warning(f"Could not get job {job_id} in project {project_id}.")
+        return
+
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
 
@@ -125,4 +108,45 @@ def process_job(job: Job) -> Job:
 
     job.complete()
 
+    repo.save()
+    clear_mappers()
+
     return job
+
+
+def schedule():
+    """Scheduler function, gets run by the scheduler thread."""
+    logger.info("Scheduler started.")
+    while True:
+        next_task = job_queue.get()
+        if next_task is None:
+            job_queue.task_done()
+            break
+        elif isinstance(next_task, Tuple):
+            # TODO: This means a new job has been added.
+            process_job(next_task[0], next_task[1])
+    logger.info(f"scheduler ending.")
+
+
+schedule_thread = threading.Thread(target=schedule)
+
+
+def stop_scheduler():
+    """Stop the scheduler thread."""
+    # TODO: Should have a timeout that api handles if it does not get picked up.
+    # For example when scheduler is not running.
+    job_queue.put(None)
+
+
+def start_scheduler():
+    """Start the scheduler thread."""
+    try:
+        schedule_thread.start()
+    except RuntimeError:
+        logger.error("Scheduler process is already started.")
+
+
+def queue_job(project_id: int, job_id: int):
+    """Enqueue a job."""
+    logger.info(f"Job {job_id} in project {project_id} scheduled to run")
+    job_queue.put((project_id, job_id))
