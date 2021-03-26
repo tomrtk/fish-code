@@ -268,7 +268,7 @@ def set_job_status_start(
     try:
         job.start()
         repo.save()
-        services.start_job(project_id, job_id)
+        services.queue_job(project_id, job_id)
     except model.JobStatusException:
         logger.warning(
             "Cannot start job %s, it's already running or completed.", job_id
