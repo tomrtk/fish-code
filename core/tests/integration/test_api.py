@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from core import model
-from core.api import core, make_db, schema
+from core.api import core_api, make_db, schema
 from core.api.api import get_runtime_repo
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
@@ -31,14 +31,14 @@ def test_pydantic_schema():  # noqa: D103
 
 def test_production_make_db():
     """Test production FastAPI dependency `make_db`."""
-    core.dependency_overrides[make_db] = make_db
-    core.dependency_overrides[get_runtime_repo] = get_runtime_repo
-    with TestClient(core) as client:
+    core_api.dependency_overrides[make_db] = make_db
+    core_api.dependency_overrides[get_runtime_repo] = get_runtime_repo
+    with TestClient(core_api) as client:
         response = client.get("/projects/")
 
         assert response.status_code == 200
-    core.dependency_overrides[make_db] = make_test_db
-    core.dependency_overrides[get_runtime_repo] = get_test_repo
+    core_api.dependency_overrides[make_db] = make_test_db
+    core_api.dependency_overrides[get_runtime_repo] = get_test_repo
 
 
 def make_test_db():
@@ -97,13 +97,13 @@ def get_test_repo(session=Depends(make_test_db)):
 
 
 # Override what database to use for tests
-core.dependency_overrides[make_db] = make_test_db
-core.dependency_overrides[get_runtime_repo] = get_test_repo
+core_api.dependency_overrides[make_db] = make_test_db
+core_api.dependency_overrides[get_runtime_repo] = get_test_repo
 
 
 def test_get_projects():
     """Test getting project list endpoint."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response = client.get("/projects/")
 
         assert response.status_code == 200
@@ -111,7 +111,7 @@ def test_get_projects():
 
 def test_add_project():
     """Test posting a new project."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response = client.post(
             "/projects/",
             json={
@@ -138,7 +138,7 @@ def test_add_project():
 
 def test_add_project_with_location():
     """Test posting a new project with location string."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response = client.post(
             "/projects/",
             json={
@@ -166,7 +166,7 @@ def test_add_project_with_location():
 
 def test_get_project():
     """Test retrieving a single project."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response_post_project = client.post(
             "/projects/",
             json={
@@ -197,7 +197,7 @@ def test_get_project():
 
 def test_add_and_get_job():
     """Test posting a new job to a project and getting list of jobs."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response = client.post(
             "/projects/",
             json={
@@ -246,7 +246,7 @@ def test_add_and_get_job():
 
 def test_get_job():
     """Test posting a new job to a project and getting list of jobs."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response_post_project = client.post(
             "/projects/",
             json={
@@ -310,7 +310,7 @@ def test_get_job():
 
 def test_get_done_job():
     """Test completed job with objects."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
 
         response = client.get("/projects/1/jobs/")
         assert response.status_code == 200
@@ -335,7 +335,7 @@ def test_get_done_job():
 
 def test_project_not_existing():
     """Test posting a new job to a project and getting list of jobs."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
 
         response = client.get(f"/projects/0/jobs")
         assert response.status_code == 404
@@ -357,7 +357,7 @@ def test_project_not_existing():
 
 def test_set_job_status():
     """Test updating the status of jobs."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         response_post_project = client.post(
             "/projects/",
             json={
@@ -473,7 +473,7 @@ def test_set_job_status():
 
 def test_add_and_get_job_with_videos():
     """Test posting a new job to a project with videos."""
-    with TestClient(core) as client:
+    with TestClient(core_api) as client:
         # Setup of a project to test with
         response = client.post(
             "/projects/",
