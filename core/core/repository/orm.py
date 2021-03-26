@@ -97,6 +97,8 @@ videos = Table(
     Column("width", Integer, nullable=False),
     Column("height", Integer, nullable=False),
     Column("timestamp", DateTime),
+    Column("output_width", Integer, nullable=False),
+    Column("output_height", Integer, nullable=False),
 )
 
 
