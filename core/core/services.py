@@ -46,7 +46,7 @@ def start_scheduler():
         logger.error("Scheduler process is already started.")
 
 
-def start_job(project_id: int, job_id: int):
+def queue_job(project_id: int, job_id: int):
     """Enqueue a job."""
     logger.info(f"Job {job_id} in project {project_id} scheduled to run")
     job_queue.put((project_id, job_id))
