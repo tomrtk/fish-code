@@ -21,6 +21,12 @@ VIDEO_DEFAULT_HEIGHT: int = 360
 VIDEO_DEFAULT_WIDTH: int = 640
 
 
+class TimestampNotFoundError(Exception):
+    """Exception to raise if no timestamp are found."""
+
+    pass
+
+
 class Status(str, Enum):
     """Enum for job progress."""
 
@@ -47,6 +53,8 @@ class Video:
                         Width in pixels
     height          :   int
                         Height in pixels
+    timestamp       :   datetime
+                        timestamp for when the video starts
     output_width    :   int
                         Frame output width. Default to `VIDEO_DEFAULT_WIDTH`
                         constant.
@@ -89,6 +97,8 @@ class Video:
     ------
     FileNotFoundError
         If error reading video file when creating `from_path()`.
+    TimestampNotFound
+        If no timestamp where found when creating `from_path()`.
     """
 
     def __init__(
@@ -98,6 +108,7 @@ class Video:
         fps: int,
         width: int,
         height: int,
+        timestamp: datetime,
         output_width: int = VIDEO_DEFAULT_WIDTH,
         output_height: int = VIDEO_DEFAULT_HEIGHT,
     ) -> None:
@@ -108,7 +119,7 @@ class Video:
         self.height: int = height
         self.output_width: int = output_width
         self.output_height: int = output_height
-        self.timestamp: Optional[datetime] = parse_str_to_date(self._path)
+        self.timestamp: datetime = timestamp
         self._current_frame = 0
 
         if output_height <= 0 or output_width <= 0:
@@ -284,6 +295,10 @@ class Video:
         if not Path(path).exists():
             raise FileNotFoundError("Video file %s not found.", path)
 
+        timestamp = parse_str_to_date(Path(path).name)
+        if timestamp == None:
+            raise TimestampNotFoundError(f"No timestamp found for file {path}")
+
         height, width, fps, frame_numbers = _get_video_metadata(path)
 
         return cls(
@@ -292,6 +307,7 @@ class Video:
             fps=fps,
             width=width,
             height=height,
+            timestamp=timestamp,
             output_width=output_width,
             output_height=output_height,
         )
@@ -302,10 +318,12 @@ class Video:
         Parameter
         ---------
         idx : int
+            Index in video.
 
         Return
         ------
         datetime :
+            Timestamp for the frame at index.
 
         """
         if idx > self.frames:
@@ -801,12 +819,6 @@ class Job:
         """
         # TODO: Should also check for unique timestamps
         for video in videos:
-            if video.timestamp is None:
-                logger.warning(
-                    "Videos added by list to job must all have timestamps."
-                )
-                return False
-
             if video in self.videos:
                 logger.warning("Video has already been added to the job.")
                 return False

@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from core import model
@@ -16,8 +18,12 @@ def test_add_object(sqlite_session_factory):
 
     repo = SqlAlchemyVideoRepository(session)
 
-    vid1 = model.Video("/some/path", 30, 25, 512, 512)
-    vid2 = model.Video("/some/other/path", 20, 25, 512, 512)
+    vid1 = model.Video(
+        "/some/path", 30, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
+    vid2 = model.Video(
+        "/some/other/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
 
     repo.add(vid1)
     repo.add(vid2)
@@ -35,7 +41,9 @@ def test_change_object(sqlite_session_factory):
 
     repo = SqlAlchemyVideoRepository(session)
 
-    obj1 = model.Video("/some/path", 20, 25, 512, 512)
+    obj1 = model.Video(
+        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
     repo.add(obj1)
     repo.save()
 
@@ -52,7 +60,9 @@ def test_remove_object(sqlite_session_factory):
 
     repo = SqlAlchemyVideoRepository(session)
 
-    vid = model.Video("/some/path", 20, 25, 512, 512)
+    vid = model.Video(
+        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
     repo.add(vid)
     repo.save()
 
