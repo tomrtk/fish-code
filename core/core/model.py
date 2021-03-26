@@ -1011,14 +1011,3 @@ class Project:
                 job.name,
             )
             return False
-
-
-class Scheduler:
-    """Scheduler to orchestrate jobs across projects."""
-
-    def __init__(self) -> None:
-        self._jobs = set()  # type: Set[Job]
-
-    def add_job(self, job: Job) -> None:
-        """Add a job to the scheduler to be processed."""
-        self._jobs.add(job)
