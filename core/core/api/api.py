@@ -12,7 +12,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 import core.api.schema as schema
-from core import model
+from core import model, services
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
 
@@ -232,7 +232,7 @@ def get_job_from_project(
 @core_api.post(
     "/projects/{project_id}/jobs/{job_id}/start", response_model=schema.Job
 )
-def set_job_status_start(
+async def set_job_status_start(
     project_id: int,
     job_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -268,6 +268,7 @@ def set_job_status_start(
     try:
         job.start()
         repo.save()
+        await services.scheduler.put_job(project_id, job_id)
     except model.JobStatusException:
         logger.warning(
             "Cannot start job %s, it's already running or completed.", job_id

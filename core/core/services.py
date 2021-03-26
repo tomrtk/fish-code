@@ -2,7 +2,7 @@
 import logging
 import multiprocessing
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -64,10 +64,10 @@ class Scheduler(metaclass=Singleton):
         for w in workers:
             w.start()
 
-    async def put_job(self, job: Job):
+    async def put_job(self, project_id: int, job_id: int):
         """Put a job into the scheduling queue."""
-        logger.info(f"putting job {job.name} in queue")
-        self.tasks.put(job)
+        logger.warning(f"Job {job_id} in project {project_id} scheduled to run")
+        self.tasks.put((project_id, job_id))
 
 
 scheduler = Scheduler()
