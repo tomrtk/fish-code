@@ -7,6 +7,7 @@ import uvicorn
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+import core.services
 from core import model
 from core.api import core_api
 
@@ -37,8 +38,12 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logging.basicConfig(level=logging.INFO)
         logger.info("Core started")
 
+    core.services.start_scheduler()
+
     if not args.test:  # only part not tested in tests
         uvicorn.run(core_api, host=args.host, port=args.port)
+
+    core.services.stop_scheduler()
 
     return 0
 
