@@ -8,7 +8,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from core import model
-from core.api import core
+from core.api import core_api
 
 # Workaround to get proper import.
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
@@ -38,7 +38,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Core started")
 
     if not args.test:  # only part not tested in tests
-        uvicorn.run(core, host=args.host, port=args.port)
+        uvicorn.run(core_api, host=args.host, port=args.port)
 
     return 0
 

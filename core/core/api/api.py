@@ -18,7 +18,7 @@ from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
-core = FastAPI()
+core_api = FastAPI()
 
 
 def make_db():  # noqa: D403
@@ -51,7 +51,7 @@ def get_runtime_repo(session=Depends(make_db)):  # noqa: D403
         sessionRepo.session.close()
 
 
-@core.get("/projects/", response_model=List[schema.Project])
+@core_api.get("/projects/", response_model=List[schema.Project])
 def list_projects(
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False)
 ):
@@ -67,7 +67,7 @@ def list_projects(
     return repo.list()
 
 
-@core.post("/projects/", response_model=schema.Project)
+@core_api.post("/projects/", response_model=schema.Project)
 def add_projects(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -84,7 +84,7 @@ def add_projects(
     return repo.add(model.Project(**project.dict()))
 
 
-@core.get("/projects/{project_id}/", response_model=schema.Project)
+@core_api.get("/projects/{project_id}/", response_model=schema.Project)
 def get_project(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -110,7 +110,7 @@ def get_project(
     return project
 
 
-@core.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
+@core_api.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
 def list_project_jobs(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -138,7 +138,9 @@ def list_project_jobs(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.post("/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED)
+@core_api.post(
+    "/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED
+)
 def add_job_to_project(
     project_id: int,
     job: schema.JobCreate,
@@ -195,7 +197,7 @@ def add_job_to_project(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.get("/projects/{project_id}/jobs/{job_id}", response_model=schema.Job)
+@core_api.get("/projects/{project_id}/jobs/{job_id}", response_model=schema.Job)
 def get_job_from_project(
     project_id: int,
     job_id: int,
@@ -227,7 +229,7 @@ def get_job_from_project(
     return project.get_job(job_id)
 
 
-@core.post(
+@core_api.post(
     "/projects/{project_id}/jobs/{job_id}/start", response_model=schema.Job
 )
 def set_job_status_start(
@@ -278,7 +280,7 @@ def set_job_status_start(
     return job
 
 
-@core.post(
+@core_api.post(
     "/projects/{project_id}/jobs/{job_id}/pause", response_model=schema.Job
 )
 def set_job_status_pause(
