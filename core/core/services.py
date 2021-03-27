@@ -126,11 +126,11 @@ def schedule():
     while True:
         next_task = job_queue.get()
         if next_task is None:
-            job_queue.task_done()
             break
         elif isinstance(next_task, Tuple):
             # TODO: This means a new job has been added.
             process_job(next_task[0], next_task[1])
+        job_queue.task_done()
     logger.info(f"scheduler ending.")
 
 
