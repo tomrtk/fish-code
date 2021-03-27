@@ -4,11 +4,10 @@ import logging
 from multiprocessing import Process
 from typing import List, Optional, Sequence
 
-from app.run import serve_debug, serve_prod  # type: ignore
-
 from core.main import main as core_main  # type: ignore
 from detection.main import main as detection_main  # type: ignore
 from tracing.main import main as tracing_main  # type: ignore
+from ui.run import serve_debug, serve_prod  # type: ignore
 
 logger = logging.getLogger(__name__)
 

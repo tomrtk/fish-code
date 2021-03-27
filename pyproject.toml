@@ -12,19 +12,18 @@ authors = [
 "Tom-Ruben Traavik Kvalvaag"
 ]
 packages = [
-    { include = "./ui" },
     { include = "./core" },
-    { include = "./tracing" },
     { include = "./detection" },
+    { include = "./tracing" },
+    { include = "./ui" },
 ]
-
 
 [tool.poetry.dependencies]
 python = "^3.7"
 core = {path = "core"}
-tracing = {path = "tracing"}
-app = {path = "ui"}
 detection = {path = "detection"}
+tracing = {path = "tracing"}
+ui = {path = "ui"}
 
 [tool.poetry.dev-dependencies]
 debugpy = "^1.2.1"

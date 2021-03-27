@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "app"
+name = "ui"
 version = "0.2.0"
 description = """
 Application to detect fish and generate a report viewable
@@ -38,7 +38,7 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 line_length = 80
 multi_line_output = 3
-src_paths = ["app", "tests"]
+src_paths = ["ui", "tests"]
 
 [tool.black]
 line-length = 80
@@ -83,5 +83,5 @@ filterwarnings = [
 
 [tool.coverage.run]
 source = [
-    "app",
+    "ui",
 ]

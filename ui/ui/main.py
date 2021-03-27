@@ -4,8 +4,8 @@ import os
 
 from flask import Flask, render_template
 
-from app.model import *
-from app.projects.projects import construct_projects_bp
+from ui.model import *
+from ui.projects.projects import construct_projects_bp
 
 
 def create_app(test_config=None):  # type: ignore
