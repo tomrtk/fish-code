@@ -68,7 +68,13 @@ def process_job(project_id: int, job_id: int):
     start_mappers()
 
     repo = ProjectRepository(session())
-    job = repo.get(project_id).get_job(job_id)
+    project = repo.get(project_id)
+
+    if not project:
+        logger.warning(f"Could not get project {project_id}.")
+        return
+
+    job = project.get_job(job_id)
 
     if not job:
         logger.warning(f"Could not get job {job_id} in project {project_id}.")
