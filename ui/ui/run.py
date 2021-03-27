@@ -10,7 +10,7 @@ import os
 import waitress
 from livereload import Server  # type: ignore
 
-import app.app as web  # type: ignore
+import ui.ui as web  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -36,15 +36,15 @@ def serve(
         waitress.serve(ui_wsgi, host=host, port=port)  # type: ignore
     else:
 
-        app = web.create_app()  # type: ignore
+        ui = web.create_app()  # type: ignore
 
         if (
             "FLASK_LIVERELOAD" in os.environ
             and os.environ["FLASK_LIVERELOAD"] == "1"
         ):
-            Server(app.wsgi_app).serve()  # type: ignore
+            Server(ui.wsgi_app).serve()  # type: ignore
         else:
-            app.run()
+            ui.run()
 
 
 if __name__ == "__main__":

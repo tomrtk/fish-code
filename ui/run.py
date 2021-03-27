@@ -10,7 +10,7 @@ import os
 import waitress
 from livereload import Server  # type: ignore
 
-import app.app as web  # type: ignore
+import ui.main as web  # type: ignore
 
 logger = logging.getLogger(__name__)
 

@@ -16,7 +16,7 @@ from flask import (
     url_for,
 )
 
-from app.model import Detection, Job, Project, Video
+from ui.model import Detection, Job, Project, Video
 
 
 def construct_projects_bp(cfg: Config):
