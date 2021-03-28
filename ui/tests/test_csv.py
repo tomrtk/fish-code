@@ -1,5 +1,5 @@
 """Test if downloading of csv file."""
-from app.app import create_app
+from ui.main import create_app
 
 web = create_app()
 
