@@ -817,10 +817,13 @@ class Job:
             True if all videos in the list has a timestamp, false otherwise.
             No videos gets added if False is returned.
         """
-        # TODO: Should also check for unique timestamps
         for video in videos:
             if video in self.videos:
                 logger.warning("Video has already been added to the job.")
+                return False
+
+            if video.timestamp in [v.timestamp for v in videos if v != video]:
+                logger.warning("Duplicate timestamp.")
                 return False
 
         for video in videos:
