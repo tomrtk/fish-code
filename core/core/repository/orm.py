@@ -72,8 +72,8 @@ objects = Table(
     Column("label", Integer, nullable=False),
     Column("probability", Float, nullable=False),
     Column("track_id", Integer, nullable=True),
-    Column("time_in", DateTime, nullable=False),
-    Column("time_out", DateTime, nullable=False),
+    Column("time_in", DateTime, nullable=True),
+    Column("time_out", DateTime, nullable=True),
 )
 
 detections = Table(

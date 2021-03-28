@@ -68,8 +68,20 @@ class SqlAlchemyObjectRepository(AbstractObjectRepository):
         Return
         ------
         model.Object
+
+        Raises
+        ------
+        RuntimeError
+            Raises if time_{in,out} is not set.
+
         """
+        if obj.time_in == None or obj.time_out == None:
+            raise RuntimeError(
+                "Adding object with time_in or time_out of type None"
+            )
+
         self.session.add(obj)
+
         logger.debug("Added object to repository")
         return obj
 
