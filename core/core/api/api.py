@@ -230,7 +230,8 @@ def get_job_from_project(
 
 
 @core_api.post(
-    "/projects/{project_id}/jobs/{job_id}/start", response_model=schema.Job
+    "/projects/{project_id}/jobs/{job_id}/start",
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def set_job_status_start(
     project_id: int,
@@ -265,19 +266,12 @@ def set_job_status_start(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    if job.status() is model.Status.DONE or model.Status.RUNNING:
-        raise HTTPException(
-            status_code=403,
-            detail="Cannot start job, it's already running or completed.",
-        )
-
     services.queue_job(project_id, job_id)
-
-    return job
 
 
 @core_api.post(
-    "/projects/{project_id}/jobs/{job_id}/pause", response_model=schema.Job
+    "/projects/{project_id}/jobs/{job_id}/pause",
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def set_job_status_pause(
     project_id: int,
@@ -312,13 +306,6 @@ def set_job_status_pause(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    try:
-        job.pause()
-        repo.save()
-    except model.JobStatusException:
-        logger.warning("Cannot pause job %s, it's not running..", job_id)
-        raise HTTPException(
-            status_code=403, detail="Cannot pause job, it's not running.."
-        )
+    # TODO: Schedule a job to be paused
 
     return job
