@@ -3,9 +3,11 @@ import pytest
 
 from tracing.main import main as tracing_main  # type: ignore
 from detection.main import main as detection_main
+from core.main import main as core_main
 from multiprocessing import Process
 import time
 import requests
+import logging
 
 
 @pytest.fixture
@@ -23,6 +25,29 @@ def tracing_api():
     check_api(host="localhost", port="8001")
     yield
     tracing_process.terminate()
+
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture
+def start_core():
+    """Start core API.
+
+    NOTE: Uses the production database.
+
+    Makes sure that the API is running via `check_api()`
+
+    See Also
+    --------
+    check_api()
+    """
+    process = Process(target=core_main, args=(None,))
+    process.start()
+    logger.warning("Process started")
+    check_api(max_tries=5, host="localhost", port="8000")
+    yield
+    process.terminate()
 
 
 def check_api(
