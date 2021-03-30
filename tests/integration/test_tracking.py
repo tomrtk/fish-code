@@ -1,3 +1,4 @@
+"""Integration tests for interfacing with tracking."""
 from typing import List
 
 import pytest
@@ -9,7 +10,7 @@ from datetime import datetime
 
 @pytest.fixture
 def make_frames() -> List[Frame]:
-
+    """Return a list of valid frames."""
     frames = [
         Frame(
             0,
@@ -47,7 +48,7 @@ def make_frames() -> List[Frame]:
 
 @pytest.mark.usefixtures("tracing_api")
 def test_to_track(make_frames: List[Frame]):
-
+    """Test to see values returned from to_track are valid."""
     frames = make_frames
 
     objects = interface.to_track(frames)

@@ -1,4 +1,4 @@
-""" Unit test of main function with command arguments."""
+"""Unit test of main function with command arguments."""
 import logging
 
 from core.main import main

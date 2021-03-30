@@ -1,3 +1,4 @@
+"""Test of Tracing API."""
 import pytest
 from fastapi.testclient import TestClient
 
@@ -5,6 +6,7 @@ from tracing.api import tracking
 
 
 def test_track():
+    """Test track endpoint."""
     with TestClient(tracking) as client:
         response = client.post(
             "/tracking/track",

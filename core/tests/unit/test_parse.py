@@ -1,3 +1,4 @@
+"""Unit test for date parsing."""
 from datetime import datetime
 
 import pytest
@@ -6,7 +7,7 @@ from core.model import parse_str_to_date
 
 
 def test_parse_str_to_date_no_offset():
-
+    """Test parse str to date with no offset."""
     date = datetime(2020, 3, 28, 12, 30, 10)
 
     date_str = "ramdom text [2020-03-28_12-30-10] other string"
@@ -29,7 +30,7 @@ def test_parse_str_to_date_no_offset():
 
 
 def test_parse_str_to_date_with_offset():
-
+    """Test parse str to date with offset."""
     date = datetime(2020, 3, 28, 13, 0, 10)
 
     date_str = "ramdom text [2020-03-28_12-30-10]-001 other string"

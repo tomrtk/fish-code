@@ -91,6 +91,7 @@ def test_getitem_exceptions(make_test_video):
 
 
 def test_make_file_exceptions():
+    """Test invalid path and timestamp."""
     with pytest.raises(FileNotFoundError):
         _ = Video.from_path("./tests/not_here.mp4")
 
