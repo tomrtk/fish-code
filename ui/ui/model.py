@@ -13,6 +13,7 @@ class Job:
     name: str
     description: str
     _status: str
+    videos: List[str]
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
