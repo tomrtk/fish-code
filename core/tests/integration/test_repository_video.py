@@ -1,3 +1,4 @@
+"""Integrations tests for Video Repository."""
 from datetime import datetime
 
 import pytest
@@ -10,10 +11,12 @@ pytestmark = pytest.mark.usefixtures("mappers")
 
 @pytest.fixture
 def make_test_video() -> model.Video:
+    """Make test video."""
     return model.Video.from_path("./tests/unit/test.mp4")
 
 
 def test_add_object(sqlite_session_factory):
+    """Test add object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyVideoRepository(session)
@@ -37,6 +40,7 @@ def test_add_object(sqlite_session_factory):
 
 
 def test_change_object(sqlite_session_factory):
+    """Test change object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyVideoRepository(session)
@@ -56,6 +60,7 @@ def test_change_object(sqlite_session_factory):
 
 
 def test_remove_object(sqlite_session_factory):
+    """Test remove object."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyVideoRepository(session)

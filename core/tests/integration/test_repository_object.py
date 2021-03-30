@@ -1,3 +1,4 @@
+"""Tests for Object Repository."""
 from typing import List
 
 import pytest
@@ -28,7 +29,7 @@ def test_add_object(sqlite_session_factory, make_test_obj: List[model.Object]):
 def test_add_object_no_date(
     sqlite_session_factory, make_test_obj: List[model.Object]
 ):
-    """test add object with no date."""
+    """Test add object with no date."""
     session = sqlite_session_factory()
 
     repo = SqlAlchemyObjectRepository(session)

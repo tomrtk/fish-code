@@ -1,10 +1,11 @@
+"""Unmit tests for Frame."""
 from datetime import datetime
 
 from core.model import BBox, Detection, Frame
 
 
 def test_frame_to_json():
-
+    """Test frame to json."""
     date = datetime(2020, 3, 28, 10, 20, 30)
     frame = Frame(1, [Detection(BBox(10, 20, 30, 40), 0.8, 1, 1)], date)
 
