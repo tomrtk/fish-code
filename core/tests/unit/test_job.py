@@ -56,8 +56,6 @@ def test_add_list_videos(make_test_job):
     vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
     vid3 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
 
-    vid2.timestamp = None
-    vid3.timestamp = None
     assert job.add_videos([vid1, vid3, vid2]) == False
     assert job.videos == []
 

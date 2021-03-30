@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import core
-from core.model import Video, _get_video_metadata
+from core.model import TimestampNotFoundError, Video, _get_video_metadata
 
 
 @pytest.fixture
@@ -17,7 +17,9 @@ def make_test_video() -> Video:
 def test_video_exists(make_test_video):
     """Test `Video.exists()` function."""
     video_valid = make_test_video
-    video_invalid = Video("this_does_not_exist", 0, 0, 0, 0)
+    video_invalid = Video(
+        "this_does_not_exist", 0, 0, 0, 0, datetime(2020, 3, 28, 10, 20, 30)
+    )
 
     assert video_valid.exists() == True
     assert video_invalid.exists() == False
@@ -37,7 +39,9 @@ def test_video_members(make_test_video: Video):
     assert video.output_height == core.model.VIDEO_DEFAULT_HEIGHT  # type: ignore
     assert video.output_width == core.model.VIDEO_DEFAULT_WIDTH  # type: ignore
 
-    video_raw = Video("/some/path", 8, 25, 512, 512)
+    video_raw = Video(
+        "/some/path", 8, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
     assert video_raw.frames == 8
 
 
@@ -85,8 +89,13 @@ def test_getitem_exceptions(make_test_video):
     with pytest.raises(TypeError):
         _ = video["foo"]
 
+
+def test_make_file_exceptions():
     with pytest.raises(FileNotFoundError):
         _ = Video.from_path("./tests/not_here.mp4")
+
+    with pytest.raises(TimestampNotFoundError):
+        _ = Video.from_path("./tests/unit/test-no-time.mp4")
 
 
 def test_timestamp_at(make_test_video: Video):

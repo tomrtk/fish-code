@@ -21,6 +21,12 @@ VIDEO_DEFAULT_HEIGHT: int = 360
 VIDEO_DEFAULT_WIDTH: int = 640
 
 
+class TimestampNotFoundError(Exception):
+    """Exception to raise if no timestamp are found."""
+
+    pass
+
+
 class Status(str, Enum):
     """Enum for job progress."""
 
@@ -47,6 +53,8 @@ class Video:
                         Width in pixels
     height          :   int
                         Height in pixels
+    timestamp       :   datetime
+                        timestamp for when the video starts
     output_width    :   int
                         Frame output width. Default to `VIDEO_DEFAULT_WIDTH`
                         constant.
@@ -89,6 +97,8 @@ class Video:
     ------
     FileNotFoundError
         If error reading video file when creating `from_path()`.
+    TimestampNotFound
+        If no timestamp where found when creating `from_path()`.
     """
 
     def __init__(
@@ -98,6 +108,7 @@ class Video:
         fps: int,
         width: int,
         height: int,
+        timestamp: datetime,
         output_width: int = VIDEO_DEFAULT_WIDTH,
         output_height: int = VIDEO_DEFAULT_HEIGHT,
     ) -> None:
@@ -108,7 +119,7 @@ class Video:
         self.height: int = height
         self.output_width: int = output_width
         self.output_height: int = output_height
-        self.timestamp: Optional[datetime] = parse_str_to_date(self._path)
+        self.timestamp: datetime = timestamp
         self._current_frame = 0
 
         if output_height <= 0 or output_width <= 0:
@@ -284,6 +295,10 @@ class Video:
         if not Path(path).exists():
             raise FileNotFoundError("Video file %s not found.", path)
 
+        timestamp = parse_str_to_date(Path(path).name)
+        if timestamp == None:
+            raise TimestampNotFoundError(f"No timestamp found for file {path}")
+
         height, width, fps, frame_numbers = _get_video_metadata(path)
 
         return cls(
@@ -292,6 +307,7 @@ class Video:
             fps=fps,
             width=width,
             height=height,
+            timestamp=timestamp,
             output_width=output_width,
             output_height=output_height,
         )
@@ -302,10 +318,12 @@ class Video:
         Parameter
         ---------
         idx : int
+            Index in video.
 
         Return
         ------
         datetime :
+            Timestamp for the frame at index.
 
         """
         if idx > self.frames:
@@ -316,36 +334,69 @@ class Video:
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
 
 
-def parse_str_to_date(path: str) -> Optional[datetime]:
+def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
     """Parse string to date.
+
+    Input can either be a string with a date, or a string with a date and
+    offset. If an offset is found, `offset_min` will be multiplied with the
+    offset and the result will be to the returned date.
 
     Parameter
     ---------
-    path: str
+    string: str
         string to parse to date on the format:
-        `[yyyy-mm-dd_hh-mm-ss]`
+        `[yyyy-mm-dd_hh-mm-ss]` or `[yyyy-mm-dd_hh-mm-ss]-xxx`
+    offset_min: int
+        Minutes to offset for each increment
 
 
     Return
     ------
     datetime :
-        parsed datetime object, or None if unsuccessfull
+        parsed datetime object, or None if unsuccessful
 
+    Example
+    -------
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10]-000.mp4")
+    datetime.datetime(2020, 3, 28, 12, 30, 10)
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10]-001.mp4")
+    datetime.datetime(2020, 3, 28, 13, 0, 10)
+    >>> parse_str_to_date("test-[2020-03-28_12-30-10].mp4")
+    datetime.datetime(2020, 3, 28, 12, 30, 10)
+    >>> parse_str_to_date("test.mp4")
+    None
     """
-    date = re.compile(r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\]").search(path)
+    match = re.compile(
+        r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\](-\d{3})?"
+    ).search(string)
 
-    if not date:
-        logger.error(f"no date found in path, {path}")
+    if not match:
+        logger.warning(f"no date found in str, {string}")
         return None
 
-    date_temp = date[0][1:-1].split("_")
+    try:
+        # Offset is optional in the regex, (-\d{3})?. This tries to split on
+        # "]-", which means there exist an offset, [<datetime>]-<offset>. If it
+        # fails it means there are no offset.
+        timestamp, offset = match[0].split("]-")
 
-    year, month, day, hour, minute, second = [
-        int(x) for x in date_temp[0].split("-") + date_temp[1].split("-")
-    ]
+        # timestamp still has a "[" at the start. This strips it.
+        timestamp = timestamp[1:]
+        offset = int(offset)
+    except ValueError:
+        # No offset found, so only grab what's inside the brackets, and set
+        # offset to zero.
+        timestamp = match[0][1:-1]
+        offset = 0
+
+    date = "-".join(timestamp.split("_"))
+
+    year, month, day, hour, minute, second = [int(x) for x in date.split("-")]
 
     try:
-        return datetime(year, month, day, hour, minute, second)
+        return datetime(year, month, day, hour, minute, second) + timedelta(
+            minutes=offset_min * offset
+        )
     except ValueError:
         return None
 
@@ -766,16 +817,13 @@ class Job:
             True if all videos in the list has a timestamp, false otherwise.
             No videos gets added if False is returned.
         """
-        # TODO: Should also check for unique timestamps
         for video in videos:
-            if video.timestamp is None:
-                logger.warning(
-                    "Videos added by list to job must all have timestamps."
-                )
-                return False
-
             if video in self.videos:
                 logger.warning("Video has already been added to the job.")
+                return False
+
+            if video.timestamp in [v.timestamp for v in videos if v != video]:
+                logger.warning("Duplicate timestamp.")
                 return False
 
         for video in videos:

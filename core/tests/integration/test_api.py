@@ -514,4 +514,17 @@ def test_add_and_get_job_with_videos():
             },
         )
 
-        assert response_job.status_code == 404
+        assert response_job.status_code == 400
+
+        # Test adding job with not a valid timestamp to video
+        response_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Bad job",
+                "description": "Bad job description",
+                "location": "bad location",
+                "videos": ["./tests/integration/test-abbor.mp4"],
+            },
+        )
+
+        assert response_job.status_code == 400
