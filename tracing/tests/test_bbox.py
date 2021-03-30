@@ -1,3 +1,6 @@
+"""Unit test of bounding box."""
+from typing import List
+
 import numpy as np
 import pytest
 
@@ -6,11 +9,19 @@ from tracing.tracker import BBox
 
 ### Bounding Box BBox ###
 @pytest.fixture
-def bbox_list():
+def bbox_list() -> List[float]:
+    """Create a list for creating BBox.
+
+    Return
+    ------
+    List[float]
+        A list that BBox accepts.
+    """
     return [10.0, 20.0, 30.0, 40.0]
 
 
 def test_bbox_init(bbox_list):
+    """Test bbox constructor."""
     bbox = BBox(*bbox_list)
 
     assert bbox_list[0] == bbox.x1
@@ -20,6 +31,7 @@ def test_bbox_init(bbox_list):
 
 
 def test_bbox_to_list(bbox_list):
+    """Test bbox to list."""
     bbox = BBox(*bbox_list)
 
     np.testing.assert_allclose(bbox.to_list(), bbox_list)
@@ -27,6 +39,7 @@ def test_bbox_to_list(bbox_list):
 
 
 def test_bbox_from_list(bbox_list):
+    """Test bbox from list."""
     bbox = BBox.from_list(bbox_list)
 
     assert bbox_list[0] == bbox.x1
@@ -36,32 +49,38 @@ def test_bbox_from_list(bbox_list):
 
 
 def test_bbox_from_list_five():
+    """Test bbox from list with five elements."""
     with pytest.raises(ValueError):
         bbox = BBox.from_list([10, 10, 10, 10, 10])
 
 
 def test_bbox_from_list_three():
+    """Test bbox from list with three elements."""
     with pytest.raises(ValueError):
         bbox = BBox.from_list([10, 10, 10])
 
 
 def test_bbox_from_xywh(bbox_list):
+    """Test bbox from xywh."""
     bbox = BBox.from_xywh(bbox_list)
 
     np.testing.assert_allclose([10, 20, 40, 60], bbox.to_list())
 
 
 def test_bbox_from_xywh_five():
+    """Test bbox from xywh with five elements."""
     with pytest.raises(ValueError):
         bbox = BBox.from_xywh([10, 10, 10, 10, 10])
 
 
 def test_bbox_from_xywh_three():
+    """Test bbox from xywh with three elements."""
     with pytest.raises(ValueError):
         bbox = BBox.from_xywh([10, 10, 10])
 
 
 def test_bbox__eq__same(bbox_list):
+    """Test bbox eq with equal elements."""
     bbox = BBox(*bbox_list)
     other_bbox = BBox(*bbox_list)
     assert bbox == other_bbox
@@ -84,6 +103,7 @@ def test_bbox__eq__same(bbox_list):
 
 
 def test_bbox__eq__not_same(bbox_list):
+    """Test bbox eq with unequal elements."""
     bbox = BBox(*bbox_list)
 
     tol = (
@@ -105,6 +125,7 @@ def test_bbox__eq__not_same(bbox_list):
 
 
 def test_bbox_to_dict(bbox_list):
+    """Test bbox to dict."""
     assert {
         "x1": 10.0,
         "y1": 20.0,

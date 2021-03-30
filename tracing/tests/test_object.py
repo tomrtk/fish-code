@@ -1,3 +1,4 @@
+"""Unit tests of Object."""
 import copy
 
 import pytest
@@ -7,15 +8,18 @@ from tracing.tracker import BBox, Detection, Object
 
 @pytest.fixture
 def bbox():
+    """Return a valid bbox."""
     return BBox(*[10, 20, 30, 40])
 
 
 @pytest.fixture
 def detection(bbox):
+    """Return a valid detection."""
     return Detection(bbox, 1, 1.0, 1)
 
 
 def test_object_update(detection):
+    """Test object update."""
     obj = Object(1)
     other_detection = copy.copy(detection)
     other_detection.frame = 2
@@ -25,6 +29,7 @@ def test_object_update(detection):
 
 
 def test_object_update_other(detection):
+    """Test object with other label."""
     obj = Object(1)
 
     obj.update(detection)
@@ -46,6 +51,7 @@ def test_object_update_other(detection):
 
 
 def test_object_update_same(detection):
+    """Test object update same label."""
     obj = Object(1)
 
     obj.update(detection)
@@ -55,7 +61,7 @@ def test_object_update_same(detection):
 
 
 def test_object_to_dict(detection):
-
+    """Test object to dict."""
     obj = Object(1)
 
     obj.update(detection)
@@ -80,6 +86,7 @@ def test_object_to_dict(detection):
 
 
 def test_object_to_dict_no_detect():
+    """Test object to dict with no detect."""
     obj = Object(1)
 
     assert {
