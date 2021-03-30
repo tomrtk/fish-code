@@ -56,7 +56,15 @@ class VideoLoader:
 
 
 def process_job(project_id: int, job_id: int):
-    """Process all videos in a job and finds objects."""
+    """Process all videos in a job and find objects.
+
+    Parameters
+    ----------
+    project_id  :   int
+        Project id of the porject to start processing.
+    job_id      :   int
+        Job id of the job to start processing.
+    """
     # Setup of runtime stuff. Should be moved to its own place later.
     engine = create_engine(
         "sqlite:///data.db",
@@ -131,7 +139,7 @@ def schedule():
             # TODO: This means a new job has been added.
             process_job(next_task[0], next_task[1])
         job_queue.task_done()
-    logger.info(f"scheduler ending.")
+    logger.info(f"Scheduler ending.")
 
 
 schedule_thread = threading.Thread(target=schedule)
@@ -153,6 +161,14 @@ def start_scheduler():
 
 
 def queue_job(project_id: int, job_id: int):
-    """Enqueue a job."""
-    logger.info(f"Job {job_id} in project {project_id} scheduled to run")
+    """Enqueue a job in the scheduler.
+
+    Parameters
+    ----------
+    project_id  :   int
+        Project id of the porject to start processing.
+    job_id      :   int
+        Job id of the job to start processing.
+    """
+    logger.info(f"Job {job_id} in project {project_id} scheduled to run.")
     job_queue.put((project_id, job_id))
