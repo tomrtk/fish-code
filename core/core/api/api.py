@@ -5,7 +5,7 @@ API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
 import logging
-from typing import List
+from typing import Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
@@ -162,16 +162,24 @@ def add_job_to_project(
     if project:
         # Create videos from list of paths
         videos: List[model.Video] = []
-        errors = []
+        errors: Dict[str, List[str]] = dict()
+        file_not_found = []
+        time_not_found = []
         for video_path in job.videos:
             try:
                 videos.append(model.Video.from_path(video_path))
             except FileNotFoundError:
-                errors.append(video_path)
+                file_not_found.append(video_path)
+            except model.TimestampNotFoundError:
+                time_not_found.append(video_path)
 
-        if len(errors) > 0:
+        errors["FileNotFoundError"] = file_not_found
+        errors["TimestampNotFoundError"] = time_not_found
+
+        if len(file_not_found) > 0 or len(time_not_found) > 0:
             raise HTTPException(
-                status_code=404, detail=f"Videos not found, paths: {errors}"
+                status_code=400,
+                detail=errors,
             )
 
         # create dict and remove videos from dict
