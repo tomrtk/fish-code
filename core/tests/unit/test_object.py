@@ -1,3 +1,4 @@
+"""Unit tests for Object."""
 from datetime import datetime
 from typing import List
 
@@ -11,7 +12,6 @@ pytestmark = pytest.mark.usefixtures("make_test_obj")
 
 def test_add_object(make_test_obj: List[Object]):
     """Test add object."""
-
     obj = make_test_obj[0]
     assert obj.number_of_detections() == 4
 
@@ -21,7 +21,6 @@ def test_add_object(make_test_obj: List[Object]):
 
 def test_get_object(make_test_obj: List[Object]):
     """Test get object."""
-
     obj = make_test_obj[0]
 
     det = obj.get_detection(1)
@@ -33,7 +32,6 @@ def test_get_object(make_test_obj: List[Object]):
 
 def test_calc_label(make_test_obj: List[Object]):
     """Test calculating label label and probability."""
-
     obj = make_test_obj[0]
 
     assert round(obj.probability, 2) == 0.4
@@ -50,7 +48,6 @@ def test_calc_label(make_test_obj: List[Object]):
 
 def test_get_result(make_test_obj: List[Object]):
     """Test get result."""
-
     obj = make_test_obj[0]
 
     assert obj.get_results() == {
@@ -74,7 +71,6 @@ def test_get_result(make_test_obj: List[Object]):
 
 def test_get_result_no_time(make_test_obj: List[Object]):
     """Test get result when timestamps are None."""
-
     obj = make_test_obj[0]
     obj.time_in = None
     obj.time_out = None

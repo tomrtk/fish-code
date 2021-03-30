@@ -1,10 +1,11 @@
+"""Test tracing main."""
 import logging
 
 from tracing.main import main
 
 
 def test_main(capsys):
-    """Happy case test of main with no args"""
+    """Happy case test of main with no args."""
     main(["--test"])
 
     out, err = capsys.readouterr()
@@ -14,8 +15,7 @@ def test_main(capsys):
 
 
 def test_main_debug(caplog):
-    """Happy case of main with debug"""
-
+    """Happy case of main with debug."""
     with caplog.at_level(logging.DEBUG):
 
         main(["--debug", "--test"])

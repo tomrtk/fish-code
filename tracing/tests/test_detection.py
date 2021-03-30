@@ -1,3 +1,4 @@
+"""Unit tests for detection class."""
 import numpy as np
 import pytest
 
@@ -5,12 +6,14 @@ from tracing.tracker import BBox, Detection
 
 
 @pytest.fixture
-def detection():
+def detection() -> Detection:
+    """Return a valid detection."""
     return Detection(BBox(*[10, 10, 10, 10]), 1, 1.0, 1)
 
 
 @pytest.fixture
 def detection_json():
+    """Return detection as json."""
     return {
         "bbox": {
             "x1": 10.0,
@@ -25,6 +28,7 @@ def detection_json():
 
 
 def test_detection_to_SORT(detection):
+    """Test detection to_SORT."""
     np.testing.assert_allclose(
         detection.to_SORT(),
         [
@@ -38,14 +42,17 @@ def test_detection_to_SORT(detection):
 
 
 def test_detection_to_dict(detection, detection_json):
+    """Test detection to_dict."""
     assert detection_json == detection.to_dict()
 
 
 def test_detection_from_dict(detection, detection_json):
+    """Test detection from_dict."""
     assert Detection.from_dict(detection_json).to_dict() == detection.to_dict()
 
 
 def test_detection_from_dict_miss_element(detection):
+    """Test detection from_dict with missing element."""
     json_wrong = {
         "bbox": {
             "x1": 10.0,
@@ -61,6 +68,7 @@ def test_detection_from_dict_miss_element(detection):
 
 
 def test_detection_from_api_miss_element(detection):
+    """Test detection from api with missing element."""
     json_wrong = {
         "bbox": {
             "x1": 10.0,
