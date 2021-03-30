@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import clear_mappers, sessionmaker
 
 from core.interface import Detector, to_track
-from core.model import Job, Video
+from core.model import Job, JobStatusException, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
 
@@ -86,6 +86,15 @@ def process_job(project_id: int, job_id: int):
 
     if not job:
         logger.warning(f"Could not get job {job_id} in project {project_id}.")
+        return
+
+    # TODO: Send status of job back to the API
+    try:
+        job.start()
+    except JobStatusException:
+        logger.error(
+            "Cannot start job %s, it's already running or completed.", job_id
+        )
         return
 
     # make sure its sorted before we start

@@ -265,18 +265,13 @@ def set_job_status_start(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    try:
-        job.start()
-        repo.save()
-        services.queue_job(project_id, job_id)
-    except model.JobStatusException:
-        logger.warning(
-            "Cannot start job %s, it's already running or completed.", job_id
-        )
+    if job.status() is model.Status.DONE or model.Status.RUNNING:
         raise HTTPException(
             status_code=403,
             detail="Cannot start job, it's already running or completed.",
         )
+
+    services.queue_job(project_id, job_id)
 
     return job
 
