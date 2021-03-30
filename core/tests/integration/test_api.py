@@ -355,8 +355,8 @@ def test_project_not_existing():
         assert response.status_code == 404
 
 
-def test_set_job_status():
-    """Test updating the status of jobs."""
+def test_pause_job():
+    """Test pausing of a job."""
     with TestClient(core_api) as client:
         response_post_project = client.post(
             "/projects/",
@@ -366,22 +366,9 @@ def test_set_job_status():
                 "description": "A project description",
             },
         )
-        assert response_post_project.status_code == 200
 
         project_data = response_post_project.json()
-        assert "id" in project_data
-
         project_id = project_data["id"]
-
-        response_get_project = client.get(f"/projects/{project_id}")
-        assert response_get_project.json() == {
-            "id": project_id,
-            "name": "Project name",
-            "number": "AB-123",
-            "description": "A project description",
-            "location": None,
-            "jobs": [],
-        }
 
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/",
@@ -392,83 +379,68 @@ def test_set_job_status():
                 "location": "test",
             },
         )
-        assert response_post_job.status_code == 201
 
         job_data = response_post_job.json()
-        assert "id" in job_data
-
         job_id = job_data["id"]
 
-        response_get_job = client.get(f"/projects/{project_id}/jobs/{job_id}")
-        assert response_get_job.status_code == 200
-
-        # Check that status is initially "Pending"
-        assert response_get_job.json() == {
-            "description": "Job description",
-            "id": job_id,
-            "name": "Job name",
-            "_status": "Pending",
-            "_objects": [],
-            "videos": [],
-            "location": "test",
-        }
-
-        # Start job and check its started
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/start",
+        response_wrong_project = client.post(
+            f"/projects/{project_id+99999}/jobs/{job_id}/pause"
         )
-        assert response_post_job.status_code == 200
-        assert response_post_job.json() == {
-            "description": "Job description",
-            "id": job_id,
-            "name": "Job name",
-            "_status": "Running",
-            "_objects": [],
-            "videos": [],
-            "location": "test",
-        }
+        assert response_wrong_project.status_code == 404
 
-        # Should not be able to start a started job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/start",
+        response_wrong_job = client.post(
+            f"/projects/{project_id}/jobs/{job_id+99999}/pause"
         )
-        assert response_post_job.status_code == 403
+        assert response_wrong_job.status_code == 404
 
-        # Pause job and check status
-        response_post_job = client.post(
+        response_start_job = client.post(
             f"/projects/{project_id}/jobs/{job_id}/pause",
         )
-        assert response_post_job.status_code == 200
-        assert response_post_job.json() == {
-            "description": "Job description",
-            "id": job_id,
-            "name": "Job name",
-            "_status": "Paused",
-            "_objects": [],
-            "videos": [],
-            "location": "test",
-        }
+        assert response_start_job.status_code == 202
 
-        # Should not be able to pause a paused job
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/pause",
+
+def test_start_job():
+    """Test starting a job."""
+    with TestClient(core_api) as client:
+        response_post_project = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
         )
-        assert response_post_job.status_code == 403
 
-        # Should be able to restart a paused job
+        project_data = response_post_project.json()
+        project_id = project_data["id"]
+
         response_post_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "videos": [],
+                "location": "test",
+            },
+        )
+
+        job_data = response_post_job.json()
+        job_id = job_data["id"]
+
+        response_wrong_project = client.post(
+            f"/projects/{project_id+99999}/jobs/{job_id}/start"
+        )
+        assert response_wrong_project.status_code == 404
+
+        response_wrong_job = client.post(
+            f"/projects/{project_id}/jobs/{job_id+99999}/start"
+        )
+        assert response_wrong_job.status_code == 404
+
+        response_start_job = client.post(
             f"/projects/{project_id}/jobs/{job_id}/start",
         )
-        assert response_post_job.status_code == 200
-        assert response_post_job.json() == {
-            "description": "Job description",
-            "id": job_id,
-            "name": "Job name",
-            "_status": "Running",
-            "_objects": [],
-            "videos": [],
-            "location": "test",
-        }
+        assert response_start_job.status_code == 202
 
 
 def test_add_and_get_job_with_videos():
