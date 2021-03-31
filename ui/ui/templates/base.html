@@ -1,7 +1,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Hello</title>
+    <title>Detection and counting of freshwater fish = NINA</title>
     <link
       href="{{ url_for('static', filename='dist/css/style.min.css') }}"
       rel="stylesheet"
@@ -57,18 +57,6 @@
           checkbox: {
             keep_selected_style: false,
           },
-
-          /*
-          types: {
-            folder: {
-              icon: "/static/dist/images/folder_icon.png",
-            },
-            file: {
-              icon: "/static/dist/images/file_icon.png",
-            },
-          },
-          */
-
           plugins: ["checkbox", "sort", "types", "wholerow"],
           sort: function (a, b) {
             return this.get_type(a) === this.get_type(b)

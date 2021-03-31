@@ -52,7 +52,6 @@ def construct_projects_bp(cfg: Config):
                     "name": request.form["project_name"],
                     "number": request.form["project_id"],
                     "description": request.form["project_desc"],
-                    # "owner": request.form["project_org"],
                     "location": request.form["project_location"],
                 }
             )
@@ -226,7 +225,6 @@ def get_project(project_id: int, endpoint: str) -> Optional[Project]:
     if not r.status_code == requests.codes.ok:
         print(f"Recived an err; {r.status_code}")
         return None
-    print(r.status_code)
 
     return Project.from_dict(r.json())  # type: ignore
 
