@@ -27,6 +27,7 @@ class Job:
             {
                 "name": self.name,
                 "description": self.description,
+                "location": self.location,
                 "videos": self.videos,
             }
         )
