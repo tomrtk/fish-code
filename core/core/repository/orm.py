@@ -12,11 +12,13 @@ from sqlalchemy import (
     Table,
     Text,
 )
-from sqlalchemy.orm import mapper, relationship
+from sqlalchemy.orm import registry, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection, collection
 from sqlalchemy.sql.sqltypes import PickleType
 
 from core import model
+
+mapper_registry = registry()
 
 logger = logging.getLogger(__name__)
 
@@ -106,12 +108,12 @@ def start_mappers():
     """Map the relationships between tables defines above and domain model objects."""
     logger.info("Starting mappers")
 
-    detection_mapper = mapper(
+    detection_mapper = mapper_registry.map_imperatively(
         model.Detection,
         detections,
     )
 
-    object_mapper = mapper(
+    object_mapper = mapper_registry.map_imperatively(
         model.Object,
         objects,
         properties={
@@ -123,12 +125,12 @@ def start_mappers():
         },
     )
 
-    videos_mapper = mapper(
+    videos_mapper = mapper_registry.map_imperatively(
         model.Video,
         videos,
     )
 
-    jobs_mapper = mapper(
+    jobs_mapper = mapper_registry.map_imperatively(
         model.Job,
         jobs,
         properties={
@@ -145,7 +147,7 @@ def start_mappers():
         },
     )
 
-    projects_mapper = mapper(
+    projects_mapper = mapper_registry.map_imperatively(
         model.Project,
         projects,
         properties={
