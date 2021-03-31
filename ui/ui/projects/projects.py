@@ -41,7 +41,7 @@ def construct_projects_bp(cfg: Config):
             return render_template("api_down.html")
 
         projects = get_projects(endpoint_path)
-        return render_template("projects/index.html", projects=projects)
+        return render_template("projects/projects.html", projects=projects)
 
     @projects_bp.route("/new", methods=["POST", "GET"])
     def projects_project_new():  # type: ignore
