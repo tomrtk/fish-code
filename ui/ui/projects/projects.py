@@ -22,6 +22,8 @@ from ui.model import Detection, Job, Project, Video
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
 
+root_folder = "~/Downloads"
+
 
 def construct_projects_bp(cfg: Config):
     """Create constructor from function to pass in config."""
@@ -122,9 +124,9 @@ def construct_projects_bp(cfg: Config):
         """Create new job inside a project."""
         if request.method == "POST":
             logger.debug(request.form)
-            hardcoded_path = "~/Dl/"
+            hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
             videos = [
-                hardcoded_path + path[1:-1]
+                hardcoded_path + "/" + path[1:-1]
                 for path in request.form["tree_data"][1:-1].split(",")
             ]
             job = Job(
@@ -152,7 +154,7 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/json")
     def projects_json() -> Dict:  # type:ignore
         """Create new job inside a project."""
-        data: Dict[str, Any] = path_to_dict(os.path.expanduser("~/Downloads"))  # type: ignore
+        data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))  # type: ignore
 
         return data
 
