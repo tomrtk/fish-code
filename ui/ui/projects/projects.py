@@ -1,4 +1,5 @@
 """Blueprint for the projects module."""
+import logging
 import os
 import tempfile
 from typing import Any, Dict, List, Optional, Tuple
@@ -17,6 +18,9 @@ from flask import (
 )
 
 from ui.model import Detection, Job, Project, Video
+
+logger = logging.getLogger(__name__)
+logger.level = logging.DEBUG
 
 
 def construct_projects_bp(cfg: Config):
@@ -37,7 +41,7 @@ def construct_projects_bp(cfg: Config):
             return render_template("api_down.html")
 
         projects = get_projects(endpoint_path)
-        return render_template("projects/index.html", projects=projects)
+        return render_template("projects/projects.html", projects=projects)
 
     @projects_bp.route("/new", methods=["POST", "GET"])
     def projects_project_new():  # type: ignore
@@ -118,12 +122,19 @@ def construct_projects_bp(cfg: Config):
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
         if request.method == "POST":
-            print(request.form)
+            logger.debug(request.form)
+            hardcoded_path = "~/Dl/"
+            videos = [
+                hardcoded_path + path[1:-1]
+                for path in request.form["tree_data"][1:-1].split(",")
+            ]
             job = Job(
                 **{
                     "name": request.form["job_name"],
                     "description": request.form["job_description"],
                     "_status": "Pending",
+                    "videos": videos,
+                    "location": request.form["job_location"],
                 }
             )
 
