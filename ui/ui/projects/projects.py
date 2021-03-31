@@ -122,8 +122,9 @@ def construct_projects_bp(cfg: Config):
         """Create new job inside a project."""
         if request.method == "POST":
             logger.debug(request.form)
+            hardcoded_path = "~/Dl/"
             videos = [
-                path[1:-1]
+                hardcoded_path + path[1:-1]
                 for path in request.form["tree_data"][1:-1].split(",")
             ]
             job = Job(
