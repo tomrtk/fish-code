@@ -26,6 +26,10 @@ tracing = {path = "tracing"}
 ui = {path = "ui"}
 
 [tool.poetry.dev-dependencies]
+core = {path = "core", develop = true}
+detection = {path = "detection", develop = true}
+tracing = {path = "tracing", develop = true}
+ui = {path = "ui", develop = true}
 debugpy = "^1.2.1"
 pip = "^21.0.1"
 pytest = "^6.2.2"
