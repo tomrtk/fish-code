@@ -14,6 +14,7 @@ class Job:
     description: str
     _status: str
     videos: List[str]
+    location: str
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
@@ -26,6 +27,7 @@ class Job:
             {
                 "name": self.name,
                 "description": self.description,
+                "videos": self.videos,
             }
         )
 

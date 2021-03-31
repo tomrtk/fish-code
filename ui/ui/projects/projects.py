@@ -131,6 +131,8 @@ def construct_projects_bp(cfg: Config):
                     "name": request.form["job_name"],
                     "description": request.form["job_description"],
                     "_status": "Pending",
+                    "videos": videos,
+                    "location": request.form["job_location"],
                 }
             )
 
