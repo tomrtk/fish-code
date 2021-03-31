@@ -18,6 +18,9 @@ from flask import (
 
 from ui.model import Detection, Job, Project, Video
 
+logger = logging.getLogger(__name__)
+logger.level = logging.DEBUG
+
 
 def construct_projects_bp(cfg: Config):
     """Create constructor from function to pass in config."""
@@ -118,7 +121,7 @@ def construct_projects_bp(cfg: Config):
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
         if request.method == "POST":
-            print(request.form)
+            logger.debug(request.form)
             job = Job(
                 **{
                     "name": request.form["job_name"],
