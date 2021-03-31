@@ -68,6 +68,11 @@
               : -1;
           },
         });
+
+        $('#jstree').on("ready.jstree", function (e, data) {
+          return data.instance.open_node("#j1_1_anchor", false, true);
+        });
+
         $("#jstree").on(
           "select_node.jstree deselect_node.jstree",
           function (e) {
