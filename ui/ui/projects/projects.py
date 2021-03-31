@@ -129,6 +129,7 @@ def construct_projects_bp(cfg: Config):
                 hardcoded_path + "/" + path[1:-1]
                 for path in request.form["tree_data"][1:-1].split(",")
             ]
+            videos = [path for path in videos if os.path.isfile(path)]
             job = Job(
                 **{
                     "name": request.form["job_name"],
