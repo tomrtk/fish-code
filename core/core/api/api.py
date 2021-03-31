@@ -9,7 +9,8 @@ from typing import Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
+from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
+from sqlalchemy.orm.session import close_all_sessions
 
 import core.api.schema as schema
 from core import model, services
@@ -20,29 +21,38 @@ logger = logging.getLogger(__name__)
 
 core_api = FastAPI()
 
+engine = create_engine(
+    "sqlite:///data.db",
+    connect_args={"check_same_thread": False},
+)
+# Create tables from defined schema.
+metadata.create_all(engine)
 
-def make_db():  # noqa: D403
-    """FastAPI dependencies function creating a database connection."""
-    # Setup of runtime stuff. Should be moved to its own place later.
-    engine = create_engine(
-        "sqlite:///data.db",
-        connect_args={"check_same_thread": False},
-    )
-    # Create tables from defines schema.
-    metadata.create_all(engine)
-    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Make a scoped session to be used by other threads in processing.
+# https://docs.sqlalchemy.org/en/13/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
+sessionfactory = scoped_session(
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+)
+
+
+@core_api.on_event("startup")
+def startup():
+    """Start mappings at api start."""
     start_mappers()
     logger.debug("Database connected.")
-    try:
-        yield session()
-    finally:
-        clear_mappers()
 
 
-def get_runtime_repo(session=Depends(make_db)):  # noqa: D403
+@core_api.on_event("shutdown")
+def shutdown():
+    """Cleanup on shutdown of api."""
+    close_all_sessions()
+    clear_mappers()
+
+
+def get_runtime_repo():  # noqa: D403
     """FastAPI dependencies function creating `repositories` for endpoint."""
     # Map DB to Objects.
-    sessionRepo = ProjectRepository(session)
+    sessionRepo = ProjectRepository(sessionfactory())
     logger.debug("Repository created.")
     try:
         yield sessionRepo
