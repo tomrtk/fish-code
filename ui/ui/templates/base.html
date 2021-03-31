@@ -81,7 +81,10 @@
             var selected_titles = [];
             var selectedIndexes = $("#jstree").jstree("get_selected", true);
             $.each(selectedIndexes, function () {
-              selected_titles.push($("#jstree").jstree().get_path(this, "/"));
+                var tree = $("#jstree").jstree()
+                if (tree.is_leaf(this)){
+                    selected_titles.push(tree.get_path(this, "/"));
+                }
             });
             $("#tree_data").val(JSON.stringify(selected_titles));
           }
