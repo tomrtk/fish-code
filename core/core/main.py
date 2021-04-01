@@ -41,7 +41,16 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if not args.test:  # only part not tested in tests
         core.services.start_scheduler()
 
-        uvicorn.run(core_api, host=args.host, port=args.port)
+        uvicorn.run(
+            core_api,
+            host=args.host,
+            port=args.port,
+            reload=False,
+            workers=1,
+            debug=False,
+            log_level="trace",
+            access_log=False,
+        )
 
         core.services.stop_scheduler()
 
