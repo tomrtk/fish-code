@@ -7,44 +7,13 @@ import core.services as services
 
 from core.model import Project, Job, Video
 import requests
+from core import api, repository
 
 logger = logging.getLogger(__name__)
 
 
-def test_scheduler():
-    """Test the processing of a job."""
-    project = Project("Project name", "NINA-123", "Project description")
-    project.id = 50000
-    job = Job("Test Name", "Test Description", "Test Location")
-    job.id = 50000
-    project.add_job(job)
-    vid1 = Video.from_path(
-        "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-    )
-    job.add_videos([vid1])
-    job.start()
-
-    # Check that the scheduling thread starts and queue
-    services.start_scheduler()
-    assert services.schedule_thread.is_alive()
-    assert services.job_queue.qsize() == 0
-
-    # Insert job to scheduler
-    services.queue_job(project.id, job.id)
-    assert services.job_queue.qsize() == 1
-
-    # Check that the job gets consumed
-    time.sleep(1)
-    assert services.job_queue.qsize() == 0
-
-    # Ensure scheduler stops
-    services.stop_scheduler()
-    time.sleep(1)
-    assert not services.schedule_thread.is_alive()
-
-
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
-def test_processing():
+def test_processing_and_scheduler():
     """Test integration of job processing between API endpoints."""
     response = requests.post(
         "http://127.0.0.1:8000/projects/",
@@ -77,13 +46,23 @@ def test_processing():
     assert "id" in job_data
     job_id = job_data["id"]
 
-    services.process_job(project_id, job_id)
-
-    response_finished = requests.get(
-        f"http://127.0.0.1:8000/projects/{project_id}/jobs/{job_id}"
+    response = requests.post(
+        f"http://127.0.0.1:8000/projects/{project_id}/jobs/{job_id}/start",
     )
+    # services.process_job(project_id, job_id)
+
+    url = f"http://127.0.0.1:8000/projects/{project_id}/jobs/{job_id}"
+    response_finished = requests.get(url)
+
     assert response_finished.status_code == 200
-    job_data = response_finished.json()
+
+    while requests.get(url).json()["_status"] != "Done":
+        logger.info("Waiting for job to finish.")
+        time.sleep(15)
+
+    job_data = requests.get(url).json()
+
+    assert job_data["_status"] == "Done"
 
     objects = job_data["_objects"]
     assert len(objects) == 1  # Only one fish should be detected

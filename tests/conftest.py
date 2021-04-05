@@ -20,7 +20,7 @@ def tracing_api():
     --------
     check_api()
     """
-    tracing_process = Process(target=tracing_main, args=(None,))
+    tracing_process = Process(target=tracing_main, args=(None,), daemon=True)
     tracing_process.start()
     check_api(host="localhost", port="8001")
     yield
@@ -30,7 +30,7 @@ def tracing_api():
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def start_core():
     """Start core API.
 
@@ -42,12 +42,13 @@ def start_core():
     --------
     check_api()
     """
-    process = Process(target=core_main, args=(None,))
-    process.start()
-    logger.warning("Process started")
-    check_api(max_tries=5, host="localhost", port="8000")
+    core_process = Process(target=core_main, args=(None,), daemon=True)
+    core_process.start()
+    logger.info("Starting core")
+    check_api(max_tries=20, host="localhost", port="8000")
     yield
-    process.terminate()
+    core_process.terminate()
+    time.sleep(1)
 
 
 def check_api(
@@ -97,7 +98,9 @@ def detection_api():
     --------
     check_api()
     """
-    detection_process = Process(target=detection_main, args=(None,))
+    detection_process = Process(
+        target=detection_main, args=(None,), daemon=True
+    )
     detection_process.start()
     check_api(max_tries=60, host="localhost", port="8003")
     yield
