@@ -287,21 +287,22 @@ def post_job(job: Job, project_id: int, endpoint: str):
 
 def change_job_status(
     project_id: int, job_id: int, endpoint: str
-) -> Tuple[str, str]:
+) -> Tuple[Optional[str], Optional[str]]:
     """Change job status."""
     try:
         r_project = requests.get(f"{endpoint}/projects/{project_id}/")  # type: ignore
         r_job = requests.get(f"{endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"  # type: ignore
+        logger.error("API is not running!")
+        return None, None
 
     if not r_project.status_code == requests.codes.ok:
         print(f"Recived an err; {r_project.status_code}")
-        return None  # type: ignore
+        return None, None  # type: ignore
 
     if not r_job.status_code == requests.codes.ok:
         print(f"Recived an err; {r_job.status_code}")
-        return None  # type: ignore
+        return None, None  # type: ignore
 
     job = Job.from_dict(
         r_job.json(), project_id, r_project.json()["name"]  # type: ignore
