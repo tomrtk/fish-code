@@ -309,22 +309,28 @@ def change_job_status(
 
     old_status = job.get_status()
 
+    new_status: str = ""
+
     if job.get_status() == "pending" or job.get_status() == "paused":
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/start"
         )
-        if not r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.ok:
+            new_status = "running"
+        else:
             print(f"Recived an err; {r_post.status_code}")
     elif job.get_status() == "running":
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/pause"
         )
-        if not r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.ok:
+            new_status = "paused"
+        else:
             print(f"Recived an err; {r_post.status_code}")
     else:
-        return "done"  # type: ignore
+        new_status = "done"
 
-    return old_status, r_post.json()["_status"].lower()  # type: ignore
+    return old_status, new_status  # type: ignore
 
 
 def check_api(endpoint: str) -> bool:
