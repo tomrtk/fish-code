@@ -38,21 +38,33 @@ class VideoLoader:
         np.array    :
             Numpy array containing `batchsize` amount of frames. Gets frames from
             all videos seemlessly.
+        timestamps  :
+            Timestamp for eatch frame.
+        rel_frame   :
+            The frame number for a frame in a video
+        videos      :
+            Reference to the video the frame belongs to
         """
         batch = []
         timestamps = []
+        rel_frame = []
+        videos = []
         for video in self.videos:
             assert isinstance(video, Video), "VideoLoaded only support Video"
             for n, frame in enumerate(video):
                 batch.append(frame)
                 timestamps.append(video.timestamp_at(n))
+                rel_frame.append(n)
+                videos.append(video)
                 if len(batch) == self.batchsize:
-                    yield np.array(batch), timestamps
+                    yield np.array(batch), timestamps, rel_frame, videos
                     batch = []
                     timestamps = []
+                    rel_frame = []
+                    videos = []
 
         if len(batch) > 0:
-            yield np.array(batch), timestamps
+            yield np.array(batch), timestamps, rel_frame, videos
 
         for video in self.videos:
             video.vidcap_release()
@@ -100,7 +112,9 @@ def process_job(project_id: int, job_id: int, session: Session):
     det = Detector()
 
     all_frames = []
-    for batchnr, (batch, timestamp) in enumerate(video_loader):
+    for batchnr, (batch, timestamp, rel_frame, videos) in enumerate(
+        video_loader
+    ):
         assert isinstance(batch, np.ndarray), "Batch must be of type np.ndarray"
         frames = det.predict(batch, "fishy")
 
@@ -112,9 +126,10 @@ def process_job(project_id: int, job_id: int, session: Session):
 
             # Adds the absolute frame number to the frame before tracking.
             # This help popuplate the timestamp for objects.
-            frame.detections = [
-                dets.set_frame(abs_frame_nr) for dets in frame.detections
-            ]
+            for dets in frame.detections:
+                dets.set_frame(abs_frame_nr, rel_frame[n])
+                dets.video = videos[n]
+
             frame.idx = abs_frame_nr
             all_frames.append(frame)
 
