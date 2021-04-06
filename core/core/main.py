@@ -39,6 +39,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Core started")
 
     if not args.test:  # only part not tested in tests
+        core.services.populate_queue()
         core.services.start_scheduler()
 
         uvicorn.run(

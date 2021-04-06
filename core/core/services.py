@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from core import api
 from core.interface import Detector, to_track
-from core.model import JobStatusException, Video
+from core.model import JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
@@ -211,6 +211,25 @@ def start_scheduler():
         logger.info("Scheduler started, %s", schedule_thread.name)
     else:
         logger.error("Scheduler is already running")
+
+
+def populate_queue():
+    """Populate the queue with jobs that have not been marked `Status.DONE`.
+
+    Raises
+    ------
+    RuntimeError :
+        if queue is not empty
+    """
+    session = api.sessionfactory()
+    proj_repo = ProjectRepository(session)
+    if not job_queue.empty():
+        raise RuntimeError("Job queue not empty")
+
+    for proj in proj_repo.list():
+        for job in proj.get_jobs():
+            if job._status != Status.DONE and job.id:
+                queue_job(proj.id, job.id)
 
 
 def queue_job(project_id: int, job_id: int):
