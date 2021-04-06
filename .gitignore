@@ -259,3 +259,5 @@ poetry.lock
 # Ignore database files in core
 core/data.db
 core/test.db
+data.db
+test.db
