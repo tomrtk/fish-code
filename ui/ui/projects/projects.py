@@ -76,36 +76,12 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(project_id: int, job_id: int):  # type: ignore
         """View a single job."""
-        detections = [
-            Detection(
-                **{
-                    "id": i,
-                    "report_type": f"Type{i}",
-                    "start": "Now",
-                    "stop": "Later",
-                    "video_path": "C:\\",
-                }
-            )
-            for i in range(1, 100)
-        ]
-        videos = [
-            Video(
-                **{
-                    "id": i,
-                    "location": f"Test{i}",
-                    "status": "{status}".format(
-                        status="Pendig" if (i % 2) == 0 else "Ferdig"
-                    ),
-                    "video_path": f"C:\\Filmer\\Film_{i*2}",
-                }
-            )
-            for i in range(1, 101)
-        ]
 
         job = get_job(job_id, project_id, endpoint_path)
+        obj_stats = job.get_object_stats()
 
         return render_template(
-            "projects/job.html", job=job, detections=detections, videos=videos
+            "projects/job.html", job=job, obj_stats=obj_stats
         )
 
     @projects_bp.route(
@@ -247,13 +223,14 @@ def post_project(project: Project, endpoint: str):
     return redirect(url_for("projects_bp.projects_index"))
 
 
-def get_job(job_id: int, project_id: int, endpoint: str):
+def get_job(job_id: int, project_id: int, endpoint: str) -> Optional[Job]:
     """Get job to job."""
     try:
         r_project = requests.get(f"{endpoint}/projects/{project_id}/")  # type: ignore
         r_job = requests.get(f"{endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"
+        logger.error("API is not running!")
+        return
 
     if not r_project.status_code == requests.codes.ok:
         print(f"Recived an err; {r_project.status_code}")
@@ -296,11 +273,11 @@ def change_job_status(
         logger.error("API is not running!")
         return None, None
 
-    if not r_project.status_code == requests.codes.ok:
+    if not r_project.status_code == requests.codes.accepted:
         print(f"Recived an err; {r_project.status_code}")
         return None, None  # type: ignore
 
-    if not r_job.status_code == requests.codes.ok:
+    if not r_job.status_code == requests.codes.accepted:
         print(f"Recived an err; {r_job.status_code}")
         return None, None  # type: ignore
 

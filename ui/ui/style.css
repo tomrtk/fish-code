@@ -49,7 +49,7 @@
   }
 
   .btn-running {
-    @apply text-gray-900 bg-green-400 border-green-400 hover:border-green-300 hover:bg-green-300;
+    @apply text-gray-900 bg-blue-400 border-blue-400 hover:border-blue-300 hover:bg-blue-300;
   }
 
   .btn-running::before {
@@ -63,7 +63,7 @@
   }
 
   .btn-done {
-    @apply text-green-300 bg-green-300 border-gray-200 hover:border-gray-300 hover:bg-gray-300;
+    @apply text-gray-900 bg-green-400 border-green-400 cursor-auto;
   }
 
   .btn-done::before {
@@ -116,7 +116,7 @@
 .tabbed > section > h3 {
   box-sizing: border-box;
   margin: 0;
-  padding: 0.5em 0.5em 0;
+  padding: 0 0.5em;
   overflow: hidden;
   font-size: 1em;
   font-weight: normal;
