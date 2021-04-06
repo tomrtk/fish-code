@@ -1,7 +1,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Hello</title>
+    <title>Detection and counting of freshwater fish = NINA</title>
     <link
       href="{{ url_for('static', filename='dist/css/style.min.css') }}"
       rel="stylesheet"
@@ -28,16 +28,21 @@
         {% block main %}{% endblock %}
       </div>
     </div>
-    <script src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"></script>
-    <script type=text/javascript>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"
+    ></script>
+    <script type="text/javascript">
       /* https://stackoverflow.com/a/3291856/182868 */
-      String.prototype.capitalize = function() {
-          return this.charAt(0).toUpperCase() + this.slice(1);
-      }
+      String.prototype.capitalize = function () {
+        return this.charAt(0).toUpperCase() + this.slice(1);
+      };
 
       $(function () {
-
         $("#jstree").jstree({
           sort: 1,
           core: {
@@ -52,18 +57,6 @@
           checkbox: {
             keep_selected_style: false,
           },
-
-          /*
-          types: {
-            folder: {
-              icon: "/static/dist/images/folder_icon.png",
-            },
-            file: {
-              icon: "/static/dist/images/file_icon.png",
-            },
-          },
-          */
-
           plugins: ["checkbox", "sort", "types", "wholerow"],
           sort: function (a, b) {
             return this.get_type(a) === this.get_type(b)
@@ -75,20 +68,27 @@
               : -1;
           },
         });
+
+        $('#jstree').on("ready.jstree", function (e, data) {
+          return data.instance.open_node("#j1_1_anchor", false, true);
+        });
+
         $("#jstree").on(
           "select_node.jstree deselect_node.jstree",
           function (e) {
             var selected_titles = [];
             var selectedIndexes = $("#jstree").jstree("get_selected", true);
             $.each(selectedIndexes, function () {
-              selected_titles.push($("#jstree").jstree().get_path(this, "/"));
+              var tree = $("#jstree").jstree();
+              if (tree.is_leaf(this)) {
+                selected_titles.push(tree.get_path(this, "/"));
+              }
             });
             $("#tree_data").val(JSON.stringify(selected_titles));
           }
         );
 
         {% block extra_js %}{% endblock %}
-
       });
     </script>
   </body>

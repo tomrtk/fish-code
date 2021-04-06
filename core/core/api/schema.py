@@ -58,6 +58,7 @@ class Job(JobBase):
 
     id: int
     status: model.Status
+    location: str
     objects: List[Object] = []
     videos: List[Video] = []
 
