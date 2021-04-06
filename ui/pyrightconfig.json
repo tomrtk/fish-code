@@ -1,5 +1,4 @@
 {
-  "include": ["app"],
-  "pythonVersion": "3.7",
-  "strict": ["app"]
+  "include": ["ui"],
+  "pythonVersion": "3.7"
 }
