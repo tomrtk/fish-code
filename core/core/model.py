@@ -557,18 +557,24 @@ class Detection:
 class Object:
     """Class representation of an object that has been detected and tracked."""
 
-    def __init__(self, label: int) -> None:
+    def __init__(
+        self, label: int, detections: List[Detection] = [], track_id: int = None
+    ) -> None:
         """Create an Object.
 
         Parameters
         ----------
         label : int
             The label given to it by the tracker and detector
+        detections  : List[Detection]
+            List of detections accociated with this object. Default=[]
+        track_id    : int
+            Tracking ID for this object. Default=None
         """
         self.label: int = label
         self.probability: float = 0.0
-        self._detections: list[Detection] = list()
-        self.track_id: Optional[int] = None
+        self._detections: List[Detection] = detections
+        self.track_id: Optional[int] = track_id
         self.time_in: Optional[datetime] = None
         self.time_out: Optional[datetime] = None
         self._calc_label()
@@ -610,13 +616,8 @@ class Object:
         Object :
             Fully featured Object.
         """
-        obj = cls(label)
-        obj._detections = [
-            Detection.from_api(**detect) for detect in detections
-        ]
-        obj.track_id = track_id
-
-        return obj
+        dets = [Detection.from_api(**detect) for detect in detections]
+        return cls(label, dets, track_id)
 
     def get_results(self) -> Dict[str, Any]:
         """Return information on this object.
