@@ -48,7 +48,6 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
             reload=False,
             workers=1,
             debug=False,
-            log_level="trace",
             access_log=False,
         )
 

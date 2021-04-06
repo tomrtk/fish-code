@@ -14,16 +14,18 @@
   <body class="bg-gray-100 overflow-y-scroll">
     <div class="p-6">
       <div
-        class="bg-white flex flex-col mx-auto container rounded-lg shadow-lg"
+        class="bg-white flex flex-col mx-auto container max-w-screen-xl rounded-lg shadow-lg"
       >
         <header
           class="flex-none flex flex-row justify-center bg-gradient-to-r from-nina-teal to-nina-orange rounded-t-lg"
         >
-          <img
-            class="m-2"
-            src="{{ url_for('static', filename='dist/images/nina.png') }}"
-            alt="NINA Logo"
-          />
+          <a href="{{ url_for('index') }}">
+            <img
+              class="m-2"
+              src="{{ url_for('static', filename='dist/images/nina.png') }}"
+              alt="NINA Logo"
+            />
+          </a>
         </header>
         {% block main %}{% endblock %}
       </div>
@@ -36,6 +38,9 @@
       type="text/javascript"
       src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"
     ></script>
+    <script type="text/javascript">
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
     <script type="text/javascript">
       /* https://stackoverflow.com/a/3291856/182868 */
       String.prototype.capitalize = function () {
@@ -54,9 +59,6 @@
               name: "default",
             },
           },
-          checkbox: {
-            keep_selected_style: false,
-          },
           plugins: ["checkbox", "sort", "types", "wholerow"],
           sort: function (a, b) {
             return this.get_type(a) === this.get_type(b)
@@ -69,7 +71,7 @@
           },
         });
 
-        $('#jstree').on("ready.jstree", function (e, data) {
+        $("#jstree").on("ready.jstree", function (e, data) {
           return data.instance.open_node("#j1_1_anchor", false, true);
         });
 
@@ -84,10 +86,14 @@
                 selected_titles.push(tree.get_path(this, "/"));
               }
             });
-            $("#tree_data").val(JSON.stringify(selected_titles));
+
+            if (selected_titles.length > 0) {
+              $("#tree_data").val(JSON.stringify(selected_titles));
+            } else {
+              $("#tree_data").removeAttr("value");
+            }
           }
         );
-
         {% block extra_js %}{% endblock %}
       });
     </script>

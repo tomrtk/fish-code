@@ -3,7 +3,27 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+
+@dataclass
+class Object:
+    label: str
+    probability: float
+    track_id: int
+    time_in: datetime
+    time_out: datetime
+
+    @classmethod
+    def from_dict(cls, object_data: Dict[str, Any]):
+        return cls(
+            label=object_data["label"],
+            track_id=object_data["track_id"],
+            time_in=datetime.fromtimestamp(object_data["label"]),
+            time_out=datetime.fromtimestamp(object_data["label"]),
+            probability=object_data["probability"],
+        )
 
 
 @dataclass
@@ -15,11 +35,11 @@ class Job:
     _status: str
     videos: List[str]
     location: str
+    _objects: List[Object]
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
     progress: Optional[int] = None
-    _objects: Optional[Any] = None
 
     def to_json(self) -> str:
         """Return JSON."""
@@ -41,6 +61,11 @@ class Job:
         cls, job_data: Dict[str, Any], project_id: int, project_name: str
     ) -> Job:
         """Create job from dict data."""
+        job_objects: List[Object] = list()
+
+        for job_object in list(job_data["_objects"]):
+            job_objects.append(Object(**job_object))
+
         return cls(
             _status=job_data["_status"],
             description=job_data["description"],
@@ -50,7 +75,20 @@ class Job:
             project_id=project_id,
             project_name=project_name,
             videos=job_data["videos"],
+            _objects=job_objects,
         )
+
+    def get_object_stats(self) -> Dict[int, int]:
+        object_count = dict()
+
+        for obj in self._objects:
+            res = object_count.get(obj.label)
+            if not res:
+                object_count[obj.label] = 1
+            else:
+                object_count[obj.label] += 1
+
+        return object_count
 
 
 @dataclass
@@ -90,6 +128,7 @@ class Project:
                 "name": self.name,
                 "number": self.number,
                 "description": self.description,
+                "location": self.location,
             }
         )
 
@@ -136,4 +175,6 @@ class Video:
     id: int
     location: str
     status: str
-    video_path: str
+    _path: str
+    frames: int
+    timestamp: datetime

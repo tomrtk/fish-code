@@ -1,13 +1,17 @@
 {
   "scripts": {
     "compile-css": "postcss style.css -o static/dist/css/style.min.css",
-    "prettier-format": "prettier **/* --ignore-unknown  --list-different"
+    "prettier-format": "prettier **/* --ignore-unknown  --list-different",
+    "dev": "TAILWIND_MODE=watch NODE_ENV=development postcss style.css -o ./static/dist/css/style.min.css -w --verbose",
+    "build:dev": "TAILWIND_MODE=build NODE_ENV=development postcss style.css -o ./static/dist/css/style.min.css",
+    "build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss style.css -o ./static/dist/css/style.min.css"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.2.1",
-    "autoprefixer": "10.2.4",
-    "postcss": "8.2.4",
-    "postcss-cli": "8.3.1",
+    "autoprefixer": "^10.2.4",
+    "cssnano": "^4.1.11",
+    "postcss": "^8.2.4",
+    "postcss-cli": "^8.3.1",
     "tailwindcss": "^2.0.3"
   }
 }

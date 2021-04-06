@@ -1,0 +1,27 @@
+<div role="alert" class="mb-4">
+  <div class="bg-red-500 text-white font-bold rounded-t px-4 py-2">
+    Submission Failure
+  </div>
+  <div
+    class="border border-t-0 border-red-400 rounded-b bg-red-100 px-4 py-3 text-red-700"
+  >
+    <!-- {{ post_res }} -->
+    {% if post_res["TimestampNotFoundError"]|length > 0 %}
+    <h5 class="font-semibold mb-2">
+      Unable to parse date on the following files:
+    </h5>
+    <ul class="mb-2">
+      {% for fnf in post_res["TimestampNotFoundError"] %}
+      <li>{{ fnf }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %} {% if post_res["FileNotFoundError"]|length > 0 %}
+    <h5 class="font-semibold mb-2">Files not found:</h5>
+    <ul>
+      {% for fnf in post_res["FileNotFoundError"] %}
+      <li>{{ fnf }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+  </div>
+</div>

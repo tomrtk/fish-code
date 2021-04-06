@@ -14,6 +14,7 @@ from flask import (
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
 
@@ -76,36 +77,11 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(project_id: int, job_id: int):  # type: ignore
         """View a single job."""
-        detections = [
-            Detection(
-                **{
-                    "id": i,
-                    "report_type": f"Type{i}",
-                    "start": "Now",
-                    "stop": "Later",
-                    "video_path": "C:\\",
-                }
-            )
-            for i in range(1, 100)
-        ]
-        videos = [
-            Video(
-                **{
-                    "id": i,
-                    "location": f"Test{i}",
-                    "status": "{status}".format(
-                        status="Pendig" if (i % 2) == 0 else "Ferdig"
-                    ),
-                    "video_path": f"C:\\Filmer\\Film_{i*2}",
-                }
-            )
-            for i in range(1, 101)
-        ]
-
         job = get_job(job_id, project_id, endpoint_path)
+        obj_stats = job.get_object_stats()
 
         return render_template(
-            "projects/job.html", job=job, detections=detections, videos=videos
+            "projects/job.html", job=job, obj_stats=obj_stats
         )
 
     @projects_bp.route(
@@ -122,14 +98,19 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
+        project = get_project(project_id, endpoint_path)
+
         if request.method == "POST":
-            logger.debug(request.form)
             hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
             videos = [
                 hardcoded_path + "/" + path[1:-1]
                 for path in request.form["tree_data"][1:-1].split(",")
             ]
-            videos = [path for path in videos if os.path.isfile(path)]
+            videos = [
+                path if not os.path.isdir(path) else f"Folder is empty: {path}"
+                for path in videos
+            ]
+
             job = Job(
                 **{
                     "name": request.form["job_name"],
@@ -137,16 +118,32 @@ def construct_projects_bp(cfg: Config):
                     "_status": "Pending",
                     "videos": videos,
                     "location": request.form["job_location"],
+                    "_objects": list(),
                 }
             )
 
-            post_job(job, project_id, endpoint_path)
+            post_res = None
+            if len(request.form["tree_data"]) > 0:
+                post_res = post_job(job, project_id, endpoint_path)
+
+            if (
+                isinstance(post_res, dict)
+                or len(request.form["tree_data"]) == 0
+            ):
+                return render_template(
+                    "projects/job_new.html",
+                    project_name=project.get_name(),
+                    post_res=post_res,
+                    form_data=request.form,
+                )
 
             return redirect(
-                url_for("projects_bp.projects_project", project_id=project_id)
+                url_for(
+                    "projects_bp.projects_job",
+                    project_id=project_id,
+                    job_id=int(post_res),  # type: ignore
+                )
             )
-
-        project = get_project(project_id, endpoint_path)
 
         return render_template(
             "projects/job_new.html", project_name=project.get_name()  # type: ignore
@@ -159,37 +156,25 @@ def construct_projects_bp(cfg: Config):
 
         return data
 
-    @projects_bp.route("/jobs")
-    def projects_jobs():  # type: ignore
-        """Route for serving a large table."""
-        return render_template("projects/report/result.html")
-
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(project_id: int, job_id: int):  # type: ignore
         """Download results of a job as a csv-file."""
-        detections = [
-            Detection(
-                **{
-                    "id": i,
-                    "report_type": f"Type{i}",
-                    "start": "Now",
-                    "stop": "Later",
-                    "video_path": "C:\\",
-                }
-            )
-            for i in range(1, 100)
-        ]
+        job = get_job(job_id, project_id, endpoint_path)
+        obj_stats = job.get_object_stats()
+
+        if not isinstance(job, Job):
+            print("nei")
 
         # PoC of download file
         with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
 
             # write headers to file
-            csv_file.write(b"id,class,start,stop,video\n")
+            csv_file.write(b"id,label,time_in,time_out,probability\n")
 
-            for d in detections:
+            for idx, obj in enumerate(job._objects):
                 csv_file.write(
                     str.encode(
-                        f"{d.id},{d.report_type},{d.start},{d.stop}, {d.video_path}\n"
+                        f"{idx},{obj.label},{obj.time_in},{obj.time_out},{obj.probability}\n"
                     )
                 )
 
@@ -210,7 +195,7 @@ def get_projects(endpoint: str) -> Optional[List[Project]]:
     try:
         r = requests.get(f"{endpoint}/projects/")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"  # type: ignore
+        return "API not running!"  # type: ignore
 
     if not r.status_code == requests.codes.ok:
         print(f"Recived an err; {r.status_code}")
@@ -247,13 +232,14 @@ def post_project(project: Project, endpoint: str):
     return redirect(url_for("projects_bp.projects_index"))
 
 
-def get_job(job_id: int, project_id: int, endpoint: str):
+def get_job(job_id: int, project_id: int, endpoint: str) -> Optional[Job]:
     """Get job to job."""
     try:
         r_project = requests.get(f"{endpoint}/projects/{project_id}/")  # type: ignore
         r_job = requests.get(f"{endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"
+        logger.error("API is not running!")
+        return
 
     if not r_project.status_code == requests.codes.ok:
         print(f"Recived an err; {r_project.status_code}")
@@ -277,12 +263,13 @@ def post_job(job: Job, project_id: int, endpoint: str):
     except requests.ConnectionError:
         return "API is not running!"
 
-    if not r.status_code == requests.codes.ok:
+    if r.status_code == requests.codes.bad_request:
+        return r.json()["detail"]
+
+    if not r.status_code == requests.codes.created:
         print(f"Recived an err; {r.status_code}")
 
-    return redirect(
-        url_for("projects_bp.projects_project", project_id=project_id)
-    )
+    return r.json()["id"]
 
 
 def change_job_status(
@@ -316,7 +303,7 @@ def change_job_status(
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/start"
         )
-        if r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.accepted:
             new_status = "running"
         else:
             print(f"Recived an err; {r_post.status_code}")
@@ -324,7 +311,7 @@ def change_job_status(
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/pause"
         )
-        if r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.accepted:
             new_status = "paused"
         else:
             print(f"Recived an err; {r_post.status_code}")
