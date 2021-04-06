@@ -54,62 +54,52 @@
       <div class="flex flew-col mb-8 justify-center space-x-8">
         <div class="flex-1">
           <label class="block" for="project_name"
-            ><span>Project Name <span class="text-red-800">*</span></span>
+            ><span>Name <span class="text-red-800">*</span></span>
             <input
               id="project_name"
               name="project_name"
               class="block w-full"
               type="text"
               maxlength="255"
-              value=""
+              required="required"
             />
           </label>
           <label class="block" for="project_name"
-            ><span>Organization <span class="text-red-800">*</span></span>
-            <input
-              id="project_org"
-              name="project_org"
-              class="block w-full"
-              type="text"
-              maxlength="255"
-              value=""
-            />
-          </label>
-          <label class="block" for="description"
-            ><span>Description <span class="text-red-800">*</span></span>
-            <textarea
-              class="block w-full"
-              id="project_desc"
-              name="project_desc"
-            ></textarea>
-          </label>
-        </div>
-        <div class="flex-1">
-          <label class="block" for="project_name"
-            ><span>Project ID <span class="text-red-800">*</span></span>
+            ><span>Number (ID)<span class="text-red-800">*</span></span>
             <input
               id="project_id"
               name="project_id"
               class="block w-full"
               type="text"
               maxlength="255"
-              value=""
+              required="required"
             />
           </label>
           <label class="block" for="startdate"
-            ><span>Location <span class="text-red-800">*</span></span>
+            ><span>Location</span>
             <input
               id="project_location"
               name="project_location"
               class="block w-full"
               type="text"
               maxlength="255"
-              value=""
           /></label>
-          <label class="block" for="logo">
-            <span>Logo</span>
-            <input id="logo" name="logo" class="block w-full" type="file" />
+        </div>
+        <div class="flex-1">
+          <label class="block" for="description"
+            ><span>Description <span class="text-red-800">*</span></span>
+            <textarea
+              class="block w-full h-56"
+              id="project_desc"
+              name="project_desc"
+              maxlength="255"
+              required="required"
+            ></textarea>
           </label>
+          <!-- <label class="block" for="logo"> -->
+          <!--   <span>Logo</span> -->
+          <!--   <input id="logo" name="logo" class="block w-full" type="file" /> -->
+          <!-- </label> -->
         </div>
       </div>
       <div class="flex flex-row justify-end">

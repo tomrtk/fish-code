@@ -13,6 +13,8 @@ class Job:
     name: str
     description: str
     _status: str
+    videos: List[str]
+    location: str
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
@@ -25,6 +27,8 @@ class Job:
             {
                 "name": self.name,
                 "description": self.description,
+                "location": self.location,
+                "videos": self.videos,
             }
         )
 
@@ -38,12 +42,14 @@ class Job:
     ) -> Job:
         """Create job from dict data."""
         return cls(
+            _status=job_data["_status"],
+            description=job_data["description"],
+            id=job_data["id"],
+            location=job_data["location"],
+            name=job_data["name"],
             project_id=project_id,
             project_name=project_name,
-            id=job_data["id"],
-            name=job_data["name"],
-            description=job_data["description"],
-            _status=job_data["_status"],
+            videos=job_data["videos"],
         )
 
 

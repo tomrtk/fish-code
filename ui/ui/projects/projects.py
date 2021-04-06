@@ -1,4 +1,5 @@
 """Blueprint for the projects module."""
+import logging
 import os
 import tempfile
 from typing import Any, Dict, List, Optional, Tuple
@@ -17,6 +18,11 @@ from flask import (
 )
 
 from ui.model import Detection, Job, Project, Video
+
+logger = logging.getLogger(__name__)
+logger.level = logging.DEBUG
+
+root_folder = "~/Downloads"
 
 
 def construct_projects_bp(cfg: Config):
@@ -37,7 +43,7 @@ def construct_projects_bp(cfg: Config):
             return render_template("api_down.html")
 
         projects = get_projects(endpoint_path)
-        return render_template("projects/index.html", projects=projects)
+        return render_template("projects/projects.html", projects=projects)
 
     @projects_bp.route("/new", methods=["POST", "GET"])
     def projects_project_new():  # type: ignore
@@ -48,7 +54,6 @@ def construct_projects_bp(cfg: Config):
                     "name": request.form["project_name"],
                     "number": request.form["project_id"],
                     "description": request.form["project_desc"],
-                    "owner": request.form["project_org"],
                     "location": request.form["project_location"],
                 }
             )
@@ -118,12 +123,20 @@ def construct_projects_bp(cfg: Config):
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
         if request.method == "POST":
-            print(request.form)
+            logger.debug(request.form)
+            hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
+            videos = [
+                hardcoded_path + "/" + path[1:-1]
+                for path in request.form["tree_data"][1:-1].split(",")
+            ]
+            videos = [path for path in videos if os.path.isfile(path)]
             job = Job(
                 **{
                     "name": request.form["job_name"],
                     "description": request.form["job_description"],
                     "_status": "Pending",
+                    "videos": videos,
+                    "location": request.form["job_location"],
                 }
             )
 
@@ -142,7 +155,7 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/json")
     def projects_json() -> Dict:  # type:ignore
         """Create new job inside a project."""
-        data: Dict[str, Any] = path_to_dict(os.path.expanduser("~/Downloads"))  # type: ignore
+        data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))  # type: ignore
 
         return data
 
@@ -274,21 +287,22 @@ def post_job(job: Job, project_id: int, endpoint: str):
 
 def change_job_status(
     project_id: int, job_id: int, endpoint: str
-) -> Tuple[str, str]:
+) -> Tuple[Optional[str], Optional[str]]:
     """Change job status."""
     try:
         r_project = requests.get(f"{endpoint}/projects/{project_id}/")  # type: ignore
         r_job = requests.get(f"{endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"  # type: ignore
+        logger.error("API is not running!")
+        return None, None
 
     if not r_project.status_code == requests.codes.ok:
         print(f"Recived an err; {r_project.status_code}")
-        return None  # type: ignore
+        return None, None  # type: ignore
 
     if not r_job.status_code == requests.codes.ok:
         print(f"Recived an err; {r_job.status_code}")
-        return None  # type: ignore
+        return None, None  # type: ignore
 
     job = Job.from_dict(
         r_job.json(), project_id, r_project.json()["name"]  # type: ignore
@@ -296,22 +310,28 @@ def change_job_status(
 
     old_status = job.get_status()
 
+    new_status: str = ""
+
     if job.get_status() == "pending" or job.get_status() == "paused":
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/start"
         )
-        if not r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.ok:
+            new_status = "running"
+        else:
             print(f"Recived an err; {r_post.status_code}")
     elif job.get_status() == "running":
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/pause"
         )
-        if not r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.ok:
+            new_status = "paused"
+        else:
             print(f"Recived an err; {r_post.status_code}")
     else:
-        return "done"  # type: ignore
+        new_status = "done"
 
-    return old_status, r_post.json()["_status"].lower()  # type: ignore
+    return old_status, new_status  # type: ignore
 
 
 def check_api(endpoint: str) -> bool:
