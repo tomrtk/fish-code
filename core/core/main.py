@@ -7,8 +7,9 @@ import uvicorn
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
+import core.services
 from core import model
-from core.api import core
+from core.api import core_api
 
 # Workaround to get proper import.
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
@@ -38,7 +39,20 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Core started")
 
     if not args.test:  # only part not tested in tests
-        uvicorn.run(core, host=args.host, port=args.port)
+        core.services.start_scheduler()
+
+        uvicorn.run(
+            core_api,
+            host=args.host,
+            port=args.port,
+            reload=False,
+            workers=1,
+            debug=False,
+            log_level="trace",
+            access_log=False,
+        )
+
+        core.services.stop_scheduler()
 
     return 0
 

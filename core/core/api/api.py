@@ -9,40 +9,50 @@ from typing import Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
+from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
+from sqlalchemy.orm.session import close_all_sessions
 
 import core.api.schema as schema
-from core import model
+from core import model, services
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
-core = FastAPI()
+core_api = FastAPI()
+
+engine = create_engine(
+    "sqlite:///data.db",
+    connect_args={"check_same_thread": False},
+)
+# Create tables from defined schema.
+metadata.create_all(engine)
+
+# Make a scoped session to be used by other threads in processing.
+# https://docs.sqlalchemy.org/en/13/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
+sessionfactory = scoped_session(
+    sessionmaker(autocommit=False, autoflush=False, bind=engine)
+)
 
 
-def make_db():  # noqa: D403
-    """FastAPI dependencies function creating a database connection."""
-    # Setup of runtime stuff. Should be moved to its own place later.
-    engine = create_engine(
-        "sqlite:///data.db",
-        connect_args={"check_same_thread": False},
-    )
-    # Create tables from defines schema.
-    metadata.create_all(engine)
-    session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+@core_api.on_event("startup")
+def startup():
+    """Start mappings at api start."""
     start_mappers()
     logger.debug("Database connected.")
-    try:
-        yield session()
-    finally:
-        clear_mappers()
 
 
-def get_runtime_repo(session=Depends(make_db)):  # noqa: D403
+@core_api.on_event("shutdown")
+def shutdown():
+    """Cleanup on shutdown of api."""
+    close_all_sessions()
+    clear_mappers()
+
+
+def get_runtime_repo():  # noqa: D403
     """FastAPI dependencies function creating `repositories` for endpoint."""
     # Map DB to Objects.
-    sessionRepo = ProjectRepository(session)
+    sessionRepo = ProjectRepository(sessionfactory())
     logger.debug("Repository created.")
     try:
         yield sessionRepo
@@ -51,7 +61,7 @@ def get_runtime_repo(session=Depends(make_db)):  # noqa: D403
         sessionRepo.session.close()
 
 
-@core.get("/projects/", response_model=List[schema.Project])
+@core_api.get("/projects/", response_model=List[schema.Project])
 def list_projects(
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False)
 ):
@@ -67,7 +77,7 @@ def list_projects(
     return repo.list()
 
 
-@core.post("/projects/", response_model=schema.Project)
+@core_api.post("/projects/", response_model=schema.Project)
 def add_projects(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -84,7 +94,7 @@ def add_projects(
     return repo.add(model.Project(**project.dict()))
 
 
-@core.get("/projects/{project_id}/", response_model=schema.Project)
+@core_api.get("/projects/{project_id}/", response_model=schema.Project)
 def get_project(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -110,7 +120,7 @@ def get_project(
     return project
 
 
-@core.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
+@core_api.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
 def list_project_jobs(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -138,7 +148,9 @@ def list_project_jobs(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.post("/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED)
+@core_api.post(
+    "/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED
+)
 def add_job_to_project(
     project_id: int,
     job: schema.JobCreate,
@@ -203,7 +215,7 @@ def add_job_to_project(
         raise HTTPException(status_code=404, detail="Project not found")
 
 
-@core.get("/projects/{project_id}/jobs/{job_id}", response_model=schema.Job)
+@core_api.get("/projects/{project_id}/jobs/{job_id}", response_model=schema.Job)
 def get_job_from_project(
     project_id: int,
     job_id: int,
@@ -235,8 +247,9 @@ def get_job_from_project(
     return project.get_job(job_id)
 
 
-@core.post(
-    "/projects/{project_id}/jobs/{job_id}/start", response_model=schema.Job
+@core_api.post(
+    "/projects/{project_id}/jobs/{job_id}/start",
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def set_job_status_start(
     project_id: int,
@@ -271,23 +284,12 @@ def set_job_status_start(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    try:
-        job.start()
-        repo.save()
-    except model.JobStatusException:
-        logger.warning(
-            "Cannot start job %s, it's already running or completed.", job_id
-        )
-        raise HTTPException(
-            status_code=403,
-            detail="Cannot start job, it's already running or completed.",
-        )
-
-    return job
+    services.queue_job(project_id, job_id)
 
 
-@core.post(
-    "/projects/{project_id}/jobs/{job_id}/pause", response_model=schema.Job
+@core_api.post(
+    "/projects/{project_id}/jobs/{job_id}/pause",
+    status_code=status.HTTP_202_ACCEPTED,
 )
 def set_job_status_pause(
     project_id: int,
@@ -322,13 +324,6 @@ def set_job_status_pause(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    try:
-        job.pause()
-        repo.save()
-    except model.JobStatusException:
-        logger.warning("Cannot pause job %s, it's not running..", job_id)
-        raise HTTPException(
-            status_code=403, detail="Cannot pause job, it's not running.."
-        )
+    # TODO: Schedule a job to be paused
 
     return job
