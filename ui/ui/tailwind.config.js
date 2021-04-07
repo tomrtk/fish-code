@@ -1,6 +1,8 @@
 module.exports = {
-  purge: [],
-  darkMode: false,
+  mode: "jit",
+  purge: {
+    content: ["./templates/**/*.html", "./projects/templates/**/*.html"],
+  },
   theme: {
     extend: {
       colors: {
@@ -10,13 +12,10 @@ module.exports = {
     },
   },
   variants: {
-    extend: {
-      borderWidth: ["hover"],
-      display: ["group-hover"],
-    },
+    extend: {},
   },
   plugins: [
-    require("@tailwindcss/forms"),
     require("@tailwindcss/aspect-ratio"),
+    require("@tailwindcss/forms"),
   ],
 };

@@ -16,7 +16,6 @@ license = "GPL"
 [tool.poetry.dependencies]
 python = "^3.7"
 Flask = "^1.1.2"
-flash = "^1.0.3"
 requests = "^2.25.1"
 waitress = "^2.0.0"
 livereload = "^2.6.3"

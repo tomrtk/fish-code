@@ -12,8 +12,6 @@ from livereload import Server  # type: ignore
 
 import ui.main as web  # type: ignore
 
-logger = logging.getLogger(__name__)
-
 
 def serve_debug() -> None:
     """Workaround for avoiding lamdba. Starts UI in debug."""
@@ -30,12 +28,13 @@ def serve(
 ) -> None:
     """Serve the application."""
     if production:
-        ui_wsgi = web.create_app().wsgi_app  # type: ignore
+        logger = logging.getLogger("waitress")
         logger.setLevel(logging.INFO)
         logger.info("Starting server in production")
+
+        ui_wsgi = web.create_app().wsgi_app  # type: ignore
         waitress.serve(ui_wsgi, host=host, port=port)  # type: ignore
     else:
-
         ui = web.create_app()  # type: ignore
 
         if (
@@ -44,7 +43,7 @@ def serve(
         ):
             Server(ui.wsgi_app).serve()  # type: ignore
         else:
-            ui.run()
+            ui.run(use_reloader=False)
 
 
 if __name__ == "__main__":

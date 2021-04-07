@@ -95,9 +95,9 @@
   </div>
   <div class="mb-8">
     <div class="mx-auto w-3/5 text-left mb-8">
-      <p class="mb-4 pb-2 border-b-2">{{ job.description }}</p>
-      <div class="flex flex-row mb-4 pb-2 border-b-2">
-        <div class="flex flex-row items-center">
+      <p class="mb-4 pb-2 text-gray-800">{{ job.description }}</p>
+      <div class="flex flex-row mb-8 pb-2 border-b-2">
+        <div class="flex flex-row items-center text-gray-800">
           <svg
             class="inline w-4 h-4 mr-2"
             fill="none"
@@ -121,34 +121,40 @@
         </div>
       </div>
       <div class="mb-8">
-        <h4 class="text-lg">Total counts:</h4>
+        <h4 class="block text-xl text-center mb-2">Statistics</h4>
+        <div>
+          <span>Observations {{ job._objects|length }}</span
+          ><span>Species 4</span>
+        </div>
+        <h5>Object Count</h5>
         <ul class="ml-8">
           {% for label, count in obj_stats.items() %}
           <li>{{ label }}: {{ count }}</li>
           {% endfor %}
         </ul>
       </div>
-      <div class="flex flex-row justify-between">
-        <div class="flex flex-row items-center">
-          <span class="mr-2">Status:</span
-          ><button
-            class="btn btn-{{ job._status|lower }} flex flex-row items-center"
-            type="submit"
-            id="btn-toggle-job"
-          >
-            {{ job._status }}
-          </button>
-        </div>
-        <a
-          class="btn btn-submit"
-          href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
-        >
-          Export to CSV
-        </a>
-      </div>
+      <!-- <div class="flex flex-row justify-between"> -->
+      <!--   <div class="flex flex-row items-center"> -->
+      <!--     <span class="mr-2">Status</span -->
+      <!--     ><button -->
+      <!--       class="btn btn-{{ job._status|lower }} flex flex-row items-center" -->
+      <!--       type="submit" -->
+      <!--       id="btn-toggle-job" -->
+      <!--     > -->
+      <!--       {{ job._status }} -->
+      <!--     </button> -->
+      <!--   </div> -->
+      <!-- </div> -->
     </div>
   </div>
-  <div class="flex-none text-center mb-2 tabbed">
+  <div class="flex-none text-center mb-2 tabbed relative">
+    <a
+      class="btn btn-submit absolute -top-2 right-4"
+      href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
+    >
+      Export to CSV
+    </a>
+
     <input name="tabbed" id="tabbed1" type="radio" checked />
     <section>
       <h3 class="py-1 mb-3 text-2xl">
@@ -177,28 +183,36 @@
         >
       </h3>
       <div class="border-2">
-        <table class="bg-gray-100 table-auto w-full">
-          <thead class="bg-gray-200 border-b">
+        {% if job._objects|length > 0 %}
+        <table class="table-auto w-full border">
+          <thead class="bg-gray-100 border-b">
             <tr class="text-lg">
-              <td class="w-16 px-2">Label</td>
-              <td class="px-2">Track ID</td>
+              <td class="w-28 px-2">Label</td>
+              <td class="w-28 px-2">Track ID</td>
               <td class="px-2">Time in</td>
               <td class="px-2">Time Out</td>
-              <td class="px-2">Propability</td>
+              <td class="w-28 px-2">Propability</td>
+              <td class="w-20">Video ID</td>
             </tr>
           </thead>
           <tbody class="">
             {% for object in job._objects %}
-            <tr class="space-y-1">
-              <td class="px-2">{{ object.label }}</td>
-              <td class="px-2">{{ object.track_id }}</td>
-              <td class="px-2">{{ object.time_in }}</td>
-              <td class="px-2">{{ object.time_out }}</td>
-              <td class="px-2">{{ object.probability }}</td>
+            <tr class="border-b h-8">
+              <td class="text-right px-2 border-r">{{ object.label }}</td>
+              <td class="text-right px-2 border-r">{{ object.track_id }}</td>
+              <td class="px-2 border-r">{{ object.time_in }}</td>
+              <td class="px-2 border-r">{{ object.time_out }}</td>
+              <td class="text-center px-2 border-r">
+                {{ object.probability }}
+              </td>
+              <td class="text-right px-2">{{ object.track_id }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {% else %}<span class="inline-block m-4 italic"
+          >Press start to gather objects.</span
+        >{% endif %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />
@@ -222,9 +236,10 @@
         >
       </h3>
       <div class="border-2">
-        <table class="bg-gray-100 table-auto w-full">
-          <thead class="bg-gray-200 border-b">
+        <table class="table-auto w-full border">
+          <thead class="bg-gray-100 border-b">
             <tr class="text-lg">
+              <td class="px-2 border-r">ID</td>
               <td class="w-16 px-2">Path</td>
               <td class="px-2">Frames</td>
               <td class="px-2">Timestamp</td>
@@ -232,10 +247,11 @@
           </thead>
           <tbody class="">
             {% for video in job.videos %}
-            <tr class="space-y-1">
-              <td class="px-2">{{ video._path }}</td>
-              <td class="px-2">{{ video.frames }}</td>
-              <td class="px-2">{{ video.timestamp }}</td>
+            <tr class="h-8 border-b">
+              <td class="text-right px-2 border-r">1</td>
+              <td class="px-2 border-r">{{ video._path }}</td>
+              <td class="px-2 border-r">{{ video.frames }}</td>
+              <td class="px-2 border-r">{{ video.timestamp }}</td>
             </tr>
             {% endfor %}
           </tbody>

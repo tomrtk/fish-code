@@ -76,7 +76,6 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(project_id: int, job_id: int):  # type: ignore
         """View a single job."""
-
         job = get_job(job_id, project_id, endpoint_path)
         obj_stats = job.get_object_stats()
 
@@ -113,6 +112,7 @@ def construct_projects_bp(cfg: Config):
                     "_status": "Pending",
                     "videos": videos,
                     "location": request.form["job_location"],
+                    "_objects": list(),
                 }
             )
 
@@ -186,7 +186,7 @@ def get_projects(endpoint: str) -> Optional[List[Project]]:
     try:
         r = requests.get(f"{endpoint}/projects/")  # type: ignore
     except requests.ConnectionError:
-        return "API is not running!"  # type: ignore
+        return "API not running!"  # type: ignore
 
     if not r.status_code == requests.codes.ok:
         print(f"Recived an err; {r.status_code}")
@@ -273,11 +273,11 @@ def change_job_status(
         logger.error("API is not running!")
         return None, None
 
-    if not r_project.status_code == requests.codes.accepted:
+    if not r_project.status_code == requests.codes.ok:
         print(f"Recived an err; {r_project.status_code}")
         return None, None  # type: ignore
 
-    if not r_job.status_code == requests.codes.accepted:
+    if not r_job.status_code == requests.codes.ok:
         print(f"Recived an err; {r_job.status_code}")
         return None, None  # type: ignore
 
@@ -293,7 +293,7 @@ def change_job_status(
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/start"
         )
-        if r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.accepted:
             new_status = "running"
         else:
             print(f"Recived an err; {r_post.status_code}")
@@ -301,7 +301,7 @@ def change_job_status(
         r_post = requests.post(  # type:ignore
             f"{endpoint}/projects/{project_id}/jobs/{job_id}/pause"
         )
-        if r_post.status_code == requests.codes.ok:
+        if r_post.status_code == requests.codes.accepted:
             new_status = "paused"
         else:
             print(f"Recived an err; {r_post.status_code}")
