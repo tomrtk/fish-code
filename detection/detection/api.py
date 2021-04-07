@@ -1,8 +1,9 @@
 """Module defining detection API."""
 
+import logging
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union
 
 import numpy as np
 import torch
@@ -10,6 +11,8 @@ from fastapi import FastAPI, File, HTTPException
 from PIL import Image  # type: ignore
 
 from detection import schema
+
+logger = logging.getLogger(__name__)
 
 detection_api = FastAPI()
 
@@ -92,22 +95,58 @@ async def predict(
     HTTPException
         status_code 422 if `images` are unable to be processed or
         `model_name` is unknown.
+    HTTPException
+        status_code 500 if a RuntimeError is encountered during inference eg.
+        due to `CUDA out of memory`.
     """
+    IMG_SIZE = 1280
+
+    # Check if model is known
     if model_name not in model:
-        raise HTTPException(status_code=422, detail="Unknown `model_name`")
+        logger.error(f"{model_name} is a unknown `model_name`")
+        raise HTTPException(
+            status_code=422, detail=f"Unknown `model_name`: {model_name}"
+        )
+
+    # Try to convert received bytes to a numpy array
     try:
         imgs = [
             np.array(Image.open(BytesIO(img))) for img in images  # type: ignore
         ]
-    except:
+    except BaseException as e:
+        logger.error("Could not convert to images", e)
         raise HTTPException(status_code=422, detail="Unable to process images")
 
-    results = model[model_name](imgs, size=1280)  # type: ignore
+    # Try infer from imgs received
+    out_of_memory = False
+    xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
 
+    try:
+        results = model[model_name](imgs, size=IMG_SIZE)  # type: ignore
+    except RuntimeError as e:  # out of memory
+        logger.warning("Inference error: %s", e)
+        out_of_memory = True
+    else:
+        xyxy = results.xyxy
+
+    if out_of_memory:  # try infer with one image at the time.
+        try:
+            results = [model[model_name](img, size=IMG_SIZE) for img in imgs]  # type: ignore
+        except RuntimeError as e:
+            logger.error("Inference error: %s", e)
+            raise HTTPException(
+                status_code=500,
+                detail=f"Internal Server Error in inference, {e}",
+            )
+        else:
+            xyxy = [result.xyxy for result in results]
+
+    # Convert results to schema object
     response: Dict[int, List[schema.Detection]] = dict()
 
-    for i, result in enumerate(results.xyxy):  # for each image
-        for one in result:  # for each detection
+    for i, result in enumerate(xyxy):  # for each image
+        # for each detection
+        for one in result:  # type: ignore
             response.setdefault(i, []).append(
                 schema.Detection(
                     x1=one[0].cpu().detach().numpy(),  # type: ignore
@@ -115,7 +154,7 @@ async def predict(
                     x2=one[2].cpu().detach().numpy(),  # type: ignore
                     y2=one[3].cpu().detach().numpy(),  # type: ignore
                     confidence=one[4].cpu().detach().numpy(),  # type: ignore
-                    label=int(one[5].cpu().detach().numpy()),
+                    label=int(one[5].cpu().detach().numpy()),  # type: ignore
                 )
             )
 
