@@ -56,9 +56,6 @@
               name: "default",
             },
           },
-          checkbox: {
-            keep_selected_style: false,
-          },
           plugins: ["checkbox", "sort", "types", "wholerow"],
           sort: function (a, b) {
             return this.get_type(a) === this.get_type(b)
@@ -86,7 +83,16 @@
                 selected_titles.push(tree.get_path(this, "/"));
               }
             });
+
             $("#tree_data").val(JSON.stringify(selected_titles));
+
+            /*
+            if selected_titles.length > 0 {
+            }
+            else {
+              $("#tree_data").val('');
+            }
+            */
           }
         );
 

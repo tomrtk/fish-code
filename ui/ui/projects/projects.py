@@ -14,6 +14,7 @@ from flask import (
     render_template,
     request,
     send_file,
+    session,
     url_for,
 )
 
@@ -97,6 +98,8 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
     def projects_job_new(project_id: int):  # type: ignore
         """Create new job inside a project."""
+        project = get_project(project_id, endpoint_path)
+
         if request.method == "POST":
             logger.debug(request.form)
             hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
@@ -116,13 +119,23 @@ def construct_projects_bp(cfg: Config):
                 }
             )
 
-            post_job(job, project_id, endpoint_path)
+            post_res = None
+            if len(request.form["tree_data"]) > 0:
+                print("Tree")
+                post_res = post_job(job, project_id, endpoint_path)
+
+            if post_res or len(request.form["tree_data"]) == 0:
+                print("post-res")
+                return render_template(
+                    "projects/job_new.html",
+                    project_name=project.get_name(),
+                    post_res=post_res,
+                    form_data=request.form,
+                )
 
             return redirect(
                 url_for("projects_bp.projects_project", project_id=project_id)
             )
-
-        project = get_project(project_id, endpoint_path)
 
         return render_template(
             "projects/job_new.html", project_name=project.get_name()  # type: ignore
@@ -254,12 +267,13 @@ def post_job(job: Job, project_id: int, endpoint: str):
     except requests.ConnectionError:
         return "API is not running!"
 
+    if r.status_code == requests.codes.bad_request:
+        return r.json()["detail"]
+
     if not r.status_code == requests.codes.ok:
         print(f"Recived an err; {r.status_code}")
 
-    return redirect(
-        url_for("projects_bp.projects_project", project_id=project_id)
-    )
+    return None
 
 
 def change_job_status(

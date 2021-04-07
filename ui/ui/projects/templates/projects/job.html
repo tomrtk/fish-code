@@ -93,7 +93,7 @@
   <div class="flex-none text-center relative">
     <h3 class="py-1 mb-3 text-2xl">{{ job.name }}</h3>
   </div>
-  <div class="mb-8">
+  <div class="border-b mb-6">
     <div class="mx-auto w-3/5 text-left mb-8">
       <p class="mb-4 pb-2 text-gray-800">{{ job.description }}</p>
       <div class="flex flex-row mb-8 pb-2 border-b-2">
@@ -133,18 +133,18 @@
           {% endfor %}
         </ul>
       </div>
-      <!-- <div class="flex flex-row justify-between"> -->
-      <!--   <div class="flex flex-row items-center"> -->
-      <!--     <span class="mr-2">Status</span -->
-      <!--     ><button -->
-      <!--       class="btn btn-{{ job._status|lower }} flex flex-row items-center" -->
-      <!--       type="submit" -->
-      <!--       id="btn-toggle-job" -->
-      <!--     > -->
-      <!--       {{ job._status }} -->
-      <!--     </button> -->
-      <!--   </div> -->
-      <!-- </div> -->
+      <div class="flex flex-row justify-between">
+        <div class="flex flex-row items-center">
+          <span class="mr-2">Status</span
+          ><button
+            class="btn btn-{{ job._status|lower }} flex flex-row items-center"
+            type="submit"
+            id="btn-toggle-job"
+          >
+            {{ job._status }}
+          </button>
+        </div>
+      </div>
     </div>
   </div>
   <div class="flex-none text-center mb-2 tabbed relative">
