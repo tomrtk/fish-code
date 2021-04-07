@@ -2,9 +2,33 @@
 from datetime import datetime
 from typing import List, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 
 from core import model
+
+
+def get_label(label_id: int) -> str:
+    """Convert a object label id into a str."""
+    # TODO: This should get labels from `interface.Detector()' object,
+    # however tests need to be refactored since `Detector` need detection
+    # api. For now the labels are stored in a list.
+    # model = interface.Detector().available_models[0]
+    available_labels = [
+        "Gjedde",
+        "Gullbust",
+        "Rumpetroll",
+        "Stingsild",
+        "Øreskyt",
+        "Abbor",
+        "Brasme",
+        "Mort",
+        "Vederbuk",
+    ]
+
+    if label_id > len(available_labels):
+        return "Unknown label"
+
+    return available_labels[label_id]
 
 
 class HashableBaseModel(BaseModel):
@@ -15,22 +39,19 @@ class HashableBaseModel(BaseModel):
         return hash((type(self),) + tuple(self.__dict__.values()))
 
 
-class JobBase(HashableBaseModel):
-    """Base model for `Job` class used in API."""
-
-    name: str
-    description: str
-    location: str
-
-
 class Object(BaseModel):
     """Base model for `Object` class used in API."""
 
-    label: int
+    label: str
     probability: float
     track_id: int
     time_in: datetime
     time_out: datetime
+
+    @validator("label", pre=True)
+    def convert_label(cls, label_id: int):
+        """Convert object label from id to str."""
+        return get_label(label_id)
 
     class Config:
         """Pydantic configuration options."""
@@ -51,6 +72,14 @@ class Video(BaseModel):
         orm_mode = True
         fields = {"path": "_path"}
         underscore_attrs_are_private = False
+
+
+class JobBase(HashableBaseModel):
+    """Base model for `Job` class used in API."""
+
+    name: str
+    description: str
+    location: str
 
 
 class Job(JobBase):
