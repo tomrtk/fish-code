@@ -35,13 +35,6 @@ sessionfactory = scoped_session(
 )
 
 
-@core_api.on_event("startup")
-def startup():
-    """Start mappings at api start."""
-    start_mappers()
-    logger.debug("Database connected.")
-
-
 @core_api.on_event("shutdown")
 def shutdown():
     """Cleanup on shutdown of api."""
