@@ -98,6 +98,7 @@ def process_job(project_id: int, job_id: int, session: Session):
 
     all_frames = []
     for batchnr, (batch, timestamp) in enumerate(video_loader):
+        logger.info(f"Processing batch {batchnr} for job {job.id}")
         assert isinstance(batch, np.ndarray), "Batch must be of type np.ndarray"
         frames = det.predict(batch, "fishy")
 
@@ -121,6 +122,7 @@ def process_job(project_id: int, job_id: int, session: Session):
         job.add_object(obj)
 
     job.complete()
+    logger.info(f"Job {job.id} finished")
 
     repo.save()
 
@@ -152,6 +154,7 @@ class SchedulerThread(threading.Thread):
 
 def schedule(event: threading.Event):
     """Scheduler function, gets run by the scheduler thread."""
+    time.sleep(10)
     logger.info("Scheduler started.")
     while event.is_set():
         try:
@@ -229,7 +232,11 @@ def populate_queue():
     for proj in proj_repo.list():
         for job in proj.get_jobs():
             if job._status != Status.DONE and job.id:
+                job._status = Status.PENDING
+                logger.info(f"adding job {job.id} to queue")
                 queue_job(proj.id, job.id)
+
+    proj_repo.save()
 
 
 def queue_job(project_id: int, job_id: int):
