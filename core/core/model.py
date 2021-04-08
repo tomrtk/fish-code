@@ -66,6 +66,8 @@ class Video:
     ---------
     _path   :   str
             Path to the video file associated with the video.
+    id      :   Optional[int]
+            Video id from repository(database).
 
     Methods
     -------
@@ -112,6 +114,7 @@ class Video:
         output_width: int = VIDEO_DEFAULT_WIDTH,
         output_height: int = VIDEO_DEFAULT_HEIGHT,
     ) -> None:
+        self.id: Optional[int] = None
         self._path: str = path
         self.frames: int = frames
         self.fps: int = fps

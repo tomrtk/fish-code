@@ -62,6 +62,7 @@ class Object(BaseModel):
 class Video(BaseModel):
     """Video class used in API."""
 
+    id: int
     path: str
     frames: int
     timestamp: Optional[datetime]
