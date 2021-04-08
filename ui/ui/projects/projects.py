@@ -273,7 +273,7 @@ def post_job(job: Job, project_id: int, endpoint: str):
     if r.status_code == requests.codes.bad_request:
         return r.json()["detail"]
 
-    if not r.status_code == requests.codes.ok:
+    if not r.status_code == requests.codes.created:
         print(f"Recived an err; {r.status_code}")
 
     return r.json()["id"]
