@@ -159,29 +159,22 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(project_id: int, job_id: int):  # type: ignore
         """Download results of a job as a csv-file."""
-        detections = [
-            Detection(
-                **{
-                    "id": i,
-                    "report_type": f"Type{i}",
-                    "start": "Now",
-                    "stop": "Later",
-                    "video_path": "C:\\",
-                }
-            )
-            for i in range(1, 100)
-        ]
+        job = get_job(job_id, project_id, endpoint_path)
+        obj_stats = job.get_object_stats()
+
+        if not isinstance(job, Job):
+            print("nei")
 
         # PoC of download file
         with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
 
             # write headers to file
-            csv_file.write(b"id,class,start,stop,video\n")
+            csv_file.write(b"id,label,time_in,time_out,probability\n")
 
-            for d in detections:
+            for idx, obj in enumerate(job._objects):
                 csv_file.write(
                     str.encode(
-                        f"{d.id},{d.report_type},{d.start},{d.stop}, {d.video_path}\n"
+                        f"{idx},{obj.label},{obj.time_in},{obj.time_out},{obj.probability}\n"
                     )
                 )
 
