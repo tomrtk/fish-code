@@ -77,6 +77,10 @@ async def predict(
 ) -> Dict[int, List[schema.Detection]]:
     """Perform predictions on List of images on named model_name.
 
+    Note: If a `RuntimeError` is encountered due to e.g. `CUDA out of memory`
+    it falls back to trying to run inference on one image at the time
+    instead of on the list of images.
+
     Parameters
     ----------
     model_name  :   str
