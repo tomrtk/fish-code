@@ -18,7 +18,7 @@ def get_label(label_id: int) -> str:
         "Gullbust",
         "Rumpetroll",
         "Stingsild",
-        "Øreskyt",
+        "Ørekyt",
         "Abbor",
         "Brasme",
         "Mort",

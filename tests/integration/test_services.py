@@ -68,7 +68,7 @@ def test_processing_and_scheduler():
     assert len(objects) == 1  # Only one fish should be detected
 
     obj = objects[0]
-    assert obj["label"] == "Øreskyt"
+    assert obj["label"] == "Ørekyt"
     assert obj["time_in"] == "2021-01-01T00:00:00"
     assert obj["time_out"] == "2021-01-01T00:00:01"
 
