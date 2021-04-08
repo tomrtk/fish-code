@@ -84,15 +84,11 @@
               }
             });
 
-            $("#tree_data").val(JSON.stringify(selected_titles));
-
-            /*
-            if selected_titles.length > 0 {
+            if (selected_titles.length > 0) {
+              $("#tree_data").val(JSON.stringify(selected_titles));
+            } else {
+              $("#tree_data").removeAttr("value");
             }
-            else {
-              $("#tree_data").val('');
-            }
-            */
           }
         );
 

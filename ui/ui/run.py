@@ -4,11 +4,11 @@ Includes an option for running using livereload.  This helps out a lot
 when developing.
 """
 
+
 import logging
 import os
 
 import waitress
-from livereload import Server  # type: ignore
 
 import ui.main as web  # type: ignore
 
@@ -32,18 +32,15 @@ def serve(
         logger.setLevel(logging.INFO)
         logger.info("Starting server in production")
 
-        ui_wsgi = web.create_app().wsgi_app  # type: ignore
-        waitress.serve(ui_wsgi, host=host, port=port)  # type: ignore
-    else:
-        ui = web.create_app()  # type: ignore
+        ui_server = web.create_app()
+        ui_server.debug = True
 
-        if (
-            "FLASK_LIVERELOAD" in os.environ
-            and os.environ["FLASK_LIVERELOAD"] == "1"
-        ):
-            Server(ui.wsgi_app).serve()  # type: ignore
-        else:
-            ui.run(use_reloader=False)
+        waitress.serve(ui_server.wsgi_app, host=host, port=port)  # type: ignore
+    else:
+        ui_server = web.create_app()  # type: ignore
+        ui_server.debug = True
+
+        ui_server.run(use_reloader=False)
 
 
 if __name__ == "__main__":

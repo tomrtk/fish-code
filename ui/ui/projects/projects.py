@@ -101,13 +101,16 @@ def construct_projects_bp(cfg: Config):
         project = get_project(project_id, endpoint_path)
 
         if request.method == "POST":
-            logger.debug(request.form)
             hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
             videos = [
                 hardcoded_path + "/" + path[1:-1]
                 for path in request.form["tree_data"][1:-1].split(",")
             ]
-            videos = [path for path in videos if os.path.isfile(path)]
+            videos = [
+                path if not os.path.isdir(path) else f"Folder is empty: {path}"
+                for path in videos
+            ]
+
             job = Job(
                 **{
                     "name": request.form["job_name"],
@@ -121,11 +124,12 @@ def construct_projects_bp(cfg: Config):
 
             post_res = None
             if len(request.form["tree_data"]) > 0:
-                print("Tree")
                 post_res = post_job(job, project_id, endpoint_path)
 
-            if post_res or len(request.form["tree_data"]) == 0:
-                print("post-res")
+            if (
+                isinstance(post_res, dict)
+                or len(request.form["tree_data"]) == 0
+            ):
                 return render_template(
                     "projects/job_new.html",
                     project_name=project.get_name(),
@@ -134,7 +138,11 @@ def construct_projects_bp(cfg: Config):
                 )
 
             return redirect(
-                url_for("projects_bp.projects_project", project_id=project_id)
+                url_for(
+                    "projects_bp.projects_job",
+                    project_id=project_id,
+                    job_id=int(post_res),  # type: ignore
+                )
             )
 
         return render_template(
@@ -147,11 +155,6 @@ def construct_projects_bp(cfg: Config):
         data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))  # type: ignore
 
         return data
-
-    @projects_bp.route("/jobs")
-    def projects_jobs():  # type: ignore
-        """Route for serving a large table."""
-        return render_template("projects/report/result.html")
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(project_id: int, job_id: int):  # type: ignore
@@ -273,7 +276,7 @@ def post_job(job: Job, project_id: int, endpoint: str):
     if not r.status_code == requests.codes.ok:
         print(f"Recived an err; {r.status_code}")
 
-    return None
+    return r.json()["id"]
 
 
 def change_job_status(

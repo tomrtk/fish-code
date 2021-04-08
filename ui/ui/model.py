@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 @dataclass
 class Object:
-    label: int
+    label: str
     probability: float
     track_id: int
     time_in: datetime

@@ -90,60 +90,86 @@
       <li class="inline">{{ job.name }}</li>
     </ul>
   </div>
-  <div class="flex-none text-center relative">
-    <h3 class="py-1 mb-3 text-2xl">{{ job.name }}</h3>
-  </div>
-  <div class="border-b mb-6">
-    <div class="mx-auto w-3/5 text-left mb-8">
-      <p class="mb-4 pb-2 text-gray-800">{{ job.description }}</p>
-      <div class="flex flex-row mb-8 pb-2 border-b-2">
-        <div class="flex flex-row items-center text-gray-800">
-          <svg
-            class="inline w-4 h-4 mr-2"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-            ></path>
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-            ></path></svg
-          >{{ job.location }}
+  <div
+    class="flex flex-col w-full max-w-2xl mx-auto justify-center items-center mb-8"
+  >
+    <h3 class="block py-1 mb-3 text-2xl">{{ job.name }}</h3>
+    <p class="block w-full text-left mb-4 pb-2 text-gray-800">
+      {{ job.description }}
+    </p>
+    <div class="flex flex-row w-full mb-8 pb-2 border-b-2">
+      <div class="flex flex-row items-center text-gray-800 italic">
+        <svg
+          class="inline w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          ></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+          ></path></svg
+        >{{ job.location }}
+      </div>
+    </div>
+    <div class="mb-8 w-full max-w-lg flex flex-col items-center">
+      <h4 class="block text-xl text-center mb-2">Statistics</h4>
+      {% if job._status == "Done" %}
+      <div class="flex flex-row w-full max-w-md">
+        <div class="w-1/2">
+          <h5 class="block text-center font-semibold mb-2">Total</h5>
+          <ul class="border-r border-gray-100 table pr-4">
+            <li class="table-row">
+              <span class="table-cell w-full">Objects</span
+              ><span class="table-cell text-right"
+                >{{ job._objects|length }}</span
+              >
+            </li>
+            <li class="table-row">
+              <span class="table-cell w-full">Species</span
+              ><span class="table-cell text-right">{{ obj_stats|length }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="w-1/2">
+          <h5 class="block text-center font-semibold mb-2">Counter</h5>
+          <ul class="pl-8 border-l border-gray-100 table pr-4">
+            {% for label, count in obj_stats.items()|sort %}
+            <li class="table-row">
+              <span class="table-cell w-full">{{ label }}</span
+              ><span class="table-cell text-right">{{ count }}</span>
+            </li>
+            {% endfor %}
+          </ul>
         </div>
       </div>
-      <div class="mb-8">
-        <h4 class="block text-xl text-center mb-2">Statistics</h4>
-        <div>
-          <span>Observations {{ job._objects|length }}</span
-          ><span>Species 4</span>
-        </div>
-        <h5>Object Count</h5>
-        <ul class="ml-8">
-          {% for label, count in obj_stats.items() %}
-          <li>{{ label }}: {{ count }}</li>
-          {% endfor %}
-        </ul>
-      </div>
-      <div class="flex flex-row justify-between">
-        <div class="flex flex-row items-center">
-          <span class="mr-2">Status</span
-          ><button
-            class="btn btn-{{ job._status|lower }} flex flex-row items-center"
-            type="submit"
-            id="btn-toggle-job"
-          >
-            {{ job._status }}
-          </button>
-        </div>
+      {% elif job._status == "Running" or job._status == "Paused" %}
+      <span class="inline-block m-4 text-gray-700 italic"
+        >Not enough information gather to display statistics.</span
+      >
+      {% else %}
+      <span class="inline-block m-4 italic"
+        >Press "Start" to begin processing.</span
+      >{% endif %}
+    </div>
+    <div class="flex flex-row justify-between">
+      <div class="flex flex-row items-center">
+        <button
+          class="btn btn-{{ job._status|lower }} flex flex-row items-center"
+          type="submit"
+          id="btn-toggle-job"
+        >
+          {{ job._status|replace("Pending","Start") }}
+        </button>
       </div>
     </div>
   </div>
@@ -154,7 +180,6 @@
     >
       Export to CSV
     </a>
-
     <input name="tabbed" id="tabbed1" type="radio" checked />
     <section>
       <h3 class="py-1 mb-3 text-2xl">
@@ -186,33 +211,29 @@
         {% if job._objects|length > 0 %}
         <table class="table-auto w-full border">
           <thead class="bg-gray-100 border-b">
-            <tr class="text-lg">
-              <td class="w-28 px-2">Label</td>
-              <td class="w-28 px-2">Track ID</td>
-              <td class="px-2">Time in</td>
-              <td class="px-2">Time Out</td>
-              <td class="w-28 px-2">Propability</td>
-              <td class="w-20">Video ID</td>
+            <tr class="font-bold">
+              <td class="p-2 w-28">Label</td>
+              <td class="p-2">Time in</td>
+              <td class="p-2">Time Out</td>
+              <td class="p-2 w-28">Propability</td>
+              <td class="p-2">Video ID</td>
             </tr>
           </thead>
           <tbody class="">
             {% for object in job._objects %}
             <tr class="border-b h-8">
-              <td class="text-right px-2 border-r">{{ object.label }}</td>
-              <td class="text-right px-2 border-r">{{ object.track_id }}</td>
+              <td class="px-2 border-r">{{ object.label }}</td>
               <td class="px-2 border-r">{{ object.time_in }}</td>
               <td class="px-2 border-r">{{ object.time_out }}</td>
-              <td class="text-center px-2 border-r">
-                {{ object.probability }}
+              <td class="text-right px-2 border-r">
+                {{ object.probability|round(precision=3) }}
               </td>
               <td class="text-right px-2">{{ object.track_id }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        {% else %}<span class="inline-block m-4 italic"
-          >Press start to gather objects.</span
-        >{% endif %}
+        {% else %}<span class="inline-block m-4 italic">...</span>{% endif %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />
@@ -248,7 +269,7 @@
           <tbody class="">
             {% for video in job.videos %}
             <tr class="h-8 border-b">
-              <td class="text-right px-2 border-r">1</td>
+              <td class="text-right px-2 border-r">{{ video.id }}</td>
               <td class="px-2 border-r">{{ video._path }}</td>
               <td class="px-2 border-r">{{ video.frames }}</td>
               <td class="px-2 border-r">{{ video.timestamp }}</td>
