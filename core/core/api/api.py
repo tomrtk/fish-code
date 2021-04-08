@@ -200,6 +200,9 @@ def add_job_to_project(
         project = project.add_job(new_job)
         repo.save()
 
+        if new_job.id:
+            services.queue_job(project_id, new_job.id)
+
         logger.debug("Job %s added to project %s", job, project_id)
         return {"id": new_job.id}
 
