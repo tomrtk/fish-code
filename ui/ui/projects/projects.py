@@ -1,8 +1,9 @@
 """Blueprint for the projects module."""
+import functools
 import logging
 import os
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import requests
 from flask import (
@@ -24,6 +25,131 @@ logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
 
 root_folder = "~/Downloads"
+
+T = TypeVar("T")
+Result = Optional[T]
+
+
+class Client:
+    """API client class.
+
+    Wrapping the error handling of `requests` calls to api by using the
+    `API.call` decorator.
+
+    Attributes
+    ----------
+    _session    :   requests.Session
+                    Keeps Session between calls.
+
+    Methods
+    -------
+    get(uri: str)
+        Perform a GET request to `uri`.
+    post(uri: str, data: Dict[str, Any])
+        Perform a POST request to `uri` with `data` as body of request.
+
+
+    Examples
+    --------
+    >>> client = Client()
+    >>> response = client.get("http://127.0.0.1:8000/projects/")
+    """
+
+    def __init__(self) -> None:
+        self._session: requests.Session = requests.Session()
+
+    class Api:
+        """Api decorator class."""
+
+        @classmethod
+        def call(
+            csl, request: Callable = None, *, status_code: int = 200
+        ) -> Callable:
+            """Handle errors for api call.
+
+            Used as decorator on `Client` methods calling HTTP Methods to API.
+
+            Parameters
+            ----------
+            request     :   Callable
+                            Function calling API.
+            status_code :   int
+                            Success status_code from API.
+            """
+
+            def decorator_call(request):
+                functools.wraps(request)
+
+                def wrapper_call(*args, **kwargs) -> Result[requests.Response]:
+                    try:
+                        response = request(*args, **kwargs)  # type: ignore
+                    except requests.ConnectionError as e:
+                        logger.warning(
+                            "ConnectionError:",
+                            request.__name__,
+                            request.__dict__,
+                            e,
+                        )
+                        return None
+
+                    if not response.status_code == status_code:
+                        logger.warning(
+                            "Status code: %s, error: %s",
+                            response.status_code,
+                            response.json().__dict__,
+                        )
+                        return None
+                    return response
+
+                return wrapper_call
+
+            if request is None:
+                return decorator_call
+            else:
+                return decorator_call(request)
+
+    @Api.call(status_code=200)
+    def get(self, uri: str) -> requests.Response:
+        """Perform a GET request to `uri.
+
+        Expects a successful call to return a status_code = 200.
+
+        Parameters
+        ----------
+        uri     :   str
+                    API endpoint.
+
+        Returns
+        -------
+        Optional[requests.Response]
+            Returns a `Response` if no errors, else `None`
+        """
+        logger.info("get from %s", uri)
+        return self._session.get(uri)
+
+    @Api.call(status_code=200)
+    def post(self, uri: str, data: Dict[str, Any]) -> requests.Response:
+        """Perform a POST request to `uri` with `data` as body of request.
+
+        Expects a successful call to return a status_code = 200.
+
+        Parameters
+        ----------
+        uri     :   str
+                    API endpoint.
+        data    :   Dict[str, Any]
+                    Data to be posted as request body.
+
+        Returns
+        -------
+        Optional[requests.Response]
+            Returns a `Response` if no errors, else `None`
+        """
+        logger.info("post to %s, %s", uri, data)
+        return self._session.post(uri, data=data)
+
+
+handler = Client()
 
 
 def construct_projects_bp(cfg: Config):
@@ -193,46 +319,70 @@ def construct_projects_bp(cfg: Config):
     return projects_bp
 
 
-def get_projects(endpoint: str) -> Optional[List[Project]]:
-    """Get projects from endpoint."""
-    try:
-        r = requests.get(f"{endpoint}/projects/")  # type: ignore
-    except requests.ConnectionError:
-        return "API not running!"  # type: ignore
-
-    if not r.status_code == requests.codes.ok:
-        print(f"Recived an err; {r.status_code}")
-
-    return [Project.from_dict(p) for p in r.json()]  # type: ignore
-
-
 def get_project(project_id: int, endpoint: str) -> Optional[Project]:
-    """Get project from endpoint."""
-    try:
-        r = requests.get(f"{endpoint}/projects/{project_id}")  # type: ignore
-    except requests.ConnectionError:
-        return "API is not running!"  # type: ignore
+    """Get one project from endpoint.
 
-    if not r.status_code == requests.codes.ok:
-        print(f"Recived an err; {r.status_code}")
-        return None
+    Parameters
+    ----------
+    project_id  :   int
+                    Id of project to get.
+    endpoint    :   str
+                    API endpoint.
 
-    return Project.from_dict(r.json())  # type: ignore
+    Returns
+    -------
+    Optional[Project]
+                Project from core with `project_id`.
+    """
+    result = handler.get(f"{endpoint}/projects/{project_id}")
+
+    if isinstance(result, requests.Response):
+        return Project.from_dict(result.json())  # type: ignore
+
+    return None
 
 
-def post_project(project: Project, endpoint: str):
-    """Post new project to endpoint."""
-    try:
-        r = requests.post(  # type: ignore
-            f"{endpoint}/projects/", data=project.to_json()  # type: ignore
+def get_projects(endpoint: str) -> Optional[List[Project]]:
+    """Get all projects from endpoint.
+
+    Parameters
+    ----------
+    endpoint    :   str
+                    API endpoint.
+
+    Returns
+    -------
+    Optional[List[Project]]
+                List of all `Project` from `core`.
+    """
+    result = handler.get(f"{endpoint}/projects/")
+
+    if isinstance(result, requests.Response):
+        return [Project.from_dict(p) for p in result.json()]  # type: ignore
+
+    return None
+
+
+def post_project(project: Project, endpoint: str) -> None:
+    """Post project from endpoint.
+
+    Parameters
+    ----------
+    project     :   Project
+                    Project to send to `core` api.
+    endpoint    :   str
+                    API endpoint.
+    """
+    result = handler.post(f"{endpoint}/projects/", project.to_json())  # type: ignore
+
+    if isinstance(result, requests.Response):
+        logger.info(
+            "Project %s posted with status_code: %s",
+            project.id,
+            result.status_code,
         )
-    except requests.ConnectionError:
-        return "API is not running!"
 
-    if not r.status_code == requests.codes.ok:
-        print(f"Recived an err; {r.status_code}")
-
-    return redirect(url_for("projects_bp.projects_index"))
+    return None
 
 
 def get_job(job_id: int, project_id: int, endpoint: str) -> Optional[Job]:
