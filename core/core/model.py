@@ -34,6 +34,7 @@ class Status(str, Enum):
     RUNNING = "Running"
     PAUSED = "Paused"
     DONE = "Done"
+    QUEUED = "Queued"
 
 
 class Video:
@@ -889,6 +890,13 @@ class Job:
             raise JobStatusException
         logger.debug("Job '%s' marked as completed", self.name)
         self._status = Status.DONE
+
+    def queue(self) -> None:
+        """Mark the job as queued."""
+        if self._status is not Status.PENDING:
+            raise JobStatusException
+        logger.debug("Job '%s' marked as queued", self.name)
+        self._status = Status.QUEUED
 
 
 class JobStatusException(Exception):
