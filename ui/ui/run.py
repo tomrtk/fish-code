@@ -20,7 +20,7 @@ def serve_debug() -> None:
 
 def serve_prod() -> None:
     """Workaround for avoiding lamdba. Starts UI in production."""
-    serve(production=True)
+    serve(production=False)
 
 
 def serve(
