@@ -213,7 +213,7 @@ def start_scheduler():
         logger.error("Scheduler is already running")
 
 
-def queue_job(project_id: int, job_id: int):
+def queue_job(project_id: int, job_id: int, session: Session):
     """Enqueue a job in the scheduler.
 
     Parameters
@@ -223,5 +223,28 @@ def queue_job(project_id: int, job_id: int):
     job_id      :   int
         Job id of the job to start processing.
     """
+    repo = ProjectRepository(session)
+    project = repo.get(project_id)
+
+    if not project:
+        logger.warning(f"Could not get project {project_id}.")
+        return
+
+    job = project.get_job(job_id)
+
+    if not job:
+        logger.warning(f"Could not get job {job_id} in project {project_id}.")
+        return
+
+    # TODO: Send status of job back to the API
+    try:
+        job.queue()
+    except JobStatusException:
+        logger.error(
+            "Cannot queue job %s, it's already pending or completed.", job_id
+        )
+        return
+    repo.save()
+
     logger.info(f"Job {job_id} in project {project_id} scheduled to run.")
     job_queue.put((project_id, job_id))
