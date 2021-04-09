@@ -3,19 +3,21 @@
     /* http://localhost:5500/projects/job.project_id/jobs/job.if */
     btn = $("#btn-toggle-job");
 
-    btn.bind("click", function () {
-      $.ajax({
-        type: "PUT",
-        url:
-          "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
-        dataType: "json",
-      }).done(function (data) {
-        btn.removeClass("btn-" + data["old_status"])
-        btn.text(data["new_status"].capitalize())
-        btn.addClass("btn-" + data["new_status"])
+    if (btn.hasClass("btn-pending")) {
+      btn.bind("click", function () {
+        $.ajax({
+          type: "PUT",
+          url:
+            $SCRIPT_ROOT + "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
+          dataType: "json",
+        }).done(function (data) {
+          btn.removeClass("btn-" + data["old_status"])
+          btn.text(data["new_status"].capitalize())
+          btn.addClass("btn-" + data["new_status"])
+        });
+        return false;
       });
-      return false;
-    });
+    }
 {% endblock %}
 -->
 
@@ -160,18 +162,19 @@
     </div>
     <div class="flex flex-row justify-between">
       <div class="flex flex-row items-center">
-        <span class="font-bold mr-4">Status: </span
-        ><span class="italic font-normal"> {{ job._status }}</span>
+        <span class="font-bold mr-4">Status: </span>
+
+        <div class="flex flex-row items-center">
+          <button
+            class="btn btn-{{ job._status|lower }} flex flex-row
+            items-center"
+            type="submit"
+            id="btn-toggle-job"
+          >
+            {{ job._status|replace("Pending","Start Job") }}
+          </button>
+        </div>
       </div>
-      <!-- <div class="flex flex-row items-center"> -->
-      <!--   <button -->
-      <!--     class="btn btn-{{ job._status|lower }} flex flex-row items-center" -->
-      <!--     type="submit" -->
-      <!--     id="btn-toggle-job" -->
-      <!--   > -->
-      <!--     {{ job._status|replace("Pending","Start") }} -->
-      <!--   </button> -->
-      <!-- </div> -->
     </div>
   </div>
   <div class="flex-none text-center mb-2 tabbed relative">
@@ -234,7 +237,8 @@
             {% endfor %}
           </tbody>
         </table>
-        {% else %}<span class="inline-block m-4 italic">...</span>{% endif %}
+        {% else %}<span class="py-6 font-bold inline-block">...</span>{% endif
+        %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />

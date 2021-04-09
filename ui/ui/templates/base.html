@@ -39,6 +39,9 @@
       src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"
     ></script>
     <script type="text/javascript">
+      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+    <script type="text/javascript">
       /* https://stackoverflow.com/a/3291856/182868 */
       String.prototype.capitalize = function () {
         return this.charAt(0).toUpperCase() + this.slice(1);
@@ -68,7 +71,7 @@
           },
         });
 
-        $('#jstree').on("ready.jstree", function (e, data) {
+        $("#jstree").on("ready.jstree", function (e, data) {
           return data.instance.open_node("#j1_1_anchor", false, true);
         });
 
@@ -91,7 +94,6 @@
             }
           }
         );
-
         {% block extra_js %}{% endblock %}
       });
     </script>

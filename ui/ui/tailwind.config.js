@@ -1,3 +1,5 @@
+const colors = require("tailwindcss/colors");
+
 module.exports = {
   mode: "jit",
   purge: {
@@ -6,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        greeny: colors.green,
         "nina-orange": "#E69D4E",
         "nina-teal": "#82C3C9",
       },

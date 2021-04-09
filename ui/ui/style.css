@@ -46,7 +46,7 @@
   @apply float-left inline-block h-6 w-6 mr-1;
 }
 .btn-running {
-  @apply animate-pulse hover:animate-none italic text-gray-900 bg-gray-200 border-gray-200 hover:border-indigo-200 hover:bg-indigo-200;
+  @apply animate-pulse  italic text-gray-900 bg-gray-200 border-gray-200 cursor-default;
 }
 
 .btn-running::before {
@@ -54,13 +54,15 @@
   @apply float-left inline-block h-6 w-6 mr-1;
 }
 
+/*
 .btn-running:hover::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
   @apply float-left inline-block h-6 w-6 mr-1;
 }
+*/
 
 .btn-done {
-  @apply text-gray-900 bg-green-400 border-green-400 cursor-auto;
+  @apply text-gray-900 bg-greeny-200 border-greeny-200 cursor-auto;
 }
 
 .btn-done::before {
