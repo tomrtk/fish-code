@@ -160,6 +160,9 @@ def construct_projects_bp(cfg: Config):
     def projects_job_make_csv(project_id: int, job_id: int):  # type: ignore
         """Download results of a job as a csv-file."""
         job = get_job(job_id, project_id, endpoint_path)
+        if job is None:
+            return render_template("404.html"), 404
+
         obj_stats = job.get_object_stats()
 
         if not isinstance(job, Job):
