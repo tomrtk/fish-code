@@ -9,4 +9,4 @@ def test_download_csv_file():
     with web.test_client() as client:
         response = client.get("/projects/1/jobs/1/csv")
 
-        assert response.status_code == 404
+        assert response.status_code == 500
