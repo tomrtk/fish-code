@@ -9,6 +9,8 @@ from typing import Any, Dict, List, Optional
 
 @dataclass
 class Object:
+    """Holds the combined detection into an object."""
+
     label: str
     probability: float
     track_id: int
@@ -17,6 +19,7 @@ class Object:
 
     @classmethod
     def from_dict(cls, object_data: Dict[str, Any]):
+        """Return a new object from a dict."""
         return cls(
             label=object_data["label"],
             track_id=object_data["track_id"],
@@ -79,6 +82,7 @@ class Job:
         )
 
     def get_object_stats(self) -> Dict[int, int]:
+        """Return total stat for all objects inside the job."""
         object_count = dict()
 
         for obj in self._objects:
