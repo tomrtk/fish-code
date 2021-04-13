@@ -131,7 +131,6 @@ def construct_projects_bp(cfg: Config):
             )
 
             result = client.post_job(project_id, job)
-            logger.warning(result)
 
             if not isinstance(result, int):
                 return render_template(

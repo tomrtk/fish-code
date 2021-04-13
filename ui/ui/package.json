@@ -1,10 +1,9 @@
 {
   "scripts": {
-    "compile-css": "postcss style.css -o static/dist/css/style.min.css",
-    "prettier-format": "prettier **/* --ignore-unknown  --list-different",
-    "dev": "TAILWIND_MODE=watch NODE_ENV=development postcss style.css -o ./static/dist/css/style.min.css -w --verbose",
     "build:dev": "TAILWIND_MODE=build NODE_ENV=development postcss style.css -o ./static/dist/css/style.min.css",
-    "build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss style.css -o ./static/dist/css/style.min.css"
+    "build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss style.css -o ./static/dist/css/style.min.css",
+    "dev": "TAILWIND_MODE=watch NODE_ENV=development postcss style.css -o ./static/dist/css/style.min.css -w --verbose",
+    "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.2.1",
