@@ -8,8 +8,9 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
+import cv2 as cv
 import ffmpeg
 import numpy as np
 
@@ -125,6 +126,7 @@ class Video:
         self.output_height: int = output_height
         self.timestamp: datetime = timestamp
         self._current_frame = 0
+        self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -133,9 +135,48 @@ class Video:
                 output_height,
             )
 
+    def _scale_convert(self, img: np.ndarray) -> np.ndarray:
+        """Convert and scale image using OpenCV.
+
+        Converts image from BGR to RGB, and scales down to `self.output_{height,width}`
+
+        Parameter
+        ---------
+        img : np.ndarray
+            image to convert and scale
+
+        Return
+        ------
+        ndarray:
+            Scaled and converted image
+        """
+        new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+
+        new_img = cv.resize(  # type: ignore
+            new_img,
+            (self.output_width, self.output_height),
+            interpolation=cv.INTER_AREA,  # type: ignore
+        )
+        return new_img
+
+    def vidcap_release(self):
+        """Release Video Capture."""
+        self._video_capture.release()
+
     def __iter__(self):
-        """Class iterator."""
-        self._current_frame = 0
+        """Class iterator.
+
+        This never releases the VideoCapture. Not sure if it's kept alive, and
+        if that's the case, this could cause a memory leak. To make sure this
+        gets released, run `self.vidcap_release()`.
+
+        See Also
+        --------
+        Video.vidcap_release()
+
+        """
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        self._video_capture.set(cv.CAP_PROP_POS_MSEC, 0)  # type: ignore
         return self
 
     def __next__(self) -> np.ndarray:
@@ -145,13 +186,13 @@ class Video:
         ------
         np.ndarray
             One frame of video as `ndarray`.
+
         """
-        if self._current_frame < self.frames:
-            result = self.__get__(self._current_frame)
-            self._current_frame += 1
-            return result
-        else:
+        err, img = self._video_capture.read()
+        if not err:
+            self.vidcap_release()
             raise StopIteration
+        return self._scale_convert(img)
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -162,6 +203,11 @@ class Video:
         -------
         numpy.ndarray
             One frame of video as `ndarray`.
+
+        Raise
+        -----
+        RuntimeError :
+            if OpenCV fails to either read or set properties.
         """
         if key < 0:
             raise IndexError
@@ -169,25 +215,24 @@ class Video:
         if key >= self.frames:
             raise IndexError
 
-        # ffmpeg filter docs:
-        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
-        frame, _ = (
-            ffmpeg.input(self._path)
-            .filter("select", "eq(n, {})".format(key))
-            .filter(
-                "scale",
-                self.output_width,
-                self.output_height,
-                -1,
-            )
-            .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
-            .run(quiet=True)
-        )
-        return np.frombuffer(frame, np.uint8).reshape(
-            [self.output_height, self.output_width, 3]
-        )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, key)  # type: ignore
 
-    def __getitem__(self, interval: slice):
+        if not retval:
+            raise RuntimeError(
+                f"Unexpected error when setting catpure property, {retval}"
+            )
+
+        retval, img = self._video_capture.read()
+
+        if not retval:
+            raise RuntimeError(f"Unexpected error when reading frame at {key}")
+
+        self._video_capture.release()
+
+        return self._scale_convert(img)
+
+    def __getitem__(self, interval: Union[slice, int]):
         """Get a slice of video.
 
         Get a interval of frames from video, `variable[start:stop:step].
@@ -212,6 +257,10 @@ class Video:
         --------
         __get__     :   Used when only start in slice given.
 
+        Raise
+        -----
+        RuntimeError :
+            if OpenCV fails to either read or set properties.
         """
         # If only one key is given
         if isinstance(interval, int):
@@ -244,29 +293,23 @@ class Video:
 
         numbers = stop - interval.start
 
-        # ffmpeg filter docs:
-        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
-        frame, _ = (
-            ffmpeg.input(self._path)
-            .filter(
-                "select",
-                "between(n,{},{})".format(interval.start, stop),
-            )
-            .filter(
-                "scale",
-                self.output_width,
-                self.output_height,
-                -1,
-            )
-            .output(
-                "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
-            )
-            .run(quiet=True)
-        )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, interval.start)  # type: ignore
 
-        return np.frombuffer(frame, np.uint8).reshape(
-            [-1, self.output_height, self.output_width, 3]
-        )
+        if not retval:
+            raise RuntimeError("Unexpected error")
+
+        frames = []
+
+        for _ in range(numbers):
+            retval, img = self._video_capture.read()
+
+            if not retval:
+                raise RuntimeError("Unexpected error")
+            frames.append(self._scale_convert(img))
+
+        self._video_capture.release()
+        return np.array(frames)
 
     def __len__(self) -> int:
         """Get length of video in frames."""
