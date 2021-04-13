@@ -284,7 +284,7 @@ def set_job_status_start(
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    services.queue_job(project_id, job_id)
+    services.queue_job(project_id, job_id, repo.session)
 
 
 @core_api.post(

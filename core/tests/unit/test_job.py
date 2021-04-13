@@ -92,6 +92,17 @@ def test_job_status(make_test_job: Job):
         job.complete()
     assert job.status() == Status.PENDING
 
+    # queue job
+    job.queue()
+    assert job.status() == Status.QUEUED
+
+    # Cannot queue a queued job
+    with pytest.raises(JobStatusException):
+        job.queue()
+    with pytest.raises(JobStatusException):
+        job.complete()
+    assert job.status() == Status.QUEUED
+
     # start job
     job.start()
     assert job.status() == Status.RUNNING
@@ -99,6 +110,8 @@ def test_job_status(make_test_job: Job):
     # Cannot start a started job
     with pytest.raises(JobStatusException):
         job.start()
+    with pytest.raises(JobStatusException):
+        job.queue()
     assert job.status() == Status.RUNNING
 
     # Pause job
@@ -121,6 +134,8 @@ def test_job_status(make_test_job: Job):
     assert job.status() == Status.DONE
 
     # This should not work
+    with pytest.raises(JobStatusException):
+        job.queue()
     with pytest.raises(JobStatusException):
         job.pause()
     with pytest.raises(JobStatusException):
