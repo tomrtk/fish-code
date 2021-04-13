@@ -4,7 +4,6 @@ import os
 
 from flask import Flask, render_template
 
-from ui.model import *
 from ui.projects.projects import construct_projects_bp
 
 

@@ -1,23 +1,37 @@
 <!--
 {% block extra_js %}
-    /* http://localhost:5500/projects/job.project_id/jobs/job.if */
-    btn = $("#btn-toggle-job");
+/*
+ * The reason that this is added to the template this way is that we did
+ * not find a nice way to being able to parse the url when needing
+ * variables that were only available inside the template.
+ */
 
-    if (btn.hasClass("btn-pending")) {
-      btn.bind("click", function () {
-        $.ajax({
-          type: "PUT",
-          url:
-            $SCRIPT_ROOT + "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
-          dataType: "json",
-        }).done(function (data) {
-          btn.removeClass("btn-" + data["old_status"])
-          btn.text(data["new_status"].capitalize())
-          btn.addClass("btn-" + data["new_status"])
-        });
+btn = $("#btn-toggle-job");
+
+if (btn.hasClass("btn-pending")) {
+  btn.bind("click", function () {
+    $.ajax({
+      type: "PUT",
+      url:
+        $SCRIPT_ROOT +
+        "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
+      dataType: "json",
+    })
+      .done(function (data) {
+        btn.removeClass("btn-" + data["old_status"]);
+        btn.text(data["new_status"].capitalize());
+        btn.addClass("btn-" + data["new_status"]);
+      })
+      .fail(function (data, textStatus, xhr) {
+        //This shows status code eg. 403
+        console.log("error", data.status);
+        //This shows status message eg. Forbidden
+        console.log("STATUS: " + xhr);
         return false;
       });
-    }
+    return false;
+  });
+}
 {% endblock %}
 -->
 
