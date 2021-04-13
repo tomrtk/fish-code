@@ -70,8 +70,8 @@
       <li class="inline font-medium">New Job</li>
     </ul>
   </div>
-  {% if post_res %} {% include "projects/partials/file_error_dialog.html" %} {%
-  endif %}
+  {% if file_errors %} {% include "projects/partials/file_error_dialog.html" %}
+  {% endif %}
   <div class="mb-10">
     <form
       method="post"

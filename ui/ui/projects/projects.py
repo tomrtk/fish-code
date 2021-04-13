@@ -102,6 +102,13 @@ def construct_projects_bp(cfg: Config):
         project = client.get_project(project_id)
 
         if request.method == "POST":
+            if len(request.form["tree_data"]) <= 0:
+                return render_template(
+                    "projects/job_new.html",
+                    project_name=project.get_name(),
+                    form_data=request.form,
+                )
+
             hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
             videos = [
                 hardcoded_path + "/" + path[1:-1]
@@ -123,18 +130,14 @@ def construct_projects_bp(cfg: Config):
                 }
             )
 
-            post_res = None
-            if len(request.form["tree_data"]) > 0:
-                post_res = client.post_job(project_id, job)
+            result = client.post_job(project_id, job)
+            logger.warning(result)
 
-            if (
-                isinstance(post_res, dict)
-                or len(request.form["tree_data"]) == 0
-            ):
+            if not isinstance(result, int):
                 return render_template(
                     "projects/job_new.html",
                     project_name=project.get_name(),
-                    post_res=post_res,
+                    file_errors=result,
                     form_data=request.form,
                 )
 
@@ -142,7 +145,7 @@ def construct_projects_bp(cfg: Config):
                 url_for(
                     "projects_bp.projects_job",
                     project_id=project_id,
-                    job_id=int(post_res),  # type: ignore
+                    job_id=result,
                 )
             )
 

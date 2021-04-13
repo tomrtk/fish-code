@@ -190,7 +190,7 @@ def add_job_to_project(
 
         if len(file_not_found) > 0 or len(time_not_found) > 0:
             raise HTTPException(
-                status_code=400,
+                status_code=415,
                 detail=errors,
             )
 

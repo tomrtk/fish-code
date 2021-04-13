@@ -71,7 +71,11 @@ class Client:
 
         @classmethod
         def call(
-            cls, request: Callable = None, *, status_code: int = 200
+            cls,
+            request: Callable = None,
+            *,
+            status_code: int = 200,
+            acceptable_error: int = None,
         ) -> Callable:
             """Handle errors for api call.
 
@@ -79,10 +83,13 @@ class Client:
 
             Parameters
             ----------
-            request     :   Callable
-                            Function calling API.
-            status_code :   int
-                            Success status_code from API.
+            request     :       Callable
+                                Function calling API.
+            status_code :       int
+                                Success status_code from API.
+            acceptable_error :  int
+                                Alternative error code that should
+                                return response.
             """
 
             def decorator_call(request):
@@ -100,13 +107,17 @@ class Client:
                         )
                         return None
 
-                    if not response.status_code == status_code:
+                    if (
+                        not response.status_code == status_code
+                        and acceptable_error is None
+                    ):
                         logger.warning(
                             "Status code: %s, error: %s",
                             response.status_code,
-                            response.json().__dict__,
+                            response.json(),
                         )
                         return None
+
                     return response
 
                 return wrapper_call
@@ -166,7 +177,7 @@ class Client:
         logger.info("post to %s, %s", uri, data)
         return self._session.post(uri, data=data)
 
-    @Api.call(status_code=201)
+    @Api.call(status_code=201, acceptable_error=415)
     def create(self, uri: str, data: Dict[str, Any]) -> requests.Response:
         """Perform a POST request to `uri` with `data` as body of request.
 
@@ -315,10 +326,13 @@ class Client:
             data=json.loads(job.to_json()),
         )
 
-        if isinstance(result, requests.Response):
-            return result.json()["id"]
+        if not isinstance(result, requests.Response):
+            return None
 
-        return None
+        try:
+            return result.json()["id"]
+        except KeyError as e:
+            return result.json()["detail"]
 
     def change_job_status(
         self, project_id: int, job_id: int
