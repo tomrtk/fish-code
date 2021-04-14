@@ -8,9 +8,9 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
-import ffmpeg
+import cv2 as cv
 import numpy as np
 
 import core
@@ -125,6 +125,7 @@ class Video:
         self.output_height: int = output_height
         self.timestamp: datetime = timestamp
         self._current_frame = 0
+        self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -133,9 +134,48 @@ class Video:
                 output_height,
             )
 
+    def _scale_convert(self, img: np.ndarray) -> np.ndarray:
+        """Convert and scale image using OpenCV.
+
+        Converts image from BGR to RGB, and scales down to `self.output_{height,width}`
+
+        Parameter
+        ---------
+        img : np.ndarray
+            image to convert and scale
+
+        Return
+        ------
+        ndarray:
+            Scaled and converted image
+        """
+        new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+
+        new_img = cv.resize(  # type: ignore
+            new_img,
+            (self.output_width, self.output_height),
+            interpolation=cv.INTER_AREA,  # type: ignore
+        )
+        return new_img
+
+    def vidcap_release(self):
+        """Release Video Capture."""
+        self._video_capture.release()
+
     def __iter__(self):
-        """Class iterator."""
-        self._current_frame = 0
+        """Class iterator.
+
+        This never releases the VideoCapture. Not sure if it's kept alive, and
+        if that's the case, this could cause a memory leak. To make sure this
+        gets released, run `self.vidcap_release()`.
+
+        See Also
+        --------
+        Video.vidcap_release()
+
+        """
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        self._video_capture.set(cv.CAP_PROP_POS_MSEC, 0)  # type: ignore
         return self
 
     def __next__(self) -> np.ndarray:
@@ -145,13 +185,13 @@ class Video:
         ------
         np.ndarray
             One frame of video as `ndarray`.
+
         """
-        if self._current_frame < self.frames:
-            result = self.__get__(self._current_frame)
-            self._current_frame += 1
-            return result
-        else:
+        err, img = self._video_capture.read()
+        if not err:
+            self.vidcap_release()
             raise StopIteration
+        return self._scale_convert(img)
 
     def __get__(self, key) -> np.ndarray:
         """Get one frame of video.
@@ -162,6 +202,11 @@ class Video:
         -------
         numpy.ndarray
             One frame of video as `ndarray`.
+
+        Raise
+        -----
+        RuntimeError :
+            if OpenCV fails to either read or set properties.
         """
         if key < 0:
             raise IndexError
@@ -169,25 +214,24 @@ class Video:
         if key >= self.frames:
             raise IndexError
 
-        # ffmpeg filter docs:
-        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
-        frame, _ = (
-            ffmpeg.input(self._path)
-            .filter("select", "eq(n, {})".format(key))
-            .filter(
-                "scale",
-                self.output_width,
-                self.output_height,
-                -1,
-            )
-            .output("pipe:", vframes=1, format="rawvideo", pix_fmt="rgb24")
-            .run(quiet=True)
-        )
-        return np.frombuffer(frame, np.uint8).reshape(
-            [self.output_height, self.output_width, 3]
-        )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, key)  # type: ignore
 
-    def __getitem__(self, interval: slice):
+        if not retval:
+            raise RuntimeError(
+                f"Unexpected error when setting catpure property, {retval}"
+            )
+
+        retval, img = self._video_capture.read()
+
+        if not retval:
+            raise RuntimeError(f"Unexpected error when reading frame at {key}")
+
+        self._video_capture.release()
+
+        return self._scale_convert(img)
+
+    def __getitem__(self, interval: Union[slice, int]):
         """Get a slice of video.
 
         Get a interval of frames from video, `variable[start:stop:step].
@@ -212,6 +256,10 @@ class Video:
         --------
         __get__     :   Used when only start in slice given.
 
+        Raise
+        -----
+        RuntimeError :
+            if OpenCV fails to either read or set properties.
         """
         # If only one key is given
         if isinstance(interval, int):
@@ -244,29 +292,23 @@ class Video:
 
         numbers = stop - interval.start
 
-        # ffmpeg filter docs:
-        # http://ffmpeg.org/ffmpeg-filters.html#select_002c-aselect
-        frame, _ = (
-            ffmpeg.input(self._path)
-            .filter(
-                "select",
-                "between(n,{},{})".format(interval.start, stop),
-            )
-            .filter(
-                "scale",
-                self.output_width,
-                self.output_height,
-                -1,
-            )
-            .output(
-                "pipe:", vframes=numbers, format="rawvideo", pix_fmt="rgb24"
-            )
-            .run(quiet=True)
-        )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, interval.start)  # type: ignore
 
-        return np.frombuffer(frame, np.uint8).reshape(
-            [-1, self.output_height, self.output_width, 3]
-        )
+        if not retval:
+            raise RuntimeError("Unexpected error")
+
+        frames = []
+
+        for _ in range(numbers):
+            retval, img = self._video_capture.read()
+
+            if not retval:
+                raise RuntimeError("Unexpected error")
+            frames.append(self._scale_convert(img))
+
+        self._video_capture.release()
+        return np.array(frames)
 
     def __len__(self) -> int:
         """Get length of video in frames."""
@@ -406,23 +448,47 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
 
 
 def _get_video_metadata(path) -> Tuple[int, ...]:
-    """Get metadata from video using `ffmpeg`."""
-    try:
-        probe = ffmpeg.probe(path)
-        video_info = next(
-            s for s in probe["streams"] if s["codec_type"] == "video"
-        )
-        return (
-            int(video_info["height"]),
-            int(video_info["width"]),
-            int(video_info["r_frame_rate"].split("/")[0]),
-            int(video_info["nb_frames"]),
-        )
-    except ffmpeg.Error as e:
-        logger.error(
-            "Unable to get video metadata from %s. Error: %s", path, e.stderr
-        )
-        raise FileNotFoundError
+    """Get metadata from video using `opencv`.
+
+    Parameter
+    ---------
+    path : str
+        path to file to get metadata from.
+
+    Return
+    ------
+    Typle[int, int, int, int] :
+        A tuple with the metadata:
+        (height, width, FPS, frame_count)
+
+    Raises
+    ------
+    FileNotFoundError:
+        If the file can't be opened it will throw FileNotFoundError
+    RuntimeError:
+        If there are problems getting any metadata.
+    """
+    video = cv.VideoCapture(path)  # type: ignore
+
+    if not video.isOpened():
+        raise FileNotFoundError(f"Could not open {path}")
+
+    metadata = (
+        int(video.get(cv.CAP_PROP_FRAME_HEIGHT)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FRAME_WIDTH)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FPS)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FRAME_COUNT)),  # type: ignore
+    )
+
+    video.release()
+
+    # Frame count becomes "-9223372036854775808" when testing with png. Opencv
+    # should return 0 if it fails, but apparently not in this case...
+    for meta in metadata:
+        if meta < 1:
+            raise RuntimeError(f"Could not get metadata for file {path}")
+
+    return metadata
 
 
 @dataclass
