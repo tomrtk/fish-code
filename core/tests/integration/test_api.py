@@ -489,7 +489,7 @@ def test_add_and_get_job_with_videos():
             },
         )
 
-        assert response_job.status_code == 400
+        assert response_job.status_code == 415
 
         # Test adding job with not a valid timestamp to video
         response_job = client.post(
@@ -502,4 +502,4 @@ def test_add_and_get_job_with_videos():
             },
         )
 
-        assert response_job.status_code == 400
+        assert response_job.status_code == 415

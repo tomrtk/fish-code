@@ -4,7 +4,6 @@ import os
 
 from flask import Flask, render_template
 
-from ui.model import *
 from ui.projects.projects import construct_projects_bp
 
 
@@ -32,23 +31,6 @@ def create_app(test_config=None):  # type: ignore
     @app.route("/")
     def index():  # type: ignore
         return render_template("index.html", msg="Gjoevik")
-
-    @app.route("/report")
-    def report_page():  # type: ignore
-        detections = [
-            Detection(
-                **{
-                    "id": i,
-                    "report_type": f"Type{i}",
-                    "start": "Now",
-                    "stop": "Later",
-                    "video_path": "C:\\",
-                }
-            )
-            for i in range(1, 100)
-        ]
-
-        return render_template("report/result.html", detections=detections)
 
     @app.route("/image")
     def image():  # type: ignore

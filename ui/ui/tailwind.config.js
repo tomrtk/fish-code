@@ -1,9 +1,14 @@
+const colors = require("tailwindcss/colors");
+
 module.exports = {
-  purge: [],
-  darkMode: false,
+  mode: "jit",
+  purge: {
+    content: ["./templates/**/*.html", "./projects/templates/**/*.html"],
+  },
   theme: {
     extend: {
       colors: {
+        greeny: colors.green,
         "nina-orange": "#E69D4E",
         "nina-teal": "#82C3C9",
       },
@@ -11,8 +16,8 @@ module.exports = {
   },
   variants: {
     extend: {
-      borderWidth: ["hover"],
-      display: ["group-hover"],
+      backgroundColor: ["active"],
+      opacity: ["disabled"],
     },
   },
   plugins: [require("@tailwindcss/forms")],

@@ -1,21 +1,37 @@
 <!--
 {% block extra_js %}
-    /* http://localhost:5500/projects/job.project_id/jobs/job.if */
-    btn = $("#btn-toggle-job");
+/*
+ * The reason that this is added to the template this way is that we did
+ * not find a nice way to being able to parse the url when needing
+ * variables that were only available inside the template.
+ */
 
-    btn.bind("click", function () {
-      $.ajax({
-        type: "PUT",
-        url:
-          "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
-        dataType: "json",
-      }).done(function (data) {
-        btn.removeClass("btn-" + data["old_status"])
-        btn.text(data["new_status"].capitalize())
-        btn.addClass("btn-" + data["new_status"])
+btn = $("#btn-toggle-job");
+
+if (btn.hasClass("btn-pending")) {
+  btn.bind("click", function () {
+    $.ajax({
+      type: "PUT",
+      url:
+        $SCRIPT_ROOT +
+        "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
+      dataType: "json",
+    })
+      .done(function (data) {
+        btn.removeClass("btn-" + data["old_status"]);
+        btn.text(data["new_status"].capitalize());
+        btn.addClass("btn-" + data["new_status"]);
+      })
+      .fail(function (data, textStatus, xhr) {
+        //This shows status code eg. 403
+        console.log("error", data.status);
+        //This shows status message eg. Forbidden
+        console.log("STATUS: " + xhr);
+        return false;
       });
-      return false;
-    });
+    return false;
+  });
+}
 {% endblock %}
 -->
 
@@ -90,117 +106,192 @@
       <li class="inline">{{ job.name }}</li>
     </ul>
   </div>
-  <div class="flex-none text-center relative">
-    <h3 class="py-1 mb-3 text-2xl">
-      {{ job.name }}<span class="absolute right-2 text-lg text-gray-500 italic"
-        >#303030</span
+  <div
+    class="flex flex-col w-full max-w-2xl mx-auto justify-center items-center mb-8"
+  >
+    <h3 class="block py-1 mb-3 text-2xl">{{ job.name }}</h3>
+    <p class="block w-full text-left mb-4 pb-2 text-gray-800">
+      {{ job.description }}
+    </p>
+    <div class="flex flex-row w-full mb-8 pb-2 border-b-2">
+      <div class="flex flex-row items-center text-gray-800 italic">
+        <svg
+          class="inline w-4 h-4 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+          ></path>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+          ></path></svg
+        >{{ job.location }}
+      </div>
+    </div>
+    <div class="mb-8 w-full max-w-lg flex flex-col items-center">
+      <h4 class="block text-xl text-center mb-2">Statistics</h4>
+      {% if job._status == "Done" %}
+      <div class="flex flex-row w-full max-w-md">
+        <div class="w-1/2">
+          <h5 class="block text-center font-semibold mb-2">Total</h5>
+          <ul class="border-r border-gray-100 table pr-4">
+            <li class="table-row">
+              <span class="table-cell w-full">Objects</span
+              ><span class="table-cell text-right"
+                >{{ job._objects|length }}</span
+              >
+            </li>
+            <li class="table-row">
+              <span class="table-cell w-full">Species</span
+              ><span class="table-cell text-right">{{ obj_stats|length }}</span>
+            </li>
+          </ul>
+        </div>
+        <div class="w-1/2">
+          <h5 class="block text-center font-semibold mb-2">Counter</h5>
+          <ul class="pl-8 border-l border-gray-100 table pr-4">
+            {% for label, count in obj_stats.items()|sort %}
+            <li class="table-row">
+              <span class="table-cell w-full">{{ label }}</span
+              ><span class="table-cell text-right">{{ count }}</span>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% else %}
+      <span class="inline-block m-4 text-gray-700 italic"
+        >Not enough information gathered to display statistics.</span
       >
-    </h3>
-  </div>
-  <div>
-    <div class="mx-auto w-3/5 text-left mb-8">
-      <p class="mb-4 pb-2 border-b-2">{{ job.description }}</p>
-      <div class="flex flex-row mb-4 pb-2 border-b-2">
-        <div class="w-1/2">
-          <div class="flex flex-row">
-            <span class="inline-block w-16">ID</span>{{ job.id }}
-          </div>
-          <div class="">
-            <span class="inline-block w-16">Location</span>Mjøsa, Glomma, Lågen,
-            ...
-          </div>
-          <div>
-            <span class="inline-block w-16">Date</span
-            ><time datetime="2018-07-07">July 7</time>
-          </div>
-        </div>
-        <div class="w-1/2">
-          <div><span class="inline-block w-16">Video</span>100</div>
-          <div class="flex flex-row items-center">
-            <span class="inline-block w-16">Status</span>
-            <span class="text-green-600"> {{ job._status }} </span>
-          </div>
-          <!-- <div><span>Klasser</span>Mort, Abbor, Vedebuk</div> -->
-        </div>
-      </div>
-      <div class="mb-8">
-        <h4 class="text-lg">Total counts:</h4>
-        <ul class="ml-8">
-          <li class="inline">Salmon: 5,</li>
-          <li class="inline">Trout: 2,</li>
-          <li class="inline">Pike: 3,</li>
-          <li class="inline">Tuna: 5</li>
-        </ul>
-      </div>
-      <div class="flex flex-row justify-between">
+      {% endif %}
+    </div>
+    <div class="flex flex-row justify-between">
+      <div class="flex flex-row items-center">
+        <span class="font-bold mr-4">Status: </span>
+
         <div class="flex flex-row items-center">
-          <span class="mr-2">Status:</span
-          ><button
-            class="btn btn-{{ job._status|lower }} flex flex-row items-center"
+          <button
+            class="btn btn-{{ job._status|lower }} flex flex-row
+            items-center"
             type="submit"
             id="btn-toggle-job"
           >
-            {{ job._status }}
+            {{ job._status|replace("Pending","Start Job") }}
           </button>
         </div>
-        <a
-          class="btn btn-submit"
-          href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
-        >
-          Export to CSV
-        </a>
       </div>
     </div>
   </div>
-  <div class="flex-none text-center mb-2 tabbed">
+  <div class="flex-none text-center mb-2 tabbed relative">
+    <a
+      class="btn btn-submit absolute -top-2 right-4"
+      href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
+    >
+      Export to CSV
+    </a>
     <input name="tabbed" id="tabbed1" type="radio" checked />
     <section>
-      <h3 class="py-1 mb-3 text-2xl"><label for="tabbed1">Objects</label></h3>
+      <h3 class="py-1 mb-3 text-2xl">
+        <label for="tabbed1"
+          ><svg
+            class="inline w-6 h-6 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            ></path>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+            ></path>
+          </svg>
+          Objects ({{ job._objects|length }})</label
+        >
+      </h3>
       <div class="border-2">
-        <table class="bg-gray-100 table-auto w-full">
-          <thead class="bg-gray-200 border-b">
-            <tr class="text-lg">
-              <td class="w-16 px-2">No.</td>
-              <td class="px-2">Type</td>
-              <td class="px-2">Start</td>
-              <td class="px-2">Stop</td>
-              <td class="px-2">Video</td>
+        {% if job._objects|length > 0 %}
+        <table class="table-auto w-full border">
+          <thead class="bg-gray-100 border-b">
+            <tr class="font-bold">
+              <td class="p-2 w-28">Label</td>
+              <td class="p-2">Time in</td>
+              <td class="p-2">Time Out</td>
+              <td class="p-2 w-28">Probability</td>
+              <td class="p-2">Video ID</td>
             </tr>
           </thead>
           <tbody class="">
-            {% for detection in detections %}
-            <tr class="space-y-1">
-              <td class="px-2">{{ detection.id }}</td>
-              <td class="px-2">{{ detection.report_type }}</td>
-              <td class="px-2">{{ detection.start }}</td>
-              <td class="px-2">{{ detection.stop }}</td>
-              <td class="px-2">{{ detection.video_path }}</td>
+            {% for object in job._objects %}
+            <tr class="border-b h-8">
+              <td class="px-2 border-r">{{ object.label }}</td>
+              <td class="px-2 border-r">{{ object.time_in }}</td>
+              <td class="px-2 border-r">{{ object.time_out }}</td>
+              <td class="text-right px-2 border-r">
+                {{ object.probability|round(precision=3) }}
+              </td>
+              <td class="text-right px-2">{{ object.track_id }}</td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
+        {% else %}<span class="py-6 font-bold inline-block">...</span>{% endif
+        %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />
     <section class="flex-none text-center mb-2">
-      <h3 class="py-1 mb-3 text-2xl"><label for="tabbed2">Videos</label></h3>
+      <h3 class="py-1 mb-3 text-2xl">
+        <label for="tabbed2"
+          ><svg
+            class="inline w-6 h-6 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+            ></path></svg
+          >Videos ({{ job.videos|length }})</label
+        >
+      </h3>
       <div class="border-2">
-        <table class="bg-gray-100 table-auto w-full">
-          <thead class="bg-gray-200 border-b">
+        <table class="table-auto w-full border">
+          <thead class="bg-gray-100 border-b">
             <tr class="text-lg">
-              <td class="w-16 px-2">No.</td>
-              <td class="px-2">Lokasjon</td>
-              <td class="px-2">Status</td>
-              <td class="px-2">Filsti</td>
+              <td class="px-2 border-r">ID</td>
+              <td class="w-16 px-2">Path</td>
+              <td class="px-2">Frames</td>
+              <td class="px-2">Timestamp</td>
             </tr>
           </thead>
           <tbody class="">
-            {% for video in videos %}
-            <tr class="space-y-1">
-              <td class="px-2">{{ video.id }}</td>
-              <td class="px-2">{{ video.location }}</td>
-              <td class="px-2">{{ video.status }}</td>
-              <td class="px-2">{{ video.video_path }}</td>
+            {% for video in job.videos %}
+            <tr class="h-8 border-b">
+              <td class="text-right px-2 border-r">{{ video.id }}</td>
+              <td class="px-2 border-r">{{ video._path }}</td>
+              <td class="px-2 border-r">{{ video.frames }}</td>
+              <td class="px-2 border-r">{{ video.timestamp }}</td>
             </tr>
             {% endfor %}
           </tbody>

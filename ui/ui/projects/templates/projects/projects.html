@@ -51,9 +51,11 @@
   </nav>
   <div>
     {% if projects|count > 0 %}
-    <ul class="flex md:flex-wrap flex-col md:flex-row">
+    <ul class="grid md:grid-cols-2 gap-4">
       {% for project in projects %}
-      <li class="md:w-1/2 p-2">
+      <li
+        class="flex flex-col border border-gray-200 p-4 rounded-md shadow-md bg-gray-100"
+      >
         {% include "projects/partials/project_box.html" %}
       </li>
       {% endfor %}
