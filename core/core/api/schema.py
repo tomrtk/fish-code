@@ -1,10 +1,11 @@
 """Pydantic shema of object recived and sent on API."""
 from datetime import datetime
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from pydantic import BaseModel, validator
 
 from core import model
+from core.model import Detection
 
 
 def get_label(label_id: int) -> str:
@@ -44,6 +45,7 @@ class Object(BaseModel):
 
     label: str
     probability: float
+    detections: Dict[str, List[float]]
     track_id: int
     time_in: datetime
     time_out: datetime
@@ -53,9 +55,21 @@ class Object(BaseModel):
         """Convert object label from id to str."""
         return get_label(label_id)
 
+    @validator("detections", pre=True)
+    def convert_detection(cls, _detections: List[Detection]):
+        """Convert detections to Dict."""
+        detections = dict()
+        for d in _detections:
+            if get_label(d.label) not in detections:
+                detections[get_label(d.label)] = list()
+
+            detections[get_label(d.label)].append(d.probability)
+        return detections
+
     class Config:
         """Pydantic configuration options."""
 
+        fields = {"detections": "_detections"}
         orm_mode = True
 
 
