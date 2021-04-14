@@ -54,6 +54,9 @@ class VideoLoader:
         if len(batch) > 0:
             yield np.array(batch), timestamps
 
+        for video in self.videos:
+            video.vidcap_release()
+
 
 def process_job(project_id: int, job_id: int, session: Session):
     """Process all videos in a job and find objects.
