@@ -28,16 +28,46 @@ class VideoLoader:
         self.batchsize = batchsize
 
     def __len__(self) -> int:
-        """Get total sum of frames in all video files."""
+        """Get total sum of frames in all video files.
+
+        Return
+        ------
+        int     :
+            Number of frames in total over all videos.
+        """
         return self.frames
 
     @property
     def _total_batches(self) -> int:
-        """Get total batches in this video loader."""
+        """Get total batches in this video loader.
+
+        Return
+        ------
+        int     :
+            Number of batches in total over all videos.
+        """
         return math.ceil(self.frames / self.batchsize)
 
     def _video_for_frame(self, frame: int) -> Tuple[int, int]:
-        """Find the video belonging to an absolute frame number, along with start position."""
+        """Find the video belonging to an absolute frame number, along with start position.
+
+        Parameter
+        ---------
+        frame   :   int
+            Absolute frame number over all videos in this video loader.
+
+        Return
+        ------
+        (int, int)  :
+            Tuple of index of video, along with local frame offset in indexed video.
+
+        Raises
+        ------
+        IndexError
+            When wanted frame is outside of total number of frames in a videoloader.
+        IndexError
+            If calculated start_frame is larger than the current video's total frame count.
+        """
         curframe = 0
         logger.info(f"Finding video for frame {frame}")
         for vid in self.videos:
@@ -47,7 +77,23 @@ class VideoLoader:
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
     def generate_batches(self, start_batch: int = 0):
-        """Generate batches from list of videos, with optional batch offset."""
+        """Generate batches from list of videos, with optional batch offset.
+
+        Parameter
+        ---------
+        start_batch :   int
+            Batch number to start from.
+
+        Yields
+        ------
+        batchnr, (batch, timestamps)    :   int, (np.ndarray, list)
+            Yields batch along with absolute batch number and associated timestamps.
+
+        Raises
+        ------
+        IndexError
+            If start_batch parameter is larger than total batches in this VideoLoader
+        """
         if start_batch > self._total_batches:
             raise IndexError(
                 f"Start batch index {start_batch} is too big, total videos are {len(self.videos)}."
@@ -94,6 +140,8 @@ def process_job(project_id: int, job_id: int, session: Session):
         Project id of the porject to start processing.
     job_id      :   int
         Job id of the job to start processing.
+    session     :   sqlalchemy.session
+        SQLAlchemy session for this process.
     """
     repo = ProjectRepository(session)
     project = repo.get(project_id)
