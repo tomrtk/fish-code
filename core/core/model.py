@@ -11,7 +11,6 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import cv2 as cv
-import ffmpeg
 import numpy as np
 
 import core
@@ -449,23 +448,47 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
 
 
 def _get_video_metadata(path) -> Tuple[int, ...]:
-    """Get metadata from video using `ffmpeg`."""
-    try:
-        probe = ffmpeg.probe(path)
-        video_info = next(
-            s for s in probe["streams"] if s["codec_type"] == "video"
-        )
-        return (
-            int(video_info["height"]),
-            int(video_info["width"]),
-            int(video_info["r_frame_rate"].split("/")[0]),
-            int(video_info["nb_frames"]),
-        )
-    except ffmpeg.Error as e:
-        logger.error(
-            "Unable to get video metadata from %s. Error: %s", path, e.stderr
-        )
-        raise FileNotFoundError
+    """Get metadata from video using `opencv`.
+
+    Parameter
+    ---------
+    path : str
+        path to file to get metadata from.
+
+    Return
+    ------
+    Typle[int, int, int, int] :
+        A tuple with the metadata:
+        (height, width, FPS, frame_count)
+
+    Raises
+    ------
+    FileNotFoundError:
+        If the file can't be opened it will throw FileNotFoundError
+    RuntimeError:
+        If there are problems getting any metadata.
+    """
+    video = cv.VideoCapture(path)  # type: ignore
+
+    if not video.isOpened():
+        raise FileNotFoundError(f"Could not open {path}")
+
+    metadata = (
+        int(video.get(cv.CAP_PROP_FRAME_HEIGHT)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FRAME_WIDTH)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FPS)),  # type: ignore
+        int(video.get(cv.CAP_PROP_FRAME_COUNT)),  # type: ignore
+    )
+
+    video.release()
+
+    # Frame count becomes "-9223372036854775808" when testing with png. Opencv
+    # should return 0 if it fails, but apparently not in this case...
+    for meta in metadata:
+        if meta < 1:
+            raise RuntimeError(f"Could not get metadata for file {path}")
+
+    return metadata
 
 
 @dataclass

@@ -171,6 +171,9 @@ def test_get_metadata_exception():
     with pytest.raises(FileNotFoundError):
         _ = _get_video_metadata("./tests/not_here.mp4")
 
+    with pytest.raises(RuntimeError):
+        _ = _get_video_metadata("./tests/unit/abbor.png")
+
 
 def test_release():
     """Test that check idempotency of `vidcap_release()`."""
