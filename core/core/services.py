@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from core import api
 from core.interface import Detector, to_track
-from core.model import JobStatusException, Video
+from core.model import JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ class VideoLoader:
             curframe += vid.frames
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
-    def generate_batches(self, start_batch=0):
+    def generate_batches(self, start_batch: int = 0):
         """Generate batches from list of videos, with optional batch offset."""
         if start_batch > self._total_batches:
             raise IndexError(
@@ -77,13 +77,12 @@ class VideoLoader:
                     current_batch += 1
                     batch = []
                     timestamps = []
+
             start_frame = 0
+            vid.vidcap_release()
 
         if len(batch) > 0:
-            yield batch
-
-        for video in self.videos:
-            video.vidcap_release()
+            yield current_batch, (np.array(batch), timestamps)
 
 
 def process_job(project_id: int, job_id: int, session: Session):
@@ -110,14 +109,16 @@ def process_job(project_id: int, job_id: int, session: Session):
         return
 
     # TODO: Send status of job back to the API
-    try:
+    if job.status() == Status.QUEUED:
         job.start()
-    except JobStatusException:
+        repo.save()
+    elif job.status() == Status.RUNNING:
+        logger.warning("Job is already marked started, resuming.")
+    else:
         logger.error(
-            "Cannot start job %s, it's already running or completed.", job_id
+            "Job must either be of status queued or running to start processing."
         )
         return
-    repo.save()
 
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
@@ -127,11 +128,18 @@ def process_job(project_id: int, job_id: int, session: Session):
     video_loader = VideoLoader(job.videos, batchsize=batchsize)
     det = Detector()
 
+    if job.next_batch >= video_loader._total_batches:
+        logger.warning("Job has already processed all batches in video loader.")
+        job.complete()
+        repo.save()
+        return
+
     all_frames = []
     for batchnr, (batch, timestamp) in video_loader.generate_batches(
-        start_batch=2
+        start_batch=job.next_batch
     ):
         assert isinstance(batch, np.ndarray), "Batch must be of type np.ndarray"
+        assert isinstance(batchnr, int), "Batch number must be int"
 
         logger.info(f"Now detecting batch {batchnr}...")
         frames = det.predict(batch, "fishy")
@@ -153,6 +161,9 @@ def process_job(project_id: int, job_id: int, session: Session):
 
         # store detections
         # TODO
+
+        job.next_batch = batchnr + 1
+        repo.save()
 
     objects = to_track(all_frames)
 
@@ -277,7 +288,8 @@ def queue_job(project_id: int, job_id: int, session: Session):
 
     # TODO: Send status of job back to the API
     try:
-        job.queue()
+        if job.status() != Status.RUNNING:
+            job.queue()
     except JobStatusException:
         logger.error(
             "Cannot queue job %s, it's already pending or completed.", job_id

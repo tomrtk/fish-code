@@ -105,6 +105,7 @@ class Job(JobBase):
     location: str
     objects: List[Object] = []
     videos: List[Video] = []
+    next_batch: int
 
     def __hash__(self) -> int:
         """Hash status data in job."""

@@ -779,6 +779,7 @@ class Job:
         self._objects: List[Object] = list()
         self.videos: List[Video] = list()
         self.location: str = location
+        self.next_batch = 0
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
