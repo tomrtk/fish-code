@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ui"
-version = "0.2.0"
+version = "0.3.0"
 description = """
 Application to detect fish and generate a report viewable
 inside an iterface before being exported as raw data.
@@ -16,10 +16,8 @@ license = "GPL"
 [tool.poetry.dependencies]
 python = "^3.7"
 Flask = "^1.1.2"
-flash = "^1.0.3"
 requests = "^2.25.1"
 waitress = "^2.0.0"
-livereload = "^2.6.3"
 
 [tool.poetry.dev-dependencies]
 black = "^20.8b1"

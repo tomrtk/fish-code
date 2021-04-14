@@ -91,7 +91,7 @@ typings/
 # Nuxt.js build / generate output
 .nuxt
 dist
-!ui/app/static/dist
+!ui/ui/static/dist
 
 # Gatsby files
 .cache/
@@ -259,3 +259,5 @@ poetry.lock
 # Ignore database files in core
 core/data.db
 core/test.db
+data.db
+test.db
