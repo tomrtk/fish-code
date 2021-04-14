@@ -170,3 +170,39 @@ def test_get_metadata_exception():
     """Test exception of get metadata function."""
     with pytest.raises(FileNotFoundError):
         _ = _get_video_metadata("./tests/not_here.mp4")
+
+
+def test_release():
+    """Test that check idempotency of `vidcap_release()`."""
+    vid = Video.from_path(
+        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+    )
+
+    try:
+
+        vid.vidcap_release()
+
+        _ = vid[1]
+
+        vid.vidcap_release()
+    except:
+        assert False
+    else:
+        assert True
+
+
+def test_color_channels():
+    """Test that color channels are ordered as RGB."""
+    vid = Video.from_path(
+        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+    )
+
+    b = vid[1]  # blue
+    g = vid[10]  # green
+    r = vid[30]  # red
+
+    check = np.full((b.shape[0], b.shape[1]), 254)
+
+    assert np.allclose(r[:, :, 0], check, atol=5)
+    assert np.allclose(g[:, :, 1], check, atol=5)
+    assert np.allclose(b[:, :, 2], check, atol=5)
