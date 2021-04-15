@@ -243,8 +243,10 @@ if (btn.hasClass("btn-pending")) {
               <td class="px-2 border-r">{{ object.label }}</td>
               <td class="px-2 border-r">{{ object.time_in }}</td>
               <td class="px-2 border-r">{{ object.time_out }}</td>
-              <td class="text-right px-2 border-r">
-                {{ object.probability|round(precision=3) }}
+              <td
+                class="{% if object.probability < 0.5 %}text-red-600{% endif %} text-right px-2 border-r"
+              >
+                {{ "%.5f" | format(object.probability) }}
               </td>
               <td class="text-right px-2">{{ object.track_id }}</td>
             </tr>
