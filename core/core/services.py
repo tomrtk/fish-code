@@ -131,7 +131,9 @@ class VideoLoader:
             yield current_batch, (np.array(batch), timestamps)
 
 
-def process_job(project_id: int, job_id: int, session: Session):
+def process_job(
+    project_id: int, job_id: int, event: threading.Event, session: Session
+):
     """Process all videos in a job and find objects.
 
     Parameters
@@ -156,15 +158,24 @@ def process_job(project_id: int, job_id: int, session: Session):
         logger.warning(f"Could not get job {job_id} in project {project_id}.")
         return
 
-    # TODO: Send status of job back to the API
-    if job.status() == Status.QUEUED:
-        job.start()
-        repo.save()
-    elif job.status() == Status.RUNNING:
-        logger.warning("Job is already marked started, resuming.")
+    # Update job status
+    if event.is_set():
+        if job.status() is Status.QUEUED:
+            job.start()
+            repo.save()
+        elif job.status() is Status.PAUSED:
+            job.start()
+            repo.save()
+        elif job.status() is Status.RUNNING:
+            logger.warning("Job is already marked started, resuming.")
+        else:
+            logger.error(
+                "Job must either be of status queued, paused or running to start processing."
+            )
+            return
     else:
-        logger.error(
-            "Job must either be of status queued or running to start processing."
+        logger.info(
+            "Job processing aborted, not updating job status to running."
         )
         return
 
@@ -173,56 +184,95 @@ def process_job(project_id: int, job_id: int, session: Session):
 
     batchsize: int = 50
 
+    all_frames = []
     video_loader = VideoLoader(job.videos, batchsize=batchsize)
     det = Detector()
 
+    # Check if job has already processed all batches
     if job.next_batch >= video_loader._total_batches:
         logger.warning("Job has already processed all batches in video loader.")
         job.complete()
         repo.save()
         return
+    else:
+        # TODO: Should get all previously detected Frames/Detections from repo
+        pass
 
-    all_frames = []
-    for batchnr, (batch, timestamp) in video_loader.generate_batches(
-        start_batch=job.next_batch
-    ):
-        assert isinstance(batch, np.ndarray), "Batch must be of type np.ndarray"
-        assert isinstance(batchnr, int), "Batch number must be int"
+    # Detecting
+    if event.is_set():
 
-        logger.info(f"Now detecting batch {batchnr}...")
-        frames = det.predict(batch, "fishy")
-        logger.info(f"Finished detecting batch {batchnr}.")
+        if job.next_batch > 0:
+            logger.info(f"Job reusming from batch {job.next_batch}")
 
-        # Iterate over all frames to set timestamps
-        for n, frame in enumerate(frames):
-            abs_frame_nr = batchnr * batchsize + n
+        # Generate batches of frames for remaining batches
+        for batchnr, (batch, timestamp) in video_loader.generate_batches(
+            start_batch=job.next_batch
+        ):
+            if event.is_set():
+                assert isinstance(
+                    batch, np.ndarray
+                ), "Batch must be of type np.ndarray"
+                assert isinstance(batchnr, int), "Batch number must be int"
 
-            frame.timestamp = timestamp[n]
+                try:
 
-            # Adds the absolute frame number to the frame before tracking.
-            # This help popuplate the timestamp for objects.
-            frame.detections = [
-                dets.set_frame(abs_frame_nr) for dets in frame.detections
-            ]
-            frame.idx = abs_frame_nr
-            all_frames.append(frame)
+                    logger.debug(f"Now detecting batch {batchnr}...")
+                    frames = det.predict(batch, "fishy")
+                    logger.debug(f"Finished detecting batch {batchnr}.")
 
-        # store detections
-        # TODO
+                    # Iterate over all frames to set timestamps
+                    for n, frame in enumerate(frames):
+                        abs_frame_nr = batchnr * batchsize + n
 
-        job.next_batch = batchnr + 1
+                        frame.timestamp = timestamp[n]
+
+                        # Adds the absolute frame number to the frame before tracking.
+                        # This help popuplate the timestamp for objects.
+                        frame.detections = [
+                            dets.set_frame(abs_frame_nr)
+                            for dets in frame.detections
+                        ]
+                        frame.idx = abs_frame_nr
+                        all_frames.append(frame)
+
+                    # store detections
+                    # TODO
+
+                    # Should only increment next_batch if storing of detections was successful
+                    job.next_batch = batchnr + 1
+                    repo.save()
+
+                except KeyboardInterrupt:
+                    logger.warning(
+                        f"Job processing interrupted under processing of batch {batchnr}, stopping."
+                    )
+                    event.clear()
+
+                if not event.is_set():
+                    break
+    # Tracing
+    if event.is_set():
+        try:
+            objects = to_track(all_frames)
+
+            for obj in objects:
+                job.add_object(obj)
+
+            repo.save()
+        except KeyboardInterrupt:
+            logger.warning(f"Job tracing aborted for job {job_id}.")
+            event.clear()
+
+    # Update job status
+    if not event.is_set():
+        logger.info(f"Pausing processing of job {job_id}.")
+        job.pause()
         repo.save()
-
-    objects = to_track(all_frames)
-
-    for obj in objects:
-        job.add_object(obj)
-
-    job.complete()
-
-    repo.save()
-
-    return job
+        return
+    else:
+        logger.info(f"Job {job_id} completed")
+        job.complete()
+        repo.save()
 
 
 class SchedulerThread(threading.Thread):
@@ -264,7 +314,7 @@ def schedule(event: threading.Event):
         if isinstance(next_task, tuple):
             session = api.sessionfactory()
 
-            process_job(next_task[0], next_task[1], session=session)
+            process_job(next_task[0], next_task[1], event, session=session)
 
         job_queue.task_done()
     logger.info(f"Scheduler ending.")
@@ -334,16 +384,30 @@ def queue_job(project_id: int, job_id: int, session: Session):
         logger.warning(f"Could not get job {job_id} in project {project_id}.")
         return
 
-    # TODO: Send status of job back to the API
     try:
-        if job.status() != Status.RUNNING:
+        if job.status() is Status.PENDING:
             job.queue()
+            repo.save()
+            logger.info(
+                f"Pending job {job_id} in project {project_id} scheduled to be processed."
+            )
+            job_queue.put((project_id, job_id))
+            return
+        elif job.status() is Status.RUNNING:
+            logger.info(
+                f"Running job {job_id} in project {project_id} scheduled to restart."
+            )
+            job_queue.put((project_id, job_id))
+            return
+        elif job.status() is Status.PAUSED:
+            logger.info(
+                f"Paused job {job_id} in project {project_id} scheduled to resume."
+            )
+            job_queue.put((project_id, job_id))
+            return
+        else:
+            raise JobStatusException
     except JobStatusException:
         logger.error(
-            "Cannot queue job %s, it's already pending or completed.", job_id
+            f"Cannot queue job {job_id}, it's of status {job.status()}."
         )
-        return
-    repo.save()
-
-    logger.info(f"Job {job_id} in project {project_id} scheduled to run.")
-    job_queue.put((project_id, job_id))
