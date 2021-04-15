@@ -143,7 +143,7 @@ async def predict(
                 detail=f"Internal Server Error in inference, {e}",
             )
         else:
-            xyxy = [result.xyxy for result in results]
+            xyxy = [result.xyxy[0] for result in results]
 
     # Convert results to schema object
     response: Dict[int, List[schema.Detection]] = dict()
