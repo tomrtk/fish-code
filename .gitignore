@@ -103,3 +103,8 @@ core/data.db
 core/test.db
 data.db
 test.db
+
+# Emacs files
+.config_emacs.el
+.dir-locals.el
+.projectile
