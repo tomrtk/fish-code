@@ -3,7 +3,7 @@
 import logging
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Callable, Dict, List, Union
 
 import numpy as np
 import torch
@@ -78,8 +78,7 @@ async def predict(
     """Perform predictions on List of images on named model_name.
 
     Note: If a `RuntimeError` is encountered due to e.g. `CUDA out of memory`
-    it falls back to trying to run inference on one image at the time
-    instead of on the list of images.
+    it falls back to trying halve the batch untill it fits in memory.
 
     Parameters
     ----------
@@ -102,9 +101,13 @@ async def predict(
     HTTPException
         status_code 500 if a RuntimeError is encountered during inference eg.
         due to `CUDA out of memory`.
-    """
-    IMG_SIZE = 1280
 
+    See Also
+    --------
+    `detect(
+        imgs: List[np.ndarray], model: Callable
+    ) -> Dict[int, List[schema.Detection]]`
+    """
     # Check if model is known
     if model_name not in model:
         logger.error(f"{model_name} is a unknown `model_name`")
@@ -121,6 +124,9 @@ async def predict(
         logger.error("Could not convert to images", e)
         raise HTTPException(status_code=422, detail="Unable to process images")
 
+    return detect(imgs, model[model_name])  # type: ignore
+
+
 def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
     """Halve a list of batches.
 
@@ -135,6 +141,7 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
     ------
     List[List[np.ndarray]]  :
                             A list of halved batches.
+
     Example
     -------
     >>> batch = [np.ones(10) for _ in range(10)]
@@ -153,8 +160,8 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
     >>> len(batches[0])
     2
 
-    """
 
+    """
     new_batches: List[List[np.ndarray]] = list()
     for b in batches:
         halve = len(b) // 2
@@ -163,29 +170,72 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
         new_batches.append(b[halve::])
 
     return new_batches
+
+
+def detect(
+    imgs: List[np.ndarray],
+    model: Callable[[List[np.ndarray], int], Dict[int, List[schema.Detection]]],
+) -> Dict[int, List[schema.Detection]]:
+    """Detect in images.
+
+    Paramters
+    ---------
+    imgs    : List[np.ndarray]
+            List of images to detect def in
+    model   : Callable
+            Trained model
+
+    Returns
+    -------
+    Dict[int, List[schema.Detections]]
+        Return a `dict` where key is `image` number and value a `list` of all
+        detections.
+
+
+    Raises
+    ------
+    HTTPException
+        status_code 500 if a RuntimeError is encountered during inference eg.
+        due to `CUDA out of memory`.
+
+    See Also
+    --------
+    `halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]`
+    """
+    IMG_SIZE = 1280
+
     # Try infer from imgs received
     out_of_memory = False
     xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
 
     try:
-        results = model[model_name](imgs, size=IMG_SIZE)  # type: ignore
+        results = model(imgs, size=IMG_SIZE)  # type: ignore
     except RuntimeError as e:  # out of memory
         logger.warning("Inference error: %s", e)
         out_of_memory = True
     else:
-        xyxy = results.xyxy
+        xyxy = results.xyxy  # type: ignore
 
-    if out_of_memory:  # try infer with one image at the time.
+    batches: List[List[np.ndarray]] = list()
+    if out_of_memory:
+        batches = [imgs]
+
+    while out_of_memory:  # frames in batch cannot fit into memory, must be split up
+        batches = halve_batch(batches)
+        logger.warning(f"Attempting to halve batch to {len(batches[-1])}")
         try:
-            results = [model[model_name](img, size=IMG_SIZE) for img in imgs]  # type: ignore
+            results = [model(batch, size=IMG_SIZE) for batch in batches]  # type: ignore
         except RuntimeError as e:
-            logger.error("Inference error: %s", e)
-            raise HTTPException(
-                status_code=500,
-                detail=f"Internal Server Error in inference, {e}",
-            )
+            if len(batches[0]) < 2:
+                logger.error("Inference error: %s", e)
+                raise HTTPException(
+                    status_code=500,
+                    detail=f"Internal Server Error in inference, {e}",
+                )
         else:
-            xyxy = [result.xyxy[0] for result in results]
+            out_of_memory = False
+            logger.warning(f"Please reduce batchsize to {len(batches[-1])}")
+            xyxy = [result.xyxy[0] for result in results]  # type: ignore
 
     # Convert results to schema object
     response: Dict[int, List[schema.Detection]] = dict()
@@ -207,5 +257,4 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
         # if no detection in frame i add a empty list
         if len(result) == 0:
             response[i] = []
-
     return response
