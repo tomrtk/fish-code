@@ -1,4 +1,4 @@
-"""Unit tests for `api/schema.py`"""
+"""Unit tests for `api/schema.py`."""
 from datetime import datetime
 
 from core import model

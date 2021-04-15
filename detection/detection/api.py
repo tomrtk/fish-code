@@ -121,6 +121,48 @@ async def predict(
         logger.error("Could not convert to images", e)
         raise HTTPException(status_code=422, detail="Unable to process images")
 
+def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
+    """Halve a list of batches.
+
+    Will iterate over all batches and halve all of them.
+
+    Parameter
+    ---------
+    batches : List[List[np.ndarray]]
+            A list of batches to halve
+
+    Return
+    ------
+    List[List[np.ndarray]]  :
+                            A list of halved batches.
+    Example
+    -------
+    >>> batch = [np.ones(10) for _ in range(10)]
+    >>> len(batch)
+    10
+    >>> len(batch[0])
+    10
+    >>> batches = halve_batch([batch])
+    >>> len(batches)
+    2
+    >>> len(batches[0])
+    5
+    >>> batches = halve_batch(batches)
+    >>> len(batches)
+    4
+    >>> len(batches[0])
+    2
+
+    """
+
+    new_batches: List[List[np.ndarray]] = list()
+    for b in batches:
+        halve = len(b) // 2
+
+        new_batches.append(b[0:halve])
+        new_batches.append(b[halve::])
+
+    return new_batches
     # Try infer from imgs received
     out_of_memory = False
     xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
