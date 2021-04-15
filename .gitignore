@@ -2,9 +2,6 @@
 coverage
 *.lcov
 
-# nyc test coverage
-.nyc_output
-
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
@@ -97,12 +94,7 @@ dmypy.json
 poetry.lock
 
 # Ignore database files in core
-data.db
-test.db
-core/data.db
-core/test.db
-data.db
-test.db
+*.db
 
 # Emacs files
 .config_emacs.el
