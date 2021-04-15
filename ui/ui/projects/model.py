@@ -16,6 +16,7 @@ class Object:
     track_id: int
     time_in: datetime
     time_out: datetime
+    _detections: Dict[str, List[float]]
 
     @classmethod
     def from_dict(cls, object_data: Dict[str, Any]):
@@ -26,6 +27,7 @@ class Object:
             time_in=datetime.fromtimestamp(object_data["label"]),
             time_out=datetime.fromtimestamp(object_data["label"]),
             probability=object_data["probability"],
+            _detections=object_data["_detections"],
         )
 
 
