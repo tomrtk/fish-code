@@ -1,6 +1,7 @@
 """Pydantic shema of object recived and sent on API."""
 from datetime import datetime
 from typing import Dict, List, Optional
+from uuid import uuid4
 
 from pydantic import BaseModel, validator
 
@@ -132,6 +133,13 @@ class ProjectBase(HashableBaseModel):
     number: str
     description: str
     location: Optional[str] = None
+
+
+class ProjectBare(ProjectBase):
+    """Bare model for `Project` that don't holds a list of jobs."""
+
+    id: int
+    job_count: int
 
 
 class Project(ProjectBase):
