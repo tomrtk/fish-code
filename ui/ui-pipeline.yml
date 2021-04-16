@@ -12,8 +12,7 @@ tests:
     - cd $PIPELINE_ROOT
     - poetry install
   script:
-    - poetry run pytest --cov --cov-report xml
-    - poetry run coverage report
+    - poetry version
   cache:
     policy: pull
   artifacts: {}
