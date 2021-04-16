@@ -1,12 +1,12 @@
 """Integration test between model and services."""
 import logging
+import time
 
 import pytest
-import time
-import core.services as services
-
-from core.model import Video
 import requests
+
+import core.services as services
+from core.model import Video
 
 logger = logging.getLogger(__name__)
 

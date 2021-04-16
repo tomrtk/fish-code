@@ -1,13 +1,14 @@
 """Pytest fixtures used in tests."""
-import pytest
-
-from tracing.main import main as tracing_main  # type: ignore
-from detection.main import main as detection_main
-from core.main import main as core_main
-from multiprocessing import Process
-import time
-import requests
 import logging
+import time
+from multiprocessing import Process
+
+import pytest
+import requests
+
+from core.main import main as core_main
+from detection.main import main as detection_main
+from tracing.main import main as tracing_main  # type: ignore
 
 
 @pytest.fixture

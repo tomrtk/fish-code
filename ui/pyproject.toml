@@ -6,10 +6,10 @@ Application to detect fish and generate a report viewable
 inside an iterface before being exported as raw data.
 """
 authors = [
-"Birger Johan Nordølum",
-"Eirik Osland Lavik",
-"Kristian André Dahl Haugen",
-"Tom-Ruben Traavik Kvalvaag"
+  "Birger Johan Nordølum",
+  "Eirik Osland Lavik",
+  "Kristian André Dahl Haugen",
+  "Tom-Ruben Traavik Kvalvaag"
 ]
 license = "GPL"
 
@@ -23,7 +23,7 @@ waitress = "^2.0.0"
 black = "^20.8b1"
 livereload = "^2.6.3"
 isort = "^5.7.0"
-coverage = {extras = ["toml"], version = "^5.5"}
+coverage = { extras = ["toml"], version = "^5.5" }
 pytest = "^6.2.2"
 pytest-cov = "^2.11.1"
 pre-commit = "^2.11.1"
@@ -65,21 +65,17 @@ exclude = '''
     | README.md
 )/
 '''
-verbose=true
+verbose = true
 
 # pyproject.toml
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
 filterwarnings = [
-    'ignore:the imp module is deprecated:DeprecationWarning',
-    'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]
 
 [tool.coverage.run]
-source = [
-    "ui",
-]
+source = ["ui"]

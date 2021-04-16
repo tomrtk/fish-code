@@ -15,7 +15,7 @@ fastapi = "^0.63.0"
 Pillow = "^8.1.2"
 PyYAML = "^5.4.1"
 tqdm = "^4.59.0"
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
+uvicorn = { extras = ["standard"], version = "^0.13.4" }
 requests = "^2.25.1"
 python-multipart = "^0.0.5"
 
@@ -68,17 +68,13 @@ exclude = '''
 verbose = true
 
 [tool.coverage.run]
-source = [
-    "detection",
-]
+source = ["detection"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
 filterwarnings = [
-    'ignore:the imp module is deprecated:DeprecationWarning',
-    'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]

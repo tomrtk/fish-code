@@ -1,6 +1,5 @@
 # Detection
 
-
 To run inference on images a small FastAPI definition is used. See `api.py`.
 
 ## CLI
@@ -31,7 +30,6 @@ optional arguments:
 
 See full `Swagger` API documentation at `<host>:<port>/docs` when server is
 running.
-
 
 ## Adding models to serve
 

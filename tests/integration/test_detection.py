@@ -1,7 +1,8 @@
 """Interface tests between `core` and `detection` API."""
-import pytest
-import numpy as np
 from pathlib import Path
+
+import numpy as np
+import pytest
 
 import core.interface as interface
 from core.model import BBox, Detection, Frame, Video
