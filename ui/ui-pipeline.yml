@@ -4,3 +4,15 @@ workflow:
 
 include:
   - ci/child-pipeline.yml
+
+tests:
+  stage: test
+  extends: .cache_settings
+  before_script:
+    - cd $PIPELINE_ROOT
+    - poetry install
+  script:
+    - poetry version
+  cache:
+    policy: pull
+  artifacts: {}

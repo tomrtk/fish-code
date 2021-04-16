@@ -37,11 +37,11 @@ def construct_projects_bp(cfg: Config):
     endpoint_path: str = cfg["BACKEND_URL"]
     client = Client(endpoint_path)
 
-    def check_api():
+    def check_api_connection():
         if not client.check_api():
             return render_template("api_down.html"), 502
 
-    projects_bp.before_request(check_api)
+    projects_bp.before_request(check_api_connection)
 
     @projects_bp.route("/")
     def projects_index():
