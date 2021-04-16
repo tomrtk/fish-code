@@ -3,7 +3,14 @@ from datetime import timedelta
 
 import pytest
 
-from core.model import Job, JobStatusException, Object, Status, Video
+from core.model import (
+    Job,
+    JobStatusException,
+    Object,
+    Status,
+    TimestampNotFoundError,
+    Video,
+)
 
 
 @pytest.fixture
@@ -158,3 +165,62 @@ def test_get_result(make_test_job: Job):
     assert "probability" in results[0]
     assert "time_in" in results[0]
     assert "time_out" in results[0]
+
+
+def test_job_hash(make_test_job: Job):
+    """Test job __hash__ by use of a set()."""
+    job = make_test_job
+    job_set = set()
+
+    job_set.add(job)
+    job_set.add(job)
+
+    assert len(job_set) == 1
+
+
+def test_job_eq():
+    """Test job __eq__."""
+    job1 = Job("Test job 1", "Tester", "Test")
+    job2 = Job("Test job 1", "Tester", "Test")
+    job1.id = 1
+    job2.id = 1
+
+    assert job1 == job2
+
+    job2.id = 2
+    assert job1 != job2
+    assert job1 != "test"
+
+
+def test_repr():
+    """Test job __repr__ function."""
+    job = Job("Test job 1", "Tester", "Test")
+
+    assert (
+        repr(job)
+        == "<class 'core.model.Job'>: {'id': None, 'name': 'Test job 1', 'description': 'Tester', '_status': <Status.PENDING: 'Pending'>, '_objects': [], 'videos': [], 'location': 'Test'}"
+    )
+
+
+def test_job_add_video(make_test_job):
+    """Test adding video to a job."""
+    job = make_test_job
+
+    with pytest.raises(TimestampNotFoundError):
+        _ = job.add_video(Video.from_path("./tests/unit/test-no-time.mp4"))
+
+    # The video will never be without a timestamp, but we try break it here
+    # to check return value of add)video on a job
+    video = Video("./tests/unit/test-no-time.mp4", 1, 1, 1, 1, None, 1, 1)  # type: ignore
+    assert job.add_video(video) == False
+
+
+def test_job_total_frames(make_test_job):
+    """Test calculating frames in job."""
+    job = make_test_job
+    ret = job.add_video(
+        Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    )
+    assert ret == True
+
+    assert job.total_frames() == 70
