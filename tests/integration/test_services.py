@@ -22,7 +22,7 @@ def test_processing_and_scheduler():
             "description": "Some kind of project description",
         },
     )
-    assert response.status_code == 200
+    assert response.status_code == 201
 
     project_data = response.json()
     project_id = project_data["id"]
