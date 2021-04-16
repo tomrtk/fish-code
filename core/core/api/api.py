@@ -7,7 +7,7 @@ server is running.
 import logging
 from typing import Dict, List, Optional, Union
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
@@ -105,8 +105,14 @@ def convert_to_bare(
 @core_api.get("/projects/", response_model=List[schema.ProjectBare])
 def list_projects(
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-    page: int = 1,
-    per_page: int = 10,
+    page: int = Query(
+        1,
+        ge=1,
+        description="Select which page to fetch.",
+    ),
+    per_page: int = Query(
+        10, ge=1, description="Choose how many items per page."
+    ),
 ):
     """List all projects.
 
@@ -117,10 +123,10 @@ def list_projects(
 
     Parameters
     ----------
-    page : int
-        The specifig page.
-    per_page : int
-        How many items per page.
+    - page : int
+        Select which page to fetch.
+    - per_page : int
+        Choose how many items per page.
 
     Returns
     -------
@@ -131,16 +137,11 @@ def list_projects(
     begin_idx = (page - 1) * per_page
     end_idx = begin_idx + per_page
 
-    if end_idx > len(repo.list()):
-        end_idx = len(repo.list())
+    list_length = len(repo.list())
+    if end_idx > list_length:
+        end_idx = list_length
 
-    try:
-        repo_list = repo.list()[slice(begin_idx, end_idx)]
-    except IndexError as e:
-        logger.warning("Scope exceeds projects count.")
-        raise HTTPException(status_code=404, detail="Can't find projects.")
-
-    return convert_to_bare(repo_list)
+    return convert_to_bare(repo.list()[slice(begin_idx, end_idx)])
 
 
 @core_api.post(
