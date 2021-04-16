@@ -394,7 +394,7 @@ class Client:
             Wether the API is online or not.
         """
         try:
-            self._session.post(f"{self._endpoint}")  # type: ignore
+            self._session.get(f"{self._endpoint}")  # type: ignore
         except requests.ConnectionError:
             return False
 
