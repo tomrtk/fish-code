@@ -5,7 +5,7 @@ API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
 import logging
-from typing import Dict, List
+from typing import Dict, List, Optional, Union
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy import create_engine
@@ -61,9 +61,39 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-@core_api.get("/projects/", response_model=List[schema.Project])
+def convert_to_bare(data: Union[model.Project, List[model.Project]]):
+    """Convert `model.Project` to `schema.ProjectBare`."""
+    if isinstance(data, list):
+        bare_list: List[schema.ProjectBare] = list()
+        for project in data:
+            bare_list.append(
+                schema.ProjectBare(
+                    id=project.id,
+                    name=project.name,
+                    number=project.number,
+                    description=project.description,
+                    location=project.location,
+                    job_count=len(project.jobs),
+                )
+            )
+
+        return bare_list
+    else:
+        return schema.ProjectBare(
+            id=data.id,
+            name=data.name,
+            number=data.number,
+            description=data.description,
+            location=data.location,
+            job_count=len(data.jobs),
+        )
+
+
+@core_api.get("/projects/", response_model=List[schema.ProjectBare])
 def list_projects(
-    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False)
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+    page: int = 1,
+    per_page: int = 10,
 ):
     """List all projects.
 
@@ -74,10 +104,23 @@ def list_projects(
     List[Project]
         List of all `Project`.
     """
-    return repo.list()
+    # Set to - 1 because page != index in a list.
+    begin_idx = (page - 1) * per_page
+    end_idx = begin_idx + per_page
+
+    if end_idx > len(repo.list()):
+        end_idx = len(repo.list())
+
+    try:
+        repo_list = repo.list()[slice(begin_idx, end_idx)]
+    except IndexError as e:
+        logger.warning("Scope exceeds projects count.")
+        raise HTTPException(status_code=404, detail="Can't find projects.")
+
+    return convert_to_bare(repo_list)
 
 
-@core_api.post("/projects/", response_model=schema.Project)
+@core_api.post("/projects/", response_model=schema.ProjectBare)
 def add_projects(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -91,7 +134,7 @@ def add_projects(
     Project
         New `Project` with `id`.
     """
-    return repo.add(model.Project(**project.dict()))
+    return convert_to_bare(repo.add(model.Project(**project.dict())))
 
 
 @core_api.get("/projects/{project_id}/", response_model=schema.Project)

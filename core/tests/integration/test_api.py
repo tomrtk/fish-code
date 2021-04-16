@@ -136,7 +136,7 @@ def test_add_project():
             "number": "AB-123",
             "description": "A project description",
             "location": None,
-            "jobs": [],
+            "job_count": 0,
         }
 
 
@@ -164,7 +164,7 @@ def test_add_project_with_location():
             "number": "AB-123",
             "description": "A project description",
             "location": "Testing",
-            "jobs": [],
+            "job_count": 0,
         }
 
 
