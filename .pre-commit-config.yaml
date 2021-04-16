@@ -63,7 +63,7 @@ repos:
       - id: black
         name: Format code (Python)
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 5.1.1
+    rev: 6.0.0
     hooks:
       - id: pydocstyle
   - repo: https://github.com/pre-commit/mirrors-prettier
