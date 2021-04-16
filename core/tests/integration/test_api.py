@@ -124,7 +124,7 @@ def test_add_project():
                 "description": "A project description",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         project_data = response.json()
         assert "id" in project_data
         project_id = project_data["id"]
@@ -152,7 +152,7 @@ def test_add_project_with_location():
                 "location": "Testing",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         project_data = response.json()
         assert "id" in project_data
         project_id = project_data["id"]
@@ -179,7 +179,7 @@ def test_get_project():
                 "description": "A project description",
             },
         )
-        assert response_post_project.status_code == 200
+        assert response_post_project.status_code == 201
 
         project_data = response_post_project.json()
         assert "id" in project_data
@@ -210,7 +210,7 @@ def test_add_and_get_job():
                 "description": "A project description",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         project_data = response.json()
         assert "id" in project_data
         project_id = project_data["id"]
@@ -259,7 +259,7 @@ def test_get_job():
                 "description": "A project description",
             },
         )
-        assert response_post_project.status_code == 200
+        assert response_post_project.status_code == 201
 
         project_data = response_post_project.json()
         assert "id" in project_data
@@ -458,7 +458,7 @@ def test_add_and_get_job_with_videos():
                 "description": "A project description",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 201
         project_data = response.json()
         assert "id" in project_data
         project_id = project_data["id"]

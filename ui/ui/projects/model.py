@@ -143,8 +143,9 @@ class Project:
         """Convert text to a new Project object."""
         project_jobs: List[Job] = list()
 
-        for job in list(project_data["jobs"]):
-            project_jobs.append(Job(**job))
+        if "jobs" in project_data:
+            for job in list(project_data["jobs"]):
+                project_jobs.append(Job(**job))
 
         return cls(
             id=project_data["id"],

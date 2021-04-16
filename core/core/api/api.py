@@ -61,8 +61,21 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-def convert_to_bare(data: Union[model.Project, List[model.Project]]):
-    """Convert `model.Project` to `schema.ProjectBare`."""
+def convert_to_bare(
+    data: Union[model.Project, List[model.Project]]
+) -> Union[schema.ProjectBare, List[schema.ProjectBare]]:
+    """Convert `model.Project` to `schema.ProjectBare`.
+
+    Parameters
+    ----------
+    data : Union[model.Project, List[model.Project]]
+        The data to convert from.
+
+    Returns
+    -------
+    Union[model.Project, List[model.Project]]
+        Converted data from model to schema object(s).
+    """
     if isinstance(data, list):
         bare_list: List[schema.ProjectBare] = list()
         for project in data:
@@ -99,9 +112,19 @@ def list_projects(
 
     Endpoint returns a list of all projects to GET requests.
 
+    The endpoint supports using pagination by configure `page` and
+    `per_page`.
+
+    Parameters
+    ----------
+    page : int
+        The specifig page.
+    per_page : int
+        How many items per page.
+
     Returns
     -------
-    List[Project]
+    List[schema.ProjectBare]
         List of all `Project`.
     """
     # Set to - 1 because page != index in a list.
@@ -120,8 +143,12 @@ def list_projects(
     return convert_to_bare(repo_list)
 
 
-@core_api.post("/projects/", response_model=schema.ProjectBare)
-def add_projects(
+@core_api.post(
+    "/projects/",
+    response_model=schema.ProjectBare,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_project(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
 ):
