@@ -11,7 +11,22 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: Sort imports (root)
+        additional_dependencies: [toml]
+        exclude: |
+          (?x)^(
+            ci/|
+            core/|
+            detection/|
+            docs/|
+            tracing/|
+            ui/
+          )
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (core)
@@ -19,7 +34,15 @@ repos:
         files: ^core/
         args: ["--settings-path", "core"]
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: Sort imports (detection)
+        additional_dependencies: [toml]
+        files: ^detection/
+        args: ["--settings-path", "detection"]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (tracing)
@@ -27,21 +50,13 @@ repos:
         files: ^tracing/
         args: ["--settings-path", "tracing"]
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (ui)
         additional_dependencies: [toml]
         files: ^ui/
         args: ["--settings-path", "ui"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
-    hooks:
-      - id: isort
-        name: Sort imports (detection)
-        additional_dependencies: [toml]
-        files: ^detection/
-        args: ["--settings-path", "detection"]
   - repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:
