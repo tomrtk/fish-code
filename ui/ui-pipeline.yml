@@ -16,3 +16,4 @@ tests:
     - poetry run coverage report
   cache:
     policy: pull
+  artifacts: {}
