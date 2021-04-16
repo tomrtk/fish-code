@@ -70,9 +70,14 @@ repos:
     rev: v2.2.1
     hooks:
       - id: prettier
-        name: Format code (CSS, HTML, TOML, YAML)
-        types: [file, javascript, jsx, ts, tsx, html, css, toml, yaml, json]
+        name: Format other code (CSS, HTML, JS, MD, TOML, YAML)
         additional_dependencies: ["prettier-plugin-toml"]
+        types: [file]
+        files: \.(css|html|js|markdown|md|toml|yaml|yml)$
+        exclude: |
+          (?x)^(
+            ui/ui/static/dist
+          )
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v4.1.0
     hooks:
