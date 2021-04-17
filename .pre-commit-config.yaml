@@ -11,7 +11,22 @@ repos:
       - id: end-of-file-fixer
       - id: trailing-whitespace
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: Sort imports (root)
+        additional_dependencies: [toml]
+        exclude: |
+          (?x)^(
+            ci/|
+            core/|
+            detection/|
+            docs/|
+            tracing/|
+            ui/
+          )
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (core)
@@ -19,7 +34,15 @@ repos:
         files: ^core/
         args: ["--settings-path", "core"]
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
+    hooks:
+      - id: isort
+        name: Sort imports (detection)
+        additional_dependencies: [toml]
+        files: ^detection/
+        args: ["--settings-path", "detection"]
+  - repo: https://github.com/pycqa/isort
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (tracing)
@@ -27,37 +50,34 @@ repos:
         files: ^tracing/
         args: ["--settings-path", "tracing"]
   - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
+    rev: 5.8.0
     hooks:
       - id: isort
         name: Sort imports (ui)
         additional_dependencies: [toml]
         files: ^ui/
         args: ["--settings-path", "ui"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.7.0
-    hooks:
-      - id: isort
-        name: Sort imports (detection)
-        additional_dependencies: [toml]
-        files: ^detection/
-        args: ["--settings-path", "detection"]
   - repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:
       - id: black
         name: Format code (Python)
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 5.1.1
+    rev: 6.0.0
     hooks:
       - id: pydocstyle
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v2.2.1
     hooks:
       - id: prettier
-        name: Format code (CSS, HTML, TOML, YAML)
-        types: [file, javascript, jsx, ts, tsx, html, css, toml, yaml, json]
+        name: Format other code (CSS, HTML, JS, MD, TOML, YAML)
         additional_dependencies: ["prettier-plugin-toml"]
+        types: [file]
+        files: \.(css|html|js|markdown|md|toml|yaml|yml)$
+        exclude: |
+          (?x)^(
+            ui/ui/static/dist
+          )
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v4.1.0
     hooks:

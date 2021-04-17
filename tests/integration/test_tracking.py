@@ -1,11 +1,11 @@
 """Integration tests for interfacing with tracking."""
+from datetime import datetime
 from typing import List
 
 import pytest
 
 from core import interface
 from core.model import BBox, Detection, Frame, Object
-from datetime import datetime
 
 
 @pytest.fixture

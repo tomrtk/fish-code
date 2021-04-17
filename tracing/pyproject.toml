@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["R0flcopt3r <12752060+R0flcopt3r@users.noreply.github.com>"]
 
-
 [tool.poetry.scripts]
 tracing = "tracing.__main__:main"
 api = "tracing.main:main"
@@ -25,7 +24,7 @@ matplotlib = "^3.3.4"
 numpy = "^1.20.1"
 debugpy = "^1.2.1"
 mypy = "^0.800"
-coverage = {extras = ["toml"], version = "^5.5"}
+coverage = { extras = ["toml"], version = "^5.5" }
 pytest-cov = "^2.11.1"
 isort = "^5.7.0"
 black = "^20.8b1"
@@ -39,7 +38,7 @@ build-backend = "poetry.core.masonry.api"
 profile = "black"
 line_length = 80
 multi_line_output = 3
-src_paths=["tracing", "tests"]
+src_paths = ["tracing", "tests"]
 
 [tool.black]
 line-length = 80
@@ -70,17 +69,13 @@ exclude = '''
 '''
 
 [tool.coverage.run]
-source = [
-    "tracing",
-]
+source = ["tracing"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
 filterwarnings = [
-    'ignore:the imp module is deprecated:DeprecationWarning',
-    'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]

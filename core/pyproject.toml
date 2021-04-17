@@ -7,8 +7,8 @@ authors = ["Your Name <you@example.com>"]
 [tool.poetry.dependencies]
 python = "^3.7"
 SQLAlchemy = "^1.4"
-fastapi = {extras = ["all"], version = "^0.63.0"}
-uvicorn = {extras = ["standard"], version = "^0.13.4"}
+fastapi = { extras = ["all"], version = "^0.63.0" }
+uvicorn = { extras = ["standard"], version = "^0.13.4" }
 async-exit-stack = "^1.0.1"
 async_generator = "^1.10"
 pydantic = "^1.8.1"
@@ -22,7 +22,7 @@ black = "^20.8b1"
 mypy = "^0.800"
 pylint = "^2.6.0"
 pytest = "^6.2.2"
-coverage = {extras = ["toml"], version = "^5.4"}
+coverage = { extras = ["toml"], version = "^5.4" }
 pydocstyle = "^5.1.1"
 requests = "^2.25.1"
 pytest-cov = "^2.11.1"
@@ -65,17 +65,13 @@ exclude = '''
 verbose = true
 
 [tool.coverage.run]
-source = [
-    "core",
-]
+source = ["core"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = [
-    "tests",
-]
+testpaths = ["tests"]
 filterwarnings = [
-    'ignore:the imp module is deprecated:DeprecationWarning',
-    'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]
