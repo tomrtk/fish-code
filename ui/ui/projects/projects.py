@@ -37,17 +37,20 @@ def construct_projects_bp(cfg: Config):
     endpoint_path: str = cfg["BACKEND_URL"]
     client = Client(endpoint_path)
 
-    @projects_bp.route("/")
-    def projects_index():  # type: ignore
-        """Entrypoint for the blueprint."""
+    def check_api_connection():
         if not client.check_api():
-            return render_template("api_down.html")
+            return render_template("api_down.html"), 502
 
+    projects_bp.before_request(check_api_connection)
+
+    @projects_bp.route("/")
+    def projects_index():
+        """Entrypoint for the blueprint."""
         projects = client.get_projects()
         return render_template("projects/projects.html", projects=projects)
 
     @projects_bp.route("/new", methods=["POST", "GET"])
-    def projects_project_new():  # type: ignore
+    def projects_project_new():
         """Create a new project."""
         if request.method == "POST":
             project = Project(
@@ -66,16 +69,16 @@ def construct_projects_bp(cfg: Config):
         return render_template("projects/project_new.html")
 
     @projects_bp.route("/<int:project_id>")
-    def projects_project(project_id: int):  # type: ignore
+    def projects_project(project_id: int):
         """View a single project."""
         project = client.get_project(project_id)
-        if not project:
-            abort(404)
+        if project is None:
+            return render_template("404.html"), 404
 
         return render_template("projects/project.html", project=project)
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
-    def projects_job(project_id: int, job_id: int):  # type: ignore
+    def projects_job(project_id: int, job_id: int):
         """View a single job."""
         job = client.get_job(project_id, job_id)
         obj_stats = job.get_object_stats()
@@ -86,18 +89,18 @@ def construct_projects_bp(cfg: Config):
 
     @projects_bp.route(
         "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
-    )  # type: ignore
-    def projects_job_toggle(project_id: int, job_id: int):  # type: ignore
+    )
+    def projects_job_toggle(project_id: int, job_id: int):
         """Toogle job status."""
         old_status, new_status = client.change_job_status(project_id, job_id)
 
         if old_status is None or new_status is None:
-            return 404
+            return "404"
 
-        return jsonify(old_status=old_status, new_status=new_status), 201  # type: ignore
+        return jsonify(old_status=old_status, new_status=new_status), 201
 
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
-    def projects_job_new(project_id: int):  # type: ignore
+    def projects_job_new(project_id: int):
         """Create new job inside a project."""
         project = client.get_project(project_id)
 
@@ -149,18 +152,18 @@ def construct_projects_bp(cfg: Config):
             )
 
         return render_template(
-            "projects/job_new.html", project_name=project.get_name()  # type: ignore
+            "projects/job_new.html", project_name=project.get_name()
         )
 
     @projects_bp.route("/json")
-    def projects_json() -> Dict:  # type:ignore
+    def projects_json() -> Dict:
         """Create new job inside a project."""
-        data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))  # type: ignore
+        data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))
 
         return data
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
-    def projects_job_make_csv(project_id: int, job_id: int):  # type: ignore
+    def projects_job_make_csv(project_id: int, job_id: int):
         """Download results of a job as a csv-file."""
         job = client.get_job(job_id, project_id)
         if job is None:
@@ -196,11 +199,11 @@ def construct_projects_bp(cfg: Config):
     return projects_bp
 
 
-def path_to_dict(path: str) -> Dict[str, str]:
+def path_to_dict(path: str) -> Dict[str, Any]:
     """Polute endpoint with stuff."""
-    d = {"text": os.path.basename(path)}
+    d: Dict[str, Any] = {"text": os.path.basename(path)}
     if os.path.isdir(path):
-        d["children"] = [  # type: ignore
+        d["children"] = [
             path_to_dict(os.path.join(path, x)) for x in os.listdir(path)
         ]
     else:
