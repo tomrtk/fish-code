@@ -1,3 +1,6 @@
+@import "jstree/src/themes/default/style.css";
+/* @import "../../node_modules/jstree/src/themes/default/style.css"; */
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
