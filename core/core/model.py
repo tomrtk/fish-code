@@ -218,14 +218,16 @@ class Video:
         retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, key)  # type: ignore
 
         if not retval:
-            raise RuntimeError(
+            raise RuntimeError(  # pragma: no cover
                 f"Unexpected error when setting catpure property, {retval}"
             )
 
         retval, img = self._video_capture.read()
 
         if not retval:
-            raise RuntimeError(f"Unexpected error when reading frame at {key}")
+            raise RuntimeError(
+                f"Unexpected error when reading frame at {key}"
+            )  # pragma: no cover
 
         self._video_capture.release()
 
@@ -296,7 +298,7 @@ class Video:
         retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, interval.start)  # type: ignore
 
         if not retval:
-            raise RuntimeError("Unexpected error")
+            raise RuntimeError("Unexpected error")  # pragma: no cover
 
         frames = []
 
@@ -304,7 +306,7 @@ class Video:
             retval, img = self._video_capture.read()
 
             if not retval:
-                raise RuntimeError("Unexpected error")
+                raise RuntimeError("Unexpected error")  # pragma: no cover
             frames.append(self._scale_convert(img))
 
         self._video_capture.release()
@@ -1041,11 +1043,13 @@ class Project:
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `dict()` or `set()` to avoid duplicate."""
-        return hash((type(self),) + tuple(self.__dict__.values()))
+        return hash((type(self),) + tuple(self.__dict__))
 
     def __repr__(self):
         """Override of default __repr__. Gives object representation as a string."""
-        return str(self.__class__) + ": " + str(self.__dict__)
+        return (
+            str(self.__class__) + ": " + str(self.__dict__)
+        )  # pragma: no cover
 
     @classmethod
     def from_dict(cls, project_data: dict) -> Project:

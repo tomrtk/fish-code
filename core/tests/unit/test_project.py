@@ -78,3 +78,58 @@ def test_remove_job(make_test_project):
     project.add_job(jobs[1])
 
     assert len(project.get_jobs()) == 3
+
+
+def test_str(make_test_project):
+    """Test project __str__."""
+    project = make_test_project
+
+    assert str(project) == "Name: Test name, Description: Test description"
+
+
+def test_hash(make_test_project):
+    """Test project __hash__ with a set()."""
+    project = make_test_project
+
+    project_set = set()
+
+    project_set.add(project)
+    project_set.add(project)
+    assert len(project_set) == 1
+
+
+def test_from_dict():
+    """Test from_dict class method."""
+    dct = {
+        "name": "test1",
+        "number": "test2",
+        "description": "test3",
+        "location": "test4",
+    }
+    project = Project.from_dict(dct)
+    assert project.name == "test1"
+    assert project.number == "test2"
+    assert project.description == "test3"
+    assert project.location == "test4"
+
+
+def test_add_job(caplog):
+    """Test add job logger output."""
+    import logging
+
+    project = Project(
+        "Test name", "NINA-123", "Test description", "Test location"
+    )
+    job = Job("test", "test", "test")
+    job.id = 1
+    project = project.add_job(job)
+    assert project.number_of_jobs == 1
+
+    with caplog.at_level(logging.DEBUG):
+        project = project.add_job(job)
+        assert project.number_of_jobs == 1
+
+        assert (
+            "Attempted to add existing job 'test' to a project"
+            == caplog.record_tuples[0][2]
+        )
