@@ -209,3 +209,19 @@ def test_color_channels():
     assert np.allclose(r[:, :, 0], check, atol=5)
     assert np.allclose(g[:, :, 1], check, atol=5)
     assert np.allclose(b[:, :, 2], check, atol=5)
+
+
+def test_video_iter(make_test_video):
+    """Test __iter__ of Video class."""
+    video = make_test_video
+
+    it = iter(video)
+
+    frame = next(it)
+    assert type(frame) == np.ndarray
+    frame = next(it)
+    assert type(frame) == np.ndarray
+
+    all_frames = list(it)
+
+    assert len(all_frames) == video.frames
