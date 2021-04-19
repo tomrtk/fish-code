@@ -210,7 +210,7 @@ def test_job_add_video(make_test_job):
         _ = job.add_video(Video.from_path("./tests/unit/test-no-time.mp4"))
 
     # The video will never be without a timestamp, but we try break it here
-    # to check return value of add)video on a job
+    # to check return value of add_video on a job
     video = Video("./tests/unit/test-no-time.mp4", 1, 1, 1, 1, None, 1, 1)  # type: ignore
     assert job.add_video(video) == False
 
