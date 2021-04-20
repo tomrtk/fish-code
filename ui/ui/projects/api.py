@@ -280,11 +280,11 @@ class Client:
         return None
 
     def get_jobs(self, project_id: int) -> Optional[List[Job]]:
-        """Get a list if jobs from the endpoint.
+        """Get a list of jobs from the endpoint.
 
         Parameters
         ----------
-        project_id  :   Project ID
+        project_id  :   int
                         Project to send to `core` api.
 
         Returns

@@ -61,7 +61,7 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-def convert_to_bare(data: model.Project) -> schema.ProjectBare:
+def convert_to_bare(project: model.Project) -> schema.ProjectBare:
     """Convert `model.Project` to `schema.ProjectBare`.
 
     Parameters
@@ -71,7 +71,7 @@ def convert_to_bare(data: model.Project) -> schema.ProjectBare:
 
     Returns
     -------
-    model.Project
+    schema.Project
         Converted data from model to schema object.
 
     Raises
@@ -79,18 +79,18 @@ def convert_to_bare(data: model.Project) -> schema.ProjectBare:
     TypeError
         When neither valid type is passed.
     """
-    if not isinstance(data, model.Project):
+    if not isinstance(project, model.Project):
         raise TypeError(
-            f"{type(data)} in not of type model.Project.",
+            f"{type(project)} in not of type model.Project.",
         )
 
     return schema.ProjectBare(
-        id=data.id,
-        name=data.name,
-        number=data.number,
-        description=data.description,
-        location=data.location,
-        job_count=len(data.jobs),
+        id=project.id,
+        name=project.name,
+        number=project.number,
+        description=project.description,
+        location=project.location,
+        job_count=len(project.jobs),
     )
 
 

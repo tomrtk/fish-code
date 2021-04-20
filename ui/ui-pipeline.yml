@@ -8,11 +8,8 @@ include:
 tests:
   stage: test
   extends: .cache_settings
-  before_script:
-    - cd $PIPELINE_ROOT
-    - poetry install
   script:
-    - poetry version
+    - echo "Disabled!"
   cache:
     policy: pull
   artifacts: {}

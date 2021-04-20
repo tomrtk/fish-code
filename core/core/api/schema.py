@@ -135,7 +135,7 @@ class ProjectBase(HashableBaseModel):
 
 
 class ProjectBare(ProjectBase):
-    """Bare model for `Project` that don't holds a list of jobs."""
+    """Bare model for `Project` that don't hold a list of jobs."""
 
     id: int
     job_count: int
