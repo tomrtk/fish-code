@@ -55,7 +55,7 @@ $("#jstree").on("select_node.jstree deselect_node.jstree", function (e) {
 btn = $("#btn-toggle-job");
 
 if (btn.hasClass("btn-pending")) {
-  btn.bind("click", function () {
+  btn.one("click", function () {
     $.ajax({
       type: "PUT",
       url: window.location.href + "/toggle",
