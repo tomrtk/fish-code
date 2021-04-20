@@ -3,7 +3,7 @@
 import logging
 from io import BytesIO
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Union
+from typing import Any, Callable, Dict, List, Tuple, Union
 
 import numpy as np
 import torch
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 detection_api = FastAPI()
 
 # Variable to store models
-model: Dict[str, Any] = dict()
+model: Dict[str, Tuple[Any, int]] = dict()
 label: Dict[str, List[str]] = dict()
 
 # Handle paths for different working directories.
@@ -37,11 +37,15 @@ if not model_fishy_path.exists() or model_fishy_path.is_dir():
 @detection_api.on_event("startup")  # type: ignore
 async def startup_event():
     """Load models at API startup."""
-    model["fishy"] = torch.hub.load(  # type: ignore
-        "ultralytics/yolov5",
-        "custom",
-        path_or_model=str(model_fishy_path.resolve()),
+    model["fishy"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path_or_model=str(model_fishy_path.resolve()),
+        ),
+        1280,
     )
+
     label["fishy"] = [
         "gjedde",
         "gullbust",
@@ -124,7 +128,7 @@ async def predict(
         logger.error("Could not convert to images", e)
         raise HTTPException(status_code=422, detail="Unable to process images")
 
-    return detect(imgs, model[model_name])  # type: ignore
+    return detect(imgs, model[model_name][0], model[model_name][1])  # type: ignore
 
 
 def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
@@ -175,6 +179,7 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
 def detect(
     imgs: List[np.ndarray],
     model: Callable[[List[np.ndarray], int], Dict[int, List[schema.Detection]]],
+    img_size: int,
 ) -> Dict[int, List[schema.Detection]]:
     """Detect in images.
 
@@ -202,14 +207,12 @@ def detect(
     --------
     `halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]`
     """
-    IMG_SIZE = 1280
-
     # Try infer from imgs received
     out_of_memory = False
     xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
 
     try:
-        results = model(imgs, size=IMG_SIZE)  # type: ignore
+        results = model(imgs, size=img_size)  # type: ignore
     except RuntimeError as e:  # out of memory
         logger.warning("Inference error: %s", e)
         out_of_memory = True
@@ -220,7 +223,9 @@ def detect(
     if out_of_memory:
         batches = [imgs]
 
-    while out_of_memory:  # frames in batch cannot fit into memory, must be split up
+    while (
+        out_of_memory
+    ):  # frames in batch cannot fit into memory, must be split up
         batches = halve_batch(batches)
         logger.warning(f"Attempting to halve batch to {len(batches[-1])}")
         try:
