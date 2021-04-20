@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
 
 import requests
 
-from ui.projects.model import Job, Project
+from ui.projects.model import Job, Project, ProjectBare
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
@@ -225,22 +225,22 @@ class Client:
         logger.info("post to %s, %s", uri)
         return self._session.post(uri)
 
-    def get_projects(self) -> Optional[List[Project]]:
+    def get_projects(self) -> Optional[List[ProjectBare]]:
         """Get all projects from endpoint.
 
         Returns
         -------
-        Optional[List[Project]]
+        Optional[List[ProjectBare]]
                     List of all `Project` from `core`.
         """
         result = self.get(f"{self._endpoint}/projects/")
 
         if isinstance(result, requests.Response):
-            return [Project.from_dict(p) for p in result.json()]  # type: ignore
+            return [ProjectBare(**p) for p in result.json()]  # type: ignore
 
         return None
 
-    def get_project(self, project_id: int) -> Optional[Project]:
+    def get_project(self, project_id: int) -> Optional[ProjectBare]:
         """Get one project from endpoint.
 
         Parameters
@@ -250,13 +250,13 @@ class Client:
 
         Returns
         -------
-        Optional[Project]
+        Optional[ProjectBare]
                     Project from core with `project_id`.
         """
         result = self.get(f"{self._endpoint}/projects/{project_id}")
 
         if isinstance(result, requests.Response):
-            return Project.from_dict(result.json())  # type: ignore
+            return ProjectBare(**result.json())  # type: ignore
 
         return None
 
@@ -279,6 +279,32 @@ class Client:
 
         return None
 
+    def get_jobs(self, project_id: int) -> Optional[List[Job]]:
+        """Get a list if jobs from the endpoint.
+
+        Parameters
+        ----------
+        project_id  :   Project ID
+                        Project to send to `core` api.
+
+        Returns
+        -------
+        Optional[List[Job]]
+                    List of `Job` from `core`.
+        """
+        result_project = self.get(f"{self._endpoint}/projects/{project_id}")
+        result_jobs = self.get(f"{self._endpoint}/projects/{project_id}/jobs/")
+
+        if isinstance(result_project, requests.Response) and isinstance(
+            result_jobs, requests.Response
+        ):
+            return [
+                Job.from_dict(j, project_id, result_project.json()["name"])
+                for j in result_jobs.json()
+            ]
+
+        return None
+
     def get_job(self, project_id: int, job_id: int) -> Optional[Job]:
         """Get a single job from the endpoint.
 
@@ -294,8 +320,10 @@ class Client:
         Optional[Job]
                     Single `Job` from `core`.
         """
-        result_project = self.get(f"{self._endpoint}/projects/{project_id}/")  # type: ignore
-        result_job = self.get(f"{self._endpoint}/projects/{project_id}/jobs/{job_id}")  # type: ignore
+        result_project = self.get(f"{self._endpoint}/projects/{project_id}")
+        result_job = self.get(
+            f"{self._endpoint}/projects/{project_id}/jobs/{job_id}"
+        )
 
         if isinstance(result_project, requests.Response) and isinstance(
             result_job, requests.Response

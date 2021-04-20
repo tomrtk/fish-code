@@ -110,7 +110,7 @@ class Project:
     date: Optional[str] = None
     jobs: Optional[List[Job]] = None
 
-    def job_count(self) -> int:
+    def get_job_count(self) -> int:
         """Get the count of jobs inside the project."""
         if not self.jobs:
             return 0
@@ -155,6 +155,30 @@ class Project:
             location=project_data["location"],
             jobs=project_jobs,
         )
+
+
+@dataclass
+class ProjectBare:
+    """Hold the bare project.
+
+    This is a class made to not include jobs.  Mostly to lower data when
+    getting a project.
+    """
+
+    id: int
+    name: str
+    location: str
+    description: str
+    number: str
+    job_count: int
+
+    def get_name(self):
+        """Return the project's name."""
+        return self.name
+
+    def get_job_count(self):
+        """Return the job count."""
+        return self.job_count
 
 
 @dataclass
