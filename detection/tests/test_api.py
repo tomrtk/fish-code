@@ -1,9 +1,10 @@
 """Test of detection API."""
 from pathlib import Path
 
+import numpy as np
 from fastapi.testclient import TestClient
 
-from detection.api import detection_api
+from detection.api import detection_api, halve_batch
 
 TEST_FILE_PATH = Path("./tests/test_data/")
 
@@ -101,3 +102,21 @@ def test_predict_wrong_image_data_format():
         )
 
         assert response.status_code == 422
+
+
+def test_halve_batch():
+    """Test havling of batches."""
+    batch = [[np.ones(5) for _ in range(10)]]
+    batches = halve_batch(batch)
+
+    assert len(batches) == 2
+    assert len(batches[0]) == 5
+    assert len(batches[1]) == 5
+
+    batch = [[np.ones(5) for _ in range(11)]]
+
+    batches = halve_batch(batch)
+
+    assert len(batches) == 2
+    assert len(batches[0]) == 5
+    assert len(batches[1]) == 6
