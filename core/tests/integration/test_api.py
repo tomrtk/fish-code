@@ -192,7 +192,7 @@ def test_get_project():
             "name": "Project name",
             "number": "AB-123",
             "location": None,
-            "jobs": [],
+            "job_count": 0,
         }
 
         response_wrong_project = client.get("/projects/999999")
@@ -273,7 +273,7 @@ def test_get_job():
             "name": "Project name",
             "number": "AB-123",
             "location": None,
-            "jobs": [],
+            "job_count": 0,
         }
 
         response_post_job = client.post(
@@ -286,6 +286,16 @@ def test_get_job():
             },
         )
         assert response_post_job.status_code == 201
+
+        response_get_project = client.get(f"/projects/{project_id}")
+        assert response_get_project.json() == {
+            "id": project_id,
+            "description": "A project description",
+            "name": "Project name",
+            "number": "AB-123",
+            "location": None,
+            "job_count": 1,
+        }
 
         job_data = response_post_job.json()
         assert "id" in job_data
