@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 def to_track(
     frames: List[core.model.Frame], host: str = "127.0.0.1", port: str = "8001"
-) -> Optional[List[core.model.Object]]:
+) -> List[core.model.Object]:
     """Send frames to tracker.
 
     Parameter
@@ -63,7 +63,7 @@ def to_track(
             o.time_out = time_out
         return objects
 
-    return None
+    return []
 
 
 @dataclass
