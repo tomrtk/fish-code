@@ -561,9 +561,13 @@ class Detection:
     probability: float
     label: int
     frame: int
+    rel_frame: Optional[int] = None
+    video: Optional[Video] = None
 
     def to_json(self) -> Dict[str, Any]:
         """Convert detection to json.
+
+        Does not export Video.
 
         Return
         ------
@@ -574,6 +578,7 @@ class Detection:
                 "probability": float,
                 "label": int,
                 "frame": int,
+                "rel_frame": int,
             }
 
         """
@@ -582,29 +587,39 @@ class Detection:
             "probability": self.probability,
             "label": self.label,
             "frame": self.frame,
+            "rel_frame": self.rel_frame if self.rel_frame else "",
         }
 
-    def set_frame(self, frame: int) -> Detection:
-        """Update frame nr.
+    def set_frame(self, abs_frame: int, rel_frame: int) -> Detection:
+        """Update frame numbers.
 
         Returns itself so it can be used in list comprehensions.
 
         Parameter
         ---------
-        frame : int
-              The frame number the detection is found in.
+        abs_frame : int
+                    The absolute frame nr based on all Videos in a job.
+        rel_frame : int
+                    Relative frame number within `self.video`.
 
         Return
         ------
         Detection :
                   Returns self.
         """
-        self.frame = frame
+        self.frame = abs_frame
+        self.rel_frame = rel_frame
         return self
 
     @classmethod
     def from_api(
-        cls, bbox: Dict[Any, str], probability: float, label: int, frame: int
+        cls,
+        bbox: Dict[Any, str],
+        probability: float,
+        label: int,
+        frame: int,
+        rel_frame: Optional[int] = None,
+        video: Optional[Video] = None,
     ) -> Detection:
         """Create Detection class from tracker.
 
@@ -618,12 +633,17 @@ class Detection:
             Class label from detection
         frame: int
             Which frame it belongs to
+        rel_frame : Optioal[int]
+            Relative frame index based on `self.video`, default None.
+        video : Optional[Video]
+            Video the detection belongs to, default None.
+
         Return
         ------
         Detection :
             A detection object
         """
-        return cls(BBox(**bbox), probability, label, frame)
+        return cls(BBox(**bbox), probability, label, frame, rel_frame, video)
 
 
 class Object:

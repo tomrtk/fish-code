@@ -72,6 +72,8 @@ def test_processing_and_scheduler():
         assert "time_out" in obj
         assert "track_id" in obj
 
+    logger.info(f"Test results from processing job {job_id}: {obj}")
+
 
 def test_video_loader():
     """Tests the video loader utility class."""
@@ -84,7 +86,7 @@ def test_video_loader():
     video_loader = services.VideoLoader(videos, 15)
 
     results = []
-    for batch, _ in video_loader:
+    for batch, _, _, _ in video_loader:
         results.append(len(batch))
 
     assert results[0] == 15  # batch size == 15

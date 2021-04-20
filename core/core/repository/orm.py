@@ -87,6 +87,8 @@ detections = Table(
     Column("bbox", PickleType, nullable=False),
     Column("frame", Integer, nullable=False),
     Column("object_id", Integer, ForeignKey("objects.id")),
+    Column("video_id", Integer, ForeignKey("videos.id"), nullable=True),
+    Column("rel_frame", Integer, nullable=True),
 )
 
 videos = Table(
@@ -108,9 +110,19 @@ def start_mappers():
     """Map the relationships between tables defines above and domain model objects."""
     logger.info("Starting mappers")
 
+    videos_mapper = mapper_registry.map_imperatively(
+        model.Video,
+        videos,
+    )
+
     detection_mapper = mapper_registry.map_imperatively(
         model.Detection,
         detections,
+        properties={
+            "video": relationship(
+                videos_mapper,
+            )
+        },
     )
 
     object_mapper = mapper_registry.map_imperatively(
@@ -123,11 +135,6 @@ def start_mappers():
                 cascade="all, delete",
             )
         },
-    )
-
-    videos_mapper = mapper_registry.map_imperatively(
-        model.Video,
-        videos,
     )
 
     jobs_mapper = mapper_registry.map_imperatively(
