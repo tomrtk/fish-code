@@ -25,7 +25,7 @@ elif Path.cwd().name == "detection":
 else:
     raise FileNotFoundError
 
-model_fishy_path = model_path / "yolov5-medium-07.03.21-best-exp16.pt"
+model_fishy_path = model_path / "yolov5m6-imgsize-768-18.04.21-exp54.pt"
 
 if not model_fishy_path.exists() or model_fishy_path.is_dir():
     raise FileNotFoundError
