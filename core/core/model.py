@@ -127,6 +127,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
+        self.detection_frames: List[Frame] = list()
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -381,6 +382,82 @@ class Video:
             raise IndexError
 
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
+
+    def update_detection_frames(
+        self, frames: List[Frame], force_update=False
+    ) -> bool:
+        """Update detected data associated with this video.
+
+        Parameters
+        ----------
+        frames  :   List[Frame]
+            List of data-frames to add to this video. Which contains detections for a given frame.
+        force_update    :   bool
+            Will overwrite already stored data-frames of same index with new one in frames parameter.
+            Default False.
+
+        Raises
+        ------
+        RuntimeError
+            When any frame index goes past total frames in video.
+
+        Return
+        ------
+        bool    :
+            True when data-frames were successfully updated. False when inputted frames have overlap
+            with existing data within video.
+        """
+        for frame in frames:
+            if not force_update:
+                if frame in self.detection_frames.values():
+                    logger.warning(
+                        f"Frame with index {frame.idx} is already added to this video."
+                    )
+                    return False
+            if frame.idx < self.frames:
+                logger.error(
+                    f"Frame of index {frame.idx} is beyond total frames in video."
+                )
+                raise RuntimeError
+
+        for frame in frames:
+            self.detection_frames[frame.idx] = frame
+
+        return True
+
+    def is_processed(self) -> bool:
+        """Check if this video has been fully processed.
+
+        Return
+        ------
+        bool    :
+            True if the entire video has been processed. The entire detection_frames dict must be fully
+            mapped with data-frames for all frames in video.
+        """
+        if not len(self.detection_frames) == self.frames:
+            logger.info(
+                f"Video {self._path} is not fully processed. {len(self.detection_frames)}/{self.frames}"
+            )
+            return False
+
+        # Check continious index
+        for i in range(self.frames):
+            if self.detection_frames[i].idx != i:
+                logger.warning(
+                    "Frame index {self.detection_frames[i].idx} does not match videos index {i}"
+                )
+                return False
+
+        logger.info("Video {self._path} is processed.")
+        return True
+
+    def get_all_data_frames(self) -> List[Frame]:
+        """Get all data frames in video."""
+        frames = []
+        for frame in self.detection_frames:
+            frames.append(frame)
+        logger.info(f"Here is data from video: {frames}")
+        return frames
 
 
 def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
