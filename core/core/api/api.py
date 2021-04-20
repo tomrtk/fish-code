@@ -75,8 +75,29 @@ def convert_to_bare(
     -------
     Union[model.Project, List[model.Project]]
         Converted data from model to schema object(s).
+
+    Raises
+    ------
+    TypeError
+        When neither valid type is passed.
     """
-    if isinstance(data, list):
+    if not isinstance(data, (model.Project, list)) and not isinstance(
+        data[0], model.Project
+    ):
+        raise TypeError(
+            f"{type(data)} in not of type model.Project or List[model.Project]",
+        )
+
+    if isinstance(data, model.Project):
+        return schema.ProjectBare(
+            id=data.id,
+            name=data.name,
+            number=data.number,
+            description=data.description,
+            location=data.location,
+            job_count=len(data.jobs),
+        )
+    else:
         bare_list: List[schema.ProjectBare] = list()
         for project in data:
             bare_list.append(
@@ -91,15 +112,6 @@ def convert_to_bare(
             )
 
         return bare_list
-    else:
-        return schema.ProjectBare(
-            id=data.id,
-            name=data.name,
-            number=data.number,
-            description=data.description,
-            location=data.location,
-            job_count=len(data.jobs),
-        )
 
 
 @core_api.get("/projects/", response_model=List[schema.ProjectBare])
@@ -165,7 +177,7 @@ def add_project(
     return convert_to_bare(repo.add(model.Project(**project.dict())))
 
 
-@core_api.get("/projects/{project_id}/", response_model=schema.Project)
+@core_api.get("/projects/{project_id}/", response_model=schema.ProjectBare)
 def get_project(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -188,7 +200,7 @@ def get_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    return project
+    return convert_to_bare(project)
 
 
 @core_api.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
