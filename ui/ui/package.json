@@ -1,6 +1,7 @@
 {
+  "name": "Fish Detector",
   "scripts": {
-    "build:dev": "npm run css:build:dev && npm run js:build:dev",
+    "build:dev": "npm run css:build:dev; npm run js:build:dev",
     "build:prod": "npm run css:build:prod && npm run js:build:prod",
     "css:build:dev": "TAILWIND_MODE=build NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
     "css:build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
