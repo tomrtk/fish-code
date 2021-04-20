@@ -72,15 +72,21 @@ def construct_projects_bp(cfg: Config):
     def projects_project(project_id: int):
         """View a single project."""
         project = client.get_project(project_id)
+        jobs = client.get_jobs(project_id)
         if project is None:
             return render_template("404.html"), 404
 
-        return render_template("projects/project.html", project=project)
+        return render_template(
+            "projects/project.html", project=project, jobs=jobs
+        )
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(project_id: int, job_id: int):
         """View a single job."""
         job = client.get_job(project_id, job_id)
+        if job is None:
+            return render_template("404.html"), 404
+
         obj_stats = job.get_object_stats()
 
         return render_template(
