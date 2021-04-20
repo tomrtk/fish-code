@@ -61,57 +61,37 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-def convert_to_bare(
-    data: Union[model.Project, List[model.Project]]
-) -> Union[schema.ProjectBare, List[schema.ProjectBare]]:
+def convert_to_bare(data: model.Project) -> schema.ProjectBare:
     """Convert `model.Project` to `schema.ProjectBare`.
 
     Parameters
     ----------
-    data : Union[model.Project, List[model.Project]]
+    data : model.Project
         The data to convert from.
 
     Returns
     -------
-    Union[model.Project, List[model.Project]]
-        Converted data from model to schema object(s).
+    model.Project
+        Converted data from model to schema object.
 
     Raises
     ------
     TypeError
         When neither valid type is passed.
     """
-    if not isinstance(data, (model.Project, list)) and not isinstance(
-        data[0], model.Project
-    ):
+    if not isinstance(data, model.Project):
         raise TypeError(
-            f"{type(data)} in not of type model.Project or List[model.Project]",
+            f"{type(data)} in not of type model.Project.",
         )
 
-    if isinstance(data, model.Project):
-        return schema.ProjectBare(
-            id=data.id,
-            name=data.name,
-            number=data.number,
-            description=data.description,
-            location=data.location,
-            job_count=len(data.jobs),
-        )
-    else:
-        bare_list: List[schema.ProjectBare] = list()
-        for project in data:
-            bare_list.append(
-                schema.ProjectBare(
-                    id=project.id,
-                    name=project.name,
-                    number=project.number,
-                    description=project.description,
-                    location=project.location,
-                    job_count=len(project.jobs),
-                )
-            )
-
-        return bare_list
+    return schema.ProjectBare(
+        id=data.id,
+        name=data.name,
+        number=data.number,
+        description=data.description,
+        location=data.location,
+        job_count=len(data.jobs),
+    )
 
 
 @core_api.get("/projects/", response_model=List[schema.ProjectBare])
@@ -145,15 +125,27 @@ def list_projects(
     List[schema.ProjectBare]
         List of all `Project`.
     """
+    list_length = len(repo.list())
+
+    if list_length:
+        return []
+
     # Set to - 1 because page != index in a list.
     begin_idx = (page - 1) * per_page
     end_idx = begin_idx + per_page
 
-    list_length = len(repo.list())
     if end_idx > list_length:
         end_idx = list_length
 
-    return convert_to_bare(repo.list()[slice(begin_idx, end_idx)])
+    resp: List[schema.ProjectBare] = list()
+
+    for proj in repo.list()[slice(begin_idx, end_idx)]:
+        try:
+            resp.append(convert_to_bare(proj))
+        except TypeError as e:
+            logger.warning(e)
+
+    return resp
 
 
 @core_api.post(
