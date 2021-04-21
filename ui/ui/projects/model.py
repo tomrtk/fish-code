@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 
 @dataclass
@@ -46,16 +46,20 @@ class Job:
     project_name: Optional[str] = None
     progress: Optional[int] = None
 
-    def to_json(self) -> str:
-        """Return JSON."""
-        return json.dumps(
-            {
-                "name": self.name,
-                "description": self.description,
-                "location": self.location,
-                "videos": self.videos,
-            }
-        )
+    def to_post_dict(self) -> Dict[str, Union[str | List[str]]]:
+        """Return prepared dict for posting.
+
+        Return
+        ------
+        Dict[str, str] :
+            Job ready to be submitted via the API.
+        """
+        return {
+            "name": self.name,
+            "description": self.description,
+            "location": self.location,
+            "videos": self.videos,
+        }
 
     def get_status(self) -> str:
         """Return status as proper."""
@@ -121,22 +125,20 @@ class Project:
         """Return the projects name."""
         return self.name
 
-    def to_json(self) -> str:
-        """Convert boundingbox to dict.
+    def to_post_dict(self) -> Dict[str, str]:
+        """Return prepared dict for posting.
 
         Return
         ------
-        Dict[str, float] :
-            {"x1": float, "y1": float, "x2": float, "y2": float}
+        Dict[str, str] :
+            Project ready to be submitted via the API.
         """
-        return json.dumps(
-            {
-                "name": self.name,
-                "number": self.number,
-                "description": self.description,
-                "location": self.location,
-            }
-        )
+        return {
+            "name": self.name,
+            "number": self.number,
+            "description": self.description,
+            "location": self.location,
+        }
 
     @classmethod
     def from_dict(cls, project_data: Dict[str, Any]) -> Project:
