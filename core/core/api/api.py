@@ -127,7 +127,7 @@ def list_projects(
     """
     list_length = len(repo.list())
 
-    if list_length:
+    if list_length == 0:
         return []
 
     # Set to - 1 because page != index in a list.
