@@ -172,11 +172,11 @@ class Detector:  # pragma: no cover
 
                 # No detections found in frame
                 if len(detections) == 0:
-                    result.append(core.model.Frame(frame_no, []))
+                    result.append(core.model.Frame(int(frame_no), []))
                 else:
                     result.append(
                         core.model.Frame(
-                            frame_no,
+                            int(frame_no),
                             [
                                 core.model.Detection(
                                     core.model.BBox(
@@ -187,7 +187,7 @@ class Detector:  # pragma: no cover
                                     ),
                                     probability=detection["confidence"],
                                     label=detection["label"],
-                                    frame=frame_no,
+                                    frame=int(frame_no),
                                 )
                                 for detection in detections
                             ],
