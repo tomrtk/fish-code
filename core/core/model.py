@@ -2,14 +2,13 @@
 from __future__ import annotations
 
 import logging
-import math
 import os.path
 import re
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2 as cv
 import numpy as np
@@ -384,9 +383,7 @@ class Video:
 
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
 
-    def update_detection_frames(
-        self, frames: List[Frame], force_update=False
-    ) -> bool:
+    def add_detection_frame(self, frame: Frame):
         """Update detected data associated with this video.
 
         Parameters
@@ -408,23 +405,16 @@ class Video:
             True when data-frames were successfully updated. False when inputted frames have overlap
             with existing data within video.
         """
-        for frame in frames:
-            if not force_update:
-                if frame in self.frames:
-                    logger.warning(
-                        f"Frame with index {frame.idx} is already added to this video."
-                    )
-                    return False
-            if frame.idx < self.frame_count:
-                logger.error(
-                    f"Frame of index {frame.idx} is beyond total frames in video."
-                )
-                raise RuntimeError
+        if frame in self.frames:
+            raise RuntimeError(
+                f"Frame with index {frame.idx} is already added to this video."
+            )
+        if frame.idx > self.frame_count:
+            raise IndexError(
+                f"Frame of index {frame.idx} is beyond total frames in video."
+            )
 
-        for frame in frames:
-            self.frames[frame.idx] = frame
-
-        return True
+        self.frames.append(frame)
 
     def is_processed(self) -> bool:
         """Check if this video has been fully processed.
@@ -579,6 +569,15 @@ class Frame:
     idx: int
     detections: List[Detection]
     timestamp: Optional[datetime] = None
+    video_id: Optional[int] = None
+
+    def __eq__(self, other) -> bool:
+        """Check if two Frames are the same."""
+        return (
+            isinstance(other, Frame)
+            and self.idx == other.idx
+            and self.video_id == other.video_id
+        )
 
     def to_json(self) -> Dict[str, Any]:
         """Convert frame to json.
@@ -599,7 +598,9 @@ class Frame:
             "detections": [det.to_json() for det in self.detections if det],
             "timestamp": None
             if not self.timestamp
-            else self.timestamp.isoformat(),
+            else self.timestamp.isoformat()
+            if not self.video_id
+            else self.video_id,
         }
 
 

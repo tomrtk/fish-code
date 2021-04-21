@@ -2,9 +2,8 @@
 import logging
 import math
 import threading
-import time
 from queue import Empty, Queue
-from typing import List, Tuple, Union
+from typing import Dict, List, Tuple
 
 import numpy as np
 from sqlalchemy.orm import Session
@@ -114,6 +113,8 @@ class VideoLoader:
 
         batch = []
         timestamps = []
+        framenumbers = []
+        video_for_frame: Dict[int, Video] = dict()
         current_batch = start_batch
         for vid in self.videos[start_vid:]:
             if start_frame > vid.frame_count:
@@ -123,19 +124,33 @@ class VideoLoader:
             for n, frame in enumerate(vid[start_frame:]):
                 batch.append(frame)
                 timestamps.append(vid.timestamp_at(n + start_frame))
+                framenumbers.append(n + start_frame)
+                video_for_frame[n + start_frame] = vid
                 if len(batch) == self.batchsize:
                     logger.info(f"Yeilding batch {current_batch}...")
-                    yield current_batch, (np.array(batch), timestamps)
+                    yield current_batch, (
+                        np.array(batch),
+                        timestamps,
+                        video_for_frame,
+                        framenumbers,
+                    )
                     logger.info(f"Batch {current_batch} complete")
                     current_batch += 1
                     batch = []
                     timestamps = []
+                    framenumbers = []
+                    video_for_frame = dict()
 
             start_frame = 0
             vid.vidcap_release()
 
         if len(batch) > 0:
-            yield current_batch, (np.array(batch), timestamps)
+            yield current_batch, (
+                np.array(batch),
+                timestamps,
+                video_for_frame,
+                framenumbers,
+            )
 
 
 def process_job(
@@ -212,9 +227,12 @@ def process_job(
             logger.info(f"Job reusming from batch {job.next_batch}")
 
         # Generate batches of frames for remaining batches
-        for batchnr, (batch, timestamp) in video_loader.generate_batches(
-            start_batch=job.next_batch
-        ):
+        for batchnr, (
+            batch,
+            timestamp,
+            video_for_frame,
+            framenumbers,
+        ) in video_loader.generate_batches(start_batch=job.next_batch):
             if event.is_set():
                 assert isinstance(
                     batch, np.ndarray
@@ -227,9 +245,13 @@ def process_job(
                     frames = det.predict(batch, "fishy")
                     logger.debug(f"Finished detecting batch {batchnr}.")
 
-                    # Iterate over all frames to set timestamps
+                    # Iterate over all frames to set variables in frame
                     for n, frame in enumerate(frames):
                         abs_frame_nr = batchnr * batchsize + n
+
+                        # Set relative frame number
+                        # TODO: This breaks tracing, add another variable in frame
+                        # frame.idx = framenumbers[n]
 
                         frame.timestamp = timestamp[n]
 
@@ -239,11 +261,12 @@ def process_job(
                             dets.set_frame(abs_frame_nr)
                             for dets in frame.detections
                         ]
+
+                        # store detections
+                        video_for_frame[abs_frame_nr].add_detection_frame(frame)
+
                         frame.idx = abs_frame_nr
                         all_frames.append(frame)
-
-                    # store detections
-                    # TODO
 
                     # Should only increment next_batch if storing of detections was successful
                     job.next_batch = batchnr + 1

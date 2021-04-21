@@ -80,3 +80,75 @@ def test_remove_object(sqlite_session_factory):
     repo.save()
 
     assert len(repo.list()) == 0
+
+
+def test_add_video_with_frame(sqlite_session_factory):
+    """Tests adding a video with some frames."""
+    session = sqlite_session_factory()
+    repo = SqlAlchemyVideoRepository(session)
+
+    vid = model.Video(
+        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
+
+    frame = model.Frame(
+        10,
+        [
+            model.Detection(
+                model.BBox(11, 22, 33, 44),
+                0.9,
+                2,
+                9,
+            )
+        ],
+    )
+
+    vid.add_detection_frame(frame)
+    repo.add(vid)
+    repo.save()
+
+    session = sqlite_session_factory()
+    repo = SqlAlchemyVideoRepository(session)
+
+    vid_ret = repo.get(1)
+    assert len(vid_ret.frames) == 1
+    frame_ret = vid_ret.frames[0]
+
+    assert len(frame_ret.detections) == 1
+    detection_ret = frame_ret.detections[0]
+
+    assert detection_ret.bbox == model.BBox(11, 22, 33, 44)
+    assert detection_ret.probability == 0.9
+    assert detection_ret.label == 2
+    assert detection_ret.frame == 9
+
+
+def test_video_with_frame_exceptions(sqlite_session_factory):
+    """Test exceptions with videos that have frames."""
+    session = sqlite_session_factory()
+    repo = SqlAlchemyVideoRepository(session)
+
+    vid = model.Video(
+        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+    )
+
+    repo.add(vid)
+
+    frame = model.Frame(
+        10,
+        [],
+    )
+
+    frame_big = model.Frame(
+        10000,
+        [],
+    )
+
+    with pytest.raises(IndexError):
+        vid.add_detection_frame(frame_big)
+
+    vid.add_detection_frame(frame)
+    repo.save()
+
+    with pytest.raises(RuntimeError):
+        vid.add_detection_frame(frame)
