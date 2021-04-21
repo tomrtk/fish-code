@@ -1,3 +1,19 @@
+/*
+ * projects.js - entrypoint
+ *
+ * This file contain all the necessary JavaScript for the project.  We
+ * use imports to extract code from `node_modules`.  They are pulled
+ * by npm.  It's easier and should reduce calls in the html to just
+ * one get.  Now all is bundled into one file
+ * `static/dist/js/projects.min.js`.
+ *
+ * Since jQuery is not a native module, we need to import $ manually.
+ *
+ * The custom code is also wrapped inside a function() to make sure that
+ * all the JavaScript is loaded only after all the HTML/CSS is loaded.
+ * This is to reduce popins that might occur.
+ */
+
 import "jquery";
 import "jstree";
 
