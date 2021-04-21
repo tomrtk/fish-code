@@ -24,7 +24,7 @@ class VideoLoader:
 
     def __init__(self, videos: List[Video], batchsize: int = 25) -> None:
         self.videos = videos
-        self.frames = sum([v.frames for v in self.videos])
+        self.frames = sum([v.frame_count for v in self.videos])
         self.batchsize = batchsize
 
     def __len__(self) -> int:
@@ -78,9 +78,9 @@ class VideoLoader:
         curframe = 0
         logger.info(f"Finding video for frame {frame}")
         for vid in self.videos:
-            if curframe + vid.frames >= frame:
+            if curframe + vid.frame_count >= frame:
                 return self.videos.index(vid), frame - curframe
-            curframe += vid.frames
+            curframe += vid.frame_count
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
     def generate_batches(self, start_batch: int = 0):
@@ -116,9 +116,9 @@ class VideoLoader:
         timestamps = []
         current_batch = start_batch
         for vid in self.videos[start_vid:]:
-            if start_frame > vid.frames:
+            if start_frame > vid.frame_count:
                 raise IndexError(
-                    f"Start frame of {start_frame} is too big, total frame in video is {vid.frames}."
+                    f"Start frame of {start_frame} is too big, total frame in video is {vid.frame_count}."
                 )
             for n, frame in enumerate(vid[start_frame:]):
                 batch.append(frame)

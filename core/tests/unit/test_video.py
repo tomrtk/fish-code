@@ -31,7 +31,7 @@ def test_video_exists(make_test_video):
 def test_video_members(make_test_video: Video):
     """Test class parameters in class."""
     video = make_test_video
-    assert video.frames == 70
+    assert video.frame_count == 70
     assert video.fps == 25
     assert video.width == 1280
     assert video.height == 720
@@ -42,13 +42,13 @@ def test_video_members(make_test_video: Video):
     video_raw = Video(
         "/some/path", 8, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
     )
-    assert video_raw.frames == 8
+    assert video_raw.frame_count == 8
 
 
 def test_getitem(make_test_video):
     """Test accessing one or more frames."""
     video = make_test_video
-    assert video.frames == 70
+    assert video.frame_count == 70
 
     frame = video[0]
     assert type(frame) == np.ndarray
@@ -69,7 +69,7 @@ def test_getitem(make_test_video):
 def test_getitem_exceptions(make_test_video):
     """Test exceptions in video class."""
     video = make_test_video
-    assert video.frames == 70
+    assert video.frame_count == 70
 
     with pytest.raises(IndexError):
         _ = video[70]
@@ -107,13 +107,15 @@ def test_timestamp_at(make_test_video: Video):
 
     assert video.timestamp_at(30) == datetime(2020, 3, 28, 12, 30, 11)
 
-    assert video.timestamp_at(video.frames) == datetime(2020, 3, 28, 12, 30, 12)
+    assert video.timestamp_at(video.frame_count) == datetime(
+        2020, 3, 28, 12, 30, 12
+    )
 
     with pytest.raises(IndexError):
         video.timestamp_at(-1)
 
     with pytest.raises(IndexError):
-        video.timestamp_at(video.frames + 1)
+        video.timestamp_at(video.frame_count + 1)
 
 
 def test_video_output_size_default():

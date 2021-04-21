@@ -108,7 +108,7 @@ class Video:
     def __init__(
         self,
         path: str,
-        frames: int,
+        frame_count: int,
         fps: int,
         width: int,
         height: int,
@@ -118,7 +118,7 @@ class Video:
     ) -> None:
         self.id: Optional[int] = None
         self._path: str = path
-        self.frames: int = frames
+        self.frame_count: int = frame_count
         self.fps: int = fps
         self.width: int = width
         self.height: int = height
@@ -127,7 +127,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
-        self.detection_frames: List[Frame] = list()
+        self.frames: List[Frame] = list()
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -213,7 +213,7 @@ class Video:
         if key < 0:
             raise IndexError
 
-        if key >= self.frames:
+        if key >= self.frame_count:
             raise IndexError
 
         self._video_capture = cv.VideoCapture(self._path)  # type: ignore
@@ -272,9 +272,10 @@ class Video:
         if not isinstance(interval, slice):
             raise TypeError("%s is not %s", type(interval), type(slice))
 
-        if isinstance(interval.stop, int) and interval.stop >= self.frames:
+        if isinstance(interval.stop, int) and interval.stop >= self.frame_count:
             raise IndexError(
-                "Index for stop in slice more then frame count %s", self.frames
+                "Index for stop in slice more then frame count %s",
+                self.frame_count,
             )
 
         if interval.start < 0:
@@ -287,9 +288,9 @@ class Video:
         # If slicing with `video[0:] or video[0:-1]` all frames from start to
         # end or end-1 of video is wanted.
         if interval.stop == None:
-            stop = self.frames
+            stop = self.frame_count
         elif interval.stop < 0:
-            stop = self.frames + interval.stop
+            stop = self.frame_count + interval.stop
             print(stop)
         else:
             stop = interval.stop
@@ -316,7 +317,7 @@ class Video:
 
     def __len__(self) -> int:
         """Get length of video in frames."""
-        return self.frames
+        return self.frame_count
 
     def exists(self) -> bool:
         """Check if the file path is a valid file."""
@@ -353,7 +354,7 @@ class Video:
 
         return cls(
             path=path,
-            frames=frame_numbers,
+            frame_count=frame_numbers,
             fps=fps,
             width=width,
             height=height,
@@ -376,7 +377,7 @@ class Video:
             Timestamp for the frame at index.
 
         """
-        if idx > self.frames:
+        if idx > self.frame_count:
             raise IndexError
         if idx < 0:
             raise IndexError
@@ -409,19 +410,19 @@ class Video:
         """
         for frame in frames:
             if not force_update:
-                if frame in self.detection_frames:
+                if frame in self.frames:
                     logger.warning(
                         f"Frame with index {frame.idx} is already added to this video."
                     )
                     return False
-            if frame.idx < self.frames:
+            if frame.idx < self.frame_count:
                 logger.error(
                     f"Frame of index {frame.idx} is beyond total frames in video."
                 )
                 raise RuntimeError
 
         for frame in frames:
-            self.detection_frames[frame.idx] = frame
+            self.frames[frame.idx] = frame
 
         return True
 
@@ -434,15 +435,15 @@ class Video:
             True if the entire video has been processed. The entire detection_frames dict must be fully
             mapped with data-frames for all frames in video.
         """
-        if not len(self.detection_frames) == self.frames:
+        if not len(self.frames) == self.frame_count:
             logger.info(
-                f"Video {self._path} is not fully processed. {len(self.detection_frames)}/{self.frames}"
+                f"Video {self._path} is not fully processed. {len(self.frames)}/{self.frame_count}"
             )
             return False
 
         # Check continious index
-        for i in range(self.frames):
-            if self.detection_frames[i].idx != i:
+        for i in range(self.frame_count):
+            if self.frames[i].idx != i:
                 logger.warning(
                     "Frame index {self.detection_frames[i].idx} does not match videos index {i}"
                 )
@@ -454,7 +455,7 @@ class Video:
     def get_all_data_frames(self) -> List[Frame]:
         """Get all data frames in video."""
         frames = []
-        for frame in self.detection_frames:
+        for frame in self.frames:
             frames.append(frame)
         logger.info(f"Here is data from video: {frames}")
         return frames
@@ -1011,7 +1012,7 @@ class Job:
         int     :
             Ammount of frames in total over all video objects in this job.
         """
-        return sum([v.frames for v in self.videos])
+        return sum([v.frame_count for v in self.videos])
 
     def status(self) -> Status:
         """Get the job status for this job."""

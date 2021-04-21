@@ -78,7 +78,7 @@ class Video(BaseModel):
 
     id: int
     path: str
-    frames: int
+    frame_count: int
     timestamp: Optional[datetime]
 
     class Config:

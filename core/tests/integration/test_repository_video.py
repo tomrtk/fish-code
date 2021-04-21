@@ -34,7 +34,7 @@ def test_add_object(sqlite_session_factory):
     repo.save()
 
     assert repo.get(1)._path == vid1._path
-    assert repo.get(1).frames == vid1.frames
+    assert repo.get(1).frame_count == vid1.frame_count
     assert repo.list() == [vid1, vid2]
     assert len(repo.list()) == 2
 
@@ -52,11 +52,11 @@ def test_change_object(sqlite_session_factory):
     repo.save()
 
     obj_change = repo.get(1)
-    assert obj_change.frames == 20
+    assert obj_change.frame_count == 20
 
-    obj_change.frames = 50
+    obj_change.frame_count = 50
     repo.save()
-    assert repo.get(1).frames == 50
+    assert repo.get(1).frame_count == 50
 
 
 def test_remove_object(sqlite_session_factory):
