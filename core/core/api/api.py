@@ -5,7 +5,7 @@ API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
 import logging
-from typing import Dict, List, Optional, Union
+from typing import Dict, List
 
 from fastapi import Depends, FastAPI, HTTPException, Query, status
 from sqlalchemy import create_engine
