@@ -149,7 +149,6 @@ class VideoLoader:
                     video_for_frame = dict()
 
             start_frame = 0
-            vid.vidcap_release()
 
         if len(batch) > 0:
             yield current_batch, (
