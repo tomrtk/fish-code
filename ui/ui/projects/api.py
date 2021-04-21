@@ -150,7 +150,7 @@ class Client:
         logger.info("get from %s", uri)
         return self._session.get(uri)
 
-    @Api.call(status_code=200)
+    @Api.call(status_code=201, acceptable_error=415)
     def post(
         self, uri: str, data: Optional[Dict[str, Any]] = None
     ) -> requests.Response:
@@ -173,31 +173,6 @@ class Client:
         See Also
         --------
         api.call : Decorator the handles the API calls.
-        """
-        logger.info("post to %s, %s", uri, data)
-        return self._session.post(uri, data=data)
-
-    @Api.call(status_code=201, acceptable_error=415)
-    def create(self, uri: str, data: Dict[str, Any]) -> requests.Response:
-        """Perform a POST request to `uri` with `data` as body of request.
-
-        Expects a successful call to return a status_code = 201.
-
-        Parameters
-        ----------
-        uri     :   str
-                    API endpoint.
-        data    :   Dict[str, Any]
-                    Data to be posted as request body.
-
-        Returns
-        -------
-        Optional[requests.Response]
-            Returns a `Response` if no errors, else `None`
-
-        See Also
-        --------
-        api.call : Decorator that handles the API calls.
         """
         logger.info("post to %s, %s", uri, data)
         return self._session.post(uri, json=data)
@@ -268,7 +243,9 @@ class Client:
         project     :   Project
                         Project to send to `core` api.
         """
-        result = self.post(f"{self._endpoint}/projects/", project.to_json())  # type: ignore
+        result = self.post(
+            f"{self._endpoint}/projects/", project.to_post_dict()
+        )  # type: ignore
 
         if isinstance(result, requests.Response):
             logger.info(
@@ -349,9 +326,9 @@ class Client:
         Optional[Job]
                     Single `Job` from `core`.
         """
-        result = self.create(  # type:ignore
+        result = self.post(  # type:ignore
             f"{self._endpoint}/projects/{project_id}/jobs",
-            data=json.loads(job.to_json()),
+            job.to_post_dict(),
         )
 
         if not isinstance(result, requests.Response):
