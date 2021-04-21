@@ -134,6 +134,13 @@ class ProjectBase(HashableBaseModel):
     location: Optional[str] = None
 
 
+class ProjectBare(ProjectBase):
+    """Bare model for `Project` that don't hold a list of jobs."""
+
+    id: int
+    job_count: int
+
+
 class Project(ProjectBase):
     """`Project` class used to send object on API."""
 

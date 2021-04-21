@@ -4,3 +4,12 @@ workflow:
 
 include:
   - ci/child-pipeline.yml
+
+tests:
+  stage: test
+  extends: .cache_settings
+  script:
+    - echo "Disabled!"
+  cache:
+    policy: pull
+  artifacts: {}
