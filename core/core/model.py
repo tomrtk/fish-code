@@ -409,7 +409,7 @@ class Video:
         """
         for frame in frames:
             if not force_update:
-                if frame in self.detection_frames.values():
+                if frame in self.detection_frames:
                     logger.warning(
                         f"Frame with index {frame.idx} is already added to this video."
                     )
