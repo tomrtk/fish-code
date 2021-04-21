@@ -129,17 +129,25 @@ class VideoLoader:
                 framenumbers.append(n + start_frame)
                 video_for_frame[n + start_frame] = vid
                 if len(batch) == self.batchsize:
+                    progress = round(
+                        ((current_batch + 1) / self._total_batches) * 100
+                    )
+
                     yield current_batch, (
+                        progress,
                         np.array(batch),
                         timestamps,
                         video_for_frame,
                         framenumbers,
                     )
+
                     logger.info(
-                        f"Batch %s out of %s completed in %ss",
-                        current_batch,
-                        self._total_batches,
-                        round(time.time() - batch_start_time, 2),
+                        "Batch {} out of {} completed in {}s, job {}% complete".format(
+                            current_batch,
+                            self._total_batches,
+                            round(time.time() - batch_start_time, 2),
+                            progress,
+                        )
                     )
                     batch_start_time = time.time()
                     current_batch += 1
@@ -152,6 +160,7 @@ class VideoLoader:
 
         if len(batch) > 0:
             yield current_batch, (
+                100,
                 np.array(batch),
                 timestamps,
                 video_for_frame,
@@ -242,6 +251,7 @@ def process_job(
 
         # Generate batches of frames for remaining batches
         for batchnr, (
+            progress,
             batch,
             timestamp,
             video_for_frame,
@@ -254,7 +264,6 @@ def process_job(
                 assert isinstance(batchnr, int), "Batch number must be int"
 
                 try:
-
                     logger.debug(f"Now detecting batch {batchnr}...")
                     frames = det.predict(batch, "fishy")
                     logger.debug(f"Finished detecting batch {batchnr}.")
@@ -286,7 +295,9 @@ def process_job(
 
                     # Should only increment next_batch if storing of detections was successful
                     job.next_batch = batchnr + 1
+                    job.progress = progress
                     repo.save()
+                    logger.debug(f"Job {job.id} is {progress}% complete..")
 
                 except KeyboardInterrupt:
                     logger.warning(

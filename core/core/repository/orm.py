@@ -53,6 +53,7 @@ jobs = Table(
     Column("location", Text(DESCRIPTION_SIZE)),
     Column("project_id", Integer, ForeignKey("projects.id")),
     Column("next_batch", Integer, nullable=False),
+    Column("progress", Integer, nullable=False),
 )
 
 object_job_assoc = Table(

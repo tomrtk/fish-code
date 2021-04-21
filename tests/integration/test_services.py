@@ -62,8 +62,10 @@ def test_processing_and_scheduler():
         time.sleep(15)
 
     job_data = requests.get(url).json()
+    print(job_data)
 
     assert job_data["_status"] == "Done"
+    assert job_data["progress"] == 100
 
     objects = job_data["_objects"]
 
@@ -87,12 +89,14 @@ def test_video_loader():
 
     results = []
     for batchnr, (
+        progress,
         batch,
         timestamp,
         video_for_frame,
         framenumbers,
     ) in video_loader.generate_batches():
         assert isinstance(batchnr, int)
+        assert isinstance(progress, int)
         assert isinstance(batch, np.ndarray)
         assert isinstance(timestamp, List)
         assert isinstance(video_for_frame, Dict)
@@ -117,7 +121,7 @@ def test_video_loader_from_batch():
     video_loader = services.VideoLoader(videos, 15)
 
     results = []
-    for batchnr, (batch, _, _, _) in video_loader.generate_batches(
+    for batchnr, (_, batch, _, _, _) in video_loader.generate_batches(
         start_batch=1
     ):
         assert batchnr > 0

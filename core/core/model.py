@@ -850,6 +850,7 @@ class Job:
         description: str,
         location: str,
         status: Status = Status.PENDING,
+        progress: int = 0,
     ) -> None:
         self.id: Optional[int] = None
         self.name: str = name
@@ -858,7 +859,8 @@ class Job:
         self._objects: List[Object] = list()
         self.videos: List[Video] = list()
         self.location: str = location
-        self.next_batch = 0
+        self.next_batch: int = 0
+        self.progress: int = progress
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
