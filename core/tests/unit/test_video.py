@@ -226,4 +226,4 @@ def test_video_iter(make_test_video):
 
     all_frames = list(it)
 
-    assert len(all_frames) == video.frames
+    assert len(all_frames) == video.frame_count
