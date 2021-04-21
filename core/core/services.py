@@ -220,6 +220,14 @@ def process_job(
         # TODO: Should get all previously detected Frames/Detections from repo
         pass
 
+    # Populate all_frames variable with previously detected frames.
+    for vid in job.videos:
+        vid.is_processed()
+        for frame in vid.frames:
+            all_frames.append(frame)
+
+    logger.info(f"Total detected frames in job is {len(all_frames)}")
+
     # Detecting
     if event.is_set():
 
