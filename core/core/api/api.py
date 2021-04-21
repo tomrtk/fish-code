@@ -7,7 +7,7 @@ server is running.
 import logging
 from typing import Dict, List
 
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import Depends, FastAPI, HTTPException, Query, status
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
@@ -61,24 +61,99 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-@core_api.get("/projects/", response_model=List[schema.Project])
+def convert_to_bare(project: model.Project) -> schema.ProjectBare:
+    """Convert `model.Project` to `schema.ProjectBare`.
+
+    Parameters
+    ----------
+    data : model.Project
+        The data to convert from.
+
+    Returns
+    -------
+    schema.Project
+        Converted data from model to schema object.
+
+    Raises
+    ------
+    TypeError
+        When neither valid type is passed.
+    """
+    if not isinstance(project, model.Project):
+        raise TypeError(
+            f"{type(project)} in not of type model.Project.",
+        )
+
+    return schema.ProjectBare(
+        id=project.id,
+        name=project.name,
+        number=project.number,
+        description=project.description,
+        location=project.location,
+        job_count=len(project.jobs),
+    )
+
+
+@core_api.get("/projects/", response_model=List[schema.ProjectBare])
 def list_projects(
-    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False)
+    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+    page: int = Query(
+        1,
+        ge=1,
+        description="Select which page to fetch.",
+    ),
+    per_page: int = Query(
+        10, ge=1, description="Choose how many items per page."
+    ),
 ):
     """List all projects.
 
     Endpoint returns a list of all projects to GET requests.
 
+    The endpoint supports using pagination by configure `page` and
+    `per_page`.
+
+    Parameters
+    ----------
+    - page : int
+        Select which page to fetch.
+    - per_page : int
+        Choose how many items per page.
+
     Returns
     -------
-    List[Project]
+    List[schema.ProjectBare]
         List of all `Project`.
     """
-    return repo.list()
+    list_length = len(repo.list())
+
+    if list_length:
+        return []
+
+    # Set to - 1 because page != index in a list.
+    begin_idx = (page - 1) * per_page
+    end_idx = begin_idx + per_page
+
+    if end_idx > list_length:
+        end_idx = list_length
+
+    resp: List[schema.ProjectBare] = list()
+
+    for proj in repo.list()[slice(begin_idx, end_idx)]:
+        try:
+            resp.append(convert_to_bare(proj))
+        except TypeError as e:
+            logger.warning(e)
+
+    return resp
 
 
-@core_api.post("/projects/", response_model=schema.Project)
-def add_projects(
+@core_api.post(
+    "/projects/",
+    response_model=schema.ProjectBare,
+    status_code=status.HTTP_201_CREATED,
+)
+def add_project(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
 ):
@@ -91,10 +166,10 @@ def add_projects(
     Project
         New `Project` with `id`.
     """
-    return repo.add(model.Project(**project.dict()))
+    return convert_to_bare(repo.add(model.Project(**project.dict())))
 
 
-@core_api.get("/projects/{project_id}/", response_model=schema.Project)
+@core_api.get("/projects/{project_id}/", response_model=schema.ProjectBare)
 def get_project(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -117,7 +192,7 @@ def get_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    return project
+    return convert_to_bare(project)
 
 
 @core_api.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
