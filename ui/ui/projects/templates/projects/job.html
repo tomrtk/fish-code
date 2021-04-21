@@ -137,22 +137,6 @@
       >
       {% endif %}
     </div>
-    <div class="flex flex-row justify-between">
-      <div class="flex flex-row items-center">
-        <span class="font-bold mr-4">Status: </span>
-
-        <div class="flex flex-row items-center">
-          <button
-            class="btn btn-{{ job._status|lower }} flex flex-row
-            items-center"
-            type="submit"
-            id="btn-toggle-job"
-          >
-            {{ job._status|replace("Pending","Start Job") }}
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
   <div class="flex-none text-center mb-2 tabbed relative">
     <a
@@ -216,8 +200,16 @@
             {% endfor %}
           </tbody>
         </table>
-        {% else %}<span class="py-6 font-bold inline-block">...</span>{% endif
-        %}
+        {% else %}<span class="py-8 px-4 inline-block">
+          <button
+            class="btn btn-{{ job._status|lower }} flex flex-row
+            items-center"
+            type="submit"
+            id="btn-toggle-job"
+          >
+            {{ job._status|replace("Pending","Start Job") }}
+          </button> </span
+        >{% endif %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />

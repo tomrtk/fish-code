@@ -365,7 +365,7 @@ class Client:
         old_status = job.get_status()
         new_status: str = ""
 
-        if old_status == "pending" or old_status == "paused":
+        if old_status == "pending":
             # type:ignore
             r_post = self.toggle(
                 f"{self._endpoint}/projects/{project_id}/jobs/{job_id}/start",
@@ -374,7 +374,7 @@ class Client:
             if r_post is None:
                 return (None, None)
 
-            new_status = "running"
+            new_status = "queued"
         elif old_status == "running":
             # type:ignore
             r_post = self.toggle(
@@ -384,7 +384,7 @@ class Client:
             if r_post is None:
                 return (None, None)
 
-            new_status = r_post.json().get("_status", "").lower()
+            new_status = "paused"
         else:
             new_status = "done"
 
