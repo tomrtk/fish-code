@@ -2,6 +2,7 @@
 import logging
 import math
 import threading
+import time
 from queue import Empty, Queue
 from typing import Dict, List, Tuple
 
@@ -116,6 +117,7 @@ class VideoLoader:
         framenumbers = []
         video_for_frame: Dict[int, Video] = dict()
         current_batch = start_batch
+        batch_start_time = time.time()
         for vid in self.videos[start_vid:]:
             if start_frame > vid.frame_count:
                 raise IndexError(
@@ -127,14 +129,19 @@ class VideoLoader:
                 framenumbers.append(n + start_frame)
                 video_for_frame[n + start_frame] = vid
                 if len(batch) == self.batchsize:
-                    logger.info(f"Yeilding batch {current_batch}...")
                     yield current_batch, (
                         np.array(batch),
                         timestamps,
                         video_for_frame,
                         framenumbers,
                     )
-                    logger.info(f"Batch {current_batch} complete")
+                    logger.info(
+                        f"Batch %s out of %s completed in %ss",
+                        current_batch,
+                        self._total_batches,
+                        round(time.time() - batch_start_time, 2),
+                    )
+                    batch_start_time = time.time()
                     current_batch += 1
                     batch = []
                     timestamps = []
