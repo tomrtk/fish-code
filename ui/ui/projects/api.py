@@ -375,16 +375,6 @@ class Client:
                 return (None, None)
 
             new_status = "queued"
-        elif old_status == "running":
-            # type:ignore
-            r_post = self.toggle(
-                f"{self._endpoint}/projects/{project_id}/jobs/{job_id}/pause",
-            )
-
-            if r_post is None:
-                return (None, None)
-
-            new_status = "paused"
         else:
             new_status = "done"
 
