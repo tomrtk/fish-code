@@ -1,7 +1,9 @@
 """Integration test between model and services."""
 import logging
 import time
+from typing import Dict, List
 
+import numpy as np
 import pytest
 import requests
 
@@ -84,7 +86,18 @@ def test_video_loader():
     video_loader = services.VideoLoader(videos, 15)
 
     results = []
-    for batchnr, (batch, timestamp) in video_loader.generate_batches():
+    for batchnr, (
+        batch,
+        timestamp,
+        video_for_frame,
+        framenumbers,
+    ) in video_loader.generate_batches():
+        assert isinstance(batchnr, int)
+        assert isinstance(batch, np.ndarray)
+        assert isinstance(timestamp, List)
+        assert isinstance(video_for_frame, Dict)
+        assert isinstance(framenumbers, List)
+
         results.append(len(batch))
 
     assert results[0] == 15  # batch size == 15
@@ -104,9 +117,10 @@ def test_video_loader_from_batch():
     video_loader = services.VideoLoader(videos, 15)
 
     results = []
-    for batchnr, (batch, timestamp) in video_loader.generate_batches(
+    for batchnr, (batch, _, _, _) in video_loader.generate_batches(
         start_batch=1
     ):
+        assert batchnr > 0
         results.append(len(batch))
 
     assert results[0] == 15  # batch size == 15
