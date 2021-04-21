@@ -263,7 +263,9 @@ def process_job(
                         ]
 
                         # store detections
-                        video_for_frame[abs_frame_nr].add_detection_frame(frame)
+                        video_for_frame[framenumbers[n]].add_detection_frame(
+                            frame
+                        )
 
                         frame.idx = abs_frame_nr
                         all_frames.append(frame)
