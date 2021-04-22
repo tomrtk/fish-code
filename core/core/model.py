@@ -442,14 +442,6 @@ class Video:
         logger.info("Video {self._path} is processed.")
         return True
 
-    def get_all_data_frames(self) -> List[Frame]:
-        """Get all data frames in video."""
-        frames = []
-        for frame in self.frames:
-            frames.append(frame)
-        logger.info(f"Here is data from video: {frames}")
-        return frames
-
 
 def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
     """Parse string to date.

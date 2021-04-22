@@ -48,13 +48,6 @@ class VideoLoader:
         """
         return math.ceil(self.frames / self.batchsize)
 
-    def fetch_processed_data(self) -> List[Frame]:
-        """Get previously processed frames from all videos."""
-        frames = []
-        for video in self.videos:
-            frames.append(video.get_all_data_frames())
-        return frames
-
     def _video_for_frame(self, frame: int) -> Tuple[int, int]:
         """Find the video belonging to an absolute frame number, along with start position.
 
