@@ -179,6 +179,8 @@ def process_job(
         Project id of the porject to start processing.
     job_id      :   int
         Job id of the job to start processing.
+    event       :   threading.Event
+        Event that controls if the process shall keep running, or stop.
     session     :   sqlalchemy.session
         SQLAlchemy session for this process.
     """
