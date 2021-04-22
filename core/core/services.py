@@ -86,13 +86,20 @@ class VideoLoader:
 
         Yields
         ------
-        batchnr, (batch, timestamps)    :   int, (np.ndarray, list)
-            Yields batch along with absolute batch number and associated timestamps.
+        batchnr, (progress, batch, timestamps, video_for_frame, framenumbers)    :   int, (int, list, list, dict, list)
+            Yields images from video along with absolute batch number and associated values in dicts and lists.
+
+            Batchnr is the number of batch that is returned.
+            Progress is a percent representation how many batches are completed. Format is for example 72.
+            Batch is a list containing np.ndarray of images in this batch.
+            Timestamps is a list containing datetime for all frames in a batch.
+            video_for_frame is a dict of type dict[int, Video] and stores what video a frame belongs to.
+            framenumbers is a list containing ints. Where the value is the relative frame number in that video.
 
         Raises
         ------
         IndexError
-            If start_batch parameter is larger than total batches in this VideoLoader
+            If batch_index parameter is larger than total batches in this VideoLoader
         """
         if batch_index > self._total_batches:
             raise IndexError(
