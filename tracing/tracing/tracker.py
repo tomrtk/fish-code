@@ -328,6 +328,7 @@ class Tracker:
                             d.true_track_id,
                         ),
                     )
+                    break
 
     def _update_object(self, track_id: int, detection: Detection) -> None:
         """Update tracked objects.
