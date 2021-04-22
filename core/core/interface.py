@@ -1,13 +1,12 @@
 """Interface module for communicating with other packages like `Tracing`."""
 import io
 import logging
-from dataclasses import asdict, dataclass
-from datetime import datetime
-from typing import Dict, List, Optional
+from dataclasses import dataclass
+from typing import List, Tuple
 
+import cv2 as cv
 import numpy as np
 import requests
-from PIL import Image
 
 import core.model
 
@@ -16,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 def to_track(
     frames: List[core.model.Frame], host: str = "127.0.0.1", port: str = "8001"
-) -> Optional[List[core.model.Object]]:
+) -> List[core.model.Object]:
     """Send frames to tracker.
 
     Parameter
@@ -63,7 +62,7 @@ def to_track(
             o.time_out = time_out
         return objects
 
-    return None
+    return []
 
 
 @dataclass
@@ -158,17 +157,9 @@ class Detector:  # pragma: no cover
 
         # if a single image
         if frames.ndim == 3:
-            byte_io = io.BytesIO()
-            Image.fromarray(frames).save(byte_io, "png")
-            byte_io.seek(0)
-            byte_frames = [("images", byte_io)]
+            byte_frames = [("images", img_to_byte(frames))]
         else:
-            byte_frames = list()
-            for i in range(frames.shape[0]):
-                byte_io = io.BytesIO()
-                Image.fromarray(frames[i, ...]).save(byte_io, "png")
-                byte_io.seek(0)
-                byte_frames.append(("images", byte_io))
+            byte_frames = [("images", img_to_byte(img)) for img in frames]
 
         response = requests.post(
             f"http://{self.host}:{self.port}/predictions/{model_name}/",
@@ -233,3 +224,25 @@ class Detector:  # pragma: no cover
         )
 
         return list()
+
+
+def img_to_byte(img: np.ndarray) -> io.BytesIO:
+    """Convert image as np.ndarray to image byte.
+
+    This tried to do as few check to keep it as fast as possible.
+
+    Parameters
+    ----------
+    img : np.ndarray
+        imagedata
+
+    Return
+    ------
+    io.BytesIO
+        Image data as byte.
+    """
+    img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+    retval, img_byte = cv.imencode(".png", img)  # type: ignore
+    if not retval:
+        raise RuntimeError("Unexpected error when converting image to byte.")
+    return io.BytesIO(img_byte)
