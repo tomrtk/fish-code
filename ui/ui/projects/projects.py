@@ -171,27 +171,29 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(project_id: int, job_id: int):
         """Download results of a job as a csv-file."""
-        job = client.get_job(job_id, project_id)
-        if job is None:
+        job = client.get_job(project_id, job_id)
+
+        if job is None or not isinstance(job, Job):
             return render_template("404.html"), 404
 
         obj_stats = job.get_object_stats()
-
-        if not isinstance(job, Job):
-            print("nei")
 
         # PoC of download file
         with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
 
             # write headers to file
-            csv_file.write(b"id,label,time_in,time_out,probability\n")
+            csv_file.write(
+                b"id,label,time_in,time_out,probability,detection_label,detection_prob\n"
+            )
 
-            for idx, obj in enumerate(job._objects):
-                csv_file.write(
-                    str.encode(
-                        f"{idx},{obj.label},{obj.time_in},{obj.time_out},{obj.probability}\n"
-                    )
-                )
+            for idx, obj in enumerate(job._objects, start=1):
+                for detection_label, detections in obj._detections.items():
+                    for detection_prob in detections:
+                        csv_file.write(
+                            str.encode(
+                                f"{idx},{obj.label},{obj.time_in},{obj.time_out},{obj.probability},{detection_label},{detection_prob}\n"
+                            )
+                        )
 
             csv_file.seek(0)
 
