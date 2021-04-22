@@ -1,40 +1,3 @@
-<!--
-{% block extra_js %}
-/*
- * The reason that this is added to the template this way is that we did
- * not find a nice way to being able to parse the url when needing
- * variables that were only available inside the template.
- */
-
-btn = $("#btn-toggle-job");
-
-if (btn.hasClass("btn-pending")) {
-  btn.bind("click", function () {
-    $.ajax({
-      type: "PUT",
-      url:
-        $SCRIPT_ROOT +
-        "/projects/{{ job.project_id }}/jobs/{{ job.id}}/toggle",
-      dataType: "json",
-    })
-      .done(function (data) {
-        btn.removeClass("btn-" + data["old_status"]);
-        btn.text(data["new_status"].capitalize());
-        btn.addClass("btn-" + data["new_status"]);
-      })
-      .fail(function (data, textStatus, xhr) {
-        //This shows status code eg. 403
-        console.log("error", data.status);
-        //This shows status message eg. Forbidden
-        console.log("STATUS: " + xhr);
-        return false;
-      });
-    return false;
-  });
-}
-{% endblock %}
--->
-
 {% extends "base.html" %} {% block main %}
 <main class="container flex flex-col mx-auto p-8">
   <div class="border-b-2 mb-4">
@@ -174,22 +137,6 @@ if (btn.hasClass("btn-pending")) {
       >
       {% endif %}
     </div>
-    <div class="flex flex-row justify-between">
-      <div class="flex flex-row items-center">
-        <span class="font-bold mr-4">Status: </span>
-
-        <div class="flex flex-row items-center">
-          <button
-            class="btn btn-{{ job._status|lower }} flex flex-row
-            items-center"
-            type="submit"
-            id="btn-toggle-job"
-          >
-            {{ job._status|replace("Pending","Start Job") }}
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
   <div class="flex-none text-center mb-2 tabbed relative">
     <a
@@ -253,8 +200,16 @@ if (btn.hasClass("btn-pending")) {
             {% endfor %}
           </tbody>
         </table>
-        {% else %}<span class="py-6 font-bold inline-block">...</span>{% endif
-        %}
+        {% else %}<span class="py-8 px-4 inline-block">
+          <button
+            class="btn btn-{{ job._status|lower }} flex flex-row
+            items-center"
+            type="submit"
+            id="btn-toggle-job"
+          >
+            {{ job._status|replace("Pending","Start Job") }}
+          </button> </span
+        >{% endif %}
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />
