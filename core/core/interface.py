@@ -244,5 +244,5 @@ def img_to_byte(img: np.ndarray) -> io.BytesIO:
     img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
     retval, img_byte = cv.imencode(".png", img)  # type: ignore
     if not retval:
-        raise RuntimeError("shit went haywire")
+        raise RuntimeError("Unexpected error when converting image to byte.")
     return io.BytesIO(img_byte)
