@@ -445,7 +445,7 @@ def queue_job(project_id: int, job_id: int, session: Session):
             return
         elif job.status() is Status.RUNNING:
             logger.info(
-                f"Running job {job_id} in project {project_id} scheduled to restart."
+                f"Running job {job_id} in project {project_id} scheduled to resume."
             )
             job_queue.put((project_id, job_id))
             return
