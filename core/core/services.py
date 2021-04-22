@@ -247,7 +247,7 @@ def process_job(
     if event.is_set():
 
         if job.next_batch > 0:
-            logger.info(f"Job reusming from batch {job.next_batch}")
+            logger.info(f"Job resuming from batch {job.next_batch}")
 
         # Generate batches of frames for remaining batches
         for batchnr, (
