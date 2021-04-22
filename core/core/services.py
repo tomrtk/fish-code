@@ -83,12 +83,12 @@ class VideoLoader:
             curframe += vid.frame_count
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
-    def generate_batches(self, start_batch: int = 0):
+    def generate_batches(self, batch_index: int = 0):
         """Generate batches from list of videos, with optional batch offset.
 
         Parameter
         ---------
-        start_batch :   int
+        batch_index :   int
             Batch number to start from.
 
         Yields
@@ -101,12 +101,12 @@ class VideoLoader:
         IndexError
             If start_batch parameter is larger than total batches in this VideoLoader
         """
-        if start_batch > self._total_batches:
+        if batch_index > self._total_batches:
             raise IndexError(
-                f"Start batch index {start_batch} is too big, total videos are {len(self.videos)}."
+                f"Start batch index {batch_index} is too big, total videos are {len(self.videos)}."
             )
 
-        start_frame = self.batchsize * start_batch
+        start_frame = self.batchsize * batch_index
         logger.debug(f"Absolute frame number is {start_frame}")
         start_vid, start_frame = self._video_for_frame(start_frame)
         logger.debug(f"start_vid is {start_vid}")
@@ -116,7 +116,7 @@ class VideoLoader:
         timestamps = []
         framenumbers = []
         video_for_frame: Dict[int, Video] = dict()
-        current_batch = start_batch
+        current_batch = batch_index
         batch_start_time = time.time()
         for vid in self.videos[start_vid:]:
             if start_frame > vid.frame_count:
@@ -256,7 +256,7 @@ def process_job(
             timestamp,
             video_for_frame,
             framenumbers,
-        ) in video_loader.generate_batches(start_batch=job.next_batch):
+        ) in video_loader.generate_batches(batch_index=job.next_batch):
             if event.is_set():
                 assert isinstance(
                     batch, np.ndarray

@@ -122,7 +122,7 @@ def test_video_loader_from_batch():
 
     results = []
     for batchnr, (_, batch, _, _, _) in video_loader.generate_batches(
-        start_batch=1
+        batch_index=1
     ):
         assert batchnr > 0
         results.append(len(batch))
