@@ -1,6 +1,7 @@
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detection and counting of freshwater fish = NINA</title>
     <link
       rel="icon"
@@ -10,10 +11,6 @@
     <link
       href="{{ url_for('static', filename='dist/css/style.min.css') }}"
       rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='dist/js/jstree/themes/default/style.min.css') }}"
     />
   </head>
   <body class="bg-gray-100 overflow-y-scroll">
@@ -37,70 +34,7 @@
     </div>
     <script
       type="text/javascript"
-      src="{{ url_for('static', filename='dist/js/jquery/jquery.min.js') }}"
+      src="{{ url_for('static', filename='dist/js/projects.min.js') }}"
     ></script>
-    <script
-      type="text/javascript"
-      src="{{ url_for('static', filename='dist/js/jstree/jstree.min.js') }}"
-    ></script>
-    <script type="text/javascript">
-      $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-    </script>
-    <script type="text/javascript">
-      /* https://stackoverflow.com/a/3291856/182868 */
-      String.prototype.capitalize = function () {
-        return this.charAt(0).toUpperCase() + this.slice(1);
-      };
-
-      $(function () {
-        $("#jstree").jstree({
-          sort: 1,
-          core: {
-            data: {
-              url: "/projects/json",
-              dataType: "json", // needed only if you do not supply JSON headers
-            },
-            themes: {
-              name: "default",
-            },
-          },
-          plugins: ["checkbox", "sort", "types", "wholerow"],
-          sort: function (a, b) {
-            return this.get_type(a) === this.get_type(b)
-              ? this.get_text(a) > this.get_text(b)
-                ? 1
-                : -1
-              : this.get_type(a) >= this.get_type(b)
-              ? 1
-              : -1;
-          },
-        });
-
-        $("#jstree").on("ready.jstree", function (e, data) {
-          return data.instance.open_node("#j1_1_anchor", false, true);
-        });
-
-        $("#jstree").on(
-          "select_node.jstree deselect_node.jstree",
-          function (e) {
-            var selected_titles = [];
-            var selectedIndexes = $("#jstree").jstree("get_selected", true);
-            $.each(selectedIndexes, function () {
-              var tree = $("#jstree").jstree();
-              if (tree.is_leaf(this)) {
-                selected_titles.push(tree.get_path(this, "/"));
-              }
-            });
-
-            if (selected_titles.length > 0) {
-              $("#tree_data").val(JSON.stringify(selected_titles));
-            } else {
-              $("#tree_data").removeAttr("value");
-            }
-          }
-        );
-        {% block extra_js %}{% endblock %}
-      });
-    </script>
   </body>
 </html>
