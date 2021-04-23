@@ -110,8 +110,18 @@ def test_get_projects():
     """Test getting project list endpoint."""
     with TestClient(api.core_api) as client:
         response = client.get("/projects/")
-
         assert response.status_code == 200
+        assert response.headers["x-total"] == "1"
+
+        response = client.get("/projects/?page=1&per_page=1")
+        assert response.status_code == 200
+        assert response.headers["x-page"] == "1"
+        assert response.headers["x-per-page"] == "1"
+
+        response = client.get("/projects/?page=1313&per_page=1313")
+        assert response.status_code == 200
+        assert response.headers["x-page"] == "1313"
+        assert response.headers["x-per-page"] == "1313"
 
 
 def test_add_project():

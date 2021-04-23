@@ -7,7 +7,7 @@ server is running.
 import logging
 from typing import Dict, List
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+from fastapi import Depends, FastAPI, HTTPException, Query, Response, status
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
@@ -94,8 +94,53 @@ def convert_to_bare(project: model.Project) -> schema.ProjectBare:
     )
 
 
+def construct_pagination_data(
+    count: int, page: int, per_page: int
+) -> Dict[str, str]:
+    """Create pagination data for easy usage when contruction routes.
+
+    The function returns a dict which has all it values calculated
+    from the parameters sent to the route.
+
+    Parameters
+    ----------
+    count : int
+        Number of items returned by the database.
+    page: int
+        Current page the route is serving.
+    per_page: int
+        Number of items per page.
+
+    Returns
+    -------
+    parameters : dict
+        Complete dictionary with computed data.
+    """
+    pagination: Dict = dict()
+
+    pagination["x-total"] = f"{count}"
+    pagination["x-page"] = f"{page}"
+    pagination["x-per-page"] = f"{per_page}"
+
+    total_pages: int = int(count / per_page) + 1
+    pagination["x-total-pages"] = f"{total_pages}"
+
+    prev_page = (page - 1) if page > 1 else page
+    next_page = (page + 1) if page < total_pages else page
+
+    if page > total_pages:
+        prev_page = (total_pages - 1) if total_pages > 1 else total_pages
+        next_page = total_pages
+
+    pagination["x-prev-page"] = f"{prev_page}"
+    pagination["x-next-page"] = f"{next_page}"
+
+    return pagination
+
+
 @core_api.get("/projects/", response_model=List[schema.ProjectBare])
 def list_projects(
+    response: Response,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
     page: int = Query(
         1,
@@ -144,6 +189,13 @@ def list_projects(
             resp.append(convert_to_bare(proj))
         except TypeError as e:
             logger.warning(e)
+
+    # Calculate the pagination data.
+    pagination_response = construct_pagination_data(list_length, page, per_page)
+
+    # Populate the headers with the pagination data.
+    for k, v in pagination_response.items():
+        response.headers[k] = v
 
     return resp
 
