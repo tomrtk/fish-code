@@ -1,4 +1,5 @@
 """Test of detection API."""
+import os
 from pathlib import Path
 
 import numpy as np
@@ -6,7 +7,7 @@ from fastapi.testclient import TestClient
 
 from detection.api import detection_api, halve_batch
 
-TEST_FILE_PATH = Path("./tests/test_data/")
+TEST_FILE_PATH = Path(os.path.dirname(__file__) + "/test_data/")
 
 
 def test_list_models():

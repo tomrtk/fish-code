@@ -1,4 +1,5 @@
 """Tests for API."""
+import os
 from datetime import datetime
 
 import pytest
@@ -481,7 +482,7 @@ def test_add_and_get_job_with_videos():
                 "description": "Job description",
                 "location": "test",
                 "videos": [
-                    "./tests/integration/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+                    f"{os.path.dirname(__file__)}/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
                 ],
             },
         )
@@ -508,7 +509,7 @@ def test_add_and_get_job_with_videos():
                 "name": "Bad job",
                 "description": "Bad job description",
                 "location": "bad location",
-                "videos": ["./tests/integration/test-abbor.mp4"],
+                "videos": [f"{os.path.dirname(__file__)}/test-abbor.mp4"],
             },
         )
 

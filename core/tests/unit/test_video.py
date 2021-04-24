@@ -1,4 +1,5 @@
 """Tests for `Video` class."""
+import os
 from datetime import datetime
 
 import numpy as np
@@ -11,7 +12,9 @@ from core.model import TimestampNotFoundError, Video, _get_video_metadata
 @pytest.fixture
 def make_test_video() -> Video:
     """Fixture returning a valid `Video` object."""
-    return Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    return Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
 
 
 def test_video_exists(make_test_video):
@@ -93,10 +96,10 @@ def test_getitem_exceptions(make_test_video):
 def test_make_file_exceptions():
     """Test invalid path and timestamp."""
     with pytest.raises(FileNotFoundError):
-        _ = Video.from_path("./tests/not_here.mp4")
+        _ = Video.from_path(os.path.dirname(__file__) + "/not_here.mp4")
 
     with pytest.raises(TimestampNotFoundError):
-        _ = Video.from_path("./tests/unit/test-no-time.mp4")
+        _ = Video.from_path(os.path.dirname(__file__) + "/test-no-time.mp4")
 
 
 def test_timestamp_at(make_test_video: Video):
@@ -119,7 +122,7 @@ def test_timestamp_at(make_test_video: Video):
 def test_video_output_size_default():
     """Test default video output size."""
     video_default = Video.from_path(
-        "./tests/unit/test-[2020-03-28_12-30-10].mp4"
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
     )
 
     assert video_default[0].shape[0] == core.model.VIDEO_DEFAULT_HEIGHT  # type: ignore
@@ -135,7 +138,7 @@ def test_video_output_size_custom():
     WIDTH = 1280
 
     video_1280 = Video.from_path(
-        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+        path=f"{os.path.dirname(__file__)}/test-[2020-03-28_12-30-10].mp4",
         output_width=WIDTH,
         output_height=HEIGHT,
     )
@@ -147,7 +150,7 @@ def test_video_output_size_custom():
     assert video_1280[0:2].shape[2] == WIDTH
 
     video_very_small = Video.from_path(
-        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+        path=f"{os.path.dirname(__file__)}/test-[2020-03-28_12-30-10].mp4",
         output_width=20,
         output_height=20,
     )
@@ -160,7 +163,7 @@ def test_wrong_video_output_size():
     """Test video output size exception, must be positive numbers."""
     with pytest.raises(ValueError):
         _ = Video.from_path(
-            path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+            path=f"{os.path.dirname(__file__)}/test-[2020-03-28_12-30-10].mp4",
             output_width=-20,
             output_height=20,
         )
@@ -169,16 +172,16 @@ def test_wrong_video_output_size():
 def test_get_metadata_exception():
     """Test exception of get metadata function."""
     with pytest.raises(FileNotFoundError):
-        _ = _get_video_metadata("./tests/not_here.mp4")
+        _ = _get_video_metadata(os.path.dirname(__file__) + "/not_here.mp4")
 
     with pytest.raises(RuntimeError):
-        _ = _get_video_metadata("./tests/unit/abbor.png")
+        _ = _get_video_metadata(os.path.dirname(__file__) + "/abbor.png")
 
 
 def test_release():
     """Test that check idempotency of `vidcap_release()`."""
     vid = Video.from_path(
-        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+        path=f"{os.path.dirname(__file__)}/test-[2020-03-28_12-30-10].mp4",
     )
 
     try:
@@ -197,7 +200,7 @@ def test_release():
 def test_color_channels():
     """Test that color channels are ordered as RGB."""
     vid = Video.from_path(
-        path="./tests/unit/test-[2020-03-28_12-30-10].mp4",
+        path=f"{os.path.dirname(__file__)}/test-[2020-03-28_12-30-10].mp4",
     )
 
     b = vid[1]  # blue
