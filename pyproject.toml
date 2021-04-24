@@ -76,10 +76,13 @@ verbose = true
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q"
-testpaths = ["tests"]
+testpaths = ["core/tests", "tests"]
 filterwarnings = [
   'ignore:the imp module is deprecated:DeprecationWarning',
   'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]
 log_cli = "True"
 log_level = "DEBUG"
+
+[tool.coverage.run]
+source = ["core/core", "tracing/tracing", "detection/detection", "ui/ui"]

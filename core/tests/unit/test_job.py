@@ -1,4 +1,5 @@
 """Tests the job class functionality."""
+import os
 from datetime import timedelta
 
 import pytest
@@ -48,7 +49,9 @@ def test_get_object(make_test_job: Job):
 def test_add_video(make_test_job):
     """Test adding a video to the job."""
     job = make_test_job
-    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid1 = Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
     assert job.videos == []
     assert job.add_video(vid1) == True
     assert job.videos == [vid1]
@@ -59,9 +62,15 @@ def test_add_video(make_test_job):
 def test_add_list_videos(make_test_job):
     """Test adding videos to the job with a list."""
     job = make_test_job
-    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
-    vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
-    vid3 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid1 = Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
+    vid2 = Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
+    vid3 = Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
 
     assert job.add_videos([vid1, vid3, vid2]) == False
     assert job.videos == []
@@ -78,7 +87,9 @@ def test_add_list_videos(make_test_job):
 def test_remove_video(make_test_job):
     """Test removing a video from the job."""
     job = make_test_job
-    vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+    vid1 = Video.from_path(
+        os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+    )
     job.add_video(vid1)
     assert job.videos == [vid1]
     assert job.remove_video(vid1) == True
@@ -207,11 +218,13 @@ def test_job_add_video(make_test_job):
     job = make_test_job
 
     with pytest.raises(TimestampNotFoundError):
-        _ = job.add_video(Video.from_path("./tests/unit/test-no-time.mp4"))
+        _ = job.add_video(
+            Video.from_path(os.path.dirname(__file__) + "/test-no-time.mp4")
+        )
 
     # The video will never be without a timestamp, but we try break it here
     # to check return value of add_video on a job
-    video = Video("./tests/unit/test-no-time.mp4", 1, 1, 1, 1, None, 1, 1)  # type: ignore
+    video = Video(os.path.dirname(__file__) + "/test-no-time.mp4", 1, 1, 1, 1, None, 1, 1)  # type: ignore
     assert job.add_video(video) == False
 
 
@@ -219,7 +232,9 @@ def test_job_total_frames(make_test_job):
     """Test calculating frames in job."""
     job = make_test_job
     ret = job.add_video(
-        Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
+        Video.from_path(
+            os.path.dirname(__file__) + "/test-[2020-03-28_12-30-10].mp4"
+        )
     )
     assert ret == True
 
