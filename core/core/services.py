@@ -69,7 +69,10 @@ class VideoLoader:
             If calculated start_frame is larger than the current video's total frame count.
         """
         curframe = 0
-        logger.info(f"Finding video for frame {frame}")
+        logger.debug(f"Finding video for frame {frame}")
+        if frame > sum([vid.frame_count for vid in self.videos]):
+            raise IndexError(f"Cannot find video index of frame {frame}.")
+
         for vid in self.videos:
             if curframe + vid.frame_count >= frame:
                 return self.videos.index(vid), frame - curframe
