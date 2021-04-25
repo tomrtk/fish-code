@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import core
-from core.model import TimestampNotFoundError, Video, _get_video_metadata
+from core.model import Frame, TimestampNotFoundError, Video, _get_video_metadata
 
 
 @pytest.fixture
@@ -227,3 +227,21 @@ def test_video_iter(make_test_video):
     all_frames = list(it)
 
     assert len(all_frames) == video.frame_count
+
+
+def test_is_processed(make_test_video):
+    """Test to verify that a video is processed when frames match total_frames."""
+    video: Video = make_test_video
+
+    assert not video.is_processed()
+
+    for i in range(0, 10):
+        video.add_detection_frame(Frame(i, []))
+
+    assert not video.is_processed()
+
+    for i in range(10, video.frame_count):
+        video.add_detection_frame(Frame(i, []))
+        print(f"{i}, frame")
+
+    assert video.is_processed()
