@@ -199,10 +199,7 @@ def process_job(
 
     # Update job status
     if event.is_set():
-        if job.status() is Status.QUEUED:
-            job.start()
-            repo.save()
-        elif job.status() is Status.PAUSED:
+        if job.status() is Status.QUEUED or Status.PAUSED:
             job.start()
             repo.save()
         elif job.status() is Status.RUNNING:
