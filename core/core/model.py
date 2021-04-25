@@ -46,7 +46,7 @@ class Video:
     ----------
     path            :   str
                         Path to this video file as a string
-    frames          :   int
+    frame_count     :   int
                         Number of frames in the video
     fps             :   int
                         Frames per second in the video
@@ -69,9 +69,13 @@ class Video:
             Path to the video file associated with the video.
     id      :   Optional[int]
             Video id from repository(database).
+    frames  :   List[Frame]
+            List of data frames containing detections associated with video.
 
     Methods
     -------
+    vidcap_release()
+        Release OpenCV videocapture on associated video file.
     exists()
         Checks if the path is valid, by checking if its a file on the disk.
     from_path(path: str)
@@ -80,6 +84,10 @@ class Video:
         file could not be read, or is not a video file.
     timestamp_at(idx: int)
         Return timestamp at index in video as a `datetime` object.
+    add_detection_frame(frame Frame)
+        Add a single data-frame containing detections to this video.
+    is_processed()
+        Checks if the video has been fully processed by comparing with self.frames.
 
     Examples
     --------
