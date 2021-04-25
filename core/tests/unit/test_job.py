@@ -198,7 +198,10 @@ def test_repr():
 
     assert (
         repr(job)
-        == "<class 'core.model.Job'>: {'id': None, 'name': 'Test job 1', 'description': 'Tester', '_status': <Status.PENDING: 'Pending'>, '_objects': [], 'videos': [], 'location': 'Test', 'next_batch': 0, 'progress': 0}"
+        == "<class 'core.model.Job'>: {'id': None, 'name': 'Test job 1', "
+        + "'description': 'Tester', '_status': <Status.PENDING: 'Pending'>, "
+        + "'_objects': [], 'videos': [], 'location': 'Test', 'next_batch': 0, "
+        + "'progress': 0}"
     )
 
 
