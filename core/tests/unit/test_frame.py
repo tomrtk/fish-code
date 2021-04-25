@@ -13,15 +13,16 @@ def test_frame_to_json():
         "idx": 1,
         "detections": [frame.detections[0].to_json()],
         "timestamp": date.isoformat(),
+        "video_id": None,
     }
 
-    date = None
-    frame = Frame(1, [Detection(BBox(10, 20, 30, 40), 0.8, 1, 1)], date)
+    frame = Frame(2, [Detection(BBox(10, 20, 30, 40), 0.8, 1, 1)], video_id=3)
 
     assert frame.to_json() == {
-        "idx": 1,
+        "idx": 2,
         "detections": [frame.detections[0].to_json()],
         "timestamp": None,
+        "video_id": 3,
     }
 
 

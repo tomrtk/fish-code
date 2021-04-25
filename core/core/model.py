@@ -593,14 +593,16 @@ class Frame:
             }
 
         """
+        if self.timestamp:
+            timestamp_tmp = self.timestamp.isoformat()
+        else:
+            timestamp_tmp = None
+
         return {
             "idx": self.idx,
             "detections": [det.to_json() for det in self.detections if det],
-            "timestamp": None
-            if not self.timestamp
-            else self.timestamp.isoformat()
-            if not self.video_id
-            else self.video_id,
+            "timestamp": timestamp_tmp,
+            "video_id": self.video_id,
         }
 
 
