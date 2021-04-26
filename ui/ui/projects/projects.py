@@ -97,13 +97,33 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/<int:project_id>")
     def projects_project(project_id: int):
         """View a single project."""
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = request.args.get(
+            get_per_page_parameter(), type=int, default=12
+        )
+
         project = client.get_project(project_id)
-        jobs = client.get_jobs(project_id)
+        jobs = client.get_jobs(project_id, page=page, per_page=per_page)
         if project is None:
             return render_template("404.html"), 404
 
+        pagination = Pagination(
+            page=page,
+            per_page=per_page,
+            prev_label="Previous",
+            next_label="Next",
+            inner_window=1,
+            outer_window=0,
+            total=jobs[1],
+            record_name="jobs",
+        )
+
         return render_template(
-            "projects/project.html", project=project, jobs=jobs
+            "projects/project.html",
+            project=project,
+            jobs=jobs[0],
+            job_count=jobs[1],
+            pagination=pagination,
         )
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")

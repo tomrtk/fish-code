@@ -32,14 +32,51 @@ class Object:
 
 
 @dataclass
-class Job:
-    """Hold the job details."""
+class JobBase:
+    """Holds the base data of a Job."""
 
     name: str
     description: str
+    location: str
+
+
+@dataclass
+class JobBare(JobBase):
+    """Holds the base data of a Job."""
+
+    _status: str
+    object_count: int
+    video_count: int
+    progress: int
+    id: Optional[int] = None
+    project_id: Optional[int] = None
+    project_name: Optional[str] = None
+
+    @classmethod
+    def from_dict(
+        cls, job_data: Dict[str, Any], project_id: int, project_name: str
+    ) -> JobBare:
+        """Create job from dict data."""
+        return cls(
+            _status=job_data["status"],
+            description=job_data["description"],
+            id=job_data["id"],
+            location=job_data["location"],
+            name=job_data["name"],
+            project_id=project_id,
+            project_name=project_name,
+            progress=job_data["progress"],
+            object_count=job_data["object_count"],
+            video_count=job_data["video_count"],
+        )
+
+
+@dataclass
+class Job(JobBase):
+    """Hold the job details."""
+
     _status: str
     videos: List[str]
-    location: str
     _objects: List[Object]
     id: Optional[int] = None
     project_id: Optional[int] = None

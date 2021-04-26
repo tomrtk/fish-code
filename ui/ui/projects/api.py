@@ -6,7 +6,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import requests
 
-from ui.projects.model import Job, Project, ProjectBare
+from ui.projects.model import Job, JobBare, Project, ProjectBare
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
@@ -202,7 +202,7 @@ class Client:
 
     def get_projects(
         self, page: int = 1, per_page: int = 10
-    ) -> Union[Tuple[Optional[List[ProjectBare]], int], None]:
+    ) -> Optional[Tuple[Optional[List[ProjectBare]], int]]:
         """Get all projects from endpoint.
 
         Parameters
@@ -219,8 +219,6 @@ class Client:
         """
         payload = {"page": page, "per_page": per_page}
         result = self.get(f"{self._endpoint}/projects/", params=payload)
-
-        logger.warning(result.headers["x-total"])
 
         if isinstance(result, requests.Response):
             return [ProjectBare(**p) for p in result.json()], int(result.headers["x-total"])  # type: ignore
@@ -273,13 +271,22 @@ class Client:
 
         return None
 
-    def get_jobs(self, project_id: int) -> Optional[List[Job]]:
+    def get_jobs(
+        self,
+        project_id: int,
+        page: int = 1,
+        per_page: int = 10,
+    ) -> Optional[Tuple[Optional[List[JobBare]], int]]:
         """Get a list of jobs from the endpoint.
 
         Parameters
         ----------
         project_id  :   int
                         Project to send to `core` api.
+        page        :   int
+                        Selected page.
+        per_page    :   int
+                        Per page count.
 
         Returns
         -------
@@ -287,17 +294,21 @@ class Client:
                     List of `Job` from `core`.
         """
         result_project = self.get(f"{self._endpoint}/projects/{project_id}")
-        result_jobs = self.get(f"{self._endpoint}/projects/{project_id}/jobs/")
 
-        if isinstance(result_project, requests.Response) and isinstance(
+        payload = {"page": page, "per_page": per_page}
+        result_jobs = self.get(
+            f"{self._endpoint}/projects/{project_id}/jobs/", params=payload
+        )
+
+        if not isinstance(result_project, requests.Response) or not isinstance(
             result_jobs, requests.Response
         ):
-            return [
-                Job.from_dict(j, project_id, result_project.json()["name"])
-                for j in result_jobs.json()
-            ]
+            return None
 
-        return None
+        return [
+            JobBare.from_dict(j, project_id, result_project.json()["name"])
+            for j in result_jobs.json()
+        ], int(result_jobs.headers["x-total"])
 
     def get_job(self, project_id: int, job_id: int) -> Optional[Job]:
         """Get a single job from the endpoint.
