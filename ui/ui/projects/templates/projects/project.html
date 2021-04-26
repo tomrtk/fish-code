@@ -106,9 +106,9 @@
     </div>
   </div>
   <div class="flex-none text-center mb-2">
-    <h3 class="py-1 mb-3 text-xl border-b">Jobs ({{ jobs|length }})</h3>
+    <h3 class="py-1 mb-3 text-xl border-b">Jobs ({{ job_count }})</h3>
   </div>
-  <nav class="flex flex-none justify-end mb-4 px-2">
+  <nav class="flex flex-none justify-end px-2">
     <a
       class="btn btn-new flex flex-row items-center"
       href="{{ url_for('projects_bp.projects_job_new',
@@ -131,10 +131,11 @@
       New Job
     </a>
   </nav>
-  <div class="">
+  <div class="mt-4">
     <div>
       {% if jobs|length > 0 %}
-      <ul class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div id="top-pagination">{{ pagination.links }}</div>
+      <ul class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
         {% for job in jobs %}
         <li
           class="flex flex-col border border-gray-200 p-3 rounded-md shadow-lg bg-gray-100"
@@ -143,6 +144,7 @@
         </li>
         {% endfor %}
       </ul>
+      <div id="bottom-pagination">{{ pagination.links }}</div>
       {% else %} No jobs.{% endif %}
     </div>
   </div>
