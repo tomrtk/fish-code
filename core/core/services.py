@@ -218,6 +218,18 @@ def process_job(
         )
         return
 
+    def _update_job_status():
+        # Update job status
+        if not event.is_set():
+            logger.info(f"Pausing processing of job {job_id}.")
+            job.pause()
+            repo.save()
+            return
+        else:
+            logger.info(f"Job {job_id} completed")
+            job.complete()
+            repo.save()
+
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
 
@@ -225,17 +237,18 @@ def process_job(
 
     all_frames = []
     video_loader = VideoLoader(job.videos, batchsize=batchsize)
-    det = Detector()
+    try:
+        det = Detector()
+    except ConnectionError as e:
+        logger.error(f"Could not create detector, {e}")
+        _update_job_status()
+        return
 
     # Check if job has already processed all batches
     if job.next_batch >= video_loader._total_batches:
         logger.warning("Job has already processed all batches in video loader.")
-        job.complete()
-        repo.save()
+        _update_job_status()
         return
-    else:
-        # TODO: Should get all previously detected Frames/Detections from repo
-        pass
 
     # Populate all_frames variable with previously detected frames.
     for vid in job.videos:
@@ -251,26 +264,31 @@ def process_job(
         if job.next_batch > 0:
             logger.info(f"Job resuming from batch {job.next_batch}")
 
-        # Generate batches of frames for remaining batches
-        for batchnr, (
-            progress,
-            batch,
-            timestamp,
-            video_for_frame,
-            framenumbers,
-        ) in video_loader.generate_batches(batch_index=job.next_batch):
-            if not event.is_set():
-                break
+        try:
+            # Generate batches of frames for remaining batches
+            for batchnr, (
+                progress,
+                batch,
+                timestamp,
+                video_for_frame,
+                framenumbers,
+            ) in video_loader.generate_batches(batch_index=job.next_batch):
+                if not event.is_set():
+                    break
 
-            assert isinstance(
-                batch, np.ndarray
-            ), "Batch must be of type np.ndarray"
-            assert isinstance(batchnr, int), "Batch number must be int"
+                assert isinstance(
+                    batch, np.ndarray
+                ), "Batch must be of type np.ndarray"
+                assert isinstance(batchnr, int), "Batch number must be int"
 
-            try:
-                logger.debug(f"Now detecting batch {batchnr}...")
-                frames = det.predict(batch, "fishy")
-                logger.debug(f"Finished detecting batch {batchnr}.")
+                try:
+                    logger.debug(f"Now detecting batch {batchnr}...")
+                    frames = det.predict(batch, "fishy")
+                    logger.debug(f"Finished detecting batch {batchnr}.")
+                except ConnectionError as e:
+                    event.clear()
+                    logger.error(e)
+                    break
 
                 # Iterate over all frames to set variables in frame
                 for n, frame in enumerate(frames):
@@ -301,11 +319,11 @@ def process_job(
                 repo.save()
                 logger.debug(f"Job {job.id} is {progress}% complete..")
 
-            except KeyboardInterrupt:
-                logger.warning(
-                    f"Job processing interrupted under processing of batch {batchnr}, stopping."
-                )
-                event.clear()
+        except KeyboardInterrupt:
+            logger.warning(
+                f"Job processing interrupted under processing, stopping."
+            )
+            event.clear()
 
     # Tracing
     if event.is_set():
@@ -320,16 +338,7 @@ def process_job(
             logger.warning(f"Job tracing aborted for job {job_id}.")
             event.clear()
 
-    # Update job status
-    if not event.is_set():
-        logger.info(f"Pausing processing of job {job_id}.")
-        job.pause()
-        repo.save()
-        return
-    else:
-        logger.info(f"Job {job_id} completed")
-        job.complete()
-        repo.save()
+    _update_job_status()
 
 
 class SchedulerThread(threading.Thread):

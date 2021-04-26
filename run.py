@@ -57,7 +57,10 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
 
     # Wait for processes to close
     for p in processes:
-        p.join()
+        try:
+            p.join()
+        except BaseException as e:
+            logger.error(e)
 
     return 0
 
