@@ -2,7 +2,7 @@
 import functools
 import json
 import logging
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar
+from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
 
 import requests
 
@@ -128,7 +128,7 @@ class Client:
                 return decorator_call(request)
 
     @Api.call(status_code=200)
-    def get(self, uri: str) -> requests.Response:
+    def get(self, uri: str, params: Dict = {}) -> requests.Response:
         """Perform a GET request to `uri.
 
         Expects a successful call to return a status_code = 200.
@@ -148,7 +148,7 @@ class Client:
         api.call : Decorator the handles the API calls.
         """
         logger.info("get from %s", uri)
-        return self._session.get(uri)
+        return self._session.get(uri, params=params)
 
     @Api.call(status_code=201, acceptable_error=415)
     def post(
@@ -200,22 +200,37 @@ class Client:
         logger.info("post to %s, %s", uri)
         return self._session.post(uri)
 
-    def get_projects(self) -> Optional[List[ProjectBare]]:
+    def get_projects(
+        self, page: int = 1, per_page: int = 10
+    ) -> Union[Tuple[Optional[List[ProjectBare]], int], None]:
         """Get all projects from endpoint.
+
+        Parameters
+        ----------
+        page : int
+            Specific page to get.
+        per_page : int
+            Number of pages per page to pull.
 
         Returns
         -------
-        Optional[List[ProjectBare]]
-                    List of all `Project` from `core`.
+        Union[Tuple[Optional[List[ProjectBare]], int], None]
+                    List of all `Project` from `core` or None.
         """
-        result = self.get(f"{self._endpoint}/projects/")
+        payload = {"page": page, "per_page": per_page}
+        result = self.get(f"{self._endpoint}/projects/", params=payload)
+
+        logger.warning(result.headers["x-total"])
 
         if isinstance(result, requests.Response):
-            return [ProjectBare(**p) for p in result.json()]  # type: ignore
+            return [ProjectBare(**p) for p in result.json()], int(result.headers["x-total"])  # type: ignore
 
         return None
 
-    def get_project(self, project_id: int) -> Optional[ProjectBare]:
+    def get_project(
+        self,
+        project_id: int,
+    ) -> Optional[ProjectBare]:
         """Get one project from endpoint.
 
         Parameters
@@ -228,7 +243,9 @@ class Client:
         Optional[ProjectBare]
                     Project from core with `project_id`.
         """
-        result = self.get(f"{self._endpoint}/projects/{project_id}")
+        result = self.get(
+            f"{self._endpoint}/projects/{project_id}",
+        )
 
         if isinstance(result, requests.Response):
             return ProjectBare(**result.json())  # type: ignore

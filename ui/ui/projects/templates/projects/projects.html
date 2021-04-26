@@ -25,9 +25,9 @@
     </ul>
   </div>
   <div class="flex-none text-center">
-    <h1 class="py-1 mb-3 text-3xl">Projects</h1>
+    <h1 class="py-1 text-3xl">Projects</h1>
   </div>
-  <nav class="flex flex-none justify-end mb-4 px-2">
+  <nav class="flex flex-none justify-end mt-3 px-2">
     <a
       class="btn btn-new flex flex-row items-center"
       href="{{ url_for('projects_bp.projects_project_new') }}"
@@ -49,9 +49,10 @@
       New Project
     </a>
   </nav>
-  <div>
+  <div class="mt-4">
     {% if projects|length > 0 %}
-    <ul class="grid md:grid-cols-2 gap-4">
+    <div id="top-pagination">{{ pagination.links }}</div>
+    <ul class="grid md:grid-cols-2 gap-4 mt-4">
       {% for project in projects %}
       <li
         class="flex flex-col border border-gray-200 p-4 rounded-md shadow-md bg-gray-100"
@@ -60,6 +61,7 @@
       </li>
       {% endfor %}
     </ul>
+    <div id="bottom-pagination">{{ pagination.links }}</div>
     {% else %} No projects.{% endif %}
   </div>
 </main>

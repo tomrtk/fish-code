@@ -15,6 +15,11 @@ from flask import (
     send_file,
     url_for,
 )
+from flask_paginate import (
+    Pagination,
+    get_page_parameter,
+    get_per_page_parameter,
+)
 
 from ui.projects.api import Client
 from ui.projects.model import Job, Project
@@ -46,8 +51,29 @@ def construct_projects_bp(cfg: Config):
     @projects_bp.route("/")
     def projects_index():
         """Entrypoint for the blueprint."""
-        projects = client.get_projects()
-        return render_template("projects/projects.html", projects=projects)
+        page = request.args.get(get_page_parameter(), type=int, default=1)
+        per_page = request.args.get(
+            get_per_page_parameter(), type=int, default=10
+        )
+
+        projects = client.get_projects(page=page, per_page=per_page)
+
+        pagination = Pagination(
+            page=page,
+            per_page=per_page,
+            prev_label="Previous",
+            next_label="Next",
+            inner_window=1,
+            outer_window=0,
+            total=projects[1],
+            record_name="projects",
+        )
+
+        return render_template(
+            "projects/projects.html",
+            projects=projects[0],
+            pagination=pagination,
+        )
 
     @projects_bp.route("/new", methods=["POST", "GET"])
     def projects_project_new():
