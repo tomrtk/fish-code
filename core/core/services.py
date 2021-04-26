@@ -259,56 +259,54 @@ def process_job(
             video_for_frame,
             framenumbers,
         ) in video_loader.generate_batches(batch_index=job.next_batch):
-            if event.is_set():
-                assert isinstance(
-                    batch, np.ndarray
-                ), "Batch must be of type np.ndarray"
-                assert isinstance(batchnr, int), "Batch number must be int"
+            if not event.is_set():
+                break
 
-                try:
-                    logger.debug(f"Now detecting batch {batchnr}...")
-                    frames = det.predict(batch, "fishy")
-                    logger.debug(f"Finished detecting batch {batchnr}.")
+            assert isinstance(
+                batch, np.ndarray
+            ), "Batch must be of type np.ndarray"
+            assert isinstance(batchnr, int), "Batch number must be int"
 
-                    # Iterate over all frames to set variables in frame
-                    for n, frame in enumerate(frames):
-                        abs_frame_nr = batchnr * batchsize + n
+            try:
+                logger.debug(f"Now detecting batch {batchnr}...")
+                frames = det.predict(batch, "fishy")
+                logger.debug(f"Finished detecting batch {batchnr}.")
 
-                        # Set relative frame number
-                        # TODO: This breaks tracing, add another variable in frame
-                        # frame.idx = framenumbers[n]
+                # Iterate over all frames to set variables in frame
+                for n, frame in enumerate(frames):
+                    abs_frame_nr = batchnr * batchsize + n
 
-                        frame.timestamp = timestamp[n]
+                    # Set relative frame number
+                    # TODO: This breaks tracing, add another variable in frame
+                    # frame.idx = framenumbers[n]
 
-                        # Adds the absolute frame number to the frame before tracking.
-                        # This help popuplate the timestamp for objects.
-                        frame.detections = [
-                            dets.set_frame(abs_frame_nr)
-                            for dets in frame.detections
-                        ]
+                    frame.timestamp = timestamp[n]
 
-                        # store detections
-                        video_for_frame[framenumbers[n]].add_detection_frame(
-                            frame
-                        )
+                    # Adds the absolute frame number to the frame before tracking.
+                    # This help popuplate the timestamp for objects.
+                    frame.detections = [
+                        dets.set_frame(abs_frame_nr)
+                        for dets in frame.detections
+                    ]
 
-                        frame.idx = abs_frame_nr
-                        all_frames.append(frame)
+                    # store detections
+                    video_for_frame[framenumbers[n]].add_detection_frame(frame)
 
-                    # Should only increment next_batch if storing of detections was successful
-                    job.next_batch = batchnr + 1
-                    job.progress = progress
-                    repo.save()
-                    logger.debug(f"Job {job.id} is {progress}% complete..")
+                    frame.idx = abs_frame_nr
+                    all_frames.append(frame)
 
-                except KeyboardInterrupt:
-                    logger.warning(
-                        f"Job processing interrupted under processing of batch {batchnr}, stopping."
-                    )
-                    event.clear()
+                # Should only increment next_batch if storing of detections was successful
+                job.next_batch = batchnr + 1
+                job.progress = progress
+                repo.save()
+                logger.debug(f"Job {job.id} is {progress}% complete..")
 
-                if not event.is_set():
-                    break
+            except KeyboardInterrupt:
+                logger.warning(
+                    f"Job processing interrupted under processing of batch {batchnr}, stopping."
+                )
+                event.clear()
+
     # Tracing
     if event.is_set():
         try:
