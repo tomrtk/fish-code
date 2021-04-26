@@ -61,7 +61,7 @@ def get_runtime_repo():  # noqa: D403
         sessionRepo.session.close()
 
 
-def convert_to_bare(project: model.Project) -> schema.ProjectBare:
+def convert_to_projectbare(project: model.Project) -> schema.ProjectBare:
     """Convert `model.Project` to `schema.ProjectBare`.
 
     Parameters
@@ -91,6 +91,41 @@ def convert_to_bare(project: model.Project) -> schema.ProjectBare:
         description=project.description,
         location=project.location,
         job_count=len(project.jobs),
+    )
+
+
+def convert_to_jobbare(job: model.Job) -> schema.JobBare:
+    """Convert `model.Project` to `schema.ProjectBare`.
+
+    Parameters
+    ----------
+    data : model.Project
+        The data to convert from.
+
+    Returns
+    -------
+    schema.Project
+        Converted data from model to schema object.
+
+    Raises
+    ------
+    TypeError
+        When neither valid type is passed.
+    """
+    if not isinstance(job, model.Job):
+        raise TypeError(
+            f"{type(job)} in not of type model.Job.",
+        )
+
+    return schema.JobBare(
+        id=job.id,
+        status=job._status,
+        name=job.name,
+        description=job.description,
+        location=job.location,
+        object_count=len(job._objects),
+        video_count=len(job.videos),
+        progress=job.progress,
     )
 
 
@@ -186,7 +221,7 @@ def list_projects(
 
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
-            resp.append(convert_to_bare(proj))
+            resp.append(convert_to_projectbare(proj))
         except TypeError as e:
             logger.warning(e)
 
@@ -218,7 +253,7 @@ def add_project(
     Project
         New `Project` with `id`.
     """
-    return convert_to_bare(repo.add(model.Project(**project.dict())))
+    return convert_to_projectbare(repo.add(model.Project(**project.dict())))
 
 
 @core_api.get("/projects/{project_id}/", response_model=schema.ProjectBare)
@@ -244,13 +279,24 @@ def get_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    return convert_to_bare(project)
+    return convert_to_projectbare(project)
 
 
-@core_api.get("/projects/{project_id}/jobs/", response_model=List[schema.Job])
+@core_api.get(
+    "/projects/{project_id}/jobs/", response_model=List[schema.JobBare]
+)
 def list_project_jobs(
     project_id: int,
+    response: Response,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
+    page: int = Query(
+        1,
+        ge=1,
+        description="Select which page to fetch.",
+    ),
+    per_page: int = Query(
+        10, ge=1, description="Choose how many items per page."
+    ),
 ):
     """List all jobs associated with Project with _project_id_.
 
@@ -267,12 +313,38 @@ def list_project_jobs(
         If no project with _project_id_ found. Status code: 404.
     """
     project = repo.get(project_id)
-    if project:
-        jobs = project.get_jobs()
-        return jobs
-    else:
+    if not project:
         logger.warning("Project %s not found,", project_id)
         raise HTTPException(status_code=404, detail="Project not found")
+
+    list_length = project.number_of_jobs
+    if list_length < 1:
+        return []
+
+    # Set to - 1 because page != index in a list.
+    begin_idx = (page - 1) * per_page
+    end_idx = begin_idx + per_page
+
+    if end_idx > list_length:
+        end_idx = list_length
+
+    project = repo.get(project_id)
+    resp: List[schema.JobBare] = list()
+
+    for job in project.jobs[slice(begin_idx, end_idx)]:
+        try:
+            resp.append(convert_to_jobbare(job))
+        except TypeError as e:
+            logger.warning(e)
+
+    # Calculate the pagination data.
+    pagination_response = construct_pagination_data(list_length, page, per_page)
+
+    # Populate the headers with the pagination data.
+    for k, v in pagination_response.items():
+        response.headers[k] = v
+
+    return resp
 
 
 @core_api.post(

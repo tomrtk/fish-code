@@ -97,6 +97,16 @@ class JobBase(HashableBaseModel):
     location: str
 
 
+class JobBare(JobBase):
+    """Bare model for a Job."""
+
+    id: int
+    status: model.Status
+    object_count: int
+    video_count: int
+    progress: int
+
+
 class Job(JobBase):
     """`Job` class used to send object on API."""
 
