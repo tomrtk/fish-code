@@ -110,8 +110,18 @@ def test_get_projects():
     """Test getting project list endpoint."""
     with TestClient(api.core_api) as client:
         response = client.get("/projects/")
-
         assert response.status_code == 200
+        assert response.headers["x-total"] == "1"
+
+        response = client.get("/projects/?page=1&per_page=1")
+        assert response.status_code == 200
+        assert response.headers["x-page"] == "1"
+        assert response.headers["x-per-page"] == "1"
+
+        response = client.get("/projects/?page=1313&per_page=1313")
+        assert response.status_code == 200
+        assert response.headers["x-page"] == "1313"
+        assert response.headers["x-per-page"] == "1313"
 
 
 def test_add_project():
@@ -240,11 +250,11 @@ def test_add_and_get_job():
             {
                 "name": "Job name",
                 "description": "Job description",
-                "id": job_id,
-                "_status": "Pending",
-                "_objects": [],
-                "videos": [],
                 "location": "test",
+                "id": job_id,
+                "status": "Pending",
+                "object_count": 0,
+                "video_count": 0,
                 "progress": 0,
             }
         ]
@@ -328,17 +338,15 @@ def test_get_job():
 def test_get_done_job():
     """Test completed job with objects."""
     with TestClient(api.core_api) as client:
-        response = client.get("/projects/1/jobs/")
+        response = client.get("/projects/1/jobs/1")
         assert response.status_code == 200
         data = response.json()
 
-        assert len(data) == 1
+        assert "id" in data
+        assert "_status" in data
+        assert "_objects" in data
 
-        assert "id" in data[0]
-        assert "_status" in data[0]
-        assert "_objects" in data[0]
-
-        objs = data[0]["_objects"]
+        objs = data["_objects"]
         assert len(objs) == 2
 
         for obj in objs:
