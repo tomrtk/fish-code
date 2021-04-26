@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import cv2 as cv
 import numpy as np
@@ -46,7 +46,7 @@ class Video:
     ----------
     path            :   str
                         Path to this video file as a string
-    frames          :   int
+    frame_count     :   int
                         Number of frames in the video
     fps             :   int
                         Frames per second in the video
@@ -69,9 +69,13 @@ class Video:
             Path to the video file associated with the video.
     id      :   Optional[int]
             Video id from repository(database).
+    frames  :   List[Frame]
+            List of data frames containing detections associated with video.
 
     Methods
     -------
+    vidcap_release()
+        Release OpenCV videocapture on associated video file.
     exists()
         Checks if the path is valid, by checking if its a file on the disk.
     from_path(path: str)
@@ -80,6 +84,10 @@ class Video:
         file could not be read, or is not a video file.
     timestamp_at(idx: int)
         Return timestamp at index in video as a `datetime` object.
+    add_detection_frame(frame Frame)
+        Add a single data-frame containing detections to this video.
+    is_processed()
+        Checks if the video has been fully processed by comparing with self.frames.
 
     Examples
     --------
@@ -107,7 +115,7 @@ class Video:
     def __init__(
         self,
         path: str,
-        frames: int,
+        frame_count: int,
         fps: int,
         width: int,
         height: int,
@@ -117,7 +125,7 @@ class Video:
     ) -> None:
         self.id: Optional[int] = None
         self._path: str = path
-        self.frames: int = frames
+        self.frame_count: int = frame_count
         self.fps: int = fps
         self.width: int = width
         self.height: int = height
@@ -126,6 +134,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
+        self.frames: List[Frame] = list()
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -211,7 +220,7 @@ class Video:
         if key < 0:
             raise IndexError
 
-        if key >= self.frames:
+        if key >= self.frame_count:
             raise IndexError
 
         self._video_capture = cv.VideoCapture(self._path)  # type: ignore
@@ -270,9 +279,10 @@ class Video:
         if not isinstance(interval, slice):
             raise TypeError("%s is not %s", type(interval), type(slice))
 
-        if isinstance(interval.stop, int) and interval.stop >= self.frames:
+        if isinstance(interval.stop, int) and interval.stop >= self.frame_count:
             raise IndexError(
-                "Index for stop in slice more then frame count %s", self.frames
+                "Index for stop in slice more then frame count %s",
+                self.frame_count,
             )
 
         if interval.start < 0:
@@ -285,9 +295,9 @@ class Video:
         # If slicing with `video[0:] or video[0:-1]` all frames from start to
         # end or end-1 of video is wanted.
         if interval.stop == None:
-            stop = self.frames
+            stop = self.frame_count
         elif interval.stop < 0:
-            stop = self.frames + interval.stop
+            stop = self.frame_count + interval.stop
             print(stop)
         else:
             stop = interval.stop
@@ -312,9 +322,48 @@ class Video:
         self._video_capture.release()
         return np.array(frames)
 
+    def iter_from(self, start: int):
+        """Iterate from start to the end of the video.
+
+        Parameter
+        ---------
+        start   : int
+                The frame to start at
+
+        Yields
+        ------
+        np.ndarray  :
+                    A single scaled frame.
+
+        Raises
+        ------
+        RuntimeError    :
+                        Unexpected errors occur with OpenCV
+        """
+        if start >= self.frame_count or start < 0:
+            raise IndexError(
+                f"Start is out of bounds for buffer of size {self.frame_count}, got {start}"
+            )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, start)  # type: ignore
+
+        if not retval:
+            raise RuntimeError("Unexpected error")  # pragma: no cover
+
+        numbers = self.frame_count - start
+
+        for _ in range(numbers):
+            retval, img = self._video_capture.read()
+
+            if not retval:
+                raise RuntimeError("Unexpected error")  # pragma: no cover
+            yield self._scale_convert(img)
+
+        self._video_capture.release()
+
     def __len__(self) -> int:
         """Get length of video in frames."""
-        return self.frames
+        return self.frame_count
 
     def exists(self) -> bool:
         """Check if the file path is a valid file."""
@@ -351,7 +400,7 @@ class Video:
 
         return cls(
             path=path,
-            frames=frame_numbers,
+            frame_count=frame_numbers,
             fps=fps,
             width=width,
             height=height,
@@ -374,12 +423,71 @@ class Video:
             Timestamp for the frame at index.
 
         """
-        if idx > self.frames:
+        if idx > self.frame_count:
             raise IndexError
         if idx < 0:
             raise IndexError
 
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
+
+    def add_detection_frame(self, frame: Frame):
+        """Update detected data associated with this video.
+
+        Parameters
+        ----------
+        frames  :   List[Frame]
+            List of data-frames to add to this video. Which contains detections for a given frame.
+        force_update    :   bool
+            Will overwrite already stored data-frames of same index with new one in frames parameter.
+            Default False.
+
+        Raises
+        ------
+        RuntimeError
+            When any frame index goes past total frames in video.
+
+        Return
+        ------
+        bool    :
+            True when data-frames were successfully updated. False when inputted frames have overlap
+            with existing data within video.
+        """
+        if frame in self.frames:
+            raise RuntimeError(
+                f"Frame with index {frame.idx} is already added to this video."
+            )
+        if frame.idx > self.frame_count:
+            raise IndexError(
+                f"Frame of index {frame.idx} is beyond total frames in video."
+            )
+
+        self.frames.append(frame)
+
+    def is_processed(self) -> bool:
+        """Check if this video has been fully processed.
+
+        Return
+        ------
+        bool    :
+            True if the entire video has been processed. The entire detection_frames dict must be fully
+            mapped with data-frames for all frames in video.
+        """
+        if not len(self.frames) == self.frame_count:
+            logger.info(
+                f"Video {self._path} is not fully processed. {len(self.frames)}/{self.frame_count}"
+            )
+            return False
+
+        # Check continious index
+        for i in range(self.frame_count):
+            if self.frames[i].idx != i:
+                logger.warning(
+                    "Frame index {self.detection_frames[i].idx} does not match videos index {i}"
+                )
+                return False
+
+        logger.info("Video {self._path} is processed.")
+        return True
 
 
 def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
@@ -500,6 +608,15 @@ class Frame:
     idx: int
     detections: List[Detection]
     timestamp: Optional[datetime] = None
+    video_id: Optional[int] = None
+
+    def __eq__(self, other) -> bool:
+        """Check if two Frames are the same."""
+        return (
+            isinstance(other, Frame)
+            and self.idx == other.idx
+            and self.video_id == other.video_id
+        )
 
     def to_json(self) -> Dict[str, Any]:
         """Convert frame to json.
@@ -515,12 +632,16 @@ class Frame:
             }
 
         """
+        if self.timestamp:
+            timestamp_tmp = self.timestamp.isoformat()
+        else:
+            timestamp_tmp = None
+
         return {
             "idx": self.idx,
             "detections": [det.to_json() for det in self.detections if det],
-            "timestamp": None
-            if not self.timestamp
-            else self.timestamp.isoformat(),
+            "timestamp": timestamp_tmp,
+            "video_id": self.video_id,
         }
 
 
@@ -770,6 +891,7 @@ class Job:
         description: str,
         location: str,
         status: Status = Status.PENDING,
+        progress: int = 0,
     ) -> None:
         self.id: Optional[int] = None
         self.name: str = name
@@ -778,6 +900,8 @@ class Job:
         self._objects: List[Object] = list()
         self.videos: List[Video] = list()
         self.location: str = location
+        self.next_batch: int = 0
+        self.progress: int = progress
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
@@ -932,7 +1056,7 @@ class Job:
         int     :
             Ammount of frames in total over all video objects in this job.
         """
-        return sum([v.frames for v in self.videos])
+        return sum([v.frame_count for v in self.videos])
 
     def status(self) -> Status:
         """Get the job status for this job."""

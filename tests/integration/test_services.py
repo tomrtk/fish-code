@@ -1,7 +1,9 @@
 """Integration test between model and services."""
 import logging
 import time
+from typing import Dict, List
 
+import numpy as np
 import pytest
 import requests
 
@@ -60,8 +62,10 @@ def test_processing_and_scheduler():
         time.sleep(15)
 
     job_data = requests.get(url).json()
+    print(job_data)
 
     assert job_data["_status"] == "Done"
+    assert job_data["progress"] == 100
 
     objects = job_data["_objects"]
 
@@ -84,10 +88,46 @@ def test_video_loader():
     video_loader = services.VideoLoader(videos, 15)
 
     results = []
-    for batch, _ in video_loader:
+    for batchnr, (
+        progress,
+        batch,
+        timestamp,
+        video_for_frame,
+        framenumbers,
+    ) in video_loader.generate_batches():
+        assert isinstance(batchnr, int)
+        assert isinstance(progress, int)
+        assert isinstance(batch, np.ndarray)
+        assert isinstance(timestamp, List)
+        assert isinstance(video_for_frame, Dict)
+        assert isinstance(framenumbers, List)
+
         results.append(len(batch))
 
     assert results[0] == 15  # batch size == 15
     assert results[2] == 15  # Keep using max batch size where it can
     assert results[3] == 5  # Final 5 frames in the 50 frame video
     assert len(results) == 4  # total num batches
+
+
+def test_video_loader_from_batch():
+    """Tests the video loader utility class."""
+    videos = [
+        Video.from_path(
+            "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+        ),
+    ]
+
+    video_loader = services.VideoLoader(videos, 15)
+
+    results = []
+    for batchnr, (_, batch, _, _, _) in video_loader.generate_batches(
+        batch_index=1
+    ):
+        assert batchnr > 0
+        results.append(len(batch))
+
+    assert results[0] == 15  # batch size == 15
+    assert results[1] == 15  # Keep using max batch size where it can
+    assert results[2] == 5  # Final 5 frames in the 50 frame video
+    assert len(results) == 3  # total num batches

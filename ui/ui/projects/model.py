@@ -85,6 +85,7 @@ class Job:
             project_name=project_name,
             videos=job_data["videos"],
             _objects=job_objects,
+            progress=job_data["progress"],
         )
 
     def get_object_stats(self) -> Dict[int, int]:

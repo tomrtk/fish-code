@@ -78,7 +78,7 @@ class Video(BaseModel):
 
     id: int
     path: str
-    frames: int
+    frame_count: int
     timestamp: Optional[datetime]
 
     class Config:
@@ -105,6 +105,7 @@ class Job(JobBase):
     location: str
     objects: List[Object] = []
     videos: List[Video] = []
+    progress: int
 
     def __hash__(self) -> int:
         """Hash status data in job."""

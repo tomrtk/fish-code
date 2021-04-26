@@ -14,6 +14,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import registry, relationship
 from sqlalchemy.orm.collections import attribute_mapped_collection, collection
+from sqlalchemy.sql.schema import ForeignKeyConstraint
 from sqlalchemy.sql.sqltypes import PickleType
 
 from core import model
@@ -51,6 +52,8 @@ jobs = Table(
     Column("description", Text(DESCRIPTION_SIZE)),
     Column("location", Text(DESCRIPTION_SIZE)),
     Column("project_id", Integer, ForeignKey("projects.id")),
+    Column("next_batch", Integer, nullable=False),
+    Column("progress", Integer, nullable=False),
 )
 
 object_job_assoc = Table(
@@ -87,6 +90,19 @@ detections = Table(
     Column("bbox", PickleType, nullable=False),
     Column("frame", Integer, nullable=False),
     Column("object_id", Integer, ForeignKey("objects.id")),
+    Column("video_id", Integer),
+    Column("frame_idx", Integer),
+    ForeignKeyConstraint(
+        ["video_id", "frame_idx"], ["frames.video_id", "frames.idx"]
+    ),
+)
+
+frames = Table(
+    "frames",
+    metadata,
+    Column("video_id", Integer, ForeignKey("videos.id"), primary_key=True),
+    Column("idx", Integer, primary_key=True),
+    Column("timestamp", DateTime, nullable=True),
 )
 
 videos = Table(
@@ -94,7 +110,7 @@ videos = Table(
     metadata,
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("_path", Text(PATH_SIZE), nullable=False),
-    Column("frames", Integer, nullable=False),
+    Column("frame_count", Integer, nullable=False),
     Column("fps", Integer, nullable=False),
     Column("width", Integer, nullable=False),
     Column("height", Integer, nullable=False),
@@ -113,6 +129,14 @@ def start_mappers():
         detections,
     )
 
+    frame_mapper = mapper_registry.map_imperatively(
+        model.Frame,
+        frames,
+        properties={
+            "detections": relationship(detection_mapper, cascade="all")
+        },
+    )
+
     object_mapper = mapper_registry.map_imperatively(
         model.Object,
         objects,
@@ -128,6 +152,9 @@ def start_mappers():
     videos_mapper = mapper_registry.map_imperatively(
         model.Video,
         videos,
+        properties={
+            "frames": relationship(frame_mapper, cascade="all, delete")
+        },
     )
 
     jobs_mapper = mapper_registry.map_imperatively(
