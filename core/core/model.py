@@ -322,6 +322,45 @@ class Video:
         self._video_capture.release()
         return np.array(frames)
 
+    def iter_from(self, start: int):
+        """Iterate from start to the end of the video.
+
+        Parameter
+        ---------
+        start   : int
+                The frame to start at
+
+        Yields
+        ------
+        np.ndarray  :
+                    A single scaled frame.
+
+        Raises
+        ------
+        RuntimeError    :
+                        Unexpected errors occur with OpenCV
+        """
+        if start >= self.frame_count or start < 0:
+            raise IndexError(
+                f"Start is out of bounds for buffer of size {self.frame_count}, got {start}"
+            )
+        self._video_capture = cv.VideoCapture(self._path)  # type: ignore
+        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, start)  # type: ignore
+
+        if not retval:
+            raise RuntimeError("Unexpected error")  # pragma: no cover
+
+        numbers = self.frame_count - start
+
+        for _ in range(numbers):
+            retval, img = self._video_capture.read()
+
+            if not retval:
+                raise RuntimeError("Unexpected error")  # pragma: no cover
+            yield self._scale_convert(img)
+
+        self._video_capture.release()
+
     def __len__(self) -> int:
         """Get length of video in frames."""
         return self.frame_count

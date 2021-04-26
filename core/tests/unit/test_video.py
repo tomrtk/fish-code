@@ -229,6 +229,34 @@ def test_video_iter(make_test_video):
     assert len(all_frames) == video.frame_count
 
 
+def test_video_iter_from(make_test_video: Video):
+    """Test video iter_from."""
+    video = make_test_video
+
+    frames = []
+    for frame in video.iter_from(video.frame_count - 2):
+        frames.append(frame)
+
+    assert len(frames) == 2
+
+    assert not np.testing.assert_allclose(
+        video[video.frame_count - 3], frames[0]
+    )
+    np.testing.assert_allclose(video[video.frame_count - 2], frames[0])
+
+    with pytest.raises(IndexError):
+        _ = next(video.iter_from(video.frame_count))
+
+    with pytest.raises(IndexError):
+        next(video.iter_from(-1))
+
+    np.testing.assert_allclose(
+        next(video.iter_from(video.frame_count - 1)),
+        video[video.frame_count - 1],
+    )
+    np.testing.assert_allclose(next(video.iter_from(0)), video[0])
+
+
 def test_is_processed(make_test_video):
     """Test to verify that a video is processed when frames match total_frames."""
     video: Video = make_test_video

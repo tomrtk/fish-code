@@ -126,7 +126,7 @@ class VideoLoader:
                 raise IndexError(
                     f"Start frame of {start_frame} is too big, total frame in video is {vid.frame_count}."
                 )
-            for n, frame in enumerate(vid[start_frame:]):
+            for n, frame in enumerate(vid.iter_from(start_frame)):
                 batch.append(frame)
                 timestamps.append(vid.timestamp_at(n + start_frame))
                 framenumbers.append(n + start_frame)
