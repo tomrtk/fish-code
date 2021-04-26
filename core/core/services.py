@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from core import api
 from core.interface import Detector, to_track
-from core.model import Frame, JobStatusException, Status, Video
+from core.model import Frame, Job, JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
@@ -218,16 +218,19 @@ def process_job(
         )
         return
 
-    def _update_job_status():
-        # Update job status
-        if not event.is_set():
+    def _pause_job_if_running(job: Job):
+        """Pauses the job if it is running.
+
+        Usually called when an error occurs during processing of a job.
+
+        Parameter
+        ---------
+        job :   Job
+            Job to pause if status is running.
+        """
+        if job.status() is Status.RUNNING:
             logger.info(f"Pausing processing of job {job_id}.")
             job.pause()
-            repo.save()
-            return
-        else:
-            logger.info(f"Job {job_id} completed")
-            job.complete()
             repo.save()
 
     # make sure its sorted before we start
@@ -241,13 +244,14 @@ def process_job(
         det = Detector()
     except ConnectionError as e:
         logger.error(f"Could not create detector, {e}")
-        _update_job_status()
+        _pause_job_if_running(job)
         return
 
     # Check if job has already processed all batches
     if job.next_batch >= video_loader._total_batches:
         logger.warning("Job has already processed all batches in video loader.")
-        _update_job_status()
+        job.complete()
+        repo.save()
         return
 
     # Populate all_frames variable with previously detected frames.
@@ -286,9 +290,13 @@ def process_job(
                     frames = det.predict(batch, "fishy")
                     logger.debug(f"Finished detecting batch {batchnr}.")
                 except ConnectionError as e:
-                    event.clear()
                     logger.error(e)
-                    break
+                    _pause_job_if_running(job)
+                    return
+                except RuntimeError as e:
+                    logger.error(e)
+                    _pause_job_if_running(job)
+                    return
 
                 # Iterate over all frames to set variables in frame
                 for n, frame in enumerate(frames):
@@ -323,6 +331,7 @@ def process_job(
             logger.warning(
                 f"Job processing interrupted under processing, stopping."
             )
+            _pause_job_if_running(job)
             event.clear()
 
     # Tracing
@@ -336,9 +345,12 @@ def process_job(
             repo.save()
         except KeyboardInterrupt:
             logger.warning(f"Job tracing aborted for job {job_id}.")
+            _pause_job_if_running(job)
             event.clear()
 
-    _update_job_status()
+        logger.info(f"Job {job_id} completed")
+        job.complete()
+        repo.save()
 
 
 class SchedulerThread(threading.Thread):
