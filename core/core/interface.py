@@ -141,6 +141,8 @@ class Detector:  # pragma: no cover
         NotImplementedError
             If `frames` is of wrong dimensions. Should be 3 or 4 with shape:
             `(height, width, channels) or (frame, height, width, channels)`
+        ConnectionError
+            If detection api is unreachable
         """
         if not any(model_name == m.name for m in self.available_models):
             logger.warning(
@@ -161,10 +163,13 @@ class Detector:  # pragma: no cover
         else:
             byte_frames = [("images", img_to_byte(img)) for img in frames]
 
-        response = requests.post(
-            f"http://{self.host}:{self.port}/predictions/{model_name}/",
-            files=byte_frames,
-        )
+        try:
+            response = requests.post(
+                f"http://{self.host}:{self.port}/predictions/{model_name}/",
+                files=byte_frames,
+            )
+        except requests.ConnectionError as e:
+            raise ConnectionError(f"Connection error to Detection API") from e
 
         if response.status_code == 200:
             result: List[core.model.Frame] = []
@@ -172,11 +177,11 @@ class Detector:  # pragma: no cover
 
                 # No detections found in frame
                 if len(detections) == 0:
-                    result.append(core.model.Frame(frame_no, []))
+                    result.append(core.model.Frame(int(frame_no), []))
                 else:
                     result.append(
                         core.model.Frame(
-                            frame_no,
+                            int(frame_no),
                             [
                                 core.model.Detection(
                                     core.model.BBox(
@@ -187,7 +192,7 @@ class Detector:  # pragma: no cover
                                     ),
                                     probability=detection["confidence"],
                                     label=detection["label"],
-                                    frame=frame_no,
+                                    frame=int(frame_no),
                                 )
                                 for detection in detections
                             ],
@@ -195,6 +200,10 @@ class Detector:  # pragma: no cover
                     )
 
             return result
+        else:
+            raise RuntimeError(
+                f"Unexpected HTTP status code from Detection API: {response.status_code}"
+            )
 
         logger.error(
             "Response from detection API was not 200, but %s (%s)",
@@ -212,7 +221,10 @@ class Detector:  # pragma: no cover
         List[core.interface.Model]
             List of available model names.
         """
-        response = requests.get(f"http://{self.host}:{self.port}/models/")
+        try:
+            response = requests.get(f"http://{self.host}:{self.port}/models/")
+        except requests.ConnectionError as e:
+            raise ConnectionError("Connection error to Detection API") from e
 
         if response.status_code == 200:
             return [Model(key, value) for key, value in response.json().items()]
