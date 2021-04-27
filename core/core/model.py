@@ -789,6 +789,7 @@ class Object:
         track_id    : int
             Tracking ID for this object. Default=None
         """
+        self.id: Optional[int]
         self.label: int = label
         self.probability: float = 0.0
         self._detections: List[Detection] = detections

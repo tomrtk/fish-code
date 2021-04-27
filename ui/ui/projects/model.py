@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Union
 class Object:
     """Holds the combined detection into an object."""
 
+    id: int
     label: str
     probability: float
     track_id: int
@@ -22,6 +23,7 @@ class Object:
     def from_dict(cls, object_data: Dict[str, Any]):
         """Return a new object from a dict."""
         return cls(
+            id=object_data["id"],
             label=object_data["label"],
             track_id=object_data["track_id"],
             time_in=datetime.fromtimestamp(object_data["label"]),
