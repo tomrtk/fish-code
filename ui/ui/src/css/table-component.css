@@ -1,0 +1,74 @@
+/* Tabbed style inside a single job */
+
+.tabbed > input {
+  display: none;
+}
+
+.tabbed > input:not(:checked) + section > div {
+  display: none;
+}
+
+.tabbed > section > h3 {
+  float: left;
+}
+
+.tabbed > section > div {
+  float: right;
+  width: 100%;
+  margin: 2.5em 0 0 -100%;
+}
+
+.tabbed {
+  float: left;
+  width: 100%;
+}
+
+.tabbed > section > h3 > label {
+  cursor: pointer;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+}
+
+.tabbed > section > div {
+  box-sizing: border-box;
+  padding: 0.5em 0.75em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.0625);
+  background: #fff;
+}
+
+.tabbed > section > h3 {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 0.5em;
+  overflow: hidden;
+  font-size: 1em;
+  font-weight: normal;
+}
+
+.tabbed > section > h3 > label {
+  display: block;
+  padding: 0.25em 0.75em;
+  border: 1px solid #ddd;
+  border-bottom: none;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.0625);
+  background: #fff;
+}
+
+.tabbed > input:first-child + section > h3 {
+  padding-left: 1em;
+}
+
+.tabbed > section > div {
+  position: relative;
+  z-index: 1;
+}
+
+.tabbed > input:checked + section > h3 {
+  position: relative;
+  z-index: 2;
+}

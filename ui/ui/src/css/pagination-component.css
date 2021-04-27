@@ -1,0 +1,71 @@
+/* Pagination */
+
+.pagination {
+  @apply block mt-4 text-center text-gray-600;
+}
+
+.pagination > ul {
+  @apply flex flex-row justify-center;
+}
+
+.pagination > ul > li {
+  @apply flex-grow-0;
+}
+
+.pagination > ul > li > a {
+  @apply py-1 px-3 inline-block;
+}
+
+/* Top Pagination */
+
+div#top-pagination > div > ul {
+  @apply border-b;
+}
+
+div#top-pagination > div > ul > li {
+  @apply border-b-2 border-white hover:border-gray-700;
+}
+
+div#top-pagination > div > ul > li.active {
+  @apply border-b-2 border-gray-700;
+}
+
+div#top-pagination > div > ul > li.disabled {
+  @apply text-gray-400 hover:border-white;
+}
+
+/* Bottom Pagination */
+
+div#bottom-pagination > div > ul {
+  @apply border-t;
+}
+
+div#bottom-pagination > div > ul > li {
+  @apply border-t-2 border-white hover:border-gray-700;
+}
+
+div#bottom-pagination > div > ul > li.active {
+  @apply border-t-2 border-gray-700;
+}
+
+div#bottom-pagination > div > ul > li.disabled {
+  @apply text-gray-400 hover:border-white;
+}
+
+/* First/Last Buttons */
+
+.pagination > ul > li.previous {
+  @apply hidden sm:inline-block flex-grow text-left hover:border-white;
+}
+
+.pagination > ul > li.next {
+  @apply hidden sm:inline-block  flex-grow text-right hover:border-white;
+}
+
+.pagination > ul > li.previous > a {
+  @apply w-full;
+}
+
+.pagination > ul > li.next > a {
+  @apply w-full;
+}
