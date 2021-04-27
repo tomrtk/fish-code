@@ -24,6 +24,6 @@ def test_detection__init__():
 def test_set_frame(make_detection):
     """Set frame number."""
     det = make_detection
-    det = det.set_frame(2)
+    det = det.set_frame(2, 1, 1)
 
     assert det.frame == 2

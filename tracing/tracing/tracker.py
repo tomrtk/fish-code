@@ -124,6 +124,8 @@ class Detection:
         label: int,
         probability: float,
         frame: int,
+        frame_id: Optional[int],
+        video_id: Optional[int],
         true_track_id: int = 0,
     ) -> None:
         """Create a detection.
@@ -143,6 +145,8 @@ class Detection:
         self.label: int = label
         self.probability: float = probability
         self.frame: int = frame
+        self.frame_id: Optional[int] = frame_id
+        self.video_id: Optional[int] = video_id
         self.true_track_id: int = true_track_id
 
     def to_SORT(self) -> np.ndarray:
@@ -167,11 +171,13 @@ class Detection:
             "bbox": self.bbox.to_dict(),
             "label": self.label,
             "probability": self.probability,
+            "frame_id": self.frame_id,
+            "video_id": self.video_id,
             "frame": self.frame,
         }
 
     @classmethod
-    def from_dict(cls, dict: Dict[str, Any]) -> Detection:
+    def from_dict(cls, dct: Dict[str, Any]) -> Detection:
         """Create a detection from a dictionary.
 
         See Also
@@ -179,14 +185,16 @@ class Detection:
         cls.to_dict()
         """
         return cls(
-            BBox(**dict["bbox"]),
-            dict["label"],
-            dict["probability"],
-            dict["frame"],
+            bbox=BBox(**dct["bbox"]),
+            label=dct["label"],
+            probability=dct["probability"],
+            frame_id=dct["frame_id"],
+            video_id=dct["video_id"],
+            frame=dct["frame"],
         )
 
     @classmethod
-    def from_api(cls, dict: Dict[str, Any], frame: int) -> Detection:
+    def from_api(cls, dct: Dict[str, Any], frame: int) -> Detection:
         """Specialized from_dict used when converting from API.
 
         Paramter
@@ -203,7 +211,12 @@ class Detection:
         tracing.api.Detection
         """
         return cls(
-            BBox(**dict["bbox"]), dict["label"], dict["probability"], frame
+            bbox=BBox(**dct["bbox"]),
+            label=dct["label"],
+            probability=dct["probability"],
+            frame_id=dct["frame_id"],
+            video_id=dct["video_id"],
+            frame=frame,
         )
 
 
@@ -321,11 +334,13 @@ class Tracker:
                     self._update_object(
                         int(t[4]),
                         Detection(
-                            d.bbox,
-                            d.label,
-                            d.probability,
-                            d.frame,
-                            d.true_track_id,
+                            bbox=d.bbox,
+                            label=d.label,
+                            probability=d.probability,
+                            frame=d.frame,
+                            frame_id=d.frame_id,
+                            video_id=d.video_id,
+                            true_track_id=d.true_track_id,
                         ),
                     )
                     break

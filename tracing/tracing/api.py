@@ -1,6 +1,6 @@
 """Module defining API for communicating with tracing."""
 
-from typing import List
+from typing import List, Optional
 
 import uvicorn
 from fastapi import Depends, FastAPI
@@ -43,6 +43,8 @@ class Detection(BaseModel):
     label: int
     probability: float
     frame: int
+    frame_id: Optional[int]
+    video_id: Optional[int]
 
 
 class Frame(BaseModel):
@@ -73,9 +75,9 @@ def track_frames(
 
     Using this endpoint will not make a persistant tracker.
     """
-    for frame in frames:
+    for idx, frame in enumerate(frames):
         detections = [
-            tracker.Detection.from_api(detect.dict(), frame.idx)
+            tracker.Detection.from_api(detect.dict(), idx)
             for detect in frame.detections
         ]
         trk.update(detections)

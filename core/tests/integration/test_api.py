@@ -74,18 +74,30 @@ def get_test_repo():
         location="Test location",
     )
     obj1 = model.Object(1)
-    obj1.add_detection(model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1))
-    obj1.add_detection(model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2))
-    obj1.add_detection(model.Detection(model.BBox(20, 30, 40, 50), 0.7, 2, 3))
+    obj1.add_detection(
+        model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1, 1, 1)
+    )
+    obj1.add_detection(
+        model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2, 2, 1)
+    )
+    obj1.add_detection(
+        model.Detection(model.BBox(20, 30, 40, 50), 0.7, 2, 3, 3, 1)
+    )
     obj1.time_in = datetime(2020, 3, 28, 10, 20, 30)
     obj1.time_out = datetime(2020, 3, 28, 10, 30, 30)
     obj1.track_id = 1
     job.add_object(obj1)
 
     obj2 = model.Object(2)
-    obj2.add_detection(model.Detection(model.BBox(40, 50, 60, 70), 0.7, 2, 2))
-    obj2.add_detection(model.Detection(model.BBox(45, 55, 65, 75), 0.6, 2, 3))
-    obj2.add_detection(model.Detection(model.BBox(50, 60, 70, 100), 0.7, 1, 4))
+    obj2.add_detection(
+        model.Detection(model.BBox(40, 50, 60, 70), 0.7, 2, 2, 1, 1)
+    )
+    obj2.add_detection(
+        model.Detection(model.BBox(45, 55, 65, 75), 0.6, 2, 3, 2, 1)
+    )
+    obj2.add_detection(
+        model.Detection(model.BBox(50, 60, 70, 100), 0.7, 1, 4, 3, 1)
+    )
     obj2.time_in = datetime(2020, 3, 28, 20, 20, 30)
     obj2.time_out = datetime(2020, 3, 28, 20, 30, 30)
     obj2.track_id = 2

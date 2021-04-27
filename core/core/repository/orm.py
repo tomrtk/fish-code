@@ -90,10 +90,10 @@ detections = Table(
     Column("bbox", PickleType, nullable=False),
     Column("frame", Integer, nullable=False),
     Column("object_id", Integer, ForeignKey("objects.id")),
-    Column("video_id", Integer),
-    Column("frame_idx", Integer),
+    Column("video_id", Integer, nullable=False),
+    Column("frame_id", Integer, nullable=False),
     ForeignKeyConstraint(
-        ["video_id", "frame_idx"], ["frames.video_id", "frames.idx"]
+        ["video_id", "frame_id"], ["frames.video_id", "frames.idx"]
     ),
 )
 

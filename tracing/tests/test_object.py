@@ -15,7 +15,15 @@ def bbox():
 @pytest.fixture
 def detection(bbox):
     """Return a valid detection."""
-    return Detection(bbox, 1, 1.0, 1)
+    return Detection(
+        bbox,
+        label=1,
+        probability=1.0,
+        frame=1,
+        frame_id=2,
+        video_id=3,
+        true_track_id=1,
+    )
 
 
 def test_object_update(detection):
@@ -78,6 +86,8 @@ def test_object_to_dict(detection):
                 },
                 "label": 1,
                 "probability": 1.0,
+                "frame_id": 2,
+                "video_id": 3,
                 "frame": 1,
             },
         ],
