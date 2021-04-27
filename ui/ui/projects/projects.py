@@ -93,6 +93,11 @@ def construct_projects_bp(cfg: Config):
             "projects/job.html", job=job, obj_stats=obj_stats
         )
 
+    @projects_bp.route("/objects/<int:object_id>/preview")
+    def object_preview(object_id: int):
+        """View preview of an Object."""
+        return redirect(f"{endpoint_path}/objects/{object_id}/preview")
+
     @projects_bp.route(
         "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
     )
