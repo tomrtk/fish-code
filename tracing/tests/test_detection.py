@@ -8,7 +8,15 @@ from tracing.tracker import BBox, Detection
 @pytest.fixture
 def detection() -> Detection:
     """Return a valid detection."""
-    return Detection(BBox(*[10, 10, 10, 10]), 1, 1.0, 1)
+    return Detection(
+        BBox(*[10, 10, 10, 10]),
+        label=1,
+        probability=1.0,
+        frame=1,
+        frame_id=2,
+        video_id=3,
+        true_track_id=1,
+    )
 
 
 @pytest.fixture
@@ -23,6 +31,8 @@ def detection_json():
         },
         "label": 1,
         "probability": 1.0,
+        "frame_id": 2,
+        "video_id": 3,
         "frame": 1,
     }
 

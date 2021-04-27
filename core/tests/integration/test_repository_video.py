@@ -93,14 +93,7 @@ def test_add_video_with_frame(sqlite_session_factory):
 
     frame = model.Frame(
         10,
-        [
-            model.Detection(
-                model.BBox(11, 22, 33, 44),
-                0.9,
-                2,
-                9,
-            )
-        ],
+        [model.Detection(model.BBox(11, 22, 33, 44), 0.9, 2, 9, 1, 1)],
     )
 
     vid.add_detection_frame(frame)

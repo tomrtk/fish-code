@@ -668,7 +668,11 @@ class Detection:
     label: int
         Class label from detection
     frame: int
-        Which frame it belongs to
+        Which absolute frame it belongs to
+    frame_id: int
+        The relative frame in a video
+    video_id: int
+        ID of the video this detection is found.
 
     Example
     -------
@@ -682,6 +686,8 @@ class Detection:
     probability: float
     label: int
     frame: int
+    frame_id: Optional[int] = None
+    video_id: Optional[int] = None
 
     def to_json(self) -> Dict[str, Any]:
         """Convert detection to json.
@@ -703,9 +709,13 @@ class Detection:
             "probability": self.probability,
             "label": self.label,
             "frame": self.frame,
+            "frame_id": self.frame_id,
+            "video_id": self.video_id,
         }
 
-    def set_frame(self, frame: int) -> Detection:
+    def set_frame(
+        self, frame: int, frame_id: int, video_id: Optional[int]
+    ) -> Detection:
         """Update frame nr.
 
         Returns itself so it can be used in list comprehensions.
@@ -720,12 +730,27 @@ class Detection:
         Detection :
                   Returns self.
         """
+        if not isinstance(frame_id, int):
+            raise RuntimeError(f"Frame: expected int, got {type(frame_id)}")
+
+        if not isinstance(video_id, int):
+            raise RuntimeError(f"Video: expected int, got {type(video_id)}")
+
         self.frame = frame
+        self.frame_id = frame_id
+        self.video_id = video_id
+
         return self
 
     @classmethod
     def from_api(
-        cls, bbox: Dict[Any, str], probability: float, label: int, frame: int
+        cls,
+        bbox: Dict[Any, str],
+        probability: float,
+        label: int,
+        frame: int,
+        frame_id: int,
+        video_id: int,
     ) -> Detection:
         """Create Detection class from tracker.
 
@@ -744,7 +769,7 @@ class Detection:
         Detection :
             A detection object
         """
-        return cls(BBox(**bbox), probability, label, frame)
+        return cls(BBox(**bbox), probability, label, frame, frame_id, video_id)
 
 
 class Object:
