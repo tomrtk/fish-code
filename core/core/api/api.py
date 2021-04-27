@@ -4,10 +4,14 @@ Package defining core's API for use by _view's_. Documentation of the
 API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
+import io
 import logging
 from typing import Dict, List
 
-from fastapi import Depends, FastAPI, HTTPException, Query, status
+import cv2 as cv
+import numpy as np
+from fastapi import Depends, FastAPI, HTTPException, Path, Query, status
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
 from sqlalchemy.orm.session import close_all_sessions
@@ -15,7 +19,11 @@ from sqlalchemy.orm.session import close_all_sessions
 import core.api.schema as schema
 from core import model, services
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
+from core.repository.object import (
+    SqlAlchemyObjectRepository as ObjectRepository,
+)
 from core.repository.orm import metadata, start_mappers
+from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
 
 logger = logging.getLogger(__name__)
 
@@ -402,3 +410,80 @@ def set_job_status_pause(
     # TODO: Schedule a job to be paused
 
     return job
+
+
+@core_api.get("/objects/{object_id}/preview")
+async def get_object_image(object_id: int = Path(..., ge=1)):
+    """Display a preview video of an Object.
+
+    Returns
+    -------
+    Streamingresponse
+        A video stream.
+
+    Raises
+    ------
+    HTTPException
+        If no object is found.
+    """
+    session = sessionfactory()
+    o_repo = ObjectRepository(session)
+    v_repo = VideoRepostory(session)
+
+    obj = o_repo.get(object_id)
+    if not obj:
+        raise HTTPException(status_code=404, detail="Object not found")
+
+    async def gen():
+        prev_video_id = -1
+        vid = None
+
+        for frame_id, video_id, bbx in obj.get_frames():
+            if video_id is not None and frame_id is not None:
+                if video_id is not prev_video_id:
+                    vid = v_repo.get(video_id)
+
+                frame = vid[frame_id]
+
+                img = to_img(frame, bbx)
+
+                yield (
+                    b"--frame\r\n"
+                    b"Content-Type: image/jpeg\r\n\r\n"
+                    + bytearray(img)
+                    + b"\r\n"
+                )
+
+    return StreamingResponse(
+        gen(), media_type="multipart/x-mixed-replace;boundary=frame"
+    )
+
+
+def to_img(img: np.ndarray, bbx: model.BBox) -> np.ndarray:
+    """Convert numpy array to image and draws boundingbox.
+
+    Parameters
+    ----------
+    img     : np.ndarray
+            Imagedata as numpy.ndarray
+    bbox    : model.BBox
+            Boundingbox associated with the detection
+
+    Returns
+    -------
+    np.ndarray
+            image encoded as png
+    """
+    new_img = cv.rectangle(  # type: ignore
+        img,
+        (int(bbx.x1), int(bbx.y1)),
+        (int(bbx.x2), int(bbx.y2)),
+        (255, 0, 0),
+        1,
+    )
+
+    new_img = cv.cvtColor(new_img, cv.COLOR_RGB2BGR)  # type: ignore
+    retval, new_img = cv.imencode(".png", new_img)  # type:ignore
+    if retval is None:
+        raise RuntimeError
+    return new_img

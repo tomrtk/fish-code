@@ -906,6 +906,21 @@ class Object:
         except IndexError:
             return None
 
+    def get_frames(self) -> List[Tuple[Optional[int], Optional[int], BBox]]:
+        """Return which frame and which video this object is in.
+
+        frame_id tells what frame in the video with video_id contains a
+        detection associated with this object.
+
+        Return
+        ------
+        List[Tuple[Optional[int], Optional[int], BBox]] :
+            [(frame_id, video_id), (frame_id, video_id)]
+        """
+        return [
+            (det.frame_id, det.video_id, det.bbox) for det in self._detections
+        ]
+
 
 class Job:
     """Class representation of a job."""
