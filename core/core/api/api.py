@@ -207,6 +207,15 @@ def list_projects(
     """
     list_length = len(repo.list())
 
+    # Calculate the pagination data.  This needs early calculation
+    # because we need the headers anyway.
+    pagination_response = construct_pagination_data(list_length, page, per_page)
+
+    # Populate the headers with the pagination data.
+    for k, v in pagination_response.items():
+        response.headers[k] = v
+
+    # Return early if no projects in database.
     if list_length == 0:
         return []
 
@@ -224,13 +233,6 @@ def list_projects(
             resp.append(convert_to_projectbare(proj))
         except TypeError as e:
             logger.warning(e)
-
-    # Calculate the pagination data.
-    pagination_response = construct_pagination_data(list_length, page, per_page)
-
-    # Populate the headers with the pagination data.
-    for k, v in pagination_response.items():
-        response.headers[k] = v
 
     return resp
 
@@ -318,7 +320,16 @@ def list_project_jobs(
         raise HTTPException(status_code=404, detail="Project not found")
 
     list_length = project.number_of_jobs
-    if list_length < 1:
+
+    # Calculate the pagination data.  This needs early calculation
+    # because we need the headers anyway.
+    pagination_response = construct_pagination_data(list_length, page, per_page)
+
+    # Populate the headers with the pagination data.
+    for k, v in pagination_response.items():
+        response.headers[k] = v
+
+    if list_length == 0:
         return []
 
     # Set to - 1 because page != index in a list.
@@ -336,13 +347,6 @@ def list_project_jobs(
             resp.append(convert_to_jobbare(job))
         except TypeError as e:
             logger.warning(e)
-
-    # Calculate the pagination data.
-    pagination_response = construct_pagination_data(list_length, page, per_page)
-
-    # Populate the headers with the pagination data.
-    for k, v in pagination_response.items():
-        response.headers[k] = v
 
     return resp
 
