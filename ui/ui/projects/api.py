@@ -202,7 +202,7 @@ class Client:
 
     def get_projects(
         self, page: int = 1, per_page: int = 10
-    ) -> Optional[Tuple[Optional[List[ProjectBare]], int]]:
+    ) -> Optional[Tuple[List[ProjectBare], int]]:
         """Get all projects from endpoint.
 
         Parameters
@@ -220,10 +220,15 @@ class Client:
         payload = {"page": page, "per_page": per_page}
         result = self.get(f"{self._endpoint}/projects/", params=payload)
 
-        if isinstance(result, requests.Response):
-            return [ProjectBare(**p) for p in result.json()], int(result.headers["x-total"])  # type: ignore
+        if not isinstance(result, requests.Response):
+            return None
 
-        return None
+        if not result.headers["x-total"]:
+            return None
+
+        return [ProjectBare(**p) for p in result.json()], int(
+            result.headers["x-total"]
+        )
 
     def get_project(
         self,
@@ -276,7 +281,7 @@ class Client:
         project_id: int,
         page: int = 1,
         per_page: int = 10,
-    ) -> Optional[Tuple[Optional[List[JobBare]], int]]:
+    ) -> Optional[Tuple[List[JobBare], int]]:
         """Get a list of jobs from the endpoint.
 
         Parameters
@@ -303,6 +308,9 @@ class Client:
         if not isinstance(result_project, requests.Response) or not isinstance(
             result_jobs, requests.Response
         ):
+            return None
+
+        if not result_jobs.headers["x-total"]:
             return None
 
         return [
