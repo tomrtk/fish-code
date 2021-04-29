@@ -1,0 +1,20 @@
+/* Dialog */
+
+#preview-dialog-bg {
+  @apply h-full bg-black bg-opacity-50 absolute inset-0 flex flex-col justify-center items-center;
+  z-index: 8000;
+}
+
+#preview-dialog {
+  @apply mx-auto p-2 bg-gray-200 shadow-lg rounded-lg relative;
+  z-index: 9000;
+}
+
+#preview-dialog iframe {
+  z-index: 9001;
+}
+
+#preview-dialog button {
+  z-index: 9002;
+  @apply absolute rounded-full -top-4 -right-4 bg-gray-100 text-gray-700 border shadow w-10 h-10 flex justify-center items-center;
+}

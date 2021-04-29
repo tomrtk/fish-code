@@ -9,6 +9,7 @@
 
 /* Custom Components */
 @import "./button-component.css";
+@import "./preview-component.css";
 @import "./pagination-component.css";
 @import "./table-component.css";
 
