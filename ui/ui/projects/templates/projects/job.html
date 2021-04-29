@@ -177,6 +177,7 @@
         <table class="table-auto w-full border">
           <thead class="bg-gray-100 border-b">
             <tr class="font-bold">
+              <td class="p-2 w-6"></td>
               <td class="p-2 w-28">Label</td>
               <td class="p-2">Time in</td>
               <td class="p-2">Time Out</td>
@@ -187,6 +188,7 @@
           <tbody class="">
             {% for object in job._objects %}
             <tr class="border-b h-8">
+              <td class="px-2 text-gray-500 italic">{{ loop.index }}</td>
               <td class="px-2 border-r">{{ object.label }}</td>
               <td class="px-2 border-r">{{ object.time_in }}</td>
               <td class="px-2 border-r">{{ object.time_out }}</td>
@@ -207,7 +209,7 @@
             type="submit"
             id="btn-toggle-job"
           >
-            {{ job._status|replace("Pending","Start Job") }}
+	  {{ job._status|replace("Pending","Start Job") }} - {{ job.progress }}%
           </button> </span
         >{% endif %}
       </div>
@@ -247,7 +249,7 @@
             <tr class="h-8 border-b">
               <td class="text-right px-2 border-r">{{ video.id }}</td>
               <td class="px-2 border-r">{{ video._path }}</td>
-              <td class="px-2 border-r">{{ video.frames }}</td>
+              <td class="px-2 border-r">{{ video.frame_count }}</td>
               <td class="px-2 border-r">{{ video.timestamp }}</td>
             </tr>
             {% endfor %}
