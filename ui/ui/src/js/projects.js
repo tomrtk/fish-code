@@ -14,14 +14,31 @@
  * This is to reduce popins that might occur.
  */
 
-import "jquery";
-import "jstree";
-
+// Seems that it is not supported using {$, jQuery}, hence the double
+// import.
+import jQuery from "jquery";
 import $ from "jquery";
+
+window.$ = window.jQuery = jQuery;
+
+import "jstree";
 
 /* https://stackoverflow.com/a/3291856/182868 */
 String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
+};
+
+var createIframeMarkup = function (object_id) {
+  return `
+  <div id="preview-dialog-bg">
+    <iframe
+    title="Inline Frame Example"
+    id="preview-dialog"
+    width="640"
+    height="360"
+    src="http://localhost:5000/projects/objects/${object_id}/preview" />
+  </div>
+  `;
 };
 
 $(function () {
@@ -93,4 +110,36 @@ $(function () {
       return false;
     });
   }
+
+  // Variable
+  //
+
+  // get all preview button
+  //
+  // read href
+  //
+  // loop register oncline
+  //
+  newBtn = $(".btn-new");
+  newBtn.removeAttr("href");
+
+  newBtn.on("click", function () {
+    $("body").prepend(createIframeMarkup);
+  });
+
+  previewButtons = $(".btn-object-preview");
+
+  previewButtons.each(function () {
+    $(this).bind("click", function () {
+      regex = /\d$/g;
+      var previewId = $(this).attr("id").match(regex);
+
+      console.log(previewId);
+      $("body").prepend(createIframeMarkup(previewId));
+      $(document).on("click", "#preview-dialog-bg", function () {
+        $(this).remove();
+      });
+    });
+    $(this).removeAttr("href");
+  });
 });

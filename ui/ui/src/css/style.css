@@ -4,6 +4,24 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Trasnapren div */
+
+#logo-header {
+  @apply filter drop-shadow;
+}
+
+#preview-dialog-bg {
+  @apply bg-black bg-opacity-50 absolute inset-0 flex flex-col justify-center items-center;
+  z-index: 8000;
+}
+
+#preview-dialog {
+  @apply mx-auto;
+  z-index: 9000;
+}
+
+/* Dialog */
+
 /* Base style for buttons */
 
 .btn {

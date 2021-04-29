@@ -13,7 +13,7 @@
       rel="stylesheet"
     />
   </head>
-  <body class="bg-gray-100 overflow-y-scroll">
+  <body class="bg-gray-100 overflow-y-scroll relative">
     <div class="p-6">
       <div
         class="bg-white flex flex-col mx-auto container max-w-screen-xl rounded-lg shadow-lg"
@@ -23,6 +23,7 @@
         >
           <a href="{{ url_for('index') }}">
             <img
+              id="logo-header"
               class="m-2"
               src="{{ url_for('static', filename='dist/images/nina.png') }}"
               alt="NINA Logo"

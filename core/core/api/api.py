@@ -434,7 +434,7 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     if not obj:
         raise HTTPException(status_code=404, detail="Object not found")
 
-    async def gen():
+    def gen():
         prev_video_id = -1
         vid = None
 
@@ -446,6 +446,7 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
                 frame = vid[frame_id]
 
                 img = to_img(frame, bbx)
+                logger.debug(f"Streaming frame {frame_id} of {object_id}")
 
                 yield (
                     b"--frame\r\n"
