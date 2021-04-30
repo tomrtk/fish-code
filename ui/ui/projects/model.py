@@ -247,5 +247,5 @@ class Video:
     location: str
     status: str
     _path: str
-    frames: int
+    frame_count: int
     timestamp: datetime
