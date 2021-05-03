@@ -41,7 +41,7 @@ async def startup_event():
         torch.hub.load(  # type: ignore
             "ultralytics/yolov5",
             "custom",
-            path_or_model=str(model_fishy_path.resolve()),
+            path=str(model_fishy_path.resolve()),
         ),
         1280,
     )
