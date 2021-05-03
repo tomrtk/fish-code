@@ -32,6 +32,7 @@ from core.repository.object import (
 )
 from core.repository.orm import metadata, start_mappers
 from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
+from core.utils import outline_detection
 
 logger = logging.getLogger(__name__)
 
@@ -581,7 +582,7 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
 
                 frame = vid[frame_id]
 
-                img = to_img(frame, bbx)
+                img = outline_detection(frame, bbx)
 
                 yield (
                     b"--frame\r\n"
@@ -593,33 +594,3 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     return StreamingResponse(
         gen(), media_type="multipart/x-mixed-replace;boundary=frame"
     )
-
-
-def to_img(img: np.ndarray, bbx: model.BBox) -> np.ndarray:
-    """Convert numpy array to image and draws boundingbox.
-
-    Parameters
-    ----------
-    img     : np.ndarray
-            Imagedata as numpy.ndarray
-    bbox    : model.BBox
-            Boundingbox associated with the detection
-
-    Returns
-    -------
-    np.ndarray
-            image encoded as png
-    """
-    new_img = cv.rectangle(  # type: ignore
-        img,
-        (int(bbx.x1), int(bbx.y1)),
-        (int(bbx.x2), int(bbx.y2)),
-        (255, 0, 0),
-        1,
-    )
-
-    new_img = cv.cvtColor(new_img, cv.COLOR_RGB2BGR)  # type: ignore
-    retval, new_img = cv.imencode(".jpeg", new_img)  # type:ignore
-    if retval is None:
-        raise RuntimeError
-    return new_img
