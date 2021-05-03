@@ -1,74 +1,76 @@
 {% extends "base.html" %} {% block main %}
-<main class="container flex flex-col mx-auto p-8">
-  <div class="border-b-2 mb-4">
-    <ul class="">
-      <li class="inline">
-        <a href="{{ url_for('index') }}">Home</a>
-      </li>
-      <li class="inline">
-        <svg
-          class="inline w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </li>
-      <li class="inline">
-        <a
-          href="{{ url_for('projects_bp.projects_index')
+<nav class="border-b px-8 py-2 italic">
+  <ul class="">
+    <li class="inline hover:border-b-2 hover:border-gray-800">
+      <a href="{{ url_for('index') }}">Home</a>
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline hover:border-b-2 hover:border-gray-800">
+      <a
+        href="{{ url_for('projects_bp.projects_index')
                                   }}"
-          >Projects</a
-        >
-      </li>
-      <li class="inline">
-        <svg
-          class="inline w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </li>
+        >Projects</a
+      >
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline hover:border-b-2 hover:border-gray-800">
       <a
         href="{{ url_for('projects_bp.projects_project',
               project_id=job.project_id)
                                   }}"
         >{{ job.project_name }}</a
       >
-      <li class="inline">
-        <svg
-          class="inline w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </li>
-      <li class="inline">{{ job.name }}</li>
-    </ul>
-  </div>
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline font-medium">{{ job.name }}</li>
+  </ul>
+</nav>
+<main class="container flex flex-col mx-auto p-8">
   <div
     class="flex flex-col w-full max-w-2xl mx-auto justify-center items-center mb-8"
   >
