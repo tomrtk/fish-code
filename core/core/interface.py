@@ -9,6 +9,7 @@ import numpy as np
 import requests
 
 import core.model
+from core.utils import img_to_byte
 
 logger = logging.getLogger(__name__)
 
@@ -236,25 +237,3 @@ class Detector:  # pragma: no cover
         )
 
         return list()
-
-
-def img_to_byte(img: np.ndarray) -> io.BytesIO:
-    """Convert image as np.ndarray to image byte.
-
-    This tried to do as few check to keep it as fast as possible.
-
-    Parameters
-    ----------
-    img : np.ndarray
-        imagedata
-
-    Return
-    ------
-    io.BytesIO
-        Image data as byte.
-    """
-    img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
-    retval, img_byte = cv.imencode(".png", img)  # type: ignore
-    if not retval:
-        raise RuntimeError("Unexpected error when converting image to byte.")
-    return io.BytesIO(img_byte)

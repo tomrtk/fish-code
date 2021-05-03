@@ -1,6 +1,9 @@
 """Utility functions."""
+import io
+
 import cv2 as cv
 import numpy as np
+
 import core.model as model
 
 
@@ -32,3 +35,25 @@ def outline_detection(img: np.ndarray, bbx: model.BBox) -> np.ndarray:
     if retval is None:
         raise RuntimeError
     return new_img
+
+
+def img_to_byte(img: np.ndarray) -> io.BytesIO:
+    """Convert image as np.ndarray to image byte.
+
+    This tried to do as few check to keep it as fast as possible.
+
+    Parameters
+    ----------
+    img : np.ndarray
+        imagedata
+
+    Return
+    ------
+    io.BytesIO
+        Image data as byte.
+    """
+    img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+    retval, img_byte = cv.imencode(".png", img)  # type: ignore
+    if not retval:
+        raise RuntimeError("Unexpected error when converting image to byte.")
+    return io.BytesIO(img_byte)
