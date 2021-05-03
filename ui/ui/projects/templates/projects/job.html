@@ -209,7 +209,8 @@
             type="submit"
             id="btn-toggle-job"
           >
-	  {{ job._status|replace("Pending","Start Job") }} - {{ job.progress }}%
+            {{ job._status|replace("Pending","Start Job") }} - {{ job.progress
+            }} %
           </button> </span
         >{% endif %}
       </div>
