@@ -20,15 +20,9 @@ detection_api = FastAPI()
 model: Dict[str, Tuple[Any, int]] = dict()
 label: Dict[str, List[str]] = dict()
 
-# Handle paths for different working directories.
-if Path.cwd().name == "code":
-    model_path = Path("./detection/detection/weights/")
-elif Path.cwd().name == "detection":
-    model_path = Path("./detection/weights/")
-else:
-    raise FileNotFoundError
-
-model_fishy_path = model_path / "yolov5m6-imgsize-768-18.04.21-exp54.pt"
+model_fishy_path = (
+    Path(__file__).parent / "weights/yolov5m6-imgsize-768-18.04.21-exp54.pt"
+)
 
 if not model_fishy_path.exists() or model_fishy_path.is_dir():
     raise FileNotFoundError
