@@ -1,50 +1,52 @@
 {% extends "base.html" %} {% block main %}
-<main class="container flex flex-col mx-auto p-8">
-  <div class="border-b-2 mb-4">
-    <ul class="">
-      <li class="inline"><a href="/">Home</a></li>
-      <li class="inline">
-        <svg
-          class="inline w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </li>
-      <li class="inline">
-        <a
-          href="{{ url_for('projects_bp.projects_index')
+<nav class="border-b-2 px-8 py-2 italic">
+  <ul class="">
+    <li class="inline hover:border-b-2 hover:border-gray-800">
+      <a href="/">Home</a>
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline hover:border-b-2 hover:border-gray-800">
+      <a
+        href="{{ url_for('projects_bp.projects_index')
                                   }}"
-          >Projects</a
-        >
-      </li>
-      <li class="inline">
-        <svg
-          class="inline w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 5l7 7-7 7"
-          ></path>
-        </svg>
-      </li>
-      <li class="inline font-medium">New Project</li>
-    </ul>
-  </div>
+        >Projects</a
+      >
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline font-medium">New Project</li>
+  </ul>
+</nav>
+<main class="container flex flex-col mx-auto p-8">
   <div class="mb-10">
     <form
       enctype="multipart/form-data"

@@ -9,6 +9,10 @@ repos:
       - id: check-yaml
         name: Check YAML
       - id: end-of-file-fixer
+        exclude: |
+          (?x)^(
+            ui/ui/static/
+          )
       - id: trailing-whitespace
   - repo: https://github.com/pycqa/isort
     rev: 5.8.0
