@@ -241,19 +241,19 @@
         <table class="table-auto w-full border">
           <thead class="bg-gray-100 border-b">
             <tr class="text-lg">
-              <td class="px-2 border-r">ID</td>
-              <td class="w-16 px-2">Path</td>
-              <td class="px-2">Frames</td>
-              <td class="px-2">Timestamp</td>
+              <td class="px-2 w-12">ID</td>
+              <td class="px-2">Path</td>
+              <td class="px-2 w-24">Frames</td>
+              <td class="px-2 w-52">Timestamp</td>
             </tr>
           </thead>
           <tbody class="">
             {% for video in job.videos %}
             <tr class="h-8 border-b">
               <td class="text-right px-2 border-r">{{ video.id }}</td>
-              <td class="px-2 border-r">{{ video._path }}</td>
-              <td class="px-2 border-r">{{ video.frame_count }}</td>
-              <td class="px-2 border-r">{{ video.timestamp }}</td>
+              <td class="text-left px-2 border-r">{{ video._path }}</td>
+              <td class="text-right px-2 border-r">{{ video.frame_count }}</td>
+              <td class="px-2">{{ video.timestamp }}</td>
             </tr>
             {% endfor %}
           </tbody>
