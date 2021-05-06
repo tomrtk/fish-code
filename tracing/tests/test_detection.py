@@ -27,20 +27,6 @@ def detection_json():
     }
 
 
-def test_detection_to_SORT(detection):
-    """Test detection to_SORT."""
-    np.testing.assert_allclose(
-        detection.to_SORT(),
-        [
-            detection.bbox.x1,
-            detection.bbox.y1,
-            detection.bbox.x2,
-            detection.bbox.y2,
-            detection.probability,
-        ],
-    )
-
-
 def test_detection_to_dict(detection, detection_json):
     """Test detection to_dict."""
     assert detection_json == detection.to_dict()

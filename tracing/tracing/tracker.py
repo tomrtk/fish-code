@@ -1,6 +1,7 @@
 """Module defines BBox, Detection, Object and Tracker."""
 from __future__ import annotations
 
+import abc
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -145,16 +146,6 @@ class Detection:
         self.frame: int = frame
         self.true_track_id: int = true_track_id
 
-    def to_SORT(self) -> np.ndarray:
-        """Convert a detection to work with SORT.
-
-        Return
-        ------
-        np.ndarray(1,5) :
-            Detection as [x1, y1, x2, y2, score]
-        """
-        return np.array(np.append(self.bbox.to_list(), self.probability))
-
     def to_dict(self) -> Dict[str, Any]:
         """Convert self to dict.
 
@@ -263,10 +254,46 @@ class Object:
         }
 
 
-class Tracker:
-    """Abstraction over SORT. Keeps a dict of Objects."""
+class AbstractTracker(abc.ABC):
+    """Abstract tracker class."""
 
-    def __init__(self, tracker: sort.Sort) -> None:
+    _objects: Dict[int, Object] = dict()
+
+    def update(self, detections) -> None:
+        """Update the tracker."""
+        raise NotImplementedError
+
+    def get_objects(self) -> dict[int, Object]:
+        """Return the object dict."""
+        return self._objects
+
+    def get_false_positive(self) -> int:
+        """Get the false positives from the tracker. Used for benchmarking."""
+        raise NotImplementedError
+
+    def get_misses(self) -> int:
+        """Get the misses from the tracker. Used for benchmarking."""
+        raise NotImplementedError
+
+
+class SortTracker(AbstractTracker):
+    """Abstraction over SORT.
+
+    Methods
+    -------
+    update()
+        Updates the internal object list with new detections. Can be used in an
+        online fashion.
+    get_objects()
+        Direct implementation from AbstractTracker. Returns dictionary with
+        objects.
+    get_false_positives()
+        Returns false positives from Sort.
+    get_misses()
+        Returns misses from Sort.
+    """
+
+    def __init__(self, max_age=1, min_hits=3, iou_threshold=0.3) -> None:
         """Create a Tracker with a Sort instance and an empty dict with objects.
 
         Parameter
@@ -274,10 +301,9 @@ class Tracker:
         tracker : sort.Sort
             A Sort tracker.
         """
-        self.tracker: sort.Sort = tracker
-        self.objects: Dict[int, Object] = dict()
+        self._tracker: sort.Sort = sort.Sort(max_age, min_hits, iou_threshold)
 
-    def update(self, detecions: List[Detection]) -> np.ndarray:
+    def update(self, detecions: List[Detection]) -> None:
         """Update the Tracker.
 
         Paramter
@@ -295,14 +321,27 @@ class Tracker:
         if len(detecions) == 0:
             tracks = np.empty((0, 5))
         else:
-            tracks = np.array([detection.to_SORT() for detection in detecions])
+            tracks = np.array(
+                [self._convert(detection) for detection in detecions]
+            )
 
         self._connect_bb(
-            self.tracker.update(tracks),  # type: ignore
+            self._tracker.update(tracks),  # type: ignore
             detecions,
         )
 
-        return tracks
+    @staticmethod
+    def _convert(detection: Detection) -> np.ndarray:
+        """Convert a detection to work with SORT.
+
+        Return
+        ------
+        np.ndarray(1,5) :
+            Detection as [x1, y1, x2, y2, score]
+        """
+        return np.array(
+            np.append(detection.bbox.to_list(), detection.probability)
+        )
 
     def _connect_bb(self, tracked: np.ndarray, detect: List[Detection]) -> None:
         """Re-associate boundingboxes with a detection to determine the label.
@@ -342,19 +381,15 @@ class Tracker:
         detection : Detection
             The detection to add to the object or create a new object from
         """
-        if track_id not in self.objects:
-            self.objects[track_id] = Object(track_id)
+        if track_id not in self._objects:
+            self._objects[track_id] = Object(track_id)
 
-        self.objects[track_id].update(detection)
-
-    def get_objects(self) -> dict[int, Object]:
-        """Return the object dict."""
-        return self.objects
+        self._objects[track_id].update(detection)
 
     def get_false_positive(self) -> int:
         """Get the false positives from the tracker. Used for benchmarking."""
-        return self.tracker.false_positives
+        return self._tracker.false_positives
 
     def get_misses(self) -> int:
         """Get the misses from the tracker. Used for benchmarking."""
-        return self.tracker.miss
+        return self._tracker.miss
