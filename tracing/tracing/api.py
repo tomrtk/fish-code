@@ -14,7 +14,7 @@ tracking = FastAPI()
 
 def make_tracker():
     """Return a SORT tracker."""
-    return tracker.Tracker(sort.Sort())
+    return tracker.SortTracker()
 
 
 class BBox(BaseModel):
@@ -67,7 +67,7 @@ class Object(BaseModel):
 
 @tracking.post("/tracking/track", response_model=List[Object])
 def track_frames(
-    frames: List[Frame], trk: tracker.Tracker = Depends(make_tracker)
+    frames: List[Frame], trk: tracker.SortTracker = Depends(make_tracker)
 ):
     """Create a tracker to track the recieved frames.
 
