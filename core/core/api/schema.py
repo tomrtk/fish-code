@@ -43,6 +43,7 @@ class HashableBaseModel(BaseModel):
 class Object(BaseModel):
     """Base model for `Object` class used in API."""
 
+    id: int
     label: str
     probability: float
     detections: Dict[str, List[float]]

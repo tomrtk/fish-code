@@ -117,7 +117,7 @@ class VideoLoader:
 
         batch = []
         timestamps = []
-        framenumbers = []
+        framenumbers: List[int] = []
         video_for_frame: Dict[int, Video] = dict()
         current_batch = batch_index
         batch_start_time = time.time()
@@ -256,7 +256,6 @@ def process_job(
 
     # Populate all_frames variable with previously detected frames.
     for vid in job.videos:
-        vid.is_processed()
         for frame in vid.frames:
             all_frames.append(frame)
 
@@ -302,23 +301,28 @@ def process_job(
                 for n, frame in enumerate(frames):
                     abs_frame_nr = batchnr * batchsize + n
 
-                    # Set relative frame number
-                    # TODO: This breaks tracing, add another variable in frame
-                    # frame.idx = framenumbers[n]
+                    frames[n].idx = framenumbers[n]
 
-                    frame.timestamp = timestamp[n]
+                    frames[n].timestamp = timestamp[n]
 
                     # Adds the absolute frame number to the frame before tracking.
                     # This help popuplate the timestamp for objects.
-                    frame.detections = [
-                        dets.set_frame(abs_frame_nr)
-                        for dets in frame.detections
+                    frames[n].detections = [
+                        dets.set_frame(
+                            abs_frame_nr,
+                            framenumbers[n],
+                            video_for_frame[framenumbers[n]].id,
+                        )
+                        for dets in frames[n].detections
                     ]
 
                     # store detections
-                    video_for_frame[framenumbers[n]].add_detection_frame(frame)
+                    video_for_frame[framenumbers[n]].add_detection_frame(
+                        frames[n]
+                    )
 
-                    frame.idx = abs_frame_nr
+                    # frame.idx = abs_frame_nr
+                    all_frames.append(frames[n])
                     all_frames.append(frame)
 
                 # Should only increment next_batch if storing of detections was successful
