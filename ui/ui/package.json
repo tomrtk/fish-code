@@ -1,5 +1,4 @@
 {
-  "name": "Fish Detector",
   "scripts": {
     "build:dev": "npm run css:build:dev; npm run js:build:dev",
     "build:prod": "npm run css:build:prod && npm run js:build:prod",
