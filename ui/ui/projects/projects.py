@@ -56,7 +56,7 @@ def construct_projects_bp(cfg: Config):
             get_per_page_parameter(), type=int, default=10
         )
 
-        projects = client.get_projects(page=page, per_page=per_page)
+        projects = client.get_projects(page=page, per_page=per_page)  # type: ignore
 
         pagination = Pagination(
             page=page,
@@ -102,8 +102,8 @@ def construct_projects_bp(cfg: Config):
             get_per_page_parameter(), type=int, default=12
         )
 
-        project = client.get_project(project_id)
-        jobs = client.get_jobs(project_id, page=page, per_page=per_page)
+        project = client.get_project(project_id)  # type: ignore
+        jobs = client.get_jobs(project_id, page=page, per_page=per_page)  # type: ignore
         if project is None:
             return render_template("404.html"), 404
 
