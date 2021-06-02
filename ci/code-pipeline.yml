@@ -1,6 +1,6 @@
 default:
   tags:
-    - bachelor
+    - main
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 workflow:
@@ -63,8 +63,6 @@ pyright:
 tests:
   stage: test
   extends: .cache_settings
-  tags:
-    - eirik
   before_script:
     - poetry install
   script:
