@@ -20,12 +20,12 @@ def serve_debug() -> None:
 
 def serve_prod() -> None:
     """Workaround for avoiding lamdba. Starts UI in production."""
-    serve(production=False)
+    serve(production=True)
 
 
 def serve(
     production: bool = True, port: int = 5000, host: str = "0.0.0.0"
-) -> None:
+) -> int:
     """Serve the application."""
     if production:
         logger = logging.getLogger("waitress")
@@ -41,7 +41,8 @@ def serve(
         ui_server.debug = True
 
         ui_server.run(use_reloader=False)
+    return 0
 
 
 if __name__ == "__main__":
-    serve(False)
+    exit(serve(False))
