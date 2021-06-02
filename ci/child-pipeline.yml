@@ -5,7 +5,7 @@
 
 default:
   tags:
-    - bachelor
+    - main
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 stages:
