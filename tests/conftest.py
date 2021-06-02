@@ -1,5 +1,6 @@
 """Pytest fixtures used in tests."""
 import logging
+import os
 import time
 from multiprocessing import Process
 
@@ -9,6 +10,32 @@ import requests
 from core.main import main as core_main
 from detection.main import main as detection_main
 from tracing.main import main as tracing_main  # type: ignore
+from ui.run import serve
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture
+def cleanup():
+    """Remove databases after tests are done."""
+    logger.info("Renaming data.db if it exists")
+    if os.path.exists("data.db"):
+        os.rename("data.db", "data.db.bak")
+
+    if os.path.exists("test.db"):
+        os.remove("test.db")
+
+    try:
+        yield
+    finally:
+        if os.path.exists("test.db"):
+            os.remove("test.db")
+
+        if os.path.exists("data.db"):
+            os.remove("data.db")
+
+        if os.path.exists("data.db.bak"):
+            os.rename("data.db.bak", "data.db")
 
 
 @pytest.fixture
@@ -28,11 +55,8 @@ def tracing_api():
     tracing_process.terminate()
 
 
-logger = logging.getLogger(__name__)
-
-
 @pytest.fixture(scope="function")
-def start_core():
+def start_core(cleanup):
     """Start core API.
 
     NOTE: Uses the production database.
