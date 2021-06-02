@@ -656,10 +656,10 @@ async def get_all_objects(
                     )
 
                     for center in centers[id]:
-                        frame = cv.rectangle(  # type: ignore
+                        frame = cv.circle(  # type: ignore
                             frame,
-                            (center[0] - 1, center[1] - 1),
-                            (center[0] + 1, center[1] + 1),
+                            center,
+                            1,
                             colors[id],
                             cv.FILLED,  # type: ignore
                         )
