@@ -4,9 +4,10 @@ Package defining core's API for use by _view's_. Documentation of the
 API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
+from dataclasses import dataclass
 import io
 import logging
-from typing import Dict, List
+from typing import Deque, Dict, List, Tuple
 
 import cv2 as cv
 import numpy as np
@@ -33,6 +34,8 @@ from core.repository.object import (
 from core.repository.orm import metadata, start_mappers
 from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
 from core.utils import outline_detection
+
+from numpy.random import randint
 
 logger = logging.getLogger(__name__)
 
@@ -583,6 +586,88 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
                 frame = vid[frame_id]
 
                 img = outline_detection(frame, bbx)
+
+                yield (
+                    b"--frame\r\n"
+                    b"Content-Type: image/jpeg\r\n\r\n"
+                    + bytearray(img)
+                    + b"\r\n"
+                )
+
+    return StreamingResponse(
+        gen(), media_type="multipart/x-mixed-replace;boundary=frame"
+    )
+
+
+@core_api.get("/projects/{project_id}/jobs/{job_id}/all_objects")
+async def get_all_objects(
+    project_id: int = Path(..., ge=1), job_id: int = Path(..., ge=1)
+):
+    session = sessionfactory()
+    p_repo = ProjectRepository(session)
+    v_repo = VideoRepostory(session)
+
+    project = p_repo.get(project_id)
+    job = project.get_job(job_id)
+
+    def gen():
+        #            video     frame     objects
+        videos: Dict[int, Dict[int, List[tuple[int, model.BBox]]]] = dict()
+        colors: Dict[int, Tuple[int, int, int]] = dict()
+        centers: Dict[int, Deque[Tuple[int, int]]] = dict()
+
+        for obj in job._objects:
+            vids = obj.get_frames()
+            for v in vids:
+                if v[0] is not None and v[1] is not None and obj.id is not None:
+
+                    if v[1] not in videos:
+                        videos[v[1]] = dict()
+                    if v[0] not in videos[v[1]]:
+                        videos[v[1]][v[0]] = list()
+
+                    videos[v[1]][v[0]].append((obj.id, v[2]))
+
+            if obj.id is not None:
+                color = randint(0, 255, 3)
+                colors[obj.id] = tuple(int(i) for i in color)  # type: ignore
+
+        for v_id, frames in videos.items():
+            vid = v_repo.get(v_id)
+            if vid is None:
+                continue
+
+            for f_id, bbxs in sorted(frames.items()):
+                frame = vid[f_id]
+
+                for id, bbx in bbxs:
+
+                    frame = cv.rectangle(  # type: ignore
+                        frame,
+                        (int(bbx.x1), int(bbx.y1)),
+                        (int(bbx.x2), int(bbx.y2)),
+                        colors[id],
+                        1,
+                    )
+                    if id not in centers:
+                        centers[id] = Deque(maxlen=50)
+                    centers[id].append(
+                        (int((bbx.x1 + bbx.x2) / 2), int((bbx.y1 + bbx.y2) / 2))
+                    )
+
+                    for center in centers[id]:
+                        frame = cv.rectangle(  # type: ignore
+                            frame,
+                            (center[0] - 1, center[1] - 1),
+                            (center[0] + 1, center[1] + 1),
+                            colors[id],
+                            cv.FILLED,  # type: ignore
+                        )
+
+                img = cv.cvtColor(frame, cv.COLOR_RGB2BGR)  # type: ignore
+                retval, img = cv.imencode(".jpeg", img)  # type:ignore
+                if retval is None:
+                    raise RuntimeError
 
                 yield (
                     b"--frame\r\n"
