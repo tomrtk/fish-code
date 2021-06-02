@@ -1,4 +1,5 @@
 """Defining pytest fixtures used during testing."""
+import os
 from datetime import datetime
 from typing import List
 
@@ -15,7 +16,8 @@ def in_memory_sqlite_db():
     """Create a sqlite database in memory for use with tests."""
     engine = create_engine("sqlite:///:memory:")
     metadata.create_all(engine)
-    return engine
+    yield engine
+    metadata.drop_all(engine)
 
 
 @pytest.fixture
@@ -76,3 +78,25 @@ def make_test_obj() -> List[model.Object]:
     obj2.track_id = 2
 
     return [obj1, obj2]
+
+
+@pytest.fixture(autouse=True)
+def cleanup():
+    """Remove databases after tests are done."""
+    if os.path.exists("data.db"):
+        os.rename("data.db", "data.db.bak")
+
+    if os.path.exists("test.db"):
+        os.remove("test.db")
+
+    try:
+        yield
+    finally:
+        if os.path.exists("test.db"):
+            os.remove("test.db")
+
+        if os.path.exists("data.db"):
+            os.remove("data.db")
+
+        if os.path.exists("data.db.bak"):
+            os.rename("data.db.bak", "data.db")
