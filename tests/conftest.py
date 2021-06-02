@@ -53,7 +53,7 @@ def start_core():
 
 
 def check_api(
-    max_tries: int = 4,
+    max_tries: int = 10,
     host: str = "localhost",
     port: str = "8000",
 ):
