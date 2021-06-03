@@ -91,7 +91,6 @@ pythonenv*
 dmypy.json
 
 # End of https://www.toptal.com/developers/gitignore/api/node,python
-poetry.lock
 
 # Ignore database files in core
 *.db

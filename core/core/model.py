@@ -745,7 +745,7 @@ class Detection:
     @classmethod
     def from_api(
         cls,
-        bbox: Dict[Any, str],
+        bbox: Dict[str, Any],
         probability: float,
         label: int,
         frame: int,
@@ -817,7 +817,7 @@ class Object:
 
     @classmethod
     def from_api(
-        cls, track_id: int, detections: List[Dict[Any, str]], label: int
+        cls, track_id: int, detections: List[Dict[str, Any]], label: int
     ) -> Object:
         """Create Object class from tracker.
 
