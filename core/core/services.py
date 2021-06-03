@@ -9,6 +9,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 from sqlalchemy.orm import Session
 
+import core.main
 from core import api
 from core.interface import Detector, to_track
 from core.model import Frame, Job, JobStatusException, Status, Video
@@ -394,7 +395,7 @@ def schedule(event: threading.Event):
         )
 
         if isinstance(next_task, tuple):
-            session = api.sessionfactory()
+            session = core.main.sessionfactory()
 
             process_job(next_task[0], next_task[1], event, session=session)
 

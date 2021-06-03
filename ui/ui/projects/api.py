@@ -371,8 +371,16 @@ class Client:
             return None
 
         try:
-            return result.json()["id"]
+            job_id = result.json()["id"]
+            logger.info(
+                "Job no. %s posted to project no. %s with status_code: %s",
+                job_id,
+                project_id,
+                result.status_code,
+            )
+            return job_id
         except KeyError as e:
+            logger.error("no job id returned from core, msg: %s", e)
             return result.json()["detail"]
 
     def change_job_status(

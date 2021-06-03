@@ -75,11 +75,11 @@ verbose = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q"
+addopts = "-rX -q -vvv"
 testpaths = ["tests"]
 filterwarnings = [
   'ignore:the imp module is deprecated:DeprecationWarning',
   'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]
-log_cli = "True"
-log_level = "DEBUG"
+log_cli = "False"
+log_level = "INFO"
