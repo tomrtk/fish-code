@@ -197,7 +197,7 @@ class Client:
         --------
         api.call : Decorator that handles the API calls.
         """
-        logger.info("post to %s, %s", uri)
+        logger.info("post to %s", uri)
         return self._session.post(uri)
 
     def get_projects(
