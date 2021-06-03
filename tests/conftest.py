@@ -1,6 +1,5 @@
 """Pytest fixtures used in tests."""
 import logging
-import os
 import time
 from multiprocessing import Process
 
@@ -10,32 +9,8 @@ import requests
 from core.main import main as core_main
 from detection.main import main as detection_main
 from tracing.main import main as tracing_main  # type: ignore
-from ui.run import serve
 
 logger = logging.getLogger(__name__)
-
-
-@pytest.fixture
-def cleanup():
-    """Remove databases after tests are done."""
-    logger.info("Renaming data.db if it exists")
-    if os.path.exists("data.db"):
-        os.rename("data.db", "data.db.bak")
-
-    if os.path.exists("test.db"):
-        os.remove("test.db")
-
-    try:
-        yield
-    finally:
-        if os.path.exists("test.db"):
-            os.remove("test.db")
-
-        if os.path.exists("data.db"):
-            os.remove("data.db")
-
-        if os.path.exists("data.db.bak"):
-            os.rename("data.db.bak", "data.db")
 
 
 @pytest.fixture
@@ -56,10 +31,10 @@ def tracing_api():
 
 
 @pytest.fixture(scope="function")
-def start_core(cleanup):
+def start_core(tmp_path):
     """Start core API.
 
-    NOTE: Uses the production database.
+    Makes a test database in a tmp. directory for each test.
 
     Makes sure that the API is running via `check_api()`
 
@@ -67,7 +42,12 @@ def start_core(cleanup):
     --------
     check_api()
     """
-    core_process = Process(target=core_main, args=(None,), daemon=True)
+    test_db = tmp_path / "test.db"
+    logger.info(f"Making a test db at {str(test_db)}")
+
+    core_process = Process(
+        target=core_main, args=(None, str(test_db.resolve())), daemon=True
+    )
     core_process.start()
     logger.info("Starting core")
     check_api(max_tries=20, host="localhost", port="8000")

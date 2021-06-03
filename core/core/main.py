@@ -50,7 +50,9 @@ def shutdown() -> None:
     clear_mappers()
 
 
-def main(argsv: Optional[Sequence[str]] = None) -> int:
+def main(
+    argsv: Optional[Sequence[str]] = None, db_path: str = "data.db"
+) -> int:
     """Start runtime of core module."""
     # Handle any command argument.
     parser = argparse.ArgumentParser()
@@ -71,7 +73,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Core started")
 
     if not args.test:  # only part not tested in tests
-        setup()
+        setup(db_path)
         core.services.start_scheduler()
 
         uvicorn.run(

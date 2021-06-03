@@ -82,19 +82,21 @@ def make_test_obj() -> List[model.Object]:
 
 @pytest.fixture(autouse=True)
 def cleanup():
-    """Remove databases after tests are done."""
+    """Remove databases after tests are done.
+
+    Rename `data.db` if found in `core` for the duration of the test, to
+    avoid removing a `data.db` from manual testing of `core`.
+
+    Note: is set to `autouse`, this fixture is implicit run for each test
+    in `core`.
+    """
     if os.path.exists("data.db"):
         os.rename("data.db", "data.db.bak")
-
-    if os.path.exists("test.db"):
-        os.remove("test.db")
 
     try:
         yield
     finally:
-        if os.path.exists("test.db"):
-            os.remove("test.db")
-
+        # remove data.db made during test.
         if os.path.exists("data.db"):
             os.remove("data.db")
 

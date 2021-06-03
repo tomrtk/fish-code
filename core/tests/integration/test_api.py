@@ -1,8 +1,8 @@
 """Tests for API."""
+import logging
 from datetime import datetime
 
 import pytest
-from fastapi import Depends
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import clear_mappers
 from sqlalchemy.orm.session import close_all_sessions
@@ -13,11 +13,15 @@ from core import api, model
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata
 
+logger = logging.getLogger(__name__)
+
 
 @pytest.fixture
-def setup():
+def setup(tmp_path):
     """Override setup of db for tests."""
-    core.main.setup("test.db")
+    test_db = tmp_path / "test.db"
+    logger.info(f"Making a test db at {str(test_db)}")
+    core.main.setup(str(test_db.resolve()))
 
     try:
         yield
