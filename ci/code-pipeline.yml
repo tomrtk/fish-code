@@ -1,6 +1,6 @@
 default:
   tags:
-    - main
+    - eirik
   image: registry.gitlab.com/hitchhikers/container-images/python-quality:latest
 
 workflow:
