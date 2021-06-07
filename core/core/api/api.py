@@ -4,7 +4,6 @@ Package defining core's API for use by _view's_. Documentation of the
 API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
-import io
 import logging
 from typing import Dict, List
 
@@ -19,18 +18,15 @@ from fastapi import (
     Response,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, clear_mappers, scoped_session, sessionmaker
-from sqlalchemy.orm.session import close_all_sessions
+from fastapi.responses import StreamingResponse
 
 import core.api.schema as schema
+import core.main
 from core import model, services
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.object import (
     SqlAlchemyObjectRepository as ObjectRepository,
 )
-from core.repository.orm import metadata, start_mappers
 from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
 from core.utils import outline_detection
 
@@ -38,38 +34,11 @@ logger = logging.getLogger(__name__)
 
 core_api = FastAPI()
 
-engine = create_engine(
-    "sqlite:///data.db",
-    connect_args={"check_same_thread": False},
-)
-# Create tables from defined schema.
-metadata.create_all(engine)
-
-# Make a scoped session to be used by other threads in processing.
-# https://docs.sqlalchemy.org/en/13/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
-sessionfactory = scoped_session(
-    sessionmaker(autocommit=False, autoflush=False, bind=engine)
-)
-
-
-@core_api.on_event("startup")
-def startup():
-    """Start mappings at api start."""
-    start_mappers()
-    logger.debug("Database connected.")
-
-
-@core_api.on_event("shutdown")
-def shutdown():
-    """Cleanup on shutdown of api."""
-    close_all_sessions()
-    clear_mappers()
-
 
 def get_runtime_repo():  # noqa: D403
     """FastAPI dependencies function creating `repositories` for endpoint."""
     # Map DB to Objects.
-    sessionRepo = ProjectRepository(sessionfactory())
+    sessionRepo = ProjectRepository(core.main.sessionfactory())
     logger.debug("Repository created.")
     try:
         yield sessionRepo
@@ -272,7 +241,9 @@ def add_project(
     Project
         New `Project` with `id`.
     """
-    return convert_to_projectbare(repo.add(model.Project(**project.dict())))
+    new_project = repo.add(model.Project(**project.dict()))
+    assert new_project.id != None
+    return convert_to_projectbare(new_project)
 
 
 @core_api.get("/projects/{project_id}/", response_model=schema.ProjectBare)
@@ -563,7 +534,7 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     HTTPException
         If no object is found.
     """
-    session = sessionfactory()
+    session = core.main.sessionfactory()
     o_repo = ObjectRepository(session)
     v_repo = VideoRepostory(session)
 

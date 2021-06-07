@@ -5,20 +5,54 @@ from typing import Optional, Sequence
 
 import uvicorn
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import clear_mappers, scoped_session, sessionmaker
+from sqlalchemy.orm.session import close_all_sessions
 
+import core.api
 import core.services
-from core import model
-from core.api import core_api
-
-# Workaround to get proper import.
-from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
+core_api = core.api.core_api  # type: ignore
 
-def main(argsv: Optional[Sequence[str]] = None) -> int:
+sessionfactory: Optional[scoped_session] = None
+engine: Optional[Engine] = None
+
+
+def setup(db_name: str = "data.db") -> None:
+    """Set up database."""
+    global sessionfactory, engine
+    logger.info("Creating database engine")
+    engine = create_engine(
+        f"sqlite:///{db_name}",
+        connect_args={"check_same_thread": False},
+    )
+    # Create tables from defined schema.
+    logger.info("Creating database schema")
+    metadata.create_all(engine)
+
+    # Make a scoped session to be used by other threads in processing.
+    # https://docs.sqlalchemy.org/en/13/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
+    sessionfactory = scoped_session(
+        sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    )
+
+    # Map db tables to objects.
+    start_mappers()
+    logger.debug("Database connected.")
+
+
+def shutdown() -> None:
+    """Clean up at shutdown of core."""
+    close_all_sessions()
+    clear_mappers()
+
+
+def main(
+    argsv: Optional[Sequence[str]] = None, db_path: str = "data.db"
+) -> int:
     """Start runtime of core module."""
     # Handle any command argument.
     parser = argparse.ArgumentParser()
@@ -39,6 +73,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Core started")
 
     if not args.test:  # only part not tested in tests
+        setup(db_path)
         core.services.start_scheduler()
 
         uvicorn.run(
@@ -52,6 +87,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         )
 
         core.services.stop_scheduler()
+        shutdown()
 
     return 0
 

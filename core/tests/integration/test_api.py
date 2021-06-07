@@ -1,70 +1,41 @@
 """Tests for API."""
+import logging
 from datetime import datetime
 
 import pytest
-from fastapi import Depends
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
+from sqlalchemy.orm import clear_mappers
 from sqlalchemy.orm.session import close_all_sessions
 
 import core
+import core.main
 from core import api, model
-
-# from core.api import core_api, schema, get_runtime_repo, sessionfactory
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
-from core.repository.orm import metadata, start_mappers
+from core.repository.orm import metadata
+
+logger = logging.getLogger(__name__)
 
 
-def test_pydantic_schema():  # noqa: D103
-    job = api.schema.Job(
-        id=1,
-        name="Test",
-        description="Testing",
-        _status=model.Status.PENDING,
-        location="Test",
-        progress=0,
-    )
+@pytest.fixture
+def setup(tmp_path):
+    """Override setup of db for tests."""
+    test_db = tmp_path / "test.db"
+    logger.info(f"Making a test db at {str(test_db)}")
+    core.main.setup(str(test_db.resolve()))
 
-    jobs = set()
-    jobs.add(job)
-    jobs.add(job)
-    assert len(jobs) == 1
-
-
-def test_production_make_db():
-    """Test production FastAPI dependency `make_db`."""
-    api.core_api.dependency_overrides[
-        api.get_runtime_repo
-    ] = api.get_runtime_repo
-    with TestClient(api.core_api) as client:
-        response = client.get("/projects/")
-
-        assert response.status_code == 200
-    api.core_api.dependency_overrides[api.get_runtime_repo] = get_test_repo
+    try:
+        yield
+    finally:
+        close_all_sessions()
+        metadata.drop_all(core.main.engine)
+        clear_mappers()
 
 
-def startup_test_api():
-    """Override dependency for FastAPI."""
-    engine = create_engine(
-        "sqlite:///./test.db",
-        connect_args={"check_same_thread": False},
-    )
-    metadata.create_all(engine)
-    global sessionfactory
-    api.sessionfactory = sessionmaker(
-        autocommit=False, autoflush=False, bind=engine
-    )
-    start_mappers()
-
-
-# use a test startup event for API
-api.core_api.router.on_startup = [startup_test_api]
-
-
-def get_test_repo():
+@pytest.fixture
+def make_test_data(setup):
     """Override dependency function to get repo for FastAPI."""
-    sessionRepo = ProjectRepository(api.sessionfactory())
+    _ = setup
+    sessionRepo = ProjectRepository(core.main.sessionfactory())
 
     proj = model.Project("test", "test", "test")
     job = model.Job(
@@ -108,17 +79,40 @@ def get_test_repo():
     sessionRepo.save()
 
     try:
-        yield sessionRepo
+        yield
     finally:
         sessionRepo.session.commit()
         sessionRepo.session.close()
 
 
-# Override what database to use for tests
-api.core_api.dependency_overrides[api.get_runtime_repo] = get_test_repo
+def test_pydantic_schema():  # noqa: D103
+    job = api.schema.Job(
+        id=1,
+        name="Test",
+        description="Testing",
+        _status=model.Status.PENDING,
+        location="Test",
+        progress=0,
+    )
+
+    jobs = set()
+    jobs.add(job)
+    jobs.add(job)
+    assert len(jobs) == 1
 
 
-def test_get_projects():
+def test_production_make_db():
+    """Test production FastAPI dependency `make_db`."""
+    core.main.setup()
+    with TestClient(api.core_api) as client:
+        response = client.get("/projects/")
+
+        assert response.status_code == 200
+
+    core.main.shutdown()
+
+
+def test_get_projects(setup, make_test_data):
     """Test getting project list endpoint."""
     with TestClient(api.core_api) as client:
         response = client.get("/projects/")
@@ -136,7 +130,7 @@ def test_get_projects():
         assert response.headers["x-per-page"] == "1313"
 
 
-def test_add_project():
+def test_add_project(setup):
     """Test posting a new project."""
     with TestClient(api.core_api) as client:
         response = client.post(
@@ -163,7 +157,7 @@ def test_add_project():
         }
 
 
-def test_add_project_with_location():
+def test_add_project_with_location(setup):
     """Test posting a new project with location string."""
     with TestClient(api.core_api) as client:
         response = client.post(
@@ -191,7 +185,7 @@ def test_add_project_with_location():
         }
 
 
-def test_get_project():
+def test_get_project(setup):
     """Test retrieving a single project."""
     with TestClient(api.core_api) as client:
         response_post_project = client.post(
@@ -222,7 +216,7 @@ def test_get_project():
         assert response_wrong_project.status_code == 404
 
 
-def test_add_and_get_job():
+def test_add_and_get_job(setup):
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(api.core_api) as client:
         response = client.post(
@@ -272,7 +266,7 @@ def test_add_and_get_job():
         ]
 
 
-def test_get_job():
+def test_get_job(setup):
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(api.core_api) as client:
         response_post_project = client.post(
@@ -347,7 +341,7 @@ def test_get_job():
         assert response.status_code == 404
 
 
-def test_get_done_job():
+def test_get_done_job(setup, make_test_data):
     """Test completed job with objects."""
     with TestClient(api.core_api) as client:
         response = client.get("/projects/1/jobs/1")
@@ -369,7 +363,7 @@ def test_get_done_job():
             assert "time_out" in obj
 
 
-def test_project_not_existing():
+def test_project_not_existing(setup):
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(api.core_api) as client:
 
@@ -391,7 +385,7 @@ def test_project_not_existing():
         assert response.status_code == 404
 
 
-def test_pause_job():
+def test_pause_job(setup):
     """Test pausing of a job."""
     with TestClient(api.core_api) as client:
         response_post_project = client.post(
@@ -435,7 +429,7 @@ def test_pause_job():
         assert response_start_job.status_code == 202
 
 
-def test_start_job():
+def test_start_job(setup):
     """Test starting a job."""
     with TestClient(api.core_api) as client:
         response_post_project = client.post(
@@ -479,7 +473,7 @@ def test_start_job():
         assert response_start_job.status_code == 202
 
 
-def test_add_and_get_job_with_videos():
+def test_add_and_get_job_with_videos(setup):
     """Test posting a new job to a project with videos."""
     with TestClient(api.core_api) as client:
         # Setup of a project to test with

@@ -10,6 +10,8 @@ from core.main import main as core_main
 from detection.main import main as detection_main
 from tracing.main import main as tracing_main  # type: ignore
 
+logger = logging.getLogger(__name__)
+
 
 @pytest.fixture
 def tracing_api():
@@ -28,14 +30,11 @@ def tracing_api():
     tracing_process.terminate()
 
 
-logger = logging.getLogger(__name__)
-
-
 @pytest.fixture(scope="function")
-def start_core():
+def start_core(tmp_path):
     """Start core API.
 
-    NOTE: Uses the production database.
+    Makes a test database in a tmp. directory for each test.
 
     Makes sure that the API is running via `check_api()`
 
@@ -43,7 +42,12 @@ def start_core():
     --------
     check_api()
     """
-    core_process = Process(target=core_main, args=(None,), daemon=True)
+    test_db = tmp_path / "test.db"
+    logger.info(f"Making a test db at {str(test_db)}")
+
+    core_process = Process(
+        target=core_main, args=(None, str(test_db.resolve())), daemon=True
+    )
     core_process.start()
     logger.info("Starting core")
     check_api(max_tries=20, host="localhost", port="8000")
