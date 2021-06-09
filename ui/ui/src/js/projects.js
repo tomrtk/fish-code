@@ -28,7 +28,7 @@ String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
-let exitSvgSymbool = `
+let exitSvgSymbol = `
 <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M6 18L18 6M6 6l12 12" />
 </svg>`;
@@ -37,13 +37,16 @@ var createIframeMarkup = function (object_id) {
   return `
   <div id="preview-dialog-bg">
     <div id="preview-dialog">
-      <button type="button">${exitSvgSymbool}</button>
-      <iframe
-        title="Preview of detected object"
-        width="640"
-        height="360"
-        src="/projects/objects/${object_id}/preview"
-      />
+      <button type="button">${exitSvgSymbol}</button>
+      <div class="aspect-w-16 aspect-h-9">
+        <iframe
+          src="/projects/objects/${object_id}/preview"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        >
+	</iframe>
+      </div>
     </div>
   </div>
   `;
@@ -145,7 +148,7 @@ $(function () {
       $(document).on("click", "#preview-dialog-bg", function () {
         $(this).remove();
       });
-      $(document).on("click", "#preview-dialog-bg", function () {
+      $(document).on("click", "#preview-dialog-bg button", function () {
         $(this).remove();
       });
     });

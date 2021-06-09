@@ -1,12 +1,12 @@
 /* Dialog */
 
 #preview-dialog-bg {
-  @apply h-full bg-black bg-opacity-50 absolute inset-0 flex flex-col justify-center items-center;
+  @apply bg-black bg-opacity-50 absolute p-4 inset-0 flex justify-center items-center;
   z-index: 8000;
 }
 
 #preview-dialog {
-  @apply mx-auto p-2 bg-gray-200 shadow-lg rounded-lg relative;
+  @apply flex-1 max-w-2xl p-4 bg-gray-200 shadow-lg rounded-lg relative;
   z-index: 9000;
 }
 
