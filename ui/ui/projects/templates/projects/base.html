@@ -1,19 +1,28 @@
-<html lang="no">
+<!DOCTYPE html>
+<html lang="en" class="h-full">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Hello</title>
     <link
       href="{{ url_for('static', filename='styles.min.css') }}"
       rel="stylesheet"
     />
   </head>
-  <body class="bg-gray-100 overflow-y-scroll">
+  <body class="h-full bg-gray-100 overflow-y-scroll">
     <div class="p-6">
       <div
         class="bg-white flex flex-col mx-auto container rounded-lg shadow-lg"
       >
         <header
-          class="flex-none flex flex-row justify-end bg-gradient-to-r from-red-100 to-blue-200 rounded-t-lg"
+          class="
+            flex-none flex flex-row
+            justify-end
+            bg-gradient-to-r
+            from-red-100
+            to-blue-200
+            rounded-t-lg
+          "
         >
           <img
             class="m-2"

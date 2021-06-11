@@ -14,17 +14,49 @@
  * This is to reduce popins that might occur.
  */
 
-import "jquery";
-import "jstree";
-
+// Seems that it is not supported using {$, jQuery}, hence the double
+// import.
+import jQuery from "jquery";
 import $ from "jquery";
+
+window.$ = window.jQuery = jQuery;
+
+import "jstree";
 
 /* https://stackoverflow.com/a/3291856/182868 */
 String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
 };
 
+let exitSvgSymbol = `
+<svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 inline-block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M6 18L18 6M6 6l12 12" />
+</svg>`;
+
+var createIframeMarkup = function (object_id) {
+  return `
+  <div id="preview-dialog-bg">
+    <div id="preview-dialog">
+      <button type="button">${exitSvgSymbol}</button>
+      <div class="aspect-w-16 aspect-h-9">
+        <iframe
+          src="/projects/objects/${object_id}/preview"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+        >
+	</iframe>
+      </div>
+    </div>
+  </div>
+  `;
+};
+
 $(function () {
+  /*
+   * jsTree
+   */
+
   $("#jstree").jstree({
     sort: 1,
     core: {
@@ -69,6 +101,10 @@ $(function () {
     }
   });
 
+  /*
+   * Start Job Button
+   */
+
   btn = $("#btn-toggle-job");
 
   if (btn.hasClass("btn-pending")) {
@@ -93,4 +129,30 @@ $(function () {
       return false;
     });
   }
+
+  /*
+   * Preview Dialog
+   */
+
+  previewButtons = $(".btn-object-preview");
+
+  previewButtons.each(function () {
+    $(this).bind("click", function () {
+      regex = /\d$/g;
+      var previewId = $(this).attr("id").match(regex);
+
+      console.log(previewId);
+      // This seems to block adding the closing event.  Resulting in that the
+      // dialog is not closeable before video is loaded.
+      $("body").prepend(createIframeMarkup(previewId));
+      $(document).on("click", "#preview-dialog-bg", function () {
+        $(this).remove();
+      });
+      $(document).on("click", "#preview-dialog-bg button", function () {
+        $(this).remove();
+      });
+    });
+    $(this).removeAttr("href");
+    $(this).removeAttr("target");
+  });
 });
