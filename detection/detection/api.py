@@ -20,7 +20,8 @@ detection_api = FastAPI()
 model: Dict[str, Tuple[Any, int]] = dict()
 label: Dict[str, List[str]] = dict()
 
-model_fishy_path = (
+model_fishy_path = Path(__file__).parent / "weights/yolov5s-imgsize-640.pt"
+model_fishy2_path = (
     Path(__file__).parent / "weights/yolov5m6-imgsize-768-18.04.21-exp54.pt"
 )
 
@@ -37,7 +38,7 @@ async def startup_event():
             "custom",
             path=str(model_fishy_path.resolve()),
         ),
-        768,
+        640,
     )
 
     label["fishy"] = [
@@ -45,7 +46,28 @@ async def startup_event():
         "gullbust",
         "rumpetroll",
         "stingsild",
-        "oreskyt",
+        "ørekyt",
+        "abbor",
+        "brasme",
+        "mort",
+        "vederbuk",
+    ]
+
+    model["fishy2"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path=str(model_fishy2_path.resolve()),
+        ),
+        768,
+    )
+
+    label["fishy2"] = [
+        "gjedde",
+        "gullbust",
+        "rumpetroll",
+        "stingsild",
+        "ørekyt",
         "abbor",
         "brasme",
         "mort",
