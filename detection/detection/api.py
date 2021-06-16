@@ -37,7 +37,7 @@ async def startup_event():
             "custom",
             path=str(model_fishy_path.resolve()),
         ),
-        1280,
+        768,
     )
 
     label["fishy"] = [
