@@ -76,9 +76,6 @@ tests:
     - poetry install
   script:
     - poetry run pytest --cov --cov-report xml
-    - poetry run coverage report
+    - poetry run coverage report -m
   cache:
     policy: pull
-  artifacts:
-    reports:
-      cobertura: $PIPELINE_ROOT/coverage.xml
