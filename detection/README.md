@@ -2,6 +2,10 @@
 
 To run inference on images a small FastAPI definition is used. See `api.py`.
 
+_NOTE_: For running predictions in a productions environment, consider using
+a purpose built model server like `TorchServe` or other model
+prediction/inference server supporting weight formats.
+
 ## CLI
 
 To run `detection` package by itself:
