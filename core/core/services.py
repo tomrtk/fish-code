@@ -334,7 +334,7 @@ def process_job(
 
         except KeyboardInterrupt:
             logger.warning(
-                f"Job processing interrupted under processing, stopping."
+                "Job processing interrupted under processing, stopping."
             )
             _pause_job_if_running(job)
             event.clear()
@@ -395,12 +395,16 @@ def schedule(event: threading.Event):
         )
 
         if isinstance(next_task, tuple):
+
+            if core.main.sessionfactory is None:
+                raise RuntimeError("Sessionfactory is not made")
+
             session = core.main.sessionfactory()
 
             process_job(next_task[0], next_task[1], event, session=session)
 
         job_queue.task_done()
-    logger.info(f"Scheduler ending.")
+    logger.info("Scheduler ending.")
 
 
 # Threes signalling event to stop.

@@ -1,10 +1,8 @@
 """Interface module for communicating with other packages like `Tracing`."""
-import io
 import logging
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List
 
-import cv2 as cv
 import numpy as np
 import requests
 
@@ -53,12 +51,12 @@ def to_track(
             times = sorted([det.frame for det in o._detections])
 
             time_in = frames[times[0]].timestamp
-            if time_in == None:
+            if time_in is None:
                 raise RuntimeError("Expected type datetime, got None")
             o.time_in = time_in
 
             time_out = frames[times[-1]].timestamp
-            if time_out == None:
+            if time_out is None:
                 raise RuntimeError("Expected type datetime, got None")
             o.time_out = time_out
         return objects
@@ -120,13 +118,14 @@ class Detector:  # pragma: no cover
     def predict(
         self, frames: np.ndarray, model_name: str
     ) -> List[core.model.Frame]:
-        """Call `/predictions/{model_name}/` endpoint to do inference on `frames`.
+        """Call `/predictions/{model_name}/` endpoint to do inference.
 
         Parameters
         ----------
         frames      :   np.ndarray
                         Numpy array of 3 or 4 dimensions with `shape`
-                        `(height, width, channels) or (frame, height, width, channels)`.
+                        `(height, width, channels) or
+                        (frame, height, width, channels)`.
         model_name  :   str
                         Name of model to be used.
 
@@ -170,49 +169,47 @@ class Detector:  # pragma: no cover
                 files=byte_frames,
             )
         except requests.ConnectionError as e:
-            raise ConnectionError(f"Connection error to Detection API") from e
+            raise ConnectionError("Connection error to Detection API") from e
 
-        if response.status_code == 200:
-            result: List[core.model.Frame] = []
-            for frame_no, detections in response.json().items():
-
-                # No detections found in frame
-                if len(detections) == 0:
-                    result.append(core.model.Frame(int(frame_no), []))
-                else:
-                    result.append(
-                        core.model.Frame(
-                            int(frame_no),
-                            [
-                                core.model.Detection(
-                                    core.model.BBox(
-                                        x1=detection["x1"],
-                                        y1=detection["y1"],
-                                        x2=detection["x2"],
-                                        y2=detection["y2"],
-                                    ),
-                                    probability=detection["confidence"],
-                                    label=detection["label"],
-                                    frame=int(frame_no),
-                                )
-                                for detection in detections
-                            ],
-                        )
-                    )
-
-            return result
-        else:
+        if response.status_code != 200:
+            logger.error(
+                "Response from detection API was not 200, but %s (%s)",
+                response.status_code,
+                response.json(),
+            )
             raise RuntimeError(
-                f"Unexpected HTTP status code from Detection API: {response.status_code}"
+                f"Unexpected HTTP status code from Detection API: "
+                f"{response.status_code}"
             )
 
-        logger.error(
-            "Response from detection API was not 200, but %s (%s)",
-            response.status_code,
-            response.json(),
-        )
+        result: List[core.model.Frame] = []
+        for frame_no, detections in response.json().items():
 
-        return list()
+            # No detections found in frame
+            if len(detections) == 0:
+                result.append(core.model.Frame(int(frame_no), []))
+            else:
+                result.append(
+                    core.model.Frame(
+                        int(frame_no),
+                        [
+                            core.model.Detection(
+                                core.model.BBox(
+                                    x1=detection["x1"],
+                                    y1=detection["y1"],
+                                    x2=detection["x2"],
+                                    y2=detection["y2"],
+                                ),
+                                probability=detection["confidence"],
+                                label=detection["label"],
+                                frame=int(frame_no),
+                            )
+                            for detection in detections
+                        ],
+                    )
+                )
+
+        return result
 
     def _models(self) -> List[Model]:
         """Call `/models/` endpoint to get available models.

@@ -127,9 +127,9 @@ class Job(JobBase):
             progress=job_data["progress"],
         )
 
-    def get_object_stats(self) -> Dict[int, int]:
+    def get_object_stats(self) -> Dict[str, int]:
         """Return total stat for all objects inside the job."""
-        object_count = dict()
+        object_count: Dict[str, int] = dict()
 
         for obj in self._objects:
             res = object_count.get(obj.label)

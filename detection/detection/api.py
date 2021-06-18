@@ -245,7 +245,7 @@ def detect(
         batches = halve_batch(batches)
         logger.warning(f"Attempting to halve batch to {len(batches[-1])}")
         try:
-            results = [model(batch, size=IMG_SIZE) for batch in batches]  # type: ignore
+            results = [model(batch, size=img_size) for batch in batches]  # type: ignore
         except RuntimeError as e:
             if len(batches[0]) < 2:
                 logger.error("Inference error: %s", e)

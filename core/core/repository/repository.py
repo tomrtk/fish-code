@@ -5,9 +5,8 @@ abstract class defines the methods all repositories needs to implement.
 """
 import abc
 import logging
-from typing import List, Optional, Set, Tuple
+from typing import List, Optional
 
-from sqlalchemy.orm import mapper, relationship
 from sqlalchemy.orm.session import Session
 
 from core import model

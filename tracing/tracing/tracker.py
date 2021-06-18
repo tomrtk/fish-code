@@ -74,7 +74,7 @@ class BBox:
 
         return cls(bbox[0], bbox[1], bbox[2] + bbox[0], bbox[3] + bbox[1])
 
-    def __eq__(self, o: BBox) -> bool:
+    def __eq__(self, o: object) -> bool:
         """Check if the two boundingboxes are witin 1 percent of eachother.
 
         Parameters
@@ -87,6 +87,9 @@ class BBox:
         bool :
             If they're equal
         """
+        if not isinstance(o, BBox):
+            raise NotImplementedError
+
         x1 = abs(self.x1 - o.x1)
         y1 = abs(self.y1 - o.y1)
         x2 = abs(self.x2 - o.x2)

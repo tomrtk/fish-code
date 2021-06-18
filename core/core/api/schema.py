@@ -59,7 +59,7 @@ class Object(BaseModel):
     @validator("detections", pre=True)
     def convert_detection(cls, _detections: List[Detection]):
         """Convert detections to Dict."""
-        detections = dict()
+        detections: Dict[str, List[float]] = dict()
         for d in _detections:
             if get_label(d.label) not in detections:
                 detections[get_label(d.label)] = list()

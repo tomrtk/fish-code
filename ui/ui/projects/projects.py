@@ -2,7 +2,7 @@
 import logging
 import os
 import tempfile
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional, Tuple
 
 from flask import (
     Blueprint,
@@ -22,7 +22,7 @@ from flask_paginate import (
 )
 
 from ui.projects.api import Client
-from ui.projects.model import Job, Project
+from ui.projects.model import Job, JobBare, Project, ProjectBare
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
@@ -102,9 +102,9 @@ def construct_projects_bp(cfg: Config):
             get_per_page_parameter(), type=int, default=12
         )
 
-        project = client.get_project(project_id)  # type: ignore
-        jobs = client.get_jobs(project_id, page=page, per_page=per_page)  # type: ignore
-        if project is None:
+        project = client.get_project(project_id)
+        jobs = client.get_jobs(project_id, page=page, per_page=per_page)
+        if project is None or jobs is None:
             return render_template("404.html"), 404
 
         pagination = Pagination(
@@ -161,8 +161,14 @@ def construct_projects_bp(cfg: Config):
         """Create new job inside a project."""
         project = client.get_project(project_id)
 
+        if not project:
+            return render_template("404.html"), 404
+
         if request.method == "POST":
-            if len(request.form["tree_data"]) <= 0:
+            if (
+                "tree_data" in request.form
+                and len(request.form["tree_data"]) <= 0
+            ):
                 return render_template(
                     "projects/job_new.html",
                     project_name=project.get_name(),
@@ -227,14 +233,12 @@ def construct_projects_bp(cfg: Config):
         if job is None or not isinstance(job, Job):
             return render_template("404.html"), 404
 
-        obj_stats = job.get_object_stats()
-
-        # PoC of download file
         with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
 
             # write headers to file
             csv_file.write(
-                b"id,label,time_in,time_out,probability,detection_label,detection_prob\n"
+                b"id,label,time_in,time_out,probability,"
+                b"detection_label,detection_prob\n"
             )
 
             for idx, obj in enumerate(job._objects, start=1):
@@ -242,7 +246,9 @@ def construct_projects_bp(cfg: Config):
                     for detection_prob in detections:
                         csv_file.write(
                             str.encode(
-                                f"{idx},{obj.label},{obj.time_in},{obj.time_out},{obj.probability},{detection_label},{detection_prob}\n"
+                                f"{idx},{obj.label},{obj.time_in},"
+                                f"{obj.time_out},{obj.probability},"
+                                f"{detection_label},{detection_prob}\n"
                             )
                         )
 

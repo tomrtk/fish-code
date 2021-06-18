@@ -13,8 +13,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import cv2 as cv
 import numpy as np
 
-import core
-
 logger = logging.getLogger(__name__)
 
 VIDEO_DEFAULT_HEIGHT: int = 360
@@ -87,7 +85,8 @@ class Video:
     add_detection_frame(frame Frame)
         Add a single data-frame containing detections to this video.
     is_processed()
-        Checks if the video has been fully processed by comparing with self.frames.
+        Checks if the video has been fully processed by comparing with
+        self.frames.
 
     Examples
     --------
@@ -146,7 +145,8 @@ class Video:
     def _scale_convert(self, img: np.ndarray) -> np.ndarray:
         """Convert and scale image using OpenCV.
 
-        Converts image from BGR to RGB, and scales down to `self.output_{height,width}`
+        Converts image from BGR to RGB, and scales down to
+        `self.output_{height,width}`
 
         Parameter
         ---------
@@ -261,7 +261,8 @@ class Video:
         Returns
         -------
         numpy.ndarray
-            Interval of frames returned in format `(frame, height, width, channels)`
+            Interval of frames returned in format
+            `(frame, height, width, channels)`
 
         See Also
         --------
@@ -289,12 +290,12 @@ class Video:
             raise IndexError("Index for start in slice is less then 0")
 
         # Slice stepping is not implemented.
-        if interval.step != None:
+        if interval.step is not None:
             raise NotImplementedError("Step in slicing is not implemented")
 
         # If slicing with `video[0:] or video[0:-1]` all frames from start to
         # end or end-1 of video is wanted.
-        if interval.stop == None:
+        if interval.stop is None:
             stop = self.frame_count
         elif interval.stop < 0:
             stop = self.frame_count + interval.stop
@@ -305,7 +306,9 @@ class Video:
         numbers = stop - interval.start
 
         self._video_capture = cv.VideoCapture(self._path)  # type: ignore
-        retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, interval.start)  # type: ignore
+        retval = self._video_capture.set(
+            cv.CAP_PROP_POS_FRAMES, interval.start  # type: ignore
+        )
 
         if not retval:
             raise RuntimeError("Unexpected error")  # pragma: no cover
@@ -393,7 +396,7 @@ class Video:
             raise FileNotFoundError("Video file %s not found.", path)
 
         timestamp = parse_str_to_date(Path(path).name)
-        if timestamp == None:
+        if timestamp is None:
             raise TimestampNotFoundError(f"No timestamp found for file {path}")
 
         height, width, fps, frame_numbers = _get_video_metadata(path)
@@ -538,12 +541,12 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
 
         # timestamp still has a "[" at the start. This strips it.
         timestamp = timestamp[1:]
-        offset = int(offset)
+        offset_int: int = int(offset)
     except ValueError:
         # No offset found, so only grab what's inside the brackets, and set
         # offset to zero.
         timestamp = match[0][1:-1]
-        offset = 0
+        offset_int = 0
 
     date = "-".join(timestamp.split("_"))
 
@@ -551,7 +554,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
 
     try:
         return datetime(year, month, day, hour, minute, second) + timedelta(
-            minutes=offset_min * offset
+            minutes=offset_min * offset_int
         )
     except ValueError:
         return None
@@ -632,6 +635,7 @@ class Frame:
             }
 
         """
+        timestamp_tmp: Optional[str] = None
         if self.timestamp:
             timestamp_tmp = self.timestamp.isoformat()
         else:

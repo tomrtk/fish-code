@@ -23,7 +23,7 @@ class AbstractObjectRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, reference: int) -> model.Object:  # pragma: no cover
+    def get(self, reference: int) -> Optional[model.Object]:  # pragma: no cover
         """Get object from repository."""
         raise NotImplementedError
 
@@ -75,7 +75,7 @@ class SqlAlchemyObjectRepository(AbstractObjectRepository):
             Raises if time_{in,out} is not set.
 
         """
-        if obj.time_in == None or obj.time_out == None:
+        if obj.time_in is None or obj.time_out is None:
             raise RuntimeError(
                 "Adding object with time_in or time_out of type None"
             )
