@@ -4,8 +4,9 @@ Package defining core's API for use by _view's_. Documentation of the
 API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
+import asyncio
 import logging
-from typing import Dict, List
+from typing import AsyncGenerator, Dict, List
 
 import cv2 as cv
 import numpy as np
@@ -520,6 +521,66 @@ def set_job_status_pause(
     return job
 
 
+async def _frame_generator(
+    obj: model.Object, video_repo: VideoRepostory
+) -> AsyncGenerator[bytes, None]:
+    """Generate frames with marked object.
+
+    For each frame the object is in view, yield the frame with marked object
+    as a multipart stream response in bytes.
+
+    Parameters
+    ----------
+    obj         :   Object
+                    Object to preview
+    video_repo  :   VideoRepostory
+                    A video repository to collect videos from.
+
+    Yields
+    ------
+    bytes
+    """
+    prev_video_id = -1
+    vid = None
+
+    for frame_id, video_id, bbx in obj.get_frames():
+        if video_id is not None and frame_id is not None:
+            if video_id is not prev_video_id:
+                vid = video_repo.get(video_id)
+
+            assert vid is not None
+
+            frame = vid[frame_id]
+
+            img = outline_detection(frame, bbx)
+
+            yield (
+                b"--frame\r\n"
+                b"Content-Type: image/jpeg\r\n\r\n" + bytearray(img) + b"\r\n"
+            )
+
+
+async def _stream(generator: AsyncGenerator) -> AsyncGenerator[bytes, None]:
+    """Stream generator for preview of objects.
+
+    Parameters
+    ----------
+    generator: AsyncGenerator
+        Generator yielding one frame of an object at the time as an
+        multipart stream response.
+
+    Yields
+    ------
+    bytes
+    """
+    try:
+        async for i in generator:
+            yield i
+            await asyncio.sleep(0.001)
+    except asyncio.CancelledError:
+        logger.info("cancelled preview of object")
+
+
 @core_api.get("/objects/{object_id}/preview")
 async def get_object_image(object_id: int = Path(..., ge=1)):
     """Display a preview video of an Object.
@@ -542,26 +603,8 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     if not obj:
         raise HTTPException(status_code=404, detail="Object not found")
 
-    def gen():
-        prev_video_id = -1
-        vid = None
-
-        for frame_id, video_id, bbx in obj.get_frames():
-            if video_id is not None and frame_id is not None:
-                if video_id is not prev_video_id:
-                    vid = v_repo.get(video_id)
-
-                frame = vid[frame_id]
-
-                img = outline_detection(frame, bbx)
-
-                yield (
-                    b"--frame\r\n"
-                    b"Content-Type: image/jpeg\r\n\r\n"
-                    + bytearray(img)
-                    + b"\r\n"
-                )
+    gen = _frame_generator(obj, v_repo)
 
     return StreamingResponse(
-        gen(), media_type="multipart/x-mixed-replace;boundary=frame"
+        _stream(gen), media_type="multipart/x-mixed-replace;boundary=frame"
     )
