@@ -215,7 +215,7 @@ def list_projects(
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
             resp.append(convert_to_projectbare(proj))
-        except TypeError as e:
+        except TypeError as e:  # pragma: no cover
             logger.warning(e)
 
     return resp
@@ -240,9 +240,6 @@ def add_project(
         New `Project` with `id`.
     """
     new_project = repo.add(model.Project(**project.dict()))
-
-    if not new_project:
-        raise HTTPException(status_code=400, detail="Project not found")
 
     return convert_to_projectbare(new_project)
 
@@ -333,7 +330,7 @@ def list_project_jobs(
     for job in project.jobs[slice(begin_idx, end_idx)]:
         try:
             resp.append(convert_to_jobbare(job))
-        except TypeError as e:
+        except TypeError as e:  # pragma: no cover
             logger.warning(e)
 
     return resp
@@ -534,7 +531,7 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     HTTPException
         If no object is found.
     """
-    if core.main.sessionfactory is None:
+    if core.main.sessionfactory is None:  # pragma: no cover
         raise RuntimeError("Sessionfactory is not made")
 
     session = core.main.sessionfactory()

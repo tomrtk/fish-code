@@ -1,6 +1,7 @@
 """Tests for API."""
 import logging
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -14,6 +15,9 @@ from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.orm import metadata
 
 logger = logging.getLogger(__name__)
+
+TEST_VIDEO_NO_TIME = str(Path("./tests/unit/test-no-time.mp4").resolve())
+TEST_VIDEO = str(Path("./tests/unit/test-[2020-03-28_12-30-10].mp4").resolve())
 
 
 @pytest.fixture
@@ -73,6 +77,7 @@ def make_test_data(setup):
     obj2.time_out = datetime(2020, 3, 28, 20, 30, 30)
     obj2.track_id = 2
     job.add_object(obj2)
+    job.add_video(model.Video.from_path(TEST_VIDEO))
 
     proj = proj.add_job(job)
     sessionRepo.add(proj)
@@ -265,6 +270,19 @@ def test_add_and_get_job(setup):
             }
         ]
 
+        # test adding job with video without timestamp
+
+        response_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "location": "test",
+                "videos": [TEST_VIDEO_NO_TIME],
+            },
+        )
+        assert response_job.status_code == 415
+
 
 def test_get_job(setup):
     """Test posting a new job to a project and getting list of jobs."""
@@ -293,6 +311,9 @@ def test_get_job(setup):
             "location": None,
             "job_count": 0,
         }
+
+        response_get_jobs = client.get(f"/projects/{project_id}/jobs/")
+        assert len(response_get_jobs.json()) == 0
 
         response_post_job = client.post(
             f"/projects/{project_id}/jobs/",
@@ -530,3 +551,13 @@ def test_add_and_get_job_with_videos(setup):
         )
 
         assert response_job.status_code == 415
+
+
+def test_object_preview(make_test_data):
+    """Test object preview endpoint."""
+    with TestClient(api.core_api) as client:
+        response = client.get("objects/1/preview")
+        assert response.status_code == 200
+
+        response = client.get("objects/999999/preview")
+        assert response.status_code == 404
