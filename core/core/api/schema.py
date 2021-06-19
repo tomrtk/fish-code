@@ -26,13 +26,13 @@ def get_label(label_id: int) -> str:
         "Vederbuk",
     ]
 
-    if label_id > len(available_labels):
+    if label_id > len(available_labels):  # pragma: no cover
         return "Unknown label"
 
     return available_labels[label_id]
 
 
-class HashableBaseModel(BaseModel):
+class HashableBaseModel(BaseModel):  # pragma: no cover
     """Custom definition of `BaseModel` who implements `__hash__`."""
 
     def __hash__(self) -> int:
