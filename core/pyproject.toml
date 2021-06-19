@@ -29,6 +29,7 @@ pytest-cov = "^2.11.1"
 pre-commit = "^2.10.1"
 types-all = "^1.0.0"
 flake8 = "^3.9.2"
+requests-mock = "^1.9.3"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
