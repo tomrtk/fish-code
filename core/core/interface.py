@@ -13,7 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def to_track(
-    frames: List[core.model.Frame], host: str = "127.0.0.1", port: str = "8001"
+    frames: List[core.model.Frame],
+    host: str = "http://127.0.0.1",
+    port: str = "8001",
 ) -> List[core.model.Object]:
     """Send frames to tracker.
 
@@ -40,7 +42,7 @@ def to_track(
     data = [frame.to_json() for frame in frames]
 
     response = requests.post(
-        f"http://{host}:{port}/tracking/track",
+        f"{host}:{port}/tracking/track",
         json=data,
     )
 
@@ -51,12 +53,12 @@ def to_track(
             times = sorted([det.frame for det in o._detections])
 
             time_in = frames[times[0]].timestamp
-            if time_in is None:
+            if time_in is None:  # pragma: no cover
                 raise RuntimeError("Expected type datetime, got None")
             o.time_in = time_in
 
             time_out = frames[times[-1]].timestamp
-            if time_out is None:
+            if time_out is None:  # pragma: no cover
                 raise RuntimeError("Expected type datetime, got None")
             o.time_out = time_out
         return objects
@@ -72,7 +74,7 @@ class Model:
     classes: List[str]
 
 
-class Detector:  # pragma: no cover
+class Detector:
     """Interface class to detection API.
 
     Parameters
@@ -109,7 +111,9 @@ class Detector:  # pragma: no cover
         `(height, width, channels) or (frame, height, width, channels)`
     """
 
-    def __init__(self, host: str = "127.0.0.1", port: str = "8003") -> None:
+    def __init__(
+        self, host: str = "http://127.0.0.1", port: str = "8003"
+    ) -> None:
         self.host: str = host
         self.port: str = port
         self.available_models: List[Model] = self._models()
@@ -165,7 +169,7 @@ class Detector:  # pragma: no cover
 
         try:
             response = requests.post(
-                f"http://{self.host}:{self.port}/predictions/{model_name}/",
+                f"{self.host}:{self.port}/predictions/{model_name}/",
                 files=byte_frames,
             )
         except requests.ConnectionError as e:
@@ -220,7 +224,7 @@ class Detector:  # pragma: no cover
             List of available model names.
         """
         try:
-            response = requests.get(f"http://{self.host}:{self.port}/models/")
+            response = requests.get(f"{self.host}:{self.port}/models/")
         except requests.ConnectionError as e:
             raise ConnectionError("Connection error to Detection API") from e
 
