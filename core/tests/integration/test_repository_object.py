@@ -59,11 +59,15 @@ def test_change_object(
     repo.save()
 
     obj_change = repo.get(1)
+
+    assert obj_change is not None
     assert obj_change.label == 1
 
     obj_change.label = 2
     repo.save()
-    assert repo.get(1).label == 2
+    new_obj = repo.get(1)
+    assert new_obj is not None
+    assert new_obj.label == 2
 
 
 def test_remove_object(
@@ -103,6 +107,8 @@ def test_add_full_object(
     assert (len(repo.list())) == 1
 
     obj_get = repo.get(1)
+
+    assert obj_get is not None
 
     assert (
         obj_get._detections[1].probability == obj._detections[1].probability

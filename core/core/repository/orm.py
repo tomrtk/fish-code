@@ -13,7 +13,6 @@ from sqlalchemy import (
     Text,
 )
 from sqlalchemy.orm import registry, relationship
-from sqlalchemy.orm.collections import attribute_mapped_collection, collection
 from sqlalchemy.sql.schema import ForeignKeyConstraint
 from sqlalchemy.sql.sqltypes import PickleType
 
@@ -121,7 +120,11 @@ videos = Table(
 
 
 def start_mappers():
-    """Map the relationships between tables defines above and domain model objects."""
+    """Map the relationships.
+
+    Map the relationships between tables defines above and domain model
+    objects.
+    """
     logger.info("Starting mappers")
 
     detection_mapper = mapper_registry.map_imperatively(
@@ -174,7 +177,7 @@ def start_mappers():
         },
     )
 
-    projects_mapper = mapper_registry.map_imperatively(
+    mapper_registry.map_imperatively(
         model.Project,
         projects,
         properties={

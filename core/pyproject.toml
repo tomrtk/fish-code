@@ -27,6 +27,8 @@ pydocstyle = "^5.1.1"
 requests = "^2.25.1"
 pytest-cov = "^2.11.1"
 pre-commit = "^2.10.1"
+types-all = "^1.0.0"
+flake8 = "^3.9.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -24,9 +24,11 @@ def test_get_object(make_test_obj: List[Object]):
 
     det = obj.get_detection(1)
 
+    assert det is not None
+
     assert det.probability == 0.8 and det.label == 2
 
-    assert obj.get_detection(10) == None
+    assert obj.get_detection(10) is None
 
 
 @pytest.mark.usefixtures("make_test_obj")

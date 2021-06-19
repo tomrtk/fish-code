@@ -23,7 +23,7 @@ class AbstractVideoRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get(self, video_id: int) -> model.Video:  # pragma: no cover
+    def get(self, video_id: int) -> Optional[model.Video]:  # pragma: no cover
         """Get video from repository."""
         raise NotImplementedError
 

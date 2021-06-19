@@ -88,3 +88,56 @@ repos:
       - id: commitlint
         stages: [commit-msg]
         additional_dependencies: ["@commitlint/config-conventional"]
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.902
+    hooks:
+      - id: mypy
+        name: Run mypy (root)
+        additional_dependencies: [types-all]
+        exclude: |
+          (?x)^(
+            ci/|
+            core/|
+            detection/|
+            docs/|
+            tracing/|
+            ui/
+          )
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.902
+    hooks:
+      - id: mypy
+        name: Run mypy (core)
+        additional_dependencies: [types-all]
+        files: ^core/
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.902
+    hooks:
+      - id: mypy
+        name: Run mypy (ui)
+        additional_dependencies: [types-all]
+        files: ^ui/
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.902
+    hooks:
+      - id: mypy
+        name: Run mypy (tracing)
+        additional_dependencies: [types-all]
+        files: ^tracing/
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v0.902
+    hooks:
+      - id: mypy
+        name: Run mypy (detection)
+        additional_dependencies: [types-all]
+        files: ^detection/
+  - repo: https://github.com/PyCQA/flake8
+    rev: 3.9.2
+    hooks:
+      - id: flake8
+        additional_dependencies: [flake8-typing-imports==1.10.0]
+        exclude: |
+          (?x)^(
+            tests/|
+            (core|ui|tracing|detection)/tests/
+            )

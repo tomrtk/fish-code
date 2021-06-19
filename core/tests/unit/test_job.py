@@ -40,9 +40,11 @@ def test_get_object(make_test_job: Job):
 
     obj = job.get_object(1)
 
+    assert obj is not None
+
     assert obj.label == 2
 
-    assert job.get_object(10) == None
+    assert job.get_object(10) is None
 
 
 def test_add_video(make_test_job):
@@ -50,9 +52,9 @@ def test_add_video(make_test_job):
     job = make_test_job
     vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
     assert job.videos == []
-    assert job.add_video(vid1) == True
+    assert job.add_video(vid1) is True
     assert job.videos == [vid1]
-    assert job.add_video(vid1) == False
+    assert job.add_video(vid1) is False
     assert job.videos == [vid1]
 
 
@@ -63,15 +65,15 @@ def test_add_list_videos(make_test_job):
     vid2 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
     vid3 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
 
-    assert job.add_videos([vid1, vid3, vid2]) == False
+    assert job.add_videos([vid1, vid3, vid2]) is False
     assert job.videos == []
 
     vid2.timestamp = vid1.timestamp + timedelta(minutes=30)
     vid3.timestamp = vid2.timestamp + timedelta(minutes=30)
 
-    assert job.add_videos([vid3, vid1, vid2]) == True
+    assert job.add_videos([vid3, vid1, vid2]) is True
     assert job.videos == [vid1, vid2, vid3]
-    assert job.add_videos([vid3, vid2]) == False
+    assert job.add_videos([vid3, vid2]) is False
     assert job.videos == [vid1, vid2, vid3]
 
 
@@ -81,9 +83,9 @@ def test_remove_video(make_test_job):
     vid1 = Video.from_path("./tests/unit/test-[2020-03-28_12-30-10].mp4")
     job.add_video(vid1)
     assert job.videos == [vid1]
-    assert job.remove_video(vid1) == True
+    assert job.remove_video(vid1) is True
     assert job.videos == []
-    assert job.remove_video(vid1) == False
+    assert job.remove_video(vid1) is False
 
 
 def test_job_status(make_test_job: Job):

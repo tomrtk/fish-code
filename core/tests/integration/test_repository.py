@@ -176,6 +176,7 @@ def test_add_job_with_objects(
     project1.add_job(job1)
     repo1.add(project1)
     project_get = repo1.get(1)
+    assert project_get is not None
     assert project_get.get_jobs()[0].number_of_objects() == 2
 
     repo1.save()
@@ -184,6 +185,7 @@ def test_add_job_with_objects(
     session2 = sqlite_session_factory()
     repo2 = SqlAlchemyProjectRepository(session2)
     project_get2 = repo2.get(1)
+    assert project_get2 is not None
     assert project_get2.get_jobs()[0].number_of_objects() == 2
 
 

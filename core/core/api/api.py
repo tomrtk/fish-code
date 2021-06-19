@@ -7,8 +7,6 @@ server is running.
 import logging
 from typing import Dict, List
 
-import cv2 as cv
-import numpy as np
 from fastapi import (
     Depends,
     FastAPI,
@@ -242,7 +240,10 @@ def add_project(
         New `Project` with `id`.
     """
     new_project = repo.add(model.Project(**project.dict()))
-    assert new_project.id != None
+
+    if not new_project:
+        raise HTTPException(status_code=400, detail="Project not found")
+
     return convert_to_projectbare(new_project)
 
 
@@ -327,7 +328,6 @@ def list_project_jobs(
     if end_idx > list_length:
         end_idx = list_length
 
-    project = repo.get(project_id)
     resp: List[schema.JobBare] = list()
 
     for job in project.jobs[slice(begin_idx, end_idx)]:
@@ -534,7 +534,11 @@ async def get_object_image(object_id: int = Path(..., ge=1)):
     HTTPException
         If no object is found.
     """
+    if core.main.sessionfactory is None:
+        raise RuntimeError("Sessionfactory is not made")
+
     session = core.main.sessionfactory()
+
     o_repo = ObjectRepository(session)
     v_repo = VideoRepostory(session)
 
