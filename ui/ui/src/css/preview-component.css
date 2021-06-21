@@ -1,7 +1,7 @@
 /* Dialog */
 
 #preview-dialog-bg {
-  @apply bg-black bg-opacity-50 absolute p-4 inset-0 flex justify-center items-center;
+  @apply fixed inset-0 p-4 flex justify-center items-center bg-black bg-opacity-50;
   z-index: 8000;
 }
 
