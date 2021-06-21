@@ -145,11 +145,14 @@ $(function () {
       // This seems to block adding the closing event.  Resulting in that the
       // dialog is not closeable before video is loaded.
       $("body").prepend(createIframeMarkup(previewId));
+      $("body").addClass("overflow-hidden");
       $(document).on("click", "#preview-dialog-bg", function () {
         $(this).remove();
+        $("body").removeClass("overflow-hidden");
       });
       $(document).on("click", "#preview-dialog-bg button", function () {
         $(this).remove();
+        $("body").removeClass("overflow-hidden");
       });
     });
     $(this).removeAttr("href");
