@@ -1,0 +1,75 @@
+{% extends "base.html" %} {% block main %}
+<nav class="border-b px-8 py-2 italic">
+  <ul class="">
+    <li class="inline hover:border-b-2 hover:border-gray-800">
+      <a href="{{ url_for('index') }}">Home</a>
+    </li>
+    <li class="inline">
+      <svg
+        class="inline w-4 h-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 5l7 7-7 7"
+        ></path>
+      </svg>
+    </li>
+    <li class="inline font-medium">Projects</li>
+  </ul>
+</nav>
+<main class="container flex flex-col mx-auto p-8">
+  <div class="flex-none text-center">
+    <h1 class="py-1 text-3xl">Projects</h1>
+  </div>
+  <nav class="flex flex-none justify-end mt-3 px-2">
+    <a
+      class="btn btn-new flex flex-row items-center"
+      href="{{ url_for('projects_bp.projects_project_new') }}"
+    >
+      <svg
+        class="w-6 h-6 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"
+        ></path>
+      </svg>
+      New Project
+    </a>
+  </nav>
+  <div class="mt-4">
+    {% if projects|length > 0 %}
+    <div id="top-pagination">{{ pagination.links }}</div>
+    <ul class="grid md:grid-cols-2 gap-4 mt-4">
+      {% for project in projects %}
+      <li
+        class="
+          flex flex-col
+          border border-gray-200
+          p-4
+          rounded-md
+          shadow-md
+          bg-gray-100
+        "
+      >
+        {% include "projects/partials/project_box.html" %}
+      </li>
+      {% endfor %}
+    </ul>
+    <div id="bottom-pagination">{{ pagination.links }}</div>
+    {% else %} No projects.{% endif %}
+  </div>
+</main>
+{% endblock %}
