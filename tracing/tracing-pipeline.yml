@@ -1,6 +1,0 @@
-workflow:
-  rules:
-    - if: $CI_MERGE_REQUEST_ID
-
-include:
-  - ci/child-pipeline.yml

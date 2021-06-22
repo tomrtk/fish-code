@@ -11,56 +11,16 @@ repos:
       - id: end-of-file-fixer
         exclude: |
           (?x)^(
-            ui/ui/static/
+            src/ui/static/
           )
       - id: trailing-whitespace
   - repo: https://github.com/pycqa/isort
     rev: 5.8.0
     hooks:
       - id: isort
-        name: Sort imports (root)
-        additional_dependencies: [toml]
-        exclude: |
-          (?x)^(
-            ci/|
-            core/|
-            detection/|
-            docs/|
-            tracing/|
-            ui/
-          )
-  - repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-      - id: isort
         name: Sort imports (core)
         additional_dependencies: [toml]
-        files: ^core/
-        args: ["--settings-path", "core"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-      - id: isort
-        name: Sort imports (detection)
-        additional_dependencies: [toml]
-        files: ^detection/
-        args: ["--settings-path", "detection"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-      - id: isort
-        name: Sort imports (tracing)
-        additional_dependencies: [toml]
-        files: ^tracing/
-        args: ["--settings-path", "tracing"]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.8.0
-    hooks:
-      - id: isort
-        name: Sort imports (ui)
-        additional_dependencies: [toml]
-        files: ^ui/
-        args: ["--settings-path", "ui"]
+        files: ^src/
   - repo: https://github.com/psf/black
     rev: 20.8b1
     hooks:
@@ -80,7 +40,7 @@ repos:
         files: \.(css|html|js|markdown|md|toml|yaml|yml)$
         exclude: |
           (?x)^(
-            ui/ui/static/dist
+            src/ui/static/dist
           )
   - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
     rev: v4.1.0
@@ -92,45 +52,9 @@ repos:
     rev: v0.902
     hooks:
       - id: mypy
-        name: Run mypy (root)
+        name: Run mypy
         additional_dependencies: [types-all]
-        exclude: |
-          (?x)^(
-            ci/|
-            core/|
-            detection/|
-            docs/|
-            tracing/|
-            ui/
-          )
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.902
-    hooks:
-      - id: mypy
-        name: Run mypy (core)
-        additional_dependencies: [types-all]
-        files: ^core/
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.902
-    hooks:
-      - id: mypy
-        name: Run mypy (ui)
-        additional_dependencies: [types-all]
-        files: ^ui/
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.902
-    hooks:
-      - id: mypy
-        name: Run mypy (tracing)
-        additional_dependencies: [types-all]
-        files: ^tracing/
-  - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.902
-    hooks:
-      - id: mypy
-        name: Run mypy (detection)
-        additional_dependencies: [types-all]
-        files: ^detection/
+        files: ^src/
   - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
     hooks:
@@ -139,5 +63,5 @@ repos:
         exclude: |
           (?x)^(
             tests/|
-            (core|ui|tracing|detection)/tests/
+            ci/
             )

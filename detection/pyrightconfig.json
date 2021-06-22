@@ -1,5 +1,0 @@
-{
-  "include": ["detection"],
-  "pythonVersion": "3.7",
-  "strict": ["detection"]
-}

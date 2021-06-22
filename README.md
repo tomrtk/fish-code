@@ -1,50 +1,91 @@
-# Python testing
+# NINA
 
-Various small python scripts for testing your Python development environment.
+Application to detect, track and calculate statistics of species in video.
 
-## Getting started
+TODO: more..
 
+## Installation
+
+TODO: update url's when repo or `whl` is public.
+
+It is recommended to install the application in a virtual environment using
+for example [virtualenv](https://virtualenv.pypa.io/en/latest/).
+
+Running `nina` requires:
+
+- Python (3.8, 3.9)
+- Virtualenv (recommended)
+
+Install instruction:
+
+```sh
+# install option 1
+virtualenv .venv
+. .venv/bin/activate
+pip install <url-to-repo-or-whl>
+
+# install option 2, without venv
+pip install -U <url-to-repo-or-whl>
+
+# to run application from terminal call
+nina
 ```
+
+## Configuration
+
+TODO
+
+## Development
+
+The project are using [pre-commit](https://pre-commit.com/). After install
+activate as below:
+
+```sh
+git clone <url> nina
+cd nina
 pre-commit install
 pre-commit install --hook-type commit-msg  # Enable commitlint
 ```
 
-# LSP
+### Setup of development environment
 
-The`type_hinting_demo` uses type hinting, use it to see that this works properly
-for you.
+Running development environment requires:
 
-# Poetry
-
-The `poetry_demo` module is to test and see if Poetry works on your machine.
-`pyproject.toml` has a script, `app` to run it. There is also a flask module
-inside `/flask_demo/`.
-
-**Initial:**
+- Python (3.8, 3.9)
+- Virtualenv (recommended)
 
 ```sh
-poetry install
+# get source code
+git clone <url> nina
+cd nina
+# make virtual environment
+virtualenv .venv
+# activate environment
+. .venv/bin/activate
+# get dependencies
+pip install -e .
+pip install -r requirements-dev.txt
+# run application with Flask dev-server
+python -m nina --dev
+# or run a single module
+python -m core
 ```
 
-**Running app:**
+### Testing
 
 ```sh
-poetry run app
+# from root of project
+# to build and run tests for all supported versions
+tox
+# or
+tox -e py39
+# or to run only tests
+pytest
 ```
 
-**Running Flask:**
+### Build package
 
 ```sh
-export FLASK_APP=flask_demo/web.py
-
-# Optional
-export FLASK_DEBUG=1
-
-poetry run flask run
+# from root of project
+python -m build
 ```
-
-# Debugging
-
-Inside `/emacs_config.el` there is a DAP debug template. Use it as inspiration
-for creating templates for other implementations of DAP. The specific template
-will run the `poetry_demo` module with `__main__.py` as the entry.
