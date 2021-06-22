@@ -1,13 +1,14 @@
 {
   "scripts": {
-    "build:dev": "npm run css:build:dev; npm run js:build:dev",
-    "build:prod": "npm run css:build:prod && npm run js:build:prod",
+    "watch": "concurrently \"npm:*:watch\"",
+    "build:dev": "concurrently \"npm:*:build:dev\"",
+    "build:prod": "concurrently \"npm:*:build:prod\"",
     "css:build:dev": "TAILWIND_MODE=build NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
     "css:build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
-    "css:dev": "TAILWIND_MODE=watch NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css --watch --verbose",
+    "css:watch": "TAILWIND_MODE=watch NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css --watch --verbose",
     "js:build:dev": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js",
     "js:build:prod": "NODE_ENV=production esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --minify",
-    "js:dev": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --watch",
+    "js:watch": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --watch",
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "dependencies": {
@@ -18,6 +19,7 @@
     "@tailwindcss/aspect-ratio": "^0.2.1",
     "@tailwindcss/forms": "^0.2.1",
     "autoprefixer": "^10.2.4",
+    "concurrently": "^6.2.0",
     "cssnano": "^5.0.1",
     "esbuild": "^0.9.7",
     "postcss": "^8.2.4",
