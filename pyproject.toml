@@ -96,7 +96,7 @@ legacy_tox_ini = """
 [tox]
 envlist = py38,py39
 isolated_build = True
-skipsdist=True
+skipsdist = True
 
 [testenv]
 deps =
