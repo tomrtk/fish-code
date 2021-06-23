@@ -52,6 +52,7 @@ pre-commit install --hook-type commit-msg  # Enable commitlint
 Running development environment requires:
 
 - Python (3.8, 3.9)
+- `pip` >= 21.1
 - `virtualenv` (recommended)
 - [git-lfs](https://git-lfs.github.com/)
 
