@@ -2,6 +2,7 @@
 import logging
 import time
 from typing import Dict, List
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -11,6 +12,14 @@ import core.services as services
 from core.model import Video
 
 logger = logging.getLogger(__name__)
+
+TEST_VIDEO = str(
+    (
+        Path(__file__).parent
+        / "test_data"
+        / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+    ).resolve()
+)
 
 
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
@@ -35,9 +44,7 @@ def test_processing_and_scheduler():
             "name": "Job name",
             "description": "Job description",
             "location": "test",
-            "videos": [
-                "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-            ],
+            "videos": [TEST_VIDEO],
         },
     )
 
@@ -80,9 +87,7 @@ def test_processing_and_scheduler():
 def test_video_loader():
     """Tests the video loader utility class."""
     videos = [
-        Video.from_path(
-            "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-        ),
+        Video.from_path(TEST_VIDEO),
     ]
 
     video_loader = services.VideoLoader(videos, 15)
@@ -113,9 +118,7 @@ def test_video_loader():
 def test_video_loader_from_batch():
     """Tests the video loader utility class."""
     videos = [
-        Video.from_path(
-            "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-        ),
+        Video.from_path(TEST_VIDEO),
     ]
 
     video_loader = services.VideoLoader(videos, 15)

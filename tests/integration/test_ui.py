@@ -8,9 +8,11 @@ from ui.main import create_app
 
 logger = logging.getLogger(__name__)
 
-TEST_VIDEO_PATH = Path(
-    "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000.mp4"
-).absolute()
+TEST_VIDEO_PATH = (
+    Path(__file__).parent
+    / "test_data"
+    / "test-abbor[2021-01-01_00-00-00]-000.mp4"
+).resolve()
 
 
 def test_index():
