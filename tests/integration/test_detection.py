@@ -7,8 +7,10 @@ import pytest
 import core.interface as interface
 from core.model import BBox, Detection, Frame, Video
 
-TEST_VIDEO_PATH = Path(
-    "./tests/integration/test_data/test-abbor[2021-01-01_00-00-00]-000.mp4"
+TEST_VIDEO_PATH = (
+    Path(__file__).parent
+    / "test_data"
+    / "test-abbor[2021-01-01_00-00-00]-000.mp4"
 )
 
 
