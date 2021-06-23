@@ -14,13 +14,13 @@ for example [virtualenv](https://virtualenv.pypa.io/en/latest/).
 Running `nina` requires:
 
 - Python (3.8, 3.9)
-- Virtualenv (recommended)
+- `virtualenv` (recommended)
 
 Install instruction:
 
 ```sh
 # install option 1
-virtualenv .venv
+virtualenv .venv # or `python -m venv .venv`
 . .venv/bin/activate
 pip install <url-to-repo-or-whl>
 
@@ -52,7 +52,8 @@ pre-commit install --hook-type commit-msg  # Enable commitlint
 Running development environment requires:
 
 - Python (3.8, 3.9)
-- Virtualenv (recommended)
+- `virtualenv` (recommended)
+- [git-lfs](https://git-lfs.github.com/)
 
 ```sh
 # get source code
