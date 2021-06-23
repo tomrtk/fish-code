@@ -42,7 +42,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.debug("Tracing started in debug mode")
     else:
         logging.basicConfig(level=logging.INFO)
-        logger.info("Core started")
+        logger.info("Tracing started")
 
     if not args.test:
         uvicorn.run(api.tracking, host=args.host, port=args.port)
