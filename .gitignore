@@ -99,3 +99,6 @@ dmypy.json
 .config_emacs.el
 .dir-locals.el
 .projectile
+
+# Make
+.make.deps
