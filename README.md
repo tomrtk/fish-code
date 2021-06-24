@@ -20,7 +20,7 @@ Install instruction:
 
 ```sh
 # install option 1
-virtualenv .venv # or `python -m venv .venv`
+virtualenv .venv --download  # or `python -m venv .venv --upgrade-deps`
 . .venv/bin/activate
 pip install <url-to-repo-or-whl>
 
@@ -61,7 +61,7 @@ Running development environment requires:
 git clone <url> nina
 cd nina
 # make virtual environment
-virtualenv .venv
+virtualenv .venv --download   # or `python -m venv .venv --upgrade-deps`
 # activate environment
 . .venv/bin/activate
 # get dependencies
