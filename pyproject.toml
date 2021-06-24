@@ -1,9 +1,9 @@
 [project]
 name = "nina"
 version = "0.1.0"
-description = """
+description = '''
 Application to detect, track and calculate statistics of species in video.
-"""
+'''
 authors = [
   "Birger Johan Nordølum",
   "Eirik Osland Lavik",
@@ -13,10 +13,7 @@ authors = [
 license = "GPL-3.0-or-later"
 
 [build-system]
-requires = [
-    "setuptools >= 35.0.2",
-    "setuptools_scm >= 2.0.0, <3"
-]
+requires = ["setuptools >= 35.0.2", "setuptools_scm >= 2.0.0, <3"]
 build-backend = "setuptools.build_meta"
 
 [tool.isort]
@@ -30,21 +27,21 @@ target-version = ['py37']
 include = '\.pyi?$'
 exclude = '''
 /(
-      \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | \.pytest_cache
-    | __pycache__
-    | _build
-    | buck-out
-    | build
-    | dist
-    | venv
-    | node_modules
-    | README.md
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | \.pytest_cache
+  | __pycache__
+  | _build
+  | buck-out
+  | build
+  | dist
+  | venv
+  | node_modules
+  | README.md
 )/
 '''
 verbose = true
@@ -52,38 +49,20 @@ verbose = true
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
-testpaths = [
-"tests",
-]
+testpaths = ["tests"]
 filterwarnings = [
   'ignore:the imp module is deprecated:DeprecationWarning',
   'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
 ]
 log_cli = "False"
 log_level = "INFO"
-norecursedirs = [
-    ".git",
-    ".tox",
-    ".env",
-    "dist",
-    "build",
-    ]
-python_files = [
-    "test_*.py",
-    "*_test.py",
-    "tests.py",
-]
+norecursedirs = [".git", ".tox", ".env", "dist", "build"]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
 
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = [
-    "*/.tox/*",
-    "*/__main__.py",
-    "*/setup.py",
-    "*/.venv*/*",
-    "*/venv*/*",
-]
+omit = ["*/.tox/*", "*/__main__.py", "*/setup.py", "*/.venv*/*", "*/venv*/*"]
 
 [tool.coverage.report]
 fail_under = 77
@@ -91,8 +70,7 @@ show_missing = true
 skip_covered = false
 
 [tool.tox]
-legacy_tox_ini = """
-
+legacy_tox_ini = '''
 [tox]
 envlist = py38,py39
 isolated_build = True
@@ -107,6 +85,6 @@ deps =
 passenv = PYTHONPATH
 commands =
 	coverage erase
-    	coverage run -m pytest {posargs}
-    	coverage report
-"""
+	coverage run -m pytest {posargs}
+	coverage report
+'''
