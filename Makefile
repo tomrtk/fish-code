@@ -50,9 +50,9 @@ run: nina
 	@. $(activate) && \
 	python -m nina
 
-deps: .make.deps
-
-.make.deps: requirements-dev.txt $(venv)
+.make.deps: requirements-dev.txt $(venv) $(venv)/bin/nina
 	@. $(activate) && \
 	pip install -r requirements-dev.txt && \
 	touch $@
+
+deps: .make.deps
