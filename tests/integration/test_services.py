@@ -1,8 +1,8 @@
 """Integration test between model and services."""
 import logging
 import time
-from typing import Dict, List
 from pathlib import Path
+from typing import Dict, List
 
 import numpy as np
 import pytest
