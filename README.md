@@ -1,8 +1,13 @@
 # NINA
 
-Application to detect, track and calculate statistics of species in video.
+Application to detect, track and calculate statistics of objects in video. With
+the option to view the statistics by using the UI or exporting to CSV.
 
-TODO: more..
+This application is the result of a bachelor's project done by a group of
+computer scientists at the Norwegian University of Science and Technology
+(NTNU). The initial assignment was provided by the Norwegian Institute for
+Nature Research (NINA) who wanted a more efficient way of gather statistics of
+video material they had collected at various locations.
 
 ## Installation
 
