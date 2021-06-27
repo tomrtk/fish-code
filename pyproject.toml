@@ -72,7 +72,7 @@ skip_covered = false
 [tool.tox]
 legacy_tox_ini = '''
 [tox]
-envlist = py38,py39
+envlist = py38, py39
 isolated_build = True
 skipsdist = True
 
@@ -86,5 +86,6 @@ passenv = PYTHONPATH
 commands =
 	coverage erase
 	coverage run -m pytest {posargs}
+	coverage xml
 	coverage report
 '''
