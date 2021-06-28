@@ -75,20 +75,20 @@ inside your editor.
 
 To get an overview of the targets run:
 
-``` sh
+```sh
 make help
 ```
 
 To install the requirements and setup virtual environment for development run:
 
-``` sh
+```sh
 make nina # Builds the software so it can be easily ran.
 make deps # Installs development dependencies.
 ```
 
 To run the software use:
 
-``` sh
+```sh
 make run
 ```
 
@@ -138,3 +138,7 @@ pytest
 # from root of project
 python -m build
 ```
+
+## Licensing
+
+The source code is licensed under GPLv3. License is available [here](./LICENSE).
