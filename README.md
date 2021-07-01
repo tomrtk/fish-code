@@ -1,4 +1,4 @@
-# NINA
+# NINA e
 
 Application to detect, track and calculate statistics of objects in video. With
 the option to view the statistics by using the UI or exporting to CSV.
