@@ -11,12 +11,13 @@ prediction/inference server supporting weight formats.
 To run `detection` package by itself:
 
 ```sh
-cd code/detection
-poetry install
-poetry run python3 detection/main.py # Starting API with delault settings
-...
-poetry run python3 detection/main.py --help
-usage: main.py [-h] [--debug] [--host HOST] [--port PORT] [--test]
+# from development environment
+python -m detection # Starting API with default settings
+
+# for installed application, use entry point to start package
+nina-detection
+nina-detection --help
+usage: nina-detection [-h] [--debug] [--host HOST] [--port PORT] [--test]
 
 optional arguments:
   -h, --help   show this help message and exit
