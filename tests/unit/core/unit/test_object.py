@@ -188,3 +188,11 @@ def test_object_from_api_multiple():
 
     assert obj1.probability == pytest.approx(0.4)
     assert obj2.probability == pytest.approx(0.9)
+
+
+@pytest.mark.usefixtures("make_test_obj")
+def test_video_ids(make_test_obj: List[Object]):
+    """Test video_ids property of object."""
+    obj = make_test_obj[0]
+
+    assert obj.video_ids == [1]

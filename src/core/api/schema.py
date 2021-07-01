@@ -47,9 +47,9 @@ class Object(BaseModel):
     label: str
     probability: float
     detections: Dict[str, List[float]]
-    track_id: int
     time_in: datetime
     time_out: datetime
+    video_ids: List[int]
 
     @validator("label", pre=True)
     def convert_label(cls, label_id: int):

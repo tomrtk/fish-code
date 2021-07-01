@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Set, Tuple, Union
 
 import cv2 as cv
 import numpy as np
@@ -925,6 +925,21 @@ class Object:
         return [
             (det.frame_id, det.video_id, det.bbox) for det in self._detections
         ]
+
+    @property
+    def video_ids(self) -> List[int]:
+        """Derive all video the object is part of.
+
+        Return
+        ------
+        List[int]
+            List of video id's.
+        """
+        video_id: Set[int] = set()
+        for det in self._detections:
+            if det.video_id is not None:
+                video_id.add(det.video_id)
+        return list(video_id)
 
 
 class Job:

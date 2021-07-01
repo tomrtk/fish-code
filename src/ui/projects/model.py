@@ -14,10 +14,10 @@ class Object:
     id: int
     label: str
     probability: float
-    track_id: int
     time_in: datetime
     time_out: datetime
     _detections: Dict[str, List[float]]
+    video_ids: List[int]
 
     @classmethod
     def from_dict(cls, object_data: Dict[str, Any]):
@@ -25,11 +25,11 @@ class Object:
         return cls(
             id=object_data["id"],
             label=object_data["label"],
-            track_id=object_data["track_id"],
             time_in=datetime.fromtimestamp(object_data["label"]),
             time_out=datetime.fromtimestamp(object_data["label"]),
             probability=object_data["probability"],
             _detections=object_data["_detections"],
+            video_ids=object_data["video_ids"],
         )
 
 

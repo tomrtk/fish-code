@@ -81,7 +81,7 @@ def test_processing_and_scheduler():
         assert "probability" in obj
         assert "time_in" in obj
         assert "time_out" in obj
-        assert "track_id" in obj
+        assert "video_ids" in obj
 
 
 def test_video_loader():
