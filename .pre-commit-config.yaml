@@ -36,8 +36,8 @@ repos:
       - id: prettier
         name: Format other code (CSS, HTML, JS, MD, TOML, YAML)
         additional_dependencies:
-        -  prettier@2.1.2
-        -  "prettier-plugin-toml"
+          - prettier@2.1.2
+          - "prettier-plugin-toml"
         types: [file]
         files: \.(css|html|js|markdown|md|toml|yaml|yml)$
         exclude: |

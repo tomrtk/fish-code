@@ -72,15 +72,7 @@
 </nav>
 <main class="container flex flex-col mx-auto p-8">
   <div
-    class="
-      flex flex-col
-      w-full
-      max-w-2xl
-      mx-auto
-      justify-center
-      items-center
-      mb-8
-    "
+    class="flex flex-col w-full max-w-2xl mx-auto justify-center items-center mb-8"
   >
     <h3 class="block py-1 mb-3 text-2xl">{{ job.name }}</h3>
     <p class="block w-full text-left mb-4 pb-2 text-gray-800">
@@ -204,19 +196,7 @@
               <td class="px-2 border-r">{{ object.time_in }}</td>
               <td class="px-2 border-r">{{ object.time_out }}</td>
               <td
-                class="
-                  {%
-                  if
-                  object.probability
-                  <
-                  0.5
-                  %}text-red-600{%
-                  endif
-                  %}
-                  text-right
-                  px-2
-                  border-r
-                "
+                class="{% if object.probability < 0.5 %}text-red-600{% endif %} text-right px-2 border-r"
               >
                 {{ "%.5f" | format(object.probability) }}
               </td>
