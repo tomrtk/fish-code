@@ -63,7 +63,7 @@ def main(
     parser.add_argument(
         "--dev", default=False, action="store_true"
     )  # No ops, needed for root-app.
-    args = parser.parse_args(argsv)
+    args, _ = parser.parse_known_args(argsv)
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)

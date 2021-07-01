@@ -27,7 +27,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         action="store_true",
         help="Run web server in development mode.",
     )
-    main_args = main_parser.parse_args(argsv)
+    main_args, _ = main_parser.parse_known_args(argsv)
     processes: List[Process] = list()
 
     if not main_args.dev:

@@ -38,7 +38,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         action="store_true",
         help="Used for testing only. API will not start.",
     )
-    args = parser.parse_args(argsv)
+    args, _ = parser.parse_known_args(argsv)
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
