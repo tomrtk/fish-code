@@ -385,7 +385,7 @@ def test_get_done_job(setup, make_test_data):
         for obj in objs:
             assert "label" in obj
             assert "probability" in obj
-            assert "track_id" in obj
+            assert "video_ids" in obj
             assert "time_in" in obj
             assert "time_out" in obj
 
