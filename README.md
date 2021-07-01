@@ -1,5 +1,9 @@
 # NINA
 
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/MindTooth/fish-code/master.svg)](https://results.pre-commit.ci/latest/github/MindTooth/fish-code/master)
+[![GitHub](https://img.shields.io/github/license/MindTooth/fish-code)](./LICENSE)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MindTooth/fish-code/Run%20Quality%20Suit)](https://github.com/MindTooth/fish-code/actions/workflows/tests.yaml)
+
 Application to detect, track and calculate statistics of objects in video. With
 the option to view the statistics by using the UI or exporting to CSV.
 
