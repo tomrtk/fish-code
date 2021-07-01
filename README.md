@@ -42,6 +42,8 @@ TODO
 
 ## Development
 
+See also our [Contribution Guidelines](./CONTRIBUTING.md).
+
 The project are using [pre-commit](https://pre-commit.com/). After install
 activate as below:
 
