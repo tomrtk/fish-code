@@ -65,27 +65,33 @@ source = ["src"]
 omit = ["*/.tox/*", "*/__main__.py", "*/setup.py", "*/.venv*/*", "*/venv*/*"]
 
 [tool.coverage.report]
-fail_under = 77
 show_missing = true
 skip_covered = false
 
 [tool.tox]
 legacy_tox_ini = '''
 [tox]
-envlist = py38, py39
+envlist = py{38,39}-{integration,unit},
+          coverage
 isolated_build = True
 skipsdist = True
 
 [testenv]
-deps =
-	-e .
-	pytest
-	coverage
-	requests-mock
-passenv = PYTHONPATH
+usedevelop = True
+extras = testing
+setenv =
+    COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
-	coverage erase
-	coverage run -m pytest {posargs}
-	coverage xml
-	coverage report
+    integration: coverage run -p -m pytest tests/integration {posargs}
+    unit: coverage run -p -m pytest tests/unit {posargs}
+
+[testenv:coverage]
+deps = coverage[toml] >= 5.0.1
+skip_install = True
+setenv =
+    COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage}
+commands = coverage combine
+           coverage report -m
+           coverage xml
+depends = py39-{integration,unit}
 '''
