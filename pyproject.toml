@@ -1,8 +1,8 @@
 [project]
 name = "nina"
-version = "0.1.0"
+version = "0.0.1"
 description = '''
-Application to detect, track and calculate statistics of species in video.
+Application to detect, track and calculate statistics of objects in video.
 '''
 authors = [
   "Birger Johan Nordølum",
@@ -10,7 +10,7 @@ authors = [
   "Kristian André Dahl Haugen",
   "Tom-Ruben Traavik Kvalvaag"
 ]
-license = "GPL-3.0-or-later"
+license = "GPL-3.0"
 
 [build-system]
 requires = ["setuptools >= 35.0.2", "setuptools_scm >= 2.0.0, <3"]
