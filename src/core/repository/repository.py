@@ -74,7 +74,9 @@ class AbstractProjectRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _get(self, reference) -> Optional[model.Project]:  # pragma: no cover
+    def _get(
+        self, reference: int
+    ) -> Optional[model.Project]:  # pragma: no cover
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -126,7 +128,7 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
         logger.debug("Added project '%s' to repository", project.name)
         return project
 
-    def _save(self):
+    def _save(self) -> None:
         self.session.commit()
 
     def _get(self, project_id: int) -> Optional[model.Project]:

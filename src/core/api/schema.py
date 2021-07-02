@@ -52,12 +52,14 @@ class Object(BaseModel):
     video_ids: List[int]
 
     @validator("label", pre=True)
-    def convert_label(cls, label_id: int):
+    def convert_label(cls, label_id: int) -> str:
         """Convert object label from id to str."""
         return get_label(label_id)
 
     @validator("detections", pre=True)
-    def convert_detection(cls, _detections: List[Detection]):
+    def convert_detection(
+        cls, _detections: List[Detection]
+    ) -> Dict[str, List[float]]:
         """Convert detections to Dict."""
         detections: Dict[str, List[float]] = dict()
         for d in _detections:

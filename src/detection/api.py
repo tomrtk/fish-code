@@ -30,7 +30,7 @@ if not model_fishy_path.exists() or model_fishy_path.is_dir():
 
 
 @detection_api.on_event("startup")  # type: ignore
-async def startup_event():
+async def startup_event() -> None:
     """Load models at API startup."""
     model["fishy"] = (  # type: ignore
         torch.hub.load(  # type: ignore

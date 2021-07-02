@@ -2,8 +2,9 @@
 import logging
 import os
 import tempfile
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
+import flask
 from flask import (
     Blueprint,
     Config,
@@ -20,6 +21,7 @@ from flask_paginate import (
     get_page_parameter,
     get_per_page_parameter,
 )
+from werkzeug.wrappers import Response
 
 from ui.projects.api import Client
 from ui.projects.model import Job, JobBare, Project, ProjectBare
@@ -30,7 +32,7 @@ logger.level = logging.DEBUG
 root_folder = "~/Downloads"
 
 
-def construct_projects_bp(cfg: Config):
+def construct_projects_bp(cfg: Config) -> Blueprint:
     """Create constructor from function to pass in config."""
     projects_bp = Blueprint(
         "projects_bp",
@@ -42,14 +44,15 @@ def construct_projects_bp(cfg: Config):
     endpoint_path: str = cfg["BACKEND_URL"]
     client = Client(endpoint_path)
 
-    def check_api_connection():
+    def check_api_connection() -> Optional[Tuple[str, int]]:
         if not client.check_api():
             return render_template("api_down.html"), 502
+        return None
 
     projects_bp.before_request(check_api_connection)
 
     @projects_bp.route("/")
-    def projects_index():
+    def projects_index() -> str:
         """Entrypoint for the blueprint."""
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = request.args.get(
@@ -57,6 +60,7 @@ def construct_projects_bp(cfg: Config):
         )
 
         projects = client.get_projects(page=page, per_page=per_page)  # type: ignore
+        assert projects is not None
 
         pagination = Pagination(
             page=page,
@@ -76,7 +80,7 @@ def construct_projects_bp(cfg: Config):
         )
 
     @projects_bp.route("/new", methods=["POST", "GET"])
-    def projects_project_new():
+    def projects_project_new() -> Union[Response, str]:
         """Create a new project."""
         if request.method == "POST":
             project = Project(
@@ -95,7 +99,7 @@ def construct_projects_bp(cfg: Config):
         return render_template("projects/project_new.html")
 
     @projects_bp.route("/<int:project_id>")
-    def projects_project(project_id: int):
+    def projects_project(project_id: int) -> Union[str, Tuple[str, int]]:
         """View a single project."""
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = request.args.get(
@@ -127,7 +131,9 @@ def construct_projects_bp(cfg: Config):
         )
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
-    def projects_job(project_id: int, job_id: int):
+    def projects_job(
+        project_id: int, job_id: int
+    ) -> Union[str, Tuple[str, int]]:
         """View a single job."""
         job = client.get_job(project_id, job_id)
         if job is None:
@@ -140,14 +146,19 @@ def construct_projects_bp(cfg: Config):
         )
 
     @projects_bp.route("/objects/<int:object_id>/preview")
-    def object_preview(object_id: int):
+    def object_preview(object_id: int) -> Union[Response, Tuple[str, int]]:
         """View preview of an Object."""
-        return redirect(f"{endpoint_path}/objects/{object_id}/preview")
+        if isinstance(object_id, int) and object_id > 0:
+            return redirect(f"{endpoint_path}/objects/{object_id}/preview")
+        else:
+            return render_template("404.html"), 404
 
     @projects_bp.route(
         "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
     )
-    def projects_job_toggle(project_id: int, job_id: int):
+    def projects_job_toggle(
+        project_id: int, job_id: int
+    ) -> Union[str, Tuple[Response, int]]:
         """Toogle job status."""
         old_status, new_status = client.change_job_status(project_id, job_id)
 
@@ -157,7 +168,9 @@ def construct_projects_bp(cfg: Config):
         return jsonify(old_status=old_status, new_status=new_status), 201
 
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
-    def projects_job_new(project_id: int):
+    def projects_job_new(
+        project_id: int,
+    ) -> Union[str, Response, Tuple[str, int]]:
         """Create new job inside a project."""
         project = client.get_project(project_id)
 
@@ -219,14 +232,16 @@ def construct_projects_bp(cfg: Config):
         )
 
     @projects_bp.route("/json")
-    def projects_json() -> Dict:
+    def projects_json() -> Dict[str, Any]:
         """Create new job inside a project."""
         data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))
 
         return data
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
-    def projects_job_make_csv(project_id: int, job_id: int):
+    def projects_job_make_csv(
+        project_id: int, job_id: int
+    ) -> Union[Tuple[str, int], Response]:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
 

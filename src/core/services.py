@@ -3,8 +3,9 @@ import logging
 import math
 import threading
 import time
+from datetime import datetime
 from queue import Empty, Queue
-from typing import Dict, List, Tuple
+from typing import Any, Dict, Generator, List, Tuple
 
 import numpy as np
 from sqlalchemy.orm import Session
@@ -80,7 +81,16 @@ class VideoLoader:
             curframe += vid.frame_count
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
-    def generate_batches(self, batch_index: int = 0):
+    def generate_batches(
+        self, batch_index: int = 0
+    ) -> Generator[
+        Tuple[
+            int,
+            Tuple[int, np.ndarray, List[datetime], Dict[int, Video], List[int]],
+        ],
+        None,
+        None,
+    ]:
         """Generate batches from list of videos, with optional batch offset.
 
         Parameter
@@ -174,7 +184,7 @@ class VideoLoader:
 
 def process_job(
     project_id: int, job_id: int, event: threading.Event, session: Session
-):
+) -> None:
     """Process all videos in a job and find objects.
 
     Parameters
@@ -219,7 +229,7 @@ def process_job(
         )
         return
 
-    def _pause_job_if_running(job: Job):
+    def _pause_job_if_running(job: Job) -> None:
         """Pauses the job if it is running.
 
         Usually called when an error occurs during processing of a job.
@@ -361,7 +371,7 @@ def process_job(
 class SchedulerThread(threading.Thread):
     """Wrapper class around Thread to handle exceptions in thread."""
 
-    def run(self):
+    def run(self) -> None:
         """Wrap method around target function to catch exception.
 
         Called when `.start` is called on `Thread`.
@@ -373,7 +383,7 @@ class SchedulerThread(threading.Thread):
         except BaseException as e:
             self.exc = e
 
-    def join(self):
+    def join(self) -> Any:  # type: ignore
         """Wrap method around `Thread` join to propagate exception."""
         super(SchedulerThread, self).join()
         if self.exc:
@@ -381,7 +391,7 @@ class SchedulerThread(threading.Thread):
         return self.ret
 
 
-def schedule(event: threading.Event):
+def schedule(event: threading.Event) -> None:
     """Scheduler function, gets run by the scheduler thread."""
     logger.info("Scheduler started.")
     while event.is_set():
@@ -416,7 +426,7 @@ schedule_thread = SchedulerThread(
 )
 
 
-def stop_scheduler():
+def stop_scheduler() -> None:
     """Stop the scheduler thread."""
     logger.info("Stopping")
 
@@ -431,7 +441,7 @@ def stop_scheduler():
     logger.info("Stopped")
 
 
-def start_scheduler():
+def start_scheduler() -> None:
     """Start the scheduler thread."""
     if not schedule_thread.is_alive():  # type: ignore
         try:
@@ -448,7 +458,7 @@ def start_scheduler():
         logger.error("Scheduler is already running")
 
 
-def queue_job(project_id: int, job_id: int, session: Session):
+def queue_job(project_id: int, job_id: int, session: Session) -> None:
     """Enqueue a job in the scheduler.
 
     Parameters

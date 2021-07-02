@@ -6,7 +6,7 @@ server is running.
 """
 import asyncio
 import logging
-from typing import AsyncGenerator, Dict, List
+from typing import AsyncGenerator, Dict, Generator, List
 
 from fastapi import (
     Depends,
@@ -34,9 +34,10 @@ logger = logging.getLogger(__name__)
 core_api = FastAPI()
 
 
-def get_runtime_repo():  # noqa: D403
-    """FastAPI dependencies function creating `repositories` for endpoint."""
+def get_runtime_repo() -> Generator[ProjectRepository, None, None]:
+    """Fastapi dependencies function creating `repositories` for endpoint."""
     # Map DB to Objects.
+    assert core.main.sessionfactory is not None
     sessionRepo = ProjectRepository(core.main.sessionfactory())
     logger.debug("Repository created.")
     try:
@@ -170,7 +171,7 @@ def list_projects(
     per_page: int = Query(
         10, ge=1, description="Choose how many items per page."
     ),
-):
+) -> List[schema.ProjectBare]:
     """List all projects.
 
     Endpoint returns a list of all projects to GET requests.
@@ -230,14 +231,14 @@ def list_projects(
 def add_project(
     project: schema.ProjectCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> schema.ProjectBare:
     """Add a project to the system.
 
     Add project on POST request on endpoint.
 
     Returns
     -------
-    Project
+    ProjectBare
         New `Project` with `id`.
     """
     new_project = repo.add(model.Project(**project.dict()))
@@ -249,14 +250,14 @@ def add_project(
 def get_project(
     project_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> schema.ProjectBare:
     """Retrieve a single project.
 
     Get a project from a GET request on endpoint.
 
     Returns
     -------
-    Project
+    ProjectBare
         Single project from project_id
 
     Raises
@@ -286,14 +287,14 @@ def list_project_jobs(
     per_page: int = Query(
         10, ge=1, description="Choose how many items per page."
     ),
-):
+) -> List[schema.JobBare]:
     """List all jobs associated with Project with _project_id_.
 
     Endpoint returns a list of Jobs from Project with _project_id_.
 
     Returns
     -------
-    List[Job]
+    List[JobBare]
         List of all jobs associated with project.
 
     Raises
@@ -344,7 +345,7 @@ def add_job_to_project(
     project_id: int,
     job: schema.JobCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> Dict[str, int]:
     """Add a `Job` to a `Project` who has`project_id`.
 
     Returns
@@ -395,6 +396,7 @@ def add_job_to_project(
         # add job to project and save repo
         project = project.add_job(new_job)
         repo.save()
+        assert new_job.id is not None
 
         logger.debug("Job %s added to project %s", job, project_id)
         return {"id": new_job.id}
@@ -409,7 +411,7 @@ def get_job_from_project(
     project_id: int,
     job_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> model.Job:
     """Retrieve a single job from a project.
 
     Returns
@@ -429,11 +431,14 @@ def get_job_from_project(
     if not project:
         logger.warning("Project %s not found,", project_id)
         raise HTTPException(status_code=404, detail="Project not found")
-    elif project.get_job(job_id) is None:
+
+    job = project.get_job(job_id)
+
+    if job is None:
         logger.warning("Job %s not found,", job_id)
         raise HTTPException(status_code=404, detail="Job not found")
 
-    return project.get_job(job_id)
+    return job
 
 
 @core_api.post(
@@ -444,13 +449,8 @@ def set_job_status_start(
     project_id: int,
     job_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> None:
     """Mark the job to be processed.
-
-    Returns
-    -------
-    Job
-        Job with updated status.
 
     Raises
     ------
@@ -484,7 +484,7 @@ def set_job_status_pause(
     project_id: int,
     job_id: int,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-):
+) -> model.Job:
     """Mark the job to be paused.
 
     Returns
@@ -579,7 +579,9 @@ async def _stream(generator: AsyncGenerator) -> AsyncGenerator[bytes, None]:
 
 
 @core_api.get("/objects/{object_id}/preview")
-async def get_object_image(object_id: int = Path(..., ge=1)):
+async def get_object_image(
+    object_id: int = Path(..., ge=1)
+) -> StreamingResponse:
     """Display a preview video of an Object.
 
     Returns
