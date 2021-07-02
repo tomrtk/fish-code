@@ -2,7 +2,8 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/MindTooth/fish-code/master.svg)](https://results.pre-commit.ci/latest/github/MindTooth/fish-code/master)
 [![GitHub](https://img.shields.io/github/license/MindTooth/fish-code)](./LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MindTooth/fish-code/Run%20Quality%20Suit)](https://github.com/MindTooth/fish-code/actions/workflows/tests.yaml)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MindTooth/fish-code/Tests)](https://github.com/MindTooth/fish-code/actions/workflows/tests.yaml)
+[![codecov](https://codecov.io/gh/MindTooth/fish-code/branch/master/graph/badge.svg?token=ZQ3PSGY6P2)](https://codecov.io/gh/MindTooth/fish-code)
 
 Application to detect, track and calculate statistics of objects in video. With
 the option to view the statistics by using the UI or exporting to CSV.
@@ -112,8 +113,7 @@ virtualenv .venv --download   # or `python -m venv .venv --upgrade-deps`
 # activate environment
 . .venv/bin/activate
 # get dependencies
-pip install -e .
-pip install -r requirements-dev.txt
+pip install -e .[testing]
 # run application with Flask dev-server
 python -m nina --dev
 # or run a single module
@@ -122,12 +122,26 @@ python -m core
 
 ### Testing
 
+The project is using `tox` for testing. Various environments are provided
+so that tests can be executed separately or all at once.
+
 ```sh
 # from root of project
 # to build and run tests for all supported versions:
 tox
-# or for a specific Python version:
-tox -e py39
+# or for a specific Python version or target:
+tox -e py39-integration
+```
+
+Pass `-l` to `tox` to see all targets.
+
+```sh
+$ tox -l
+py38-integration
+py38-unit
+py39-integration
+py39-unit
+coverage
 ```
 
 or to run only tests
