@@ -12,7 +12,7 @@ from . import tracker
 tracking = FastAPI()
 
 
-def make_tracker():
+def make_tracker() -> tracker.SortTracker:
     """Return a SORT tracker."""
     return tracker.SortTracker()
 
@@ -70,7 +70,7 @@ class Object(BaseModel):
 @tracking.post("/tracking/track", response_model=List[Object])
 def track_frames(
     frames: List[Frame], trk: tracker.SortTracker = Depends(make_tracker)
-):
+) -> List[Object]:
     """Create a tracker to track the recieved frames.
 
     Using this endpoint will not make a persistant tracker.

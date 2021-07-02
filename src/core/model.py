@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
 
 import cv2 as cv
 import numpy as np
@@ -167,11 +167,11 @@ class Video:
         )
         return new_img
 
-    def vidcap_release(self):
+    def vidcap_release(self) -> None:
         """Release Video Capture."""
         self._video_capture.release()
 
-    def __iter__(self):
+    def __iter__(self) -> Video:
         """Class iterator.
 
         This never releases the VideoCapture. Not sure if it's kept alive, and
@@ -202,7 +202,7 @@ class Video:
             raise StopIteration
         return self._scale_convert(img)
 
-    def __get__(self, key) -> np.ndarray:
+    def __get__(self, key: int, owner: object | None = None) -> np.ndarray:
         """Get one frame of video.
 
         Used by `__getitem__` when only one key is given.
@@ -242,7 +242,7 @@ class Video:
 
         return self._scale_convert(img)
 
-    def __getitem__(self, interval: Union[slice, int]):
+    def __getitem__(self, interval: Union[slice, int]) -> np.ndarray:
         """Get a slice of video.
 
         Get a interval of frames from video, `variable[start:stop:step].
@@ -325,7 +325,7 @@ class Video:
         self._video_capture.release()
         return np.array(frames)
 
-    def iter_from(self, start: int):
+    def iter_from(self, start: int) -> Generator[np.ndarray, None, None]:
         """Iterate from start to the end of the video.
 
         Parameter
@@ -433,7 +433,7 @@ class Video:
 
         return self.timestamp + (timedelta(seconds=int(idx / self.fps)))
 
-    def add_detection_frame(self, frame: Frame):
+    def add_detection_frame(self, frame: Frame) -> None:
         """Update detected data associated with this video.
 
         Parameters
@@ -560,7 +560,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
         return None
 
 
-def _get_video_metadata(path) -> Tuple[int, ...]:
+def _get_video_metadata(path: str) -> Tuple[int, ...]:
     """Get metadata from video using `opencv`.
 
     Parameter
@@ -613,7 +613,7 @@ class Frame:
     timestamp: Optional[datetime] = None
     video_id: Optional[int] = None
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Check if two Frames are the same."""
         return (
             isinstance(other, Frame)
@@ -780,7 +780,10 @@ class Object:
     """Class representation of an object that has been detected and tracked."""
 
     def __init__(
-        self, label: int, detections: List[Detection] = [], track_id: int = None
+        self,
+        label: int,
+        detections: List[Detection] = [],
+        track_id: int | None = None,
     ) -> None:
         """Create an Object.
 
@@ -970,7 +973,7 @@ class Job:
             + (self.name, self.description, self.id, self.location)
         )
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Check if job is equal to another object."""
         if not isinstance(other, Job):
             return False
@@ -981,7 +984,7 @@ class Job:
             return self.id == other.id
         return False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Override of default __repr__. Gives object representation as a string."""
         return str(self.__class__) + ": " + str(self.__dict__)
 
@@ -1206,11 +1209,11 @@ class Project:
         self.location: Optional[str] = location
         self.jobs: List[Job] = list()
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Print class members."""
         return f"Name: {self.name}, Description: {self.description}"
 
-    def __eq__(self, other) -> bool:
+    def __eq__(self, other: object) -> bool:
         """Check equality between objects.
 
         Operator used in tests to check if objects from DB is correct.
@@ -1229,7 +1232,7 @@ class Project:
         """Hash of object used in eg. `dict()` or `set()` to avoid duplicate."""
         return hash((type(self),) + tuple(self.__dict__))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Override of default __repr__. Gives object representation as a string."""
         return (
             str(self.__class__) + ": " + str(self.__dict__)
@@ -1273,7 +1276,7 @@ class Project:
             self.jobs.append(job)
         return self
 
-    def get_jobs(self):
+    def get_jobs(self) -> List[Job]:
         """Retrieve all jobs from the project.
 
         Returns

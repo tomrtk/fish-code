@@ -119,7 +119,7 @@ videos = Table(
 )
 
 
-def start_mappers():
+def start_mappers() -> None:
     """Map the relationships.
 
     Map the relationships between tables defines above and domain model

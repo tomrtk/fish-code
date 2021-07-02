@@ -20,7 +20,7 @@ class Object:
     video_ids: List[int]
 
     @classmethod
-    def from_dict(cls, object_data: Dict[str, Any]):
+    def from_dict(cls, object_data: Dict[str, Any]) -> Object:
         """Return a new object from a dict."""
         return cls(
             id=object_data["id"],
@@ -214,11 +214,11 @@ class ProjectBare:
     number: str
     job_count: int
 
-    def get_name(self):
+    def get_name(self) -> str:
         """Return the project's name."""
         return self.name
 
-    def get_job_count(self):
+    def get_job_count(self) -> int:
         """Return the job count."""
         return self.job_count
 

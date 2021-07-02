@@ -275,7 +275,7 @@ class AbstractTracker(abc.ABC):
 
     _objects: Dict[int, Object] = dict()
 
-    def update(self, detections) -> None:
+    def update(self, detections: List[Detection]) -> None:
         """Update the tracker."""
         raise NotImplementedError
 
@@ -309,7 +309,12 @@ class SortTracker(AbstractTracker):
         Returns misses from Sort.
     """
 
-    def __init__(self, max_age=1, min_hits=3, iou_threshold=0.3) -> None:
+    def __init__(
+        self,
+        max_age: int = 1,
+        min_hits: int = 3,
+        iou_threshold: float = 0.3,
+    ) -> None:
         """Create a Tracker with a Sort instance and an empty dict with objects.
 
         Parameter
@@ -342,7 +347,7 @@ class SortTracker(AbstractTracker):
             )
 
         self._connect_bb(
-            self._tracker.update(tracks),  # type: ignore
+            self._tracker.update(tracks),
             detecions,
         )
 

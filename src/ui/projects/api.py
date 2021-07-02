@@ -2,7 +2,17 @@
 import functools
 import json
 import logging
-from typing import Any, Callable, Dict, List, Optional, Tuple, TypeVar, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+    TypeVar,
+    Union,
+    cast,
+)
 
 import requests
 
@@ -13,6 +23,7 @@ logger.level = logging.DEBUG
 
 T = TypeVar("T")
 Result = Optional[T]
+F = TypeVar("F", bound=Callable[..., Any])
 
 
 class Client:
@@ -72,10 +83,10 @@ class Client:
         @classmethod
         def call(
             cls,
-            request: Callable = None,
+            request: Optional[F] = None,
             *,
             status_code: int = 200,
-            acceptable_error: int = None,
+            acceptable_error: Optional[int] = None,
         ) -> Callable:
             """Handle errors for api call.
 
@@ -92,10 +103,10 @@ class Client:
                                 return response.
             """
 
-            def decorator_call(request):
+            def decorator_call(request: F) -> F:
                 functools.wraps(request)
 
-                def wrapper_call(*args, **kwargs) -> Result[requests.Response]:
+                def wrapper_call(*args, **kwargs) -> Result[requests.Response]:  # type: ignore
                     try:
                         response = request(*args, **kwargs)  # type: ignore
                     except requests.ConnectionError as e:
@@ -120,7 +131,7 @@ class Client:
 
                     return response
 
-                return wrapper_call
+                return cast(F, wrapper_call)
 
             if request is None:
                 return decorator_call
