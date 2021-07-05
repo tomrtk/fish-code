@@ -152,3 +152,43 @@ def test_post_new_project_and_job():
         assert b"ui test job name" in response.data
         assert b"ui test job location" in response.data
         assert b"ui test job description" in response.data
+
+
+@pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
+def test_get_objects_from_job_errors() -> None:
+    """Test errors in route for objects pagination in `ui`."""
+    app = create_app()
+
+    with app.test_client() as client:
+        response = client.post(
+            "/projects/1/jobs/1/objects",
+            data={"draw": 1, "start": 0, "length": 10},
+            follow_redirects=True,
+        )
+        assert response.status_code == 500
+
+        response = client.post(
+            "/projects/1/jobs/0/objects",
+            data={"draw": 1, "start": 0, "length": 10},
+            follow_redirects=True,
+        )
+        assert response.status_code == 422
+        assert b"Invalid project or job id." in response.data
+
+
+@pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
+def test_errorhandler_404() -> None:
+    """Test 404 errorhandler."""
+    app = create_app()
+
+    with app.test_client() as client:
+        response = client.post(
+            "/jobs",
+            data={"draw": 1, "start": 0, "length": 10},
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 404
+        assert b"Something fishy happened..." in response.data
+        assert b"Nothing was found here." in response.data
+        assert b"404 Not Found" in response.data

@@ -563,7 +563,6 @@ def get_job_objects(
     response: Dict[str, Any] = {}
     response["total_objects"] = len(job._objects)
     response["data"] = job._objects[start : start + length]
-    print(response["data"])
 
     return response
 
