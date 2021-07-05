@@ -1,8 +1,15 @@
 """Initilization of the application."""
 
 import os
+from typing import Any, Mapping, Optional, Tuple, Union
 
 from flask import Flask, render_template
+from werkzeug.exceptions import (
+    HTTPException,
+    InternalServerError,
+    NotFound,
+    UnprocessableEntity,
+)
 
 from ui.projects.projects import construct_projects_bp
 
@@ -36,12 +43,25 @@ def create_app(test_config=None):  # type: ignore
     def image():  # type: ignore
         return render_template("image.html")
 
-    @app.errorhandler(500)
-    def handle_exception(e):  # type: ignore
-        return "This page does not exist", 500
+    @app.errorhandler(Exception)
+    def handle_exception(
+        e: HTTPException,
+    ) -> Union[HTTPException, Tuple[str, int]]:
+        # pass through HTTP errors
+        if isinstance(e, HTTPException):
+            return e
 
-    @app.errorhandler(404)
-    def page_not_found(e):  # type:ignore
-        return render_template("404.html"), 404
+        msg = "Something has gone wrong, sorry..."
+        return render_template("error.html", msg=msg, e=e), 500
+
+    @app.errorhandler(NotFound)
+    def page_not_found(e: HTTPException) -> Tuple[str, int]:
+        msg = "Nothing was found here."
+        return render_template("error.html", msg=msg, e=e), 404
+
+    @app.errorhandler(UnprocessableEntity)
+    def unprocessable_entity(e: HTTPException) -> Tuple[str, int]:
+        msg = "Could not process request."
+        return render_template("error.html", msg=msg, e=e), 422
 
     return app

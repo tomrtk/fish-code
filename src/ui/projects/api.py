@@ -16,7 +16,7 @@ from typing import (
 
 import requests
 
-from ui.projects.model import Job, JobBare, Project, ProjectBare
+from ui.projects.model import Job, JobBare, Object, Project, ProjectBare
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
@@ -447,3 +447,39 @@ class Client:
             return False
 
         return True
+
+    def get_objects(
+        self, project_id: int, job_id: int, start: int, length: int
+    ) -> Optional[Tuple[List[Object], int]]:
+        """Get a list of Objects for `job_id` from `start` to `start + lenght`.
+
+        Parameters
+        ----------
+        project_id : int
+            Project the job is part of.
+        job_id : int
+            Job the objects are part of.
+        start : int
+            First Object to be returned in response(0 index based).
+        lenght : int
+            Number of objects to be returned.
+
+        Returns
+        -------
+        Optional[Tuple[List[Object], int]]
+            List of objects, total number of Objects in job.
+        """
+        url = f"{self._endpoint}/projects/{project_id}/jobs/{job_id}/objects"
+        logger.info(f"Get objects from {url}")
+        response = self.get(
+            url,
+            params={"start": start, "length": length},
+        )
+
+        if isinstance(response, requests.Response):
+            dct = response.json()
+            objects = [Object(**d) for d in dct["data"]]
+            total_object_count = dct["total_objects"]
+            return objects, total_object_count
+
+        return None

@@ -12,6 +12,10 @@
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "dependencies": {
+    "@types/datatables.net": "^1.10.20",
+    "@types/jquery": "^3.5.6",
+    "datatables.net": "^1.10.25",
+    "datatables.net-dt": "^1.1.0",
     "jquery": "^3.6.0",
     "jstree": "^3.3.11"
   },

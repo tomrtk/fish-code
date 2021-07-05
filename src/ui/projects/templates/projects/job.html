@@ -179,15 +179,19 @@
               d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
             ></path>
           </svg>
-          Objects ({{ job._objects|length }})</label
-        >
+          Objects
+          <!-- TODO: this will not work longer, but is this display needed with datatables?
+	   ({{ job._objects|length }})
+	  -->
+        </label>
       </h3>
       <div class="border-2">
         {% if job._objects|length > 0 %}
-        <table class="table-auto w-full border">
+        <table id="object_list" class="display table-auto w-full border">
           <thead class="bg-gray-100 border-b">
             <tr class="font-bold">
-              <td class="p-2 w-6"></td>
+              <td class="number p-2 w-6"></td>
+              <td style="display: none" class="number p-2 w-6"></td>
               <td class="p-2 w-28">Label</td>
               <td class="p-2">Time in</td>
               <td class="p-2">Time Out</td>
@@ -196,59 +200,6 @@
               <td class="w-8"></td>
             </tr>
           </thead>
-          <tbody class="">
-            {% for object in job._objects %}
-            <tr class="border-b h-8">
-              <td class="px-2 text-gray-500 italic">{{ loop.index }}</td>
-              <td class="px-2 border-r">{{ object.label }}</td>
-              <td class="px-2 border-r">{{ object.time_in }}</td>
-              <td class="px-2 border-r">{{ object.time_out }}</td>
-              <td
-                class="
-                  {%
-                  if
-                  object.probability
-                  <
-                  0.5
-                  %}text-red-600{%
-                  endif
-                  %}
-                  text-right
-                  px-2
-                  border-r
-                "
-              >
-                {{ "%.5f" | format(object.probability) }}
-              </td>
-              <td class="text-right px-2 border-r">
-                {{ object.video_ids|join(', ') }}
-              </td>
-              <td class="text-right px-2">
-                <a
-                  id="preview-{{ loop.index }}"
-                  class="btn-object-preview"
-                  href="{{ url_for('projects_bp.object_preview', object_id=object.id) }}"
-                  target="_blank"
-                >
-                  <svg
-                    class="w-6 h-6"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
-                    />
-                  </svg>
-                </a>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
         </table>
         {% else %}<span class="py-8 px-4 inline-block">
           <button
