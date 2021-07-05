@@ -23,7 +23,7 @@ typings/
 .cache
 
 dist
-!ui/ui/static/dist
+!src/ui/static/dist
 
 # Gatsby files
 .cache/

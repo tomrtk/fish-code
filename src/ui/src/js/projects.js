@@ -23,6 +23,9 @@ window.$ = window.jQuery = jQuery;
 
 import "jstree";
 
+import dt from "datatables.net";
+dt(window, $);
+
 /* https://stackoverflow.com/a/3291856/182868 */
 String.prototype.capitalize = function () {
   return this.charAt(0).toUpperCase() + this.slice(1);
@@ -50,6 +53,31 @@ var createIframeMarkup = function (object_id) {
     </div>
   </div>
   `;
+};
+
+var createPreviewLinkIcon = function (object_id) {
+  return `
+        <a
+    id="preview-${object_id}"
+    class="btn-object-preview"
+    href="/projects/objects/${object_id}/preview"
+    target="_blank"
+  >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"
+          />
+        </svg>
+        </a>`;
 };
 
 $(function () {
@@ -131,31 +159,86 @@ $(function () {
   }
 
   /*
+   * DataTable
+   */
+
+  // Configure the datatable
+  var table_template = {
+    processing: false,
+    serverSide: true,
+    ajax: {
+      url: window.location.href + "/objects",
+      type: "POST",
+      dataSrc: "data",
+    },
+    order: [[1, "asc"]],
+    columns: [
+      {
+        data: "enumarate",
+        render: function (data, type, row, meta) {
+          return meta.row + meta.settings._iDisplayStart + 1;
+        },
+      },
+      { data: "id", visible: false },
+      { data: "label" },
+      { data: "time_in" },
+      { data: "time_out" },
+      {
+        data: "probability",
+        render: function (data, type, row) {
+          var color = "black";
+          if (data < 0.5) {
+            color = "red";
+          }
+          var val = $.fn.dataTable.render.number("", ".", 2, "").display(data);
+          return '<span style="color:' + color + '">' + val + "</span>";
+        },
+      },
+      { data: "video_ids" },
+      {
+        data: "preview",
+        render: function (data, type, row, meta) {
+          return createPreviewLinkIcon(row.id);
+        },
+      },
+    ],
+    responsive: true,
+    searching: false,
+    ordering: false,
+  };
+
+  // Create table
+  var table = $("#object_list").DataTable(table_template);
+
+  /*
    * Preview Dialog
    */
 
-  previewButtons = $(".btn-object-preview");
+  table.on("preDraw", function () {
+    table.rows().every(function (index, tableLoop, rowLoop) {
+      var row = $(this.node());
+      var obj = table.row(this).data();
 
-  previewButtons.each(function () {
-    $(this).bind("click", function () {
-      regex = /\d$/g;
-      var previewId = $(this).attr("id").match(regex);
+      // remove link in cell
+      var cell = row.find("td:eq(6)").find("a");
+      cell[0].removeAttribute("href");
+      cell[0].removeAttribute("target");
 
-      console.log(previewId);
-      // This seems to block adding the closing event.  Resulting in that the
-      // dialog is not closeable before video is loaded.
-      $("body").prepend(createIframeMarkup(previewId));
-      $("body").addClass("overflow-hidden");
-      $(document).on("click", "#preview-dialog-bg", function () {
-        $(this).remove();
-        $("body").removeClass("overflow-hidden");
-      });
-      $(document).on("click", "#preview-dialog-bg button", function () {
-        $(this).remove();
-        $("body").removeClass("overflow-hidden");
-      });
+      // Create iframe on click
+      cell
+        .bind("click", function () {
+          $("body").prepend(createIframeMarkup(obj.id));
+          $("body").addClass("overflow-hidden");
+          $(document).on("click", "#preview-dialog-bg", function () {
+            $(this).remove();
+            $("body").removeClass("overflow-hidden");
+          });
+          $(document).on("click", "#preview-dialog-bg button", function () {
+            $(this).remove();
+            $("body").removeClass("overflow-hidden");
+          });
+        })
+        .css("cursor", "pointer");
     });
-    $(this).removeAttr("href");
-    $(this).removeAttr("target");
   });
 });
