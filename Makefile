@@ -52,7 +52,7 @@ run: nina
 
 .make.deps: setup.cfg $(venv) $(venv)/bin/nina
 	@. $(activate) && \
-	pip install -e .[dev,testing] && \
+	pip install -e '.[dev,testing]' && \
 	touch $@
 
 deps: .make.deps
