@@ -1,0 +1,6 @@
+name: "CodeQL Config"
+paths:
+  - src
+  - tests
+paths-ignore:
+  - src/ui/static/dist
