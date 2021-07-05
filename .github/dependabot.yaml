@@ -1,0 +1,22 @@
+# .github/dependabot.yaml
+
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    labels:
+      - "github-action"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/src/ui"
+    labels:
+      - npm
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/"
+    labels:
+      - pip
+    schedule:
+      interval: "daily"
