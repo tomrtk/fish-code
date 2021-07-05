@@ -1,9 +1,12 @@
 """Services used in this application."""
 import logging
 import math
+import os
 import threading
 import time
 from datetime import datetime
+from mimetypes import guess_type
+from os.path import isdir, isfile
 from queue import Empty, Queue
 from typing import Any, Dict, Generator, List, Optional, Tuple
 
@@ -561,3 +564,73 @@ def get_job_objects(
     print(response["data"])
 
     return response
+
+
+def get_directory_listing(path: str) -> Dict[str, Any]:
+    """Get contents found in a given directory. Does not search recursivly.
+
+    Parameters
+    ----------
+    path    :   str
+        Path to the folder one wants to get listing from.
+
+    Raises
+    ------
+    NotADirectoryError
+        When the given path is a file and not a directory.
+
+    FileNotFoundError
+        Directory cannot be found at a given path.
+
+    Returns
+    -------
+    Dict
+        jsTree formatted json containing information about root node at path.
+    """
+    root_node: Dict[str, Any] = dict()
+    child_list = []
+
+    if isfile(path):
+        raise NotADirectoryError("Path must be a directory.")
+
+    if not isdir(path):
+        raise FileNotFoundError("Directory at '{}' was not found.".format(path))
+
+    root, dirs, files = next(os.walk(path))
+
+    # Ensure alphabetical order
+    dirs.sort()
+    files.sort()
+
+    # Append directories
+    child_list.extend(
+        [
+            {
+                "text": name,
+                "type": "folder",
+            }
+            for name in dirs
+        ]
+    )
+
+    # Append files
+    child_list.extend(
+        [
+            {
+                "text": name,
+                "type": str(guess_type(name)[0])
+                if guess_type(name)[0]
+                else "file",
+            }
+            for name in files
+        ]
+    )
+
+    # Create root node
+    root_node = {
+        "text": root,
+        "type": "folder",
+        "children": child_list,
+    }
+
+    return root_node
