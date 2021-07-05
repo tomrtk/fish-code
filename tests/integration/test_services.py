@@ -134,3 +134,29 @@ def test_video_loader_from_batch():
     assert results[1] == 15  # Keep using max batch size where it can
     assert results[2] == 5  # Final 5 frames in the 50 frame video
     assert len(results) == 3  # total num batches
+
+
+def test_get_directory_listing():
+    """Tests the accociated function that it generates the correct jsTree json."""
+    result = services.get_directory_listing(
+        "tests/integration/test_data/test_directory_listing_folder"
+    )
+    assert result == {
+        "text": "tests/integration/test_data/test_directory_listing_folder",
+        "type": "folder",
+        "children": [
+            {"text": "folderA", "type": "folder"},
+            {"text": "folderB", "type": "folder"},
+            {"text": "emptyfile", "type": "file"},
+            {"text": "invalidext.in21p3", "type": "file"},
+            {"text": "text.txt", "type": "text/plain"},
+            {"text": "video.mp4", "type": "video/mp4"},
+        ],
+    }
+    with pytest.raises(NotADirectoryError):
+        services.get_directory_listing(
+            "tests/integration/test_data/test_directory_listing_folder/emptyfile"
+        )
+
+    with pytest.raises(FileNotFoundError):
+        services.get_directory_listing("this/path/should/not/exist")
