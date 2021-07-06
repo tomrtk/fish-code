@@ -17,13 +17,10 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
         type=str,
-        help="IP to listen to, default 0.0.0.0",
+        help="IP to listen to.",
     )
-    parser.add_argument(
-        "--port", default=8001, type=str, help="Bind port, default 8001"
-    )
+    parser.add_argument("--port", type=int, help="Bind port.")
     parser.add_argument(
         "--debug",
         default=False,

@@ -19,4 +19,4 @@ def test_main_debug(caplog):
     with caplog.at_level(logging.DEBUG):
         main(["--debug", "--test"])
 
-        assert caplog.records[2].getMessage() == "Core started in debug mode"
+        assert caplog.records[0].getMessage() == "Core started in debug mode"

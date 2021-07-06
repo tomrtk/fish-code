@@ -59,8 +59,8 @@ def main(
     # Handle any command argument.
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
-    parser.add_argument("--host", default="0.0.0.0", type=str, help="IP")
-    parser.add_argument("--port", default="8000", type=int, help="Port")
+    parser.add_argument("--host", type=str, help="IP")
+    parser.add_argument("--port", type=int, help="Port")
     parser.add_argument("--test", default=False, action="store_true")
     parser.add_argument(
         "--dev", default=False, action="store_true"
