@@ -5,7 +5,7 @@ import threading
 import time
 from datetime import datetime
 from queue import Empty, Queue
-from typing import Any, Dict, Generator, List, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import numpy as np
 from sqlalchemy.orm import Session
@@ -508,3 +508,56 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
         logger.error(
             f"Cannot queue job {job_id}, it's of status {job.status()}."
         )
+
+
+def get_job_objects(
+    project_id: int, job_id: int, start: int, length: int
+) -> Optional[Dict[str, Any]]:
+    """Collect a set of `Objects` from job.
+
+    Collect a set of `Objects` from `start` to `start + length` part of job
+    if found.
+
+    Parameters
+    ----------
+    project_id : int
+        id of project the job is part of.
+    job_id : int
+        id of job the objects are part of.
+    start : int
+        first instance of object returned(0 based index).
+    length : int
+        totalt number of objects to re returned as part of this request.
+
+    Raises
+    ------
+    RuntimeError
+        If no database session can be established.
+
+    Returns
+    -------
+    Optional[Dict[str, Any]]
+        Dictionary with key `data` with Objects and `total_objects` with
+        total number of objects in job.
+    """
+    if core.main.sessionfactory is None:
+        raise RuntimeError("Could not create a database session")
+
+    repo = ProjectRepository(core.main.sessionfactory())
+
+    project = repo.get(project_id)
+
+    if project is None:
+        return None
+
+    job = project.get_job(job_id)
+
+    if job is None:
+        return None
+
+    response: Dict[str, Any] = {}
+    response["total_objects"] = len(job._objects)
+    response["data"] = job._objects[start : start + length]
+    print(response["data"])
+
+    return response

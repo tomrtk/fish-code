@@ -805,6 +805,24 @@ class Object:
         self.time_out: Optional[datetime] = None
         self._calc_label()
 
+    def to_api(self) -> Dict[str, Any]:
+        """Convert relevant member data for use in api.
+
+        Returns
+        -------
+        Dict[str, Any]
+            Returns mapping between variable name and value.
+        """
+        return {
+            "id": self.id,
+            "label": self.label,
+            "probability": self.probability,
+            "_detections": self._detections,
+            "time_in": self.time_in,
+            "time_out": self.time_out,
+            "video_ids": self.video_ids,
+        }
+
     def _calc_label(self) -> None:
         """Calculate label."""
         if len(self._detections) == 0:
