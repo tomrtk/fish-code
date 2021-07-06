@@ -28,6 +28,13 @@ jobs:
         if: ${{ matrix.os == 'windows-latest' }}
         shell: powershell
         run: Install-WindowsFeature Server-Media-Foundation
+      - uses: FedericoCarboni/setup-ffmpeg@v1
+        if: ${{ matrix.os == 'windows-latest' }}
+        with:
+          # Not strictly necessary, but it may prevent rate limit
+          # errors especially on GitHub-hosted macos machines.
+          token: ${{ secrets.GITHUB_TOKEN }}
+        id: setup-ffmpeg
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
