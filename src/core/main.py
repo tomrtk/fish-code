@@ -103,7 +103,7 @@ def main(
             port=config.getint("CORE", "port"),
             reload=False,
             workers=1,
-            debug=False,
+            debug=config.get("GLOBAL", "development"),
             access_log=False,
         )
 
