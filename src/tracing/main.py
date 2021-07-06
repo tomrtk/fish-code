@@ -5,9 +5,11 @@ from typing import Optional, Sequence
 
 import uvicorn
 
+from config import load_config
 from tracing import api
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
@@ -37,6 +39,24 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
 
     args, _ = parser.parse_known_args(argsv)
 
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding tracing API hostname from {} to {}".format(
+                config.get("TRACING", "hostname"), args.host
+            )
+        )
+        config["TRACING"]["hostname"] = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding tracing API port from {} to {}".format(
+                config.getint("TRACING", "port"), args.port
+            )
+        )
+        config["TRACING"]["port"] = str(args.port)
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
         logger.debug("Tracing started in debug mode")
@@ -45,7 +65,11 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Tracing started")
 
     if not args.test:
-        uvicorn.run(api.tracking, host=args.host, port=args.port)
+        uvicorn.run(
+            api.tracking,
+            host=config.get("TRACING", "hostname"),
+            port=config.getint("TRACING", "port"),
+        )
 
     return 0
 

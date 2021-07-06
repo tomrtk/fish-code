@@ -5,9 +5,11 @@ from typing import Optional, Sequence
 
 import uvicorn  # type: ignore
 
+from config import load_config
 from detection.api import detection_api
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
@@ -40,6 +42,24 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
     args, _ = parser.parse_known_args(argsv)
 
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding detection API hostname from {} to {}".format(
+                config.get("DETECTION", "hostname"), args.host
+            )
+        )
+        config["DETECTION"]["hostname"] = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding detection API port from {} to {}".format(
+                config.getint("DETECTION", "port"), args.port
+            )
+        )
+        config["DETECTION"]["port"] = str(args.port)
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
         logger.debug("Detection started in debug mode")
@@ -48,7 +68,11 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logger.info("Detection started")
 
     if not args.test:  # only part not tested in tests
-        uvicorn.run(detection_api, host=args.host, port=args.port)  # type: ignore
+        uvicorn.run(
+            detection_api,
+            host=config.get("DETECTION", "hostname"),
+            port=config.getint("DETECTION", "port"),
+        )
 
     return 0
 
