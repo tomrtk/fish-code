@@ -71,7 +71,7 @@ def main(
     if args.host:
         logger.info(
             "Overriding core API hostname from {} to {}".format(
-                config["CORE"]["hostname"], args.host
+                config.get("CORE", "hostname"), args.host
             )
         )
         config["CORE"]["hostname"] = args.host
@@ -80,10 +80,10 @@ def main(
     if args.port:
         logger.info(
             "Overriding core API port from {} to {}".format(
-                config["CORE"]["port"], args.port
+                config.getint("CORE", "port"), args.port
             )
         )
-        config["CORE"]["port"] = args.port
+        config["CORE"]["port"] = str(args.port)
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -98,8 +98,8 @@ def main(
 
         uvicorn.run(
             core_api,
-            host=config["CORE"]["hostname"],
-            port=config["CORE"]["port"],
+            host=config.get("CORE", "hostname"),
+            port=config.getint("CORE", "port"),
             reload=False,
             workers=1,
             debug=False,
