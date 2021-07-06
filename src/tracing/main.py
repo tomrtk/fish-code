@@ -61,7 +61,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logging.basicConfig(level=logging.INFO)
         logger.info("Tracing started")
 
-    if not args.test:
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
         uvicorn.run(
             api.tracking,
             host=config.get("TRACING", "hostname"),
