@@ -599,3 +599,42 @@ def test_get_job_objects_no_job_project(make_test_data) -> None:
         assert response.status_code == 422
         response = client.get("/projects/1/jobs/5/objects")
         assert response.status_code == 422
+
+
+def test_get_storage():
+    """Test getting the directory listing from the API."""
+    with TestClient(api.core_api) as client:
+        response = client.get(
+            "storage",
+            params={
+                "path": "tests/integration/test_data/test_directory_listing_folder"
+            },
+        )
+        response_data = response.json()
+        assert response.status_code == 200
+        assert (
+            response_data["text"]
+            == "tests/integration/test_data/test_directory_listing_folder"
+        )
+        assert response_data["type"] == "folder"
+        assert "children" in response_data
+        assert response_data["children"] == [
+            {"text": "folderA", "type": "folder"},
+            {"text": "folderB", "type": "folder"},
+            {"text": "emptyfile", "type": "file"},
+            {"text": "invalidext.in21p3", "type": "file"},
+            {"text": "text.txt", "type": "text/plain"},
+            {"text": "video.mp4", "type": "video/mp4"},
+        ]
+
+        # Check errors
+        response = client.get(
+            "storage",
+            params={
+                "path": "tests/integration/test_data/test_directory_listing_folder/emptyfile"
+            },
+        )
+        assert response.status_code == 400
+
+        response = client.get("storage", params={"path": "invalid/path"})
+        assert response.status_code == 404

@@ -28,6 +28,7 @@ from core.repository.object import (
     SqlAlchemyObjectRepository as ObjectRepository,
 )
 from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
+from core.services import get_directory_listing
 from core.utils import outline_detection
 
 logger = logging.getLogger(__name__)
@@ -584,3 +585,37 @@ def get_objects_from_job(
     # convert to schema Object's:
     data["data"] = [schema.Object(**o.to_api()) for o in data["data"]]
     return data
+
+
+@core_api.get("/storage", response_model=Dict[str, Any])
+async def get_storage(path: str) -> Dict[str, Any]:
+    """Get directory listing for a given path to a directory in jsTree json format.
+
+    Parameters
+    ----------
+    path:   str
+        Path to a folder as a string.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Json data explaining the file structure in jsTree format for a folder.
+        Does not run recursivly through all subfolders.
+
+    Raises
+    ------
+    HTTPException
+        If the path is a file, and not a directory.
+    HTTPException
+        If the path is invalid.
+    """
+    try:
+        return get_directory_listing(path)
+    except NotADirectoryError:
+        logger.warning("Chosen path '{}' is not a directory.".format(path))
+        raise HTTPException(
+            status_code=400, detail="Chosen path is not a directory"
+        )
+    except FileNotFoundError:
+        logger.warning("Chosen path '{}' is not valid.".format(path))
+        raise HTTPException(status_code=404, detail="Chosen path is not valid")
