@@ -52,7 +52,8 @@ addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
 testpaths = ["tests"]
 filterwarnings = [
   'ignore:the imp module is deprecated:DeprecationWarning',
-  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning'
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning',
+  'ignore:Named tensors and all their associated APIs:UserWarning'
 ]
 log_cli = "False"
 log_level = "INFO"
@@ -77,8 +78,8 @@ isolated_build = True
 skipsdist = True
 
 [testenv]
-usedevelop = True
-extras = testing
+deps =
+    -e .[testing]
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
@@ -86,7 +87,7 @@ commands =
     unit: coverage run -p -m pytest tests/unit {posargs}
 
 [testenv:coverage]
-deps = coverage[toml] >= 5.0.1
+deps = coverage[toml] >= 5.0
 skip_install = True
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage}
