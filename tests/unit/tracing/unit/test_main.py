@@ -20,4 +20,4 @@ def test_main_debug(caplog):
 
         main(["--debug", "--test"])
 
-        assert caplog.records[0].getMessage() == "Tracing started in debug mode"
+        assert caplog.records[2].getMessage() == "Tracing started in debug mode"
