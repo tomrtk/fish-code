@@ -20,5 +20,5 @@ def test_main_debug(caplog):
         main(["--debug", "--test"])
 
         assert (
-            caplog.records[0].getMessage() == "Detection started in debug mode"
+            caplog.records[2].getMessage() == "Detection started in debug mode"
         )
