@@ -17,6 +17,8 @@ def _get_default_config() -> configparser.ConfigParser:
     default_config = configparser.ConfigParser()
     default_config["DEFAULT"]["hostname"] = "127.0.0.1"
     default_config["DEFAULT"]["enable"] = "true"
+    default_config["GLOBAL"] = {}
+    default_config["GLOBAL"]["development"] = "false"
     default_config["UI"] = {}
     default_config["UI"]["port"] = "5000"
     default_config["CORE"] = {}
