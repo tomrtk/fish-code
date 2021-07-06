@@ -1,15 +1,16 @@
 """Module to handle configuration application configuration parameters."""
 import configparser
 import logging
-from os.path import isfile
+from os.path import expanduser, isfile
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
+config_file = "config.ini"
 
 
 def _find_config_directory() -> str:
     # TODO: Check if windows or linux, use enviroment variables
-    return "~/.config/nina"
+    return expanduser("~") + "/.config/nina/"
 
 
 def _get_default_config() -> configparser.ConfigParser:
@@ -35,7 +36,7 @@ def load_config() -> configparser.ConfigParser:
     #     return _get_default_config()
 
     config = configparser.ConfigParser()
-    config_path = _find_config_directory()
+    config_path = _find_config_directory() + config_file
 
     if isfile(config_path):
         config.read(config_path)
@@ -47,7 +48,7 @@ def load_config() -> configparser.ConfigParser:
         )
         config = _get_default_config()
         Path(config_path).mkdir(parents=True, exist_ok=True)
-        with open(config_path + "/config.ini", "w") as configfile:
+        with open(config_path, "w") as configfile:
             config.write(configfile)
             logger.info("New configuration file created from default.")
 
