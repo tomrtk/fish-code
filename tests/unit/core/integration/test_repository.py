@@ -4,12 +4,7 @@ from typing import List
 import pytest
 
 from core import model
-
-# Workaround
 from core.repository import SqlAlchemyProjectRepository
-
-# Setup of DB mappings for tests
-pytestmark = pytest.mark.usefixtures("mappers", "make_test_obj")
 
 
 def test_add_project(sqlite_session_factory):

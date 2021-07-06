@@ -6,8 +6,6 @@ import pytest
 from core import model
 from core.repository.video import SqlAlchemyVideoRepository
 
-pytestmark = pytest.mark.usefixtures("mappers")
-
 
 @pytest.fixture
 def make_test_video() -> model.Video:
