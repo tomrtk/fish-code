@@ -34,11 +34,13 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
 
     # Let dev argument override global config parameter
     if main_args.dev:
-        logger.info("Overriding config and enabling development mode.")
-        config["GLOBAL"]["development"] = str(main_args.dev)
+        logger.info(
+            "Overriding config and enabling development mode."
+        )  # pragma: no cover
+        config["GLOBAL"]["development"] = str(main_args.dev)  # pragma: no cover
 
     if config.getboolean("GLOBAL", "development"):
-        ui_process = Process(target=serve_debug)
+        ui_process = Process(target=serve_debug)  # pragma: no cover
     else:
         ui_process = Process(target=serve_prod)
 

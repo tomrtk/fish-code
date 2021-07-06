@@ -92,7 +92,8 @@ def main(
         logging.basicConfig(level=logging.INFO)
         logger.info("Core started")
 
-    if not args.test:  # only part not tested in tests
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
         setup(db_path)
         core.services.start_scheduler()
 
@@ -113,4 +114,4 @@ def main(
 
 
 if __name__ == "__main__":
-    exit(main())
+    exit(main())  # pragma: no cover
