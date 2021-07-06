@@ -4,12 +4,14 @@ import logging
 from multiprocessing import Process
 from typing import List, Optional, Sequence
 
+from config import load_config
 from core.main import main as core_main  # type: ignore
 from detection.main import main as detection_main  # type: ignore
 from tracing.main import main as tracing_main  # type: ignore
 from ui.run import serve_debug, serve_prod  # type: ignore
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
@@ -30,10 +32,15 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     main_args, _ = main_parser.parse_known_args(argsv)
     processes: List[Process] = list()
 
-    if not main_args.dev:
-        ui_process = Process(target=serve_prod)
-    else:
+    # Let dev argument override global config parameter
+    if main_args.dev:
+        logger.info("Overriding config and enabling development mode.")
+        config["GLOBAL"]["development"] = str(main_args.dev)
+
+    if config.getboolean("GLOBAL", "development"):
         ui_process = Process(target=serve_debug)
+    else:
+        ui_process = Process(target=serve_prod)
 
     ui_process.daemon = True
     processes.append(ui_process)
