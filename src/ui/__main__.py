@@ -1,5 +1,5 @@
 # noqa: D100
-from .run import serve
+from .run import serve_debug
 
 if __name__ == "__main__":
-    exit(serve())
+    exit(serve_debug())
