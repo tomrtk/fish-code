@@ -30,7 +30,7 @@ def setup(db_name: str = "data.db") -> None:
     engine = create_engine(
         f"sqlite:///{db_name}",
         connect_args={"check_same_thread": False},
-    )
+    )  # type: ignore
     # Create tables from defined schema.
     logger.info("Creating database schema")
     metadata.create_all(engine)
