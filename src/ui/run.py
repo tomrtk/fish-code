@@ -39,4 +39,4 @@ def serve_prod() -> int:
 
 
 if __name__ == "__main__":
-    exit(serve_debug())
+    exit(serve_debug())  # pragma: no cover

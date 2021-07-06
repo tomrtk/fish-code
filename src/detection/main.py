@@ -65,7 +65,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logging.basicConfig(level=logging.INFO)
         logger.info("Detection started")
 
-    if not args.test:  # only part not tested in tests
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
         uvicorn.run(
             detection_api,
             host=config.get("DETECTION", "hostname"),
