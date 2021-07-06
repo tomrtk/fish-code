@@ -619,8 +619,8 @@ def test_get_storage():
         assert response_data["type"] == "folder"
         assert "children" in response_data
         assert response_data["children"] == [
-            {"text": "folderA", "type": "folder"},
-            {"text": "folderB", "type": "folder"},
+            {"text": "folderA", "type": "folder", "children": True},
+            {"text": "folderB", "type": "folder", "children": True},
             {"text": "emptyfile", "type": "file"},
             {"text": "invalidext.in21p3", "type": "file"},
             {"text": "text.txt", "type": "text/plain"},
