@@ -608,6 +608,7 @@ def get_directory_listing(path: str) -> Dict[str, Any]:
             {
                 "text": name,
                 "type": "folder",
+                "children": len(os.listdir(root + "/" + name)) > 0,
             }
             for name in dirs
         ]

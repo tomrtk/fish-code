@@ -145,8 +145,8 @@ def test_get_directory_listing():
         "text": "tests/integration/test_data/test_directory_listing_folder",
         "type": "folder",
         "children": [
-            {"text": "folderA", "type": "folder"},
-            {"text": "folderB", "type": "folder"},
+            {"text": "folderA", "type": "folder", "children": True},
+            {"text": "folderB", "type": "folder", "children": True},
             {"text": "emptyfile", "type": "file"},
             {"text": "invalidext.in21p3", "type": "file"},
             {"text": "text.txt", "type": "text/plain"},
