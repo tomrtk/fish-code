@@ -24,13 +24,11 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
         type=str,
         help="IP-adresse, defaults to `0.0.0.0`.",
     )
     parser.add_argument(
         "--port",
-        default=8003,
         type=int,
         help="Port for API to run on, defaults to `8003`.",
     )
