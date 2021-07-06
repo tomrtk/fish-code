@@ -81,16 +81,16 @@ def convert_to_projectbare(project: model.Project) -> schema.ProjectBare:
 
 
 def convert_to_jobbare(job: model.Job) -> schema.JobBare:
-    """Convert `model.Project` to `schema.ProjectBare`.
+    """Convert `model.Job` to `schema.JobBare`.
 
     Parameters
     ----------
-    data : model.Project
+    data : model.Job
         The data to convert from.
 
     Returns
     -------
-    schema.Project
+    schema.Job
         Converted data from model to schema object.
 
     Raises
