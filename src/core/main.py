@@ -11,11 +11,13 @@ from sqlalchemy.orm.session import close_all_sessions
 
 import core.api
 import core.services
+from config import load_config
 from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
 core_api = core.api.core_api  # type: ignore
+config = load_config()
 
 sessionfactory: Optional[scoped_session] = None
 engine: Optional[Engine] = None
@@ -65,6 +67,24 @@ def main(
     )  # No ops, needed for root-app.
     args, _ = parser.parse_known_args(argsv)
 
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding core API hostname from {} to {}".format(
+                config["CORE"]["hostname"], args.host
+            )
+        )
+        config["CORE"]["hostname"] = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding core API port from {} to {}".format(
+                config["CORE"]["port"], args.port
+            )
+        )
+        config["CORE"]["port"] = args.port
+
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
         logger.debug("Core started in debug mode")
@@ -78,8 +98,8 @@ def main(
 
         uvicorn.run(
             core_api,
-            host=args.host,
-            port=args.port,
+            host=config["CORE"]["hostname"],
+            port=config["CORE"]["port"],
             reload=False,
             workers=1,
             debug=False,
