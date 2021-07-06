@@ -6,8 +6,6 @@ import pytest
 from core import model
 from core.repository.object import SqlAlchemyObjectRepository
 
-pytestmark = pytest.mark.usefixtures("mappers", "make_test_obj")
-
 
 def test_add_object(sqlite_session_factory, make_test_obj: List[model.Object]):
     """Test adding of object."""
