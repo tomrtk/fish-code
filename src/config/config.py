@@ -36,7 +36,8 @@ def load_config() -> configparser.ConfigParser:
     #     return _get_default_config()
 
     config = configparser.ConfigParser()
-    config_path = _find_config_directory() + config_file
+    config_folder = _find_config_directory()
+    config_path = config_folder + config_file
 
     if isfile(config_path):
         config.read(config_path)
@@ -47,7 +48,7 @@ def load_config() -> configparser.ConfigParser:
             )
         )
         config = _get_default_config()
-        Path(config_path).mkdir(parents=True, exist_ok=True)
+        Path(config_folder).mkdir(parents=True, exist_ok=True)
         with open(config_path, "w") as configfile:
             config.write(configfile)
             logger.info("New configuration file created from default.")
