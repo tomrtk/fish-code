@@ -565,3 +565,34 @@ def test_object_preview(make_test_data):
 
         response = client.get("objects/999999/preview")
         assert response.status_code == 404
+
+
+def test_get_job_objects(make_test_data) -> None:
+    """Test pagination of objects from a job."""
+    with TestClient(api.core_api) as client:
+        response = client.get("/projects/1/jobs/1/objects")
+        assert response.status_code == 200
+
+        dct = response.json()
+
+        assert "data" in dct
+        assert len(dct["data"]) == 2
+        assert "total_objects" in dct
+        assert dct["total_objects"] == 2
+
+
+def test_get_job_objects_exceptions() -> None:
+    """Test exception if no session can be made."""
+    core.main.sessionfactory = None
+    with TestClient(api.core_api) as client:
+        response = client.get("/projects/1/jobs/1/objects")
+        assert response.status_code == 503
+
+
+def test_get_job_objects_no_job_project(make_test_data) -> None:
+    """Test exception if wrong project or job id is provided."""
+    with TestClient(api.core_api) as client:
+        response = client.get("/projects/5/jobs/1/objects")
+        assert response.status_code == 422
+        response = client.get("/projects/1/jobs/5/objects")
+        assert response.status_code == 422

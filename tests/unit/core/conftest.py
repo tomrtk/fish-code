@@ -96,3 +96,36 @@ def cleanup():
 
         if os.path.exists("data.db.bak"):
             os.rename("data.db.bak", "data.db")
+
+
+@pytest.fixture
+def make_test_project_repo(sqlite_session_factory) -> ProjectRepo:
+    """Create a test project for testing."""
+    from sqlalchemy.orm.session import make_transient
+
+    project_repo = ProjectRepo(sqlite_session_factory())
+
+    project = model.Project(
+        "Test name", "NINA-123", "Test description", "Test location"
+    )
+    job = model.Job("Test job name 1", "Test description 1", "Test location")
+
+    for i in range(1000):
+        obj = model.Object(i)
+        obj._detections = []
+        obj.add_detection(
+            model.Detection(model.BBox(10, 20, 30, 40), 1.0, 1, 1, 1, 1)
+        )
+        obj.add_detection(
+            model.Detection(model.BBox(15, 25, 35, 45), 0.8, 2, 2, 2, 1)
+        )
+        obj.time_in = datetime(2020, 3, 28, 10, 20, 30)
+        obj.time_out = datetime(2020, 3, 28, 10, 40, 30)
+        obj.track_id = i
+        job.add_object(obj)
+
+    project.add_job(job)
+
+    project_repo.add(project)
+
+    yield project_repo

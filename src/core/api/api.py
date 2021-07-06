@@ -6,7 +6,7 @@ server is running.
 """
 import asyncio
 import logging
-from typing import AsyncGenerator, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, Generator, List
 
 from fastapi import (
     Depends,
@@ -611,3 +611,43 @@ async def get_object_image(
     return StreamingResponse(
         _stream(gen), media_type="multipart/x-mixed-replace;boundary=frame"
     )
+
+
+@core_api.get(
+    "/projects/{project_id}/jobs/{job_id}/objects",
+    response_model=Dict[str, Any],
+)
+def get_objects_from_job(
+    project_id: int = Path(..., ge=1),
+    job_id: int = Path(..., ge=1),
+    start: int = Query(0, ge=0),
+    length: int = Query(10, ge=1),
+) -> Dict[str, Any]:
+    """Endpoint to get part of objects from a job.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Containing total number of object in job and part of objects from
+        `start` to `start + length`.
+
+    Raises
+    ------
+    HTTPException
+        If no session to database can be established. Status code: 503.
+    HTTPException
+        If project or job id provided is not found. Status code: 422.
+    """
+    try:
+        data = services.get_job_objects(project_id, job_id, start, length)
+    except RuntimeError as e:
+        raise HTTPException(503, repr(e))
+
+    if data is None:
+        msg = f"project with id {project_id} or job with id {job_id} not found"
+        logger.warning(msg)
+        raise HTTPException(422, msg)
+
+    # convert to schema Object's:
+    data["data"] = [schema.Object(**o.to_api()) for o in data["data"]]
+    return data
