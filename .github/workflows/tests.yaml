@@ -35,6 +35,22 @@ jobs:
           # errors especially on GitHub-hosted macos machines.
           token: ${{ secrets.GITHUB_TOKEN }}
         id: setup-ffmpeg
+      - name: Cache OpenCV
+        if: ${{ matrix.os == 'windows-latest' }}
+        id: opencv-cache
+        uses: actions/cache@v2
+        with:
+          path: ./opencv-install
+          key: ${{ runner.os }}-opencv-cache
+
+      - name: Install OpenCV
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: rayandrews/with-opencv-action@v1
+        with:
+          dir: ./opencv-install
+          cached: ${{ steps.opencv-cache.outputs.cache-hit }}
+          opencv-version: "4.5.2"
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
