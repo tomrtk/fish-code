@@ -23,7 +23,7 @@ def test_main_debug(caplog):
 
 
 def test_main_host_port_override(caplog):
-    """Happy case test of main with debug argument."""
+    """Happy case test of main with overridden port and host argument."""
     with caplog.at_level(logging.DEBUG):
         main(["--test", "--host", "1.2.3.4", "--port", "1337"])
 
