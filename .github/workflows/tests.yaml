@@ -11,10 +11,11 @@ on:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }} - ${{ matrix.tests }}
-    runs-on: ubuntu-latest
+    name: Python ${{ matrix.python-version }} - ${{ matrix.tests }} - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: [ubuntu-latest, windows-latest]
         python-version: [3.8, 3.9]
         tests: [integration, unit]
     env:
@@ -35,7 +36,7 @@ jobs:
         run: |
           tox -e ${{ matrix.tests }}
       - uses: actions/upload-artifact@v2
-        if: ${{ matrix.python-version == 3.9}}
+        if: ${{ matrix.python-version == 3.9 &&  matrix.os == 'ubuntu-latest' }}
         with:
           name: coverage-${{ matrix.tests }}
           path: ${{ env.COVERAGE_FILE }}.*
