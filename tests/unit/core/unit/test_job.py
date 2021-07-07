@@ -4,7 +4,9 @@ from pathlib import Path
 
 import pytest
 
+from core import model
 from core.model import (
+    Detection,
     Job,
     JobStatusException,
     Object,
@@ -233,3 +235,62 @@ def test_job_total_frames(make_test_job):
     assert ret is True
 
     assert job.total_frames() == 70
+
+
+def test_job_stats_empty():
+    """Testing job stats with zero results."""
+    job = Job("name", "desc", "testland")
+
+    stats_empty = {
+        "total_objects": 0,
+        "total_labels": 0,
+        "labels": {},
+    }
+    assert job.stats == stats_empty
+
+
+def test_job_stats_full():
+    """Test job stats with results."""
+    job = Job("name", "desc", "testland")
+
+    job.add_object(
+        Object(
+            1,
+            [
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 1, 1),
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 1, 2),
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 1, 3),
+            ],
+        )
+    )
+    job.add_object(
+        Object(
+            2,
+            [
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 2, 1),
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 2, 2),
+                Detection(model.BBox(10, 10, 20, 30), 0.8, 2, 3),
+            ],
+        )
+    )
+    job.add_object(
+        Object(
+            2,
+            [
+                Detection(model.BBox(30, 10, 40, 20), 0.8, 2, 3),
+                Detection(model.BBox(30, 10, 40, 20), 0.8, 2, 4),
+                Detection(model.BBox(30, 10, 40, 20), 0.8, 2, 5),
+            ],
+        )
+    )
+
+    stats_full = {
+        "total_objects": 3,
+        "total_labels": 2,
+        "labels": {
+            1: 1,
+            2: 2,
+        },
+    }
+
+    assert job.stats == stats_full

@@ -8,7 +8,17 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional, Set, Tuple, Union
+from typing import (
+    Any,
+    DefaultDict,
+    Dict,
+    Generator,
+    List,
+    Optional,
+    Set,
+    Tuple,
+    Union,
+)
 
 import cv2 as cv
 import numpy as np
@@ -983,6 +993,42 @@ class Job:
         self.location: str = location
         self.next_batch: int = 0
         self.progress: int = progress
+
+    @property
+    def stats(self) -> Dict[str, Any]:
+        """Return statistics for a job.
+
+        Return
+        ------
+        Dict[str, any] :
+            {
+                total_objects : int
+                total_labels: int
+                labels : {
+                    int : int
+                    int : int
+                    ...
+                }
+            }
+        """
+        dct: Dict[str, Any] = {
+            "total_labels": 0,
+            "total_objects": 0,
+            "labels": dict(),
+        }
+
+        labels: Dict[int, int] = dict()
+
+        for o in self._objects:
+            if o.label not in labels:
+                labels[o.label] = 0
+            labels[o.label] += 1
+
+        dct["labels"] = labels
+        dct["total_labels"] = len(dct["labels"])
+        dct["total_objects"] = len(self._objects)
+
+        return dct
 
     def __hash__(self) -> int:
         """Hash of object used in eg. `set()` to avoid duplicate."""
