@@ -111,10 +111,8 @@ class Client:
                         response = request(*args, **kwargs)  # type: ignore
                     except requests.ConnectionError as e:
                         logger.warning(
-                            "ConnectionError:",
-                            request.__name__,
-                            request.__dict__,
-                            e,
+                            f"ConnectionError: {request.__name__} - "
+                            f"{request.__dict__} - {repr(e)}"
                         )
                         return None
 
