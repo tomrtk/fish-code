@@ -1,4 +1,5 @@
 """Tests for `Video` class."""
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -178,10 +179,16 @@ def test_get_metadata_exception():
     with pytest.raises(FileNotFoundError):
         _ = _get_video_metadata("./tests/not_here.mp4")
 
-    with pytest.raises(RuntimeError):
-        _ = _get_video_metadata(
-            str((Path(__file__).parent / "abbor.png").resolve())
-        )
+    if os.name == "nt":
+        with pytest.raises(FileNotFoundError):
+            _ = _get_video_metadata(
+                str((Path(__file__).parent / "abbor.png").resolve())
+            )
+    else:
+        with pytest.raises(RuntimeError):
+            _ = _get_video_metadata(
+                str((Path(__file__).parent / "abbor.png").resolve())
+            )
 
 
 def test_release(make_test_video):
