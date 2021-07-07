@@ -1,12 +1,9 @@
 """Test api helper functions."""
 import pytest
 
-from core.api.api import (
-    construct_pagination_data,
-    convert_to_jobbare,
-    convert_to_projectbare,
-)
+from core.api.api import construct_pagination_data
 from core.api.schema import JobBare, ProjectBare
+from core.api.utils import convert_to_jobbare, convert_to_projectbare
 from core.model import Job, Project
 
 

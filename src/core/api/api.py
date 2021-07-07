@@ -22,6 +22,7 @@ from fastapi.responses import StreamingResponse
 import core.api.schema as schema
 import core.main
 from core import model, services
+from core.api import utils
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.object import (
     SqlAlchemyObjectRepository as ObjectRepository,
@@ -45,75 +46,6 @@ def get_runtime_repo() -> Generator[ProjectRepository, None, None]:
     finally:
         sessionRepo.session.commit()
         sessionRepo.session.close()
-
-
-def convert_to_projectbare(project: model.Project) -> schema.ProjectBare:
-    """Convert `model.Project` to `schema.ProjectBare`.
-
-    Parameters
-    ----------
-    data : model.Project
-        The data to convert from.
-
-    Returns
-    -------
-    schema.Project
-        Converted data from model to schema object.
-
-    Raises
-    ------
-    TypeError
-        When neither valid type is passed.
-    """
-    if not isinstance(project, model.Project):
-        raise TypeError(
-            f"{type(project)} in not of type model.Project.",
-        )
-
-    return schema.ProjectBare(
-        id=project.id,
-        name=project.name,
-        number=project.number,
-        description=project.description,
-        location=project.location,
-        job_count=len(project.jobs),
-    )
-
-
-def convert_to_jobbare(job: model.Job) -> schema.JobBare:
-    """Convert `model.Job` to `schema.JobBare`.
-
-    Parameters
-    ----------
-    data : model.Job
-        The data to convert from.
-
-    Returns
-    -------
-    schema.Job
-        Converted data from model to schema object.
-
-    Raises
-    ------
-    TypeError
-        When neither valid type is passed.
-    """
-    if not isinstance(job, model.Job):
-        raise TypeError(
-            f"{type(job)} in not of type model.Job.",
-        )
-
-    return schema.JobBare(
-        id=job.id,
-        status=job._status,
-        name=job.name,
-        description=job.description,
-        location=job.location,
-        object_count=len(job._objects),
-        video_count=len(job.videos),
-        progress=job.progress,
-        stats=job.stats,
-    )
 
 
 def construct_pagination_data(
@@ -217,7 +149,7 @@ def list_projects(
 
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
-            resp.append(convert_to_projectbare(proj))
+            resp.append(utils.convert_to_projectbare(proj))
         except TypeError as e:  # pragma: no cover
             logger.warning(e)
 
@@ -244,7 +176,7 @@ def add_project(
     """
     new_project = repo.add(model.Project(**project.dict()))
 
-    return convert_to_projectbare(new_project)
+    return utils.convert_to_projectbare(new_project)
 
 
 @core_api.get("/projects/{project_id}/", response_model=schema.ProjectBare)
@@ -270,7 +202,7 @@ def get_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    return convert_to_projectbare(project)
+    return utils.convert_to_projectbare(project)
 
 
 @core_api.get(
@@ -332,7 +264,7 @@ def list_project_jobs(
 
     for job in project.jobs[slice(begin_idx, end_idx)]:
         try:
-            resp.append(convert_to_jobbare(job))
+            resp.append(utils.convert_to_jobbare(job))
         except TypeError as e:  # pragma: no cover
             logger.warning(e)
 
