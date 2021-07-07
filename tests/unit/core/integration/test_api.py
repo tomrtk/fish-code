@@ -612,19 +612,42 @@ def test_get_storage():
         )
         response_data = response.json()
         assert response.status_code == 200
-        assert (
-            response_data["text"]
-            == "tests/integration/test_data/test_directory_listing_folder"
-        )
-        assert response_data["type"] == "folder"
-        assert "children" in response_data
-        assert response_data["children"] == [
-            {"text": "folderA", "type": "folder", "children": True},
-            {"text": "folderB", "type": "folder", "children": True},
-            {"text": "emptyfile", "type": "file"},
-            {"text": "invalidext.in21p3", "type": "file"},
-            {"text": "text.txt", "type": "text/plain"},
-            {"text": "video.mp4", "type": "video/mp4"},
+        assert response_data[0]["text"] == "test_directory_listing_folder"
+        assert response_data[0]["type"] == "folder"
+        assert "children" in response_data[0]
+        assert response_data[0]["children"] == [
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/folderA",
+                "text": "folderA",
+                "type": "folder",
+                "children": True,
+            },
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/folderB",
+                "text": "folderB",
+                "type": "folder",
+                "children": True,
+            },
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/emptyfile",
+                "text": "emptyfile",
+                "type": "file",
+            },
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/invalidext.in21p3",
+                "text": "invalidext.in21p3",
+                "type": "file",
+            },
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/text.txt",
+                "text": "text.txt",
+                "type": "text/plain",
+            },
+            {
+                "id": "tests/integration/test_data/test_directory_listing_folder/video.mp4",
+                "text": "video.mp4",
+                "type": "video/mp4",
+            },
         ]
 
         # Check errors

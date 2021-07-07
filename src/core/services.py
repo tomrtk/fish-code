@@ -2,13 +2,15 @@
 import logging
 import math
 import os
+import sys
 import threading
 import time
 from datetime import datetime
 from mimetypes import guess_type
 from os.path import isdir, isfile
+from pathlib import Path
 from queue import Empty, Queue
-from typing import Any, Dict, Generator, List, Optional, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
 import numpy as np
 from sqlalchemy.orm import Session
@@ -566,7 +568,9 @@ def get_job_objects(
     return response
 
 
-def get_directory_listing(path: str) -> Dict[str, Any]:
+def get_directory_listing(
+    path: Optional[str],
+) -> List[Optional[Union[Dict[str, Any], str]]]:
     """Get contents found in a given directory. Does not search recursivly.
 
     Parameters
@@ -587,8 +591,15 @@ def get_directory_listing(path: str) -> Dict[str, Any]:
     Dict
         jsTree formatted json containing information about root node at path.
     """
+    tree: List[Optional[Union[Dict[str, Any], str]]] = list()
     root_node: Dict[str, Any] = dict()
     child_list = []
+
+    # https://stackoverflow.com/a/65975115/182868
+    # TODO: The root folders should have been set via the new config
+    # system.
+    if path is None:
+        path = Path(sys.executable).anchor
 
     if isfile(path):
         raise NotADirectoryError("Path must be a directory.")
@@ -606,6 +617,7 @@ def get_directory_listing(path: str) -> Dict[str, Any]:
     child_list.extend(
         [
             {
+                "id": root + "/" + name,
                 "text": name,
                 "type": "folder",
                 "children": len(os.listdir(root + "/" + name)) > 0,
@@ -618,6 +630,7 @@ def get_directory_listing(path: str) -> Dict[str, Any]:
     child_list.extend(
         [
             {
+                "id": root + "/" + name,
                 "text": name,
                 "type": str(guess_type(name)[0])
                 if guess_type(name)[0]
@@ -628,10 +641,22 @@ def get_directory_listing(path: str) -> Dict[str, Any]:
     )
 
     # Create root node
+    # TODO: Improve naming when having `/` at the end of the query.
+    # Now it's a bit mixed:
+    # {
+    #   "children": true,
+    #   "id": "/Applications/////Xcode.app",
+    #   "text": "Xcode.app",
+    #   "type": "folder"
+    # },
+    root_name = os.path.basename(path)
     root_node = {
-        "text": root,
+        "id": root,
+        "text": path if root_name == "" else root_name,
         "type": "folder",
         "children": child_list,
     }
 
-    return root_node
+    tree.append(root_node)
+
+    return tree

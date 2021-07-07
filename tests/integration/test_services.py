@@ -141,18 +141,47 @@ def test_get_directory_listing():
     result = services.get_directory_listing(
         "tests/integration/test_data/test_directory_listing_folder"
     )
-    assert result == {
-        "text": "tests/integration/test_data/test_directory_listing_folder",
-        "type": "folder",
-        "children": [
-            {"text": "folderA", "type": "folder", "children": True},
-            {"text": "folderB", "type": "folder", "children": True},
-            {"text": "emptyfile", "type": "file"},
-            {"text": "invalidext.in21p3", "type": "file"},
-            {"text": "text.txt", "type": "text/plain"},
-            {"text": "video.mp4", "type": "video/mp4"},
-        ],
-    }
+    assert result == [
+        {
+            "id": "tests/integration/test_data/test_directory_listing_folder",
+            "text": "test_directory_listing_folder",
+            "type": "folder",
+            "children": [
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/folderA",
+                    "text": "folderA",
+                    "type": "folder",
+                    "children": True,
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/folderB",
+                    "text": "folderB",
+                    "type": "folder",
+                    "children": True,
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/emptyfile",
+                    "text": "emptyfile",
+                    "type": "file",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/invalidext.in21p3",
+                    "text": "invalidext.in21p3",
+                    "type": "file",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/text.txt",
+                    "text": "text.txt",
+                    "type": "text/plain",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/video.mp4",
+                    "text": "video.mp4",
+                    "type": "video/mp4",
+                },
+            ],
+        }
+    ]
     with pytest.raises(NotADirectoryError):
         services.get_directory_listing(
             "tests/integration/test_data/test_directory_listing_folder/emptyfile"
