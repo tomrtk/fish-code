@@ -112,6 +112,7 @@ def convert_to_jobbare(job: model.Job) -> schema.JobBare:
         object_count=len(job._objects),
         video_count=len(job.videos),
         progress=job.progress,
+        stats=job.stats,
     )
 
 

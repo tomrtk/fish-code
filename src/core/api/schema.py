@@ -1,6 +1,6 @@
 """Pydantic shema of object recived and sent on API."""
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, validator
 
@@ -10,6 +10,8 @@ from core.model import Detection
 
 def get_label(label_id: int) -> str:
     """Convert a object label id into a str."""
+    if not isinstance(label_id, int):
+        raise TypeError(f"expected type int, got type {type(label_id)}")
     # TODO: This should get labels from `interface.Detector()' object,
     # however tests need to be refactored since `Detector` need detection
     # api. For now the labels are stored in a list.
@@ -100,6 +102,31 @@ class JobBase(HashableBaseModel):
     location: str
 
 
+class JobStat(BaseModel):
+    """Base class for Jobs that need stats."""
+
+    total_objects: int
+    total_labels: int
+    labels: Dict[str, int] = dict()
+
+    @validator("labels", pre=False)
+    def convert_labels(cls, labels_dict: Dict[Any, int]) -> Dict[str, int]:
+        """Convert labels with ints to identify labels to their respective strings."""
+        try:
+            labels = {
+                get_label(int(label_id)): count
+                for (label_id, count) in labels_dict.items()
+            }
+        except ValueError:
+            # Some edgecase causes FastAPI to do this twice. If every key is of
+            # type `str` then we assume they have a valid label.
+            if True in [not isinstance(k, str) for k in labels_dict.keys()]:
+                raise TypeError("Expected every element to be of type str.")
+            return labels_dict
+        else:
+            return labels
+
+
 class JobBare(JobBase):
     """Bare model for a Job."""
 
@@ -108,6 +135,12 @@ class JobBare(JobBase):
     object_count: int
     video_count: int
     progress: int
+    stats: JobStat
+
+    @validator("stats", pre=True)
+    def convert_stats(cls, stats_dict: Dict[str, Any]) -> JobStat:
+        """Convert dictionary stats to JobStats."""
+        return JobStat(**stats_dict)
 
 
 class Job(JobBase):
@@ -119,6 +152,12 @@ class Job(JobBase):
     objects: List[Object] = []
     videos: List[Video] = []
     progress: int
+    stats: JobStat
+
+    @validator("stats", pre=True)
+    def convert_stats(cls, stats_dict: Dict[str, Any]) -> JobStat:
+        """Convert dictionary stats to JobStats."""
+        return JobStat(**stats_dict)
 
     def __hash__(self) -> int:
         """Hash status data in job."""
