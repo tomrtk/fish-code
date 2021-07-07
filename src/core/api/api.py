@@ -4,8 +4,12 @@ Package defining core's API for use by _view's_. Documentation of the
 API specification can be accesses at ``localhost:8000/docs`` when the
 server is running.
 """
+
 import asyncio
+import base64
 import logging
+import pathlib
+import sys
 from typing import Any, AsyncGenerator, Dict, Generator, List, Union
 
 from fastapi import (
@@ -588,7 +592,10 @@ def get_objects_from_job(
 
 
 @core_api.get("/storage", response_model=List[Union[Dict[str, Any], str, None]])
-async def get_storage(path: str) -> List[Union[Dict[str, Any], str, None]]:
+@core_api.get(
+    "/storage/", response_model=List[Union[Dict[str, Any], str, None]]
+)
+async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
     Parameters
@@ -609,6 +616,7 @@ async def get_storage(path: str) -> List[Union[Dict[str, Any], str, None]]:
     HTTPException
         If the path is invalid.
     """
+    path = pathlib.Path(sys.executable).anchor
     try:
         return get_directory_listing(path)
     except NotADirectoryError:
@@ -618,4 +626,44 @@ async def get_storage(path: str) -> List[Union[Dict[str, Any], str, None]]:
         )
     except FileNotFoundError:
         logger.warning("Chosen path '{}' is not valid.".format(path))
+        raise HTTPException(status_code=404, detail="Chosen path is not valid")
+
+
+@core_api.get(
+    "/storage/{path:str}", response_model=List[Union[Dict[str, Any], str, None]]
+)
+async def get_storage_path(path: str) -> List[Union[Dict[str, Any], str, None]]:
+    """Get directory listing for a given path to a directory in jsTree json format.
+
+    Parameters
+    ----------
+    path:   str
+        Path to a folder as a string.  Must be a base64 encoded string.
+
+    Returns
+    -------
+    Dict[str, Any]
+        JSON data explaining the file structure in jsTree format for a folder.
+        Does not run recursivly through all subfolders.
+
+    Raises
+    ------
+    HTTPException
+        If the path is a file, and not a directory.
+    HTTPException
+        If the path is invalid.
+    """
+    # TODO: Test this
+    path64d = base64.urlsafe_b64decode(path)
+    pathd = path64d.decode("utf-8")
+
+    try:
+        return get_directory_listing(pathd)
+    except NotADirectoryError:
+        logger.warning("Chosen path '{}' is not a directory.".format(pathd))
+        raise HTTPException(
+            status_code=400, detail="Chosen path is not a directory"
+        )
+    except FileNotFoundError:
+        logger.warning("Chosen path '{}' is not valid.".format(pathd))
         raise HTTPException(status_code=404, detail="Chosen path is not valid")

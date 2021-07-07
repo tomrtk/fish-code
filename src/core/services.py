@@ -2,13 +2,13 @@
 import logging
 import math
 import os
+import pathlib
 import sys
 import threading
 import time
 from datetime import datetime
 from mimetypes import guess_type
 from os.path import isdir, isfile
-from pathlib import Path
 from queue import Empty, Queue
 from typing import Any, Dict, Generator, List, Optional, Tuple, Union
 
@@ -569,7 +569,7 @@ def get_job_objects(
 
 
 def get_directory_listing(
-    path: Optional[str],
+    path: str,
 ) -> List[Optional[Union[Dict[str, Any], str]]]:
     """Get contents found in a given directory. Does not search recursivly.
 
@@ -591,23 +591,27 @@ def get_directory_listing(
     Dict
         jsTree formatted json containing information about root node at path.
     """
+    if path is None:
+        # https://stackoverflow.com/a/65975115/182868
+        # TODO: The root folders should have been set via the new config
+        # system.
+        path = pathlib.Path(sys.executable).anchor
+
+    normalized_path = pathlib.Path(path)
+
     tree: List[Optional[Union[Dict[str, Any], str]]] = list()
     root_node: Dict[str, Any] = dict()
     child_list = []
 
-    # https://stackoverflow.com/a/65975115/182868
-    # TODO: The root folders should have been set via the new config
-    # system.
-    if path is None:
-        path = Path(sys.executable).anchor
-
-    if isfile(path):
+    if isfile(normalized_path):
         raise NotADirectoryError("Path must be a directory.")
 
-    if not isdir(path):
-        raise FileNotFoundError("Directory at '{}' was not found.".format(path))
+    if not isdir(normalized_path):
+        raise FileNotFoundError(
+            "Directory at '{}' was not found.".format(normalized_path)
+        )
 
-    root, dirs, files = next(os.walk(path))
+    root, dirs, files = next(os.walk(normalized_path))
 
     # Ensure alphabetical order
     dirs.sort()
@@ -617,10 +621,10 @@ def get_directory_listing(
     child_list.extend(
         [
             {
-                "id": root + "/" + name,
+                "id": os.path.join(root, name),
                 "text": name,
                 "type": "folder",
-                "children": len(os.listdir(root + "/" + name)) > 0,
+                "children": len(os.listdir(os.path.join(root, name))) > 0,
             }
             for name in dirs
         ]
@@ -630,7 +634,7 @@ def get_directory_listing(
     child_list.extend(
         [
             {
-                "id": root + "/" + name,
+                "id": os.path.join(root, name),
                 "text": name,
                 "type": str(guess_type(name)[0])
                 if guess_type(name)[0]
@@ -649,10 +653,10 @@ def get_directory_listing(
     #   "text": "Xcode.app",
     #   "type": "folder"
     # },
-    root_name = os.path.basename(path)
+    root_name = os.path.basename(normalized_path)
     root_node = {
         "id": root,
-        "text": path if root_name == "" else root_name,
+        "text": normalized_path if root_name == "" else root_name,
         "type": "folder",
         "children": child_list,
     }
