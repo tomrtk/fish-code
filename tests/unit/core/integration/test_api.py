@@ -104,6 +104,7 @@ def test_pydantic_schema():  # noqa: D103
         _status=model.Status.PENDING,
         location="Test",
         progress=0,
+        stats={"total_objects": 0, "total_labels": 0, "labels": {}},
     )
 
     jobs = set()
@@ -273,6 +274,7 @@ def test_add_and_get_job(setup):
                 "object_count": 0,
                 "video_count": 0,
                 "progress": 0,
+                "stats": {"total_objects": 0, "total_labels": 0, "labels": {}},
             }
         ]
 
@@ -359,6 +361,7 @@ def test_get_job(setup):
             "videos": [],
             "location": "test",
             "progress": 0,
+            "stats": {"total_objects": 0, "total_labels": 0, "labels": {}},
         }
 
         response = client.get(f"/projects/999999/jobs/{job_id}")
