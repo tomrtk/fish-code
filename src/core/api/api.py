@@ -6,7 +6,7 @@ server is running.
 """
 import asyncio
 import logging
-from typing import Any, AsyncGenerator, Dict, Generator, List
+from typing import Any, AsyncGenerator, Dict, Generator, List, Union
 
 from fastapi import (
     Depends,
@@ -587,8 +587,8 @@ def get_objects_from_job(
     return data
 
 
-@core_api.get("/storage", response_model=Dict[str, Any])
-async def get_storage(path: str) -> Dict[str, Any]:
+@core_api.get("/storage", response_model=List[Union[Dict[str, Any], str, None]])
+async def get_storage(path: str) -> List[Union[Dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
     Parameters
