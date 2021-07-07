@@ -1,4 +1,5 @@
 """Tests for API."""
+import base64
 import logging
 from datetime import datetime
 from pathlib import Path
@@ -604,11 +605,15 @@ def test_get_job_objects_no_job_project(make_test_data) -> None:
 def test_get_storage():
     """Test getting the directory listing from the API."""
     with TestClient(api.core_api) as client:
+        pathb = (
+            "tests/integration/test_data/test_directory_listing_folder".encode(
+                "utf-8"
+            )
+        )
+        path64e = base64.urlsafe_b64encode(pathb)
+
         response = client.get(
-            "storage",
-            params={
-                "path": "tests/integration/test_data/test_directory_listing_folder"
-            },
+            f"storage/{str(path64e, 'utf-8')}",
         )
         response_data = response.json()
         assert response.status_code == 200
@@ -651,13 +656,20 @@ def test_get_storage():
         ]
 
         # Check errors
+        pathb = "tests/integration/test_data/test_directory_listing_folder/emptyfile".encode(
+            "utf-8"
+        )
+        path64e = base64.urlsafe_b64encode(pathb)
+
         response = client.get(
-            "storage",
-            params={
-                "path": "tests/integration/test_data/test_directory_listing_folder/emptyfile"
-            },
+            f"storage/{str(path64e, 'utf-8')}",
         )
         assert response.status_code == 400
 
-        response = client.get("storage", params={"path": "invalid/path"})
+        pathb = "invalid/path".encode("utf-8")
+        path64e = base64.urlsafe_b64encode(pathb)
+
+        response = client.get(
+            f"storage/{str(path64e, 'utf-8')}",
+        )
         assert response.status_code == 404
