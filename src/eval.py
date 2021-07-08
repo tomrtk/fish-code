@@ -62,6 +62,22 @@ def gen_img_paths(path: Path) -> List[Path]:
     return [path.joinpath(file) for file in os.listdir(path)]
 
 
+def det_to_track(det: detection.schema.Detection):
+    return tracker.Detection(
+        tracker.BBox(
+            det.x1,
+            det.y1,
+            det.x2,
+            det.y2,
+        ),
+        probability=det.confidence,
+        label=det.label,
+        frame=frame_no,
+        frame_id=None,
+        video_id=None,
+    )
+
+
 detection.model["fishy"] = (  # type: ignore
     torch.hub.load(  # type: ignore
         "ultralytics/yolov5",
@@ -139,22 +155,7 @@ for batchnr, total_batch, batch in gen_batch(batch_size, images):
             result.append(
                 Frame(
                     frame_no,
-                    [
-                        tracker.Detection(
-                            tracker.BBox(
-                                detection.x1,
-                                detection.y1,
-                                detection.x2,
-                                detection.y2,
-                            ),
-                            probability=detection.confidence,
-                            label=detection.label,
-                            frame=frame_no,
-                            frame_id=None,
-                            video_id=None,
-                        )
-                        for detection in detections
-                    ],
+                    [det_to_track(det) for det in detections],
                 )
             )
 
