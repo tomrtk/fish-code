@@ -620,7 +620,8 @@ def test_get_storage():
         assert response_data[0]["text"] == "test_directory_listing_folder"
         assert response_data[0]["type"] == "folder"
         assert "children" in response_data[0]
-        assert response_data[0]["children"] == [
+
+        children_results = [
             {
                 "id": "tests/integration/test_data/test_directory_listing_folder/folderA",
                 "text": "folderA",
@@ -654,6 +655,9 @@ def test_get_storage():
                 "type": "video/mp4",
             },
         ]
+
+        for p in response_data[0]["children"]:
+            assert p in children_results
 
         # Check errors
         pathb = "tests/integration/test_data/test_directory_listing_folder/emptyfile".encode(

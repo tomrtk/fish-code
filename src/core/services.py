@@ -611,54 +611,34 @@ def get_directory_listing(
             "Directory at '{}' was not found.".format(normalized_path)
         )
 
-    root, dirs, files = next(os.walk(normalized_path))
-
-    # Ensure alphabetical order
-    dirs.sort()
-    files.sort()
-
-    # Append directories
-    child_list.extend(
-        [
-            {
-                "id": os.path.join(root, name),
-                "text": name,
-                "type": "folder",
-                "children": len(os.listdir(os.path.join(root, name))) > 0,
-            }
-            for name in dirs
-        ]
-    )
-
-    # Append files
-    child_list.extend(
-        [
-            {
-                "id": os.path.join(root, name),
-                "text": name,
-                "type": str(guess_type(name)[0])
-                if guess_type(name)[0]
-                else "file",
-            }
-            for name in files
-        ]
-    )
+    for p in normalized_path.iterdir():
+        if p.is_dir():
+            child_list.append(
+                {
+                    "id": str(p.as_posix()),
+                    "text": p.name,
+                    "type": "folder",
+                    "children": True,
+                }
+            )
+        else:
+            child_list.append(
+                {
+                    "id": str(p.as_posix()),
+                    "text": p.name,
+                    "type": str(guess_type(p)[0])
+                    if guess_type(p)[0]
+                    else "file",
+                }
+            )
 
     # Create root node
-    # TODO: Improve naming when having `/` at the end of the query.
-    # Now it's a bit mixed:
-    # {
-    #   "children": true,
-    #   "id": "/Applications/////Xcode.app",
-    #   "text": "Xcode.app",
-    #   "type": "folder"
-    # },
-    root_name = os.path.basename(normalized_path)
+    root_name = normalized_path.name
     root_node = {
-        "id": root,
-        "text": normalized_path if root_name == "" else root_name,
+        "id": str(normalized_path.as_posix()),
+        "text": normalized_path.name if root_name == "" else root_name,
         "type": "folder",
-        "children": child_list,
+        "children": sorted(child_list, key=lambda u: u["id"]),
     }
 
     tree.append(root_node)

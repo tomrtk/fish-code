@@ -104,13 +104,23 @@ def test_get_directory_listing():
         }
     ]
 
-    assert response == result
+    assert response[0] is not None
+    assert isinstance(response[0], dict)
+    assert "children" in response[0]
+
+    for p in response[0]["children"]:
+        assert p in result[0]["children"]
 
     # Test normpath
     response = get_directory_listing(
         "tests//////integration/test_data//////test_directory_listing_folder//////"
     )
-    assert response == result
+    assert response[0] is not None
+    assert isinstance(response[0], dict)
+    assert "children" in response[0]
+
+    for p in response[0]["children"]:
+        assert p in result[0]["children"]
 
     with pytest.raises(NotADirectoryError):
         get_directory_listing(
