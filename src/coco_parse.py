@@ -3,6 +3,7 @@ import json
 import os
 from tracing import tracker
 from typing import Dict, Set, Any
+from pathlib import Path
 
 
 keys_annotations = "annotations"
