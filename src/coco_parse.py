@@ -4,6 +4,16 @@ import os
 from tracing import tracker
 from typing import Dict, Set, Any
 
+
+keys_annotations = "annotations"
+keys_attributes = "attributes"
+keys_bbox = "bbox"
+keys_category_id = "category_id"
+keys_id = "id"
+keys_image_id = "image_id"
+keys_track_id = "track_id"
+
+
 ## Annotation object in coco json format
 # {
 #  "id": 12617,
@@ -37,25 +47,25 @@ def parse(json: Dict[Any, Any]) -> Dict[int, tracker.Object]:
     objects: Dict[int, tracker.Object] = dict()
 
     track_ids = {
-        annotation["attributes"]["track_id"]
-        for annotation in json["annotations"]
-        if "track_id" in annotation["attributes"]
+        annotation[keys_attributes][keys_track_id]
+        for annotation in json[keys_annotations]
+        if keys_track_id in annotation[keys_attributes]
     }
 
     for track_id in track_ids:
         detections = [
             tracker.Detection(
-                tracker.BBox(*det["bbox"]),
-                det["category_id"],
+                tracker.BBox(*det[keys_bbox]),
+                det[keys_category_id],
                 1,
-                det["image_id"],
+                det[keys_image_id],
                 None,
                 None,
-                true_track_id=det["id"],
+                true_track_id=det[keys_id],
             )
-            for det in json["annotations"]
-            if "track_id" in det["attributes"]
-            and det["attributes"]["track_id"] is track_id
+            for det in json[keys_annotations]
+            if keys_track_id in det[keys_attributes]
+            and det[keys_attributes][keys_track_id] is track_id
         ]
         objects[track_id] = tracker.Object(track_id)
         objects[track_id].detections = detections
