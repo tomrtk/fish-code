@@ -617,6 +617,7 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
         If the path is invalid.
     """
     path = pathlib.Path(sys.executable).anchor
+
     try:
         return get_directory_listing(path)
     except NotADirectoryError:
@@ -653,9 +654,7 @@ async def get_storage_path(path: str) -> List[Union[Dict[str, Any], str, None]]:
     HTTPException
         If the path is invalid.
     """
-    # TODO: Test this
-    path64d = base64.urlsafe_b64decode(path)
-    pathd = path64d.decode("utf-8")
+    pathd = base64.urlsafe_b64decode(path).decode("utf-8")
 
     try:
         return get_directory_listing(pathd)
