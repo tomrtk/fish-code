@@ -13,6 +13,7 @@ import cv2 as cv
 import numpy as np
 import torch
 
+import coco_parse
 from core import model
 from detection import api as detection
 from tracing import tracker
@@ -106,11 +107,17 @@ detection.label["fishy2"] = [
 imgs: List[np.ndarray] = [np.zeros((640, 640, 3))]
 from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
+ground_truth: Dict[int, tracker.Object] = dict()
 
 track = tracker.SortTracker()
 images: List[Path] = gen_img_paths(
     Path.home().joinpath("Dl/dataset_coco/images/default")
 )
+
+with open(
+    os.path.join(coco_parse.json_path, coco_parse.json_file_name)
+) as file:
+    ground_truth = coco_parse.parse(json.load(file))
 
 for batchnr, total_batch, batch in gen_batch(625, images):
 
@@ -152,3 +159,6 @@ for batchnr, total_batch, batch in gen_batch(625, images):
 
     for frame in result:
         track.update(frame.detections)
+
+print(len(ground_truth.values()))
+print(len(track.get_objects.values()))
