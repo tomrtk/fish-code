@@ -162,4 +162,4 @@ for batchnr, total_batch, batch in gen_batch(batch_size, images):
         track.update(frame.detections)
 
 print(len(ground_truth.values()))
-print(len(track.get_objects.values()))
+print(len(track.get_objects().values()))
