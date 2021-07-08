@@ -88,7 +88,7 @@ for batchnr, (
 ) in vl.generate_batches():
 
     # Trying to replicate production code
-    imgs = [img for img in batch]
+    imgs = [np.array(Image.open(utils.img_to_byte(img))) for img in batch]
 
     from_detect = detection.detect(
         imgs,
