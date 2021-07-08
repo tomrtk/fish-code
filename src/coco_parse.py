@@ -73,6 +73,30 @@ def parse(json: Dict[Any, Any]) -> Dict[int, tracker.Object]:
     return objects
 
 
+def write(objects: Dict[int, tracker.Object], file_path: Path):
+
+    id = 0
+    json_file = {keys_annotations: list()}
+    for track_id, obj in objects.items():
+        for d in obj.detections:
+            json_file[keys_annotations].append(
+                {
+                    keys_id: id,
+                    keys_image_id: d.frame,
+                    keys_category_id: d.label,
+                    keys_bbox: [
+                        d.bbox.x1,
+                        d.bbox.y1,
+                        d.bbox.x2,
+                        d.bbox.y2,
+                    ],
+                    keys_attributes: {
+                        keys_track_id: track_id,
+                    },
+                }
+            )
+
+
 if __name__ == "__main__":
     with open(os.path.join(json_path, json_file_name)) as file:
 
