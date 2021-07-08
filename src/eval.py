@@ -51,7 +51,7 @@ def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
             batch = pool.map(
                 read_img,
                 images[start : start + size],
-                625 // os.cpu_count(),  # type: ignore
+                size // os.cpu_count(),  # type: ignore
             )
         yield batch_nr, len(images) // size, batch  # type: ignore
         start = start + size
@@ -108,6 +108,7 @@ imgs: List[np.ndarray] = [np.zeros((640, 640, 3))]
 from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
 ground_truth: Dict[int, tracker.Object] = dict()
+batch_size: int = 625
 
 track = tracker.SortTracker()
 images: List[Path] = gen_img_paths(
@@ -119,7 +120,7 @@ with open(
 ) as file:
     ground_truth = coco_parse.parse(json.load(file))
 
-for batchnr, total_batch, batch in gen_batch(625, images):
+for batchnr, total_batch, batch in gen_batch(batch_size, images):
 
     imgs = [img for img in batch]
 
