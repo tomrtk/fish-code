@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block main %}
+<nav class="border-b px-8 py-2 italic">
+  <ul class="">
+    <li class="inline font-medium"><a href="/">Home</a></li>
+  </ul>
+</nav>
+<main class="flex flex-col mx-auto p-8">
+  <div class="flex flex-col justify-center">
+    <h1 class="py-4 text-3xl">Something fishy happened...</h1>
+    <p class="pb-4 text-gray-800">{{ msg }}</p>
+    <p class="text-gray-800">Technical details:</p>
+    <p class="text-gray-800">{{ e.code }} {{ e.name }}</p>
+    <p class="text-gray-800">{{ e.description }}</p>
+  </div>
+</main>
+{% endblock %}

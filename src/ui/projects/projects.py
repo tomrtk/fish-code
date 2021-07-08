@@ -112,7 +112,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         project = client.get_project(project_id)
         jobs = client.get_jobs(project_id, page=page, per_page=per_page)
         if project is None or jobs is None:
-            return render_template("404.html"), 404
+            return abort(404, f"Project {project_id} was not found.")
 
         pagination = Pagination(
             page=page,
@@ -140,7 +140,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         """View a single job."""
         job = client.get_job(project_id, job_id)
         if job is None:
-            return render_template("404.html"), 404
+            return abort(
+                404, f"Job {job_id} in project {project_id} was not found."
+            )
 
         obj_stats = job.get_object_stats()
 
@@ -160,14 +162,14 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
             validated_project_id = validate_int(project_id, 1)
             validated_job_id = validate_int(job_id, 1)
         except ValidationError:
-            return render_template("422.html"), 422
+            return abort(422, "Invalid project or job id.")
         else:
             if validated_project_id is None or validated_job_id is None:
                 logger.warning(
                     f"Provided id(s) are invalid: project_id:{project_id}"
                     f" job_id:{job_id}. Should be greater of equal to 1."
                 )
-                return render_template("422.html"), 422
+                return abort(422, "Invalid project or job id.")
 
         # pagination data
         start = int(flask.request.form["start"])
@@ -177,7 +179,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
             validated_project_id, validated_job_id, start, length
         )
         if response is None:
-            return render_template("500.html"), 500
+            return abort(
+                500, f"Could not get objects for job {job_id} from core api."
+            )
 
         objects, count = response[0], response[1]
 
@@ -199,7 +203,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         if isinstance(object_id, int) and object_id > 0:
             return redirect(f"{endpoint_path}/objects/{object_id}/preview")
         else:
-            return render_template("404.html"), 404
+            return abort(404, f"Object {object_id} was not found.")
 
     @projects_bp.route(
         "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
@@ -223,7 +227,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         project = client.get_project(project_id)
 
         if not project:
-            return render_template("404.html"), 404
+            return abort(404, f"Project {project_id} was not found.")
 
         if request.method == "POST":
             if (
@@ -294,7 +298,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         job = client.get_job(project_id, job_id)
 
         if job is None or not isinstance(job, Job):
-            return render_template("404.html"), 404
+            return abort(
+                404, f"Job {job_id} in project {project_id} not found."
+            )
 
         with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
 
