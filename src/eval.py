@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import json
 import os
 import time
 from dataclasses import dataclass
 from datetime import datetime
-from multiprocessing.pool import Pool
-from os import path
+from multiprocessing.pool import Pool as multiproc_pool
 from pathlib import Path
 from typing import Dict, List, Optional
 
@@ -46,7 +46,7 @@ def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
         start_time = time.monotonic()
         start = 0
         batch: List[np.ndarray] = list()
-        with Pool(os.cpu_count()) as pool:
+        with multiproc_pool(os.cpu_count()) as pool:
             batch = pool.map(
                 read_img,
                 images[start : start + size],
@@ -54,7 +54,7 @@ def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
             )
         yield batch_nr, len(images) // size, batch  # type: ignore
         start = start + size
-        print(f"time spend: {time.monotonic()-start_time}")
+        print(f"time spent: {round(time.monotonic()-start_time, 2)}")
 
 
 def gen_img_paths(path: Path) -> List[Path]:
