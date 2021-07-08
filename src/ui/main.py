@@ -14,16 +14,16 @@ from werkzeug.exceptions import (
 from ui.projects.projects import construct_projects_bp
 
 
-def create_app(test_config=None):  # type: ignore
+def create_app(test_config: Optional[Mapping[str, Any]] = None) -> Flask:
     """Application factory to setup the loading of the application."""
     app = Flask(__name__)
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.cfg", silent=True)  # type: ignore
+        app.config.from_pyfile("config.cfg", silent=True)
     else:
         # load the test config if passed in
-        app.config.from_mapping(test_config)  # type: ignore
+        app.config.from_mapping(test_config)
 
     # ensure the instance folder exists
     try:
@@ -36,11 +36,11 @@ def create_app(test_config=None):  # type: ignore
     app.register_blueprint(projects_bp, url_prefix="/projects")
 
     @app.route("/")
-    def index():  # type: ignore
+    def index() -> str:
         return render_template("index.html", msg="Gjoevik")
 
     @app.route("/image")
-    def image():  # type: ignore
+    def image() -> str:
         return render_template("image.html")
 
     @app.errorhandler(Exception)
