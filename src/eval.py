@@ -62,7 +62,7 @@ def gen_img_paths(path: Path) -> List[Path]:
     return [path.joinpath(file) for file in os.listdir(path)]
 
 
-def det_to_track(det: detection.schema.Detection):
+def det_to_track(det: detection.schema.Detection, frame_no):
     return tracker.Detection(
         tracker.BBox(
             det.x1,
@@ -120,11 +120,12 @@ detection.label["fishy2"] = [
     "vederbuk",
 ]
 
-imgs: List[np.ndarray] = [np.zeros((640, 640, 3))]
+batch: List[np.ndarray] = [np.zeros((640, 640, 3))]
 from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
 ground_truth: Dict[int, tracker.Object] = dict()
 batch_size: int = 625
+result: List[Frame] = []
 
 track = tracker.SortTracker()
 images: List[Path] = gen_img_paths(
@@ -137,30 +138,32 @@ with open(
     ground_truth = coco_parse.parse(json.load(file))
 
 for batchnr, total_batch, batch in gen_batch(batch_size, images):
-
-    imgs = [img for img in batch]
+    print(f"{batchnr}/{total_batch}")
 
     from_detect = detection.detect(
-        imgs,
+        batch,
         detection.model["fishy"][0],
         detection.model["fishy"][1],
     )
-    print(f"{batchnr}/{total_batch}")
 
-    result: List[Frame] = []
     for frame_no, detections in from_detect.items():
+        frame_no = frame_no + (batch_size * batchnr)
         if len(detections) == 0:
             result.append(Frame(frame_no, []))
         else:
             result.append(
                 Frame(
                     frame_no,
-                    [det_to_track(det) for det in detections],
+                    [det_to_track(det, frame_no) for det in detections],
                 )
             )
 
-    for frame in result:
-        track.update(frame.detections)
+for frame in result:
+    track.update(frame.detections)
 
+print(ground_truth.values())
 print(len(ground_truth.values()))
 print(len(track.get_objects().values()))
+print(track.get_objects().values())
+for o in track.get_objects().values():
+    print(f"{o.track_id} has {len(o.detections)} detections")
