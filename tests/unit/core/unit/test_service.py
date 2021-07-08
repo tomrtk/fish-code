@@ -2,7 +2,7 @@
 import pytest
 
 from core.model import Object
-from core.services import get_job_objects
+from core.services import get_directory_listing, get_job_objects
 
 
 def test_get_job_objects(make_test_project_repo):
@@ -54,3 +54,68 @@ def test_get_job_objects_wrong_start_length(make_test_project_repo):
     assert result is not None
     assert "data" in result
     assert len(result["data"]) == 100
+
+
+def test_get_directory_listing():
+    """Tests the accociated function that it generates the correct jsTree json."""
+    response = get_directory_listing(
+        "tests/integration/test_data/test_directory_listing_folder"
+    )
+
+    result = [
+        {
+            "id": "tests/integration/test_data/test_directory_listing_folder",
+            "text": "test_directory_listing_folder",
+            "type": "folder",
+            "children": [
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/folderA",
+                    "text": "folderA",
+                    "type": "folder",
+                    "children": True,
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/folderB",
+                    "text": "folderB",
+                    "type": "folder",
+                    "children": True,
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/emptyfile",
+                    "text": "emptyfile",
+                    "type": "file",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/invalidext.in21p3",
+                    "text": "invalidext.in21p3",
+                    "type": "file",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/text.txt",
+                    "text": "text.txt",
+                    "type": "text/plain",
+                },
+                {
+                    "id": "tests/integration/test_data/test_directory_listing_folder/video.mp4",
+                    "text": "video.mp4",
+                    "type": "video/mp4",
+                },
+            ],
+        }
+    ]
+
+    assert response == result
+
+    # Test normpath
+    response = get_directory_listing(
+        "tests//////integration/test_data//////test_directory_listing_folder//////"
+    )
+    assert response == result
+
+    with pytest.raises(NotADirectoryError):
+        get_directory_listing(
+            "tests/integration/test_data/test_directory_listing_folder/emptyfile"
+        )
+
+    with pytest.raises(FileNotFoundError):
+        get_directory_listing("this/path/should/not/exist")
