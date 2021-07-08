@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 
+import os
+import time
 from dataclasses import dataclass
-
-from tracing import tracker
-from detection import api as detection
-import numpy as np
-from typing import List, Optional, Dict
-from core import model, services
 from datetime import datetime
+from multiprocessing.pool import Pool
+from os import path
+from pathlib import Path
+from typing import Dict, List, Optional
+
+import cv2 as cv
+import numpy as np
 import torch
-from PIL import Image
-from io import BytesIO
-from core import utils
+
+from core import model
+from detection import api as detection
+from tracing import tracker
 
 
 @dataclass
@@ -20,6 +24,41 @@ class Frame:
     detections: List[tracker.Detection]
     timestamp: Optional[datetime] = None
     video_id: Optional[int] = None
+
+
+def scale_convert(img: np.ndarray) -> np.ndarray:
+    new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+
+    new_img = cv.resize(  # type: ignore
+        new_img,
+        (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
+        interpolation=cv.INTER_AREA,  # type: ignore
+    )
+    return new_img
+
+
+def read_img(img_path: Path) -> np.ndarray:
+    return scale_convert(cv.imread(img_path.as_posix(), cv.IMREAD_UNCHANGED))  # type: ignore
+
+
+def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
+    for batch_nr in range(len(images) // size):
+        start_time = time.monotonic()
+        start = 0
+        batch: List[np.ndarray] = list()
+        with Pool(os.cpu_count()) as pool:
+            batch = pool.map(
+                read_img,
+                images[start : start + size],
+                625 // os.cpu_count(),  # type: ignore
+            )
+        yield batch_nr, len(images) // size, batch  # type: ignore
+        start = start + size
+        print(f"time spend: {time.monotonic()-start_time}")
+
+
+def gen_img_paths(path: Path) -> List[Path]:
+    return [path.joinpath(file) for file in os.listdir(path)]
 
 
 detection.model["fishy"] = (  # type: ignore
@@ -65,37 +104,24 @@ detection.label["fishy2"] = [
 ]
 
 imgs: List[np.ndarray] = [np.zeros((640, 640, 3))]
-track = tracker.SortTracker()
-
-vl = services.VideoLoader(
-    [
-        model.Video.from_path(
-            "/home/eirik/Downloads/Abbor mørkt-middels-dårlige forhold-cut-[2020-03-28_12-30-10].mp4"
-        )
-    ],
-    batchsize=625,
-)
-
 from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
 
-for batchnr, (
-    progress,
-    batch,
-    timestamp,
-    video_for_frame,
-    framenumbers,
-) in vl.generate_batches():
+track = tracker.SortTracker()
+images: List[Path] = gen_img_paths(
+    Path.home().joinpath("Dl/dataset_coco/images/default")
+)
 
-    # Trying to replicate production code
-    imgs = [np.array(Image.open(utils.img_to_byte(img))) for img in batch]
+for batchnr, total_batch, batch in gen_batch(625, images):
+
+    imgs = [img for img in batch]
 
     from_detect = detection.detect(
         imgs,
         detection.model["fishy"][0],
         detection.model["fishy"][1],
     )
-    print(f"{batchnr}/{vl._total_batches}")
+    print(f"{batchnr}/{total_batch}")
 
     result: List[Frame] = []
     for frame_no, detections in from_detect.items():
