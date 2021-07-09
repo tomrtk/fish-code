@@ -183,14 +183,17 @@ def detect(batch_size, images) -> List[Frame]:
 
 if __name__ == "__main__":
 
-    from_detect: Dict[int, List[detection.schema.Detection]] = dict()
     tracked = list()
     ground_truth: Dict[int, tracker.Object] = dict()
     batch_size: int = 625
-    data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
-    images: List[Path] = sorted(
-        gen_img_paths(data_folder.joinpath("images/default"))
+    data_folder: Path = Path.home().joinpath(
+        "Dl/datasett_gullbust/filtered-dataset/"
     )
+
+    data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
+    images_path = data_folder.joinpath("images/default")
+
+    images: List[Path] = sorted(gen_img_paths(images_path))
     result: List[Frame] = []
     from_file = False
 
