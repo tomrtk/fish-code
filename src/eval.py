@@ -4,7 +4,7 @@ import json
 import os
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from multiprocessing.pool import Pool as multiproc_pool
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -87,6 +87,35 @@ detection.model["fishy"] = (  # type: ignore
     640,
 )
 
+
+def track_to_model(obj: tracker.Object) -> model.Object:
+    o = model.Object(
+        obj.label,  # type: ignore
+        [
+            model.Detection(
+                model.BBox(det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2),
+                det.probability,
+                det.label,
+                det.frame,
+            )
+            for det in obj.detections
+        ],
+    )
+
+    frames = sorted([det.frame for det in obj.detections])
+
+    o.time_in = datetime(1, 1, 1, 0, 0, 0) + timedelta(
+        seconds=1 / 25 * frames[0]
+    )
+    o.time_out = datetime(1, 1, 1, 0, 0, 0) + timedelta(
+        seconds=1 / 25 * frames[-1]
+    )
+
+    o._calc_label()
+
+    return o
+
+
 detection.label["fishy"] = [
     "gjedde",
     "gullbust",
@@ -160,6 +189,8 @@ for batchnr, total_batch, batch in gen_batch(batch_size, images):
 
     for frame in result:
         track.update(frame.detections)
+
+objects = {id: track_to_model(obj) for (id, obj) in track.get_objects().items()}
 
 print(len(ground_truth.values()))
 print(len(track.get_objects().values()))
