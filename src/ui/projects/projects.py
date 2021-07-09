@@ -200,10 +200,17 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/objects/<int:object_id>/preview")
     def object_preview(object_id: int) -> Union[Response, Tuple[str, int]]:
         """View preview of an Object."""
-        if isinstance(object_id, int) and object_id > 0:
-            return redirect(f"{endpoint_path}/objects/{object_id}/preview")
+        try:
+            validated_object_id = validate_int(object_id, 1)
+        except ValidationError:
+            return abort(422, f"Object id {object_id} not valid.")
         else:
-            return abort(404, f"Object {object_id} was not found.")
+            if validated_object_id:
+                return redirect(
+                    f"{endpoint_path}/objects/{validated_object_id}/preview",
+                )
+            else:
+                return abort(422, f"Object id {object_id} not valid.")
 
     @projects_bp.route(
         "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
