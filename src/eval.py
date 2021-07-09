@@ -106,91 +106,106 @@ def track_to_model(obj: tracker.Object) -> model.Object:
     return o
 
 
-detection.model["fishy"] = (  # type: ignore
-    torch.hub.load(  # type: ignore
-        "ultralytics/yolov5",
-        "custom",
-        path=str(detection.model_fishy_path.resolve()),
-    ),
-    640,
-)
+if __name__ == "__main__":
 
-detection.label["fishy"] = [
-    "gjedde",
-    "gullbust",
-    "rumpetroll",
-    "stingsild",
-    "ørekyt",
-    "abbor",
-    "brasme",
-    "mort",
-    "vederbuk",
-]
-
-detection.model["fishy2"] = (  # type: ignore
-    torch.hub.load(  # type: ignore
-        "ultralytics/yolov5",
-        "custom",
-        path=str(detection.model_fishy2_path.resolve()),
-    ),
-    768,
-)
-
-detection.label["fishy2"] = [
-    "gjedde",
-    "gullbust",
-    "rumpetroll",
-    "stingsild",
-    "ørekyt",
-    "abbor",
-    "brasme",
-    "mort",
-    "vederbuk",
-]
-
-batch: List[np.ndarray] = [np.zeros((640, 640, 3))]
-from_detect: Dict[int, List[detection.schema.Detection]] = dict()
-tracked = list()
-ground_truth: Dict[int, tracker.Object] = dict()
-batch_size: int = 625
-data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
-
-track = tracker.SortTracker()
-images: List[Path] = sorted(
-    gen_img_paths(data_folder.joinpath("images/default"))
-)
-
-with open(
-    data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
-) as file:
-    ground_truth = coco_parse.parse(json.load(file))
-
-for batchnr, total_batch, batch in gen_batch(batch_size, images):
-    print(f"{batchnr}/{total_batch}")
-
-    from_detect = detection.detect(
-        batch,
-        detection.model["fishy"][0],
-        detection.model["fishy"][1],
+    detection.model["fishy"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path=str(detection.model_fishy_path.resolve()),
+        ),
+        640,
     )
 
-    result: List[Frame] = []
-    for frame_no, detections in from_detect.items():
-        frame_no = frame_no + (batch_size * batchnr)
-        if len(detections) == 0:
-            result.append(Frame(frame_no, []))
-        else:
-            result.append(
-                Frame(
-                    frame_no,
-                    [det_to_track(det, frame_no) for det in detections],
+    detection.label["fishy"] = [
+        "gjedde",
+        "gullbust",
+        "rumpetroll",
+        "stingsild",
+        "ørekyt",
+        "abbor",
+        "brasme",
+        "mort",
+        "vederbuk",
+    ]
+
+    detection.model["fishy2"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path=str(detection.model_fishy2_path.resolve()),
+        ),
+        768,
+    )
+
+    detection.label["fishy2"] = [
+        "gjedde",
+        "gullbust",
+        "rumpetroll",
+        "stingsild",
+        "ørekyt",
+        "abbor",
+        "brasme",
+        "mort",
+        "vederbuk",
+    ]
+
+    batch: List[np.ndarray] = [np.zeros((640, 640, 3))]
+    from_detect: Dict[int, List[detection.schema.Detection]] = dict()
+    tracked = list()
+    ground_truth: Dict[int, tracker.Object] = dict()
+    batch_size: int = 625
+    data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
+
+    track = tracker.SortTracker()
+    images: List[Path] = sorted(
+        gen_img_paths(data_folder.joinpath("images/default"))
+    )
+
+    with open(
+        data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
+    ) as file:
+        ground_truth = coco_parse.parse(json.load(file))
+
+    for batchnr, total_batch, batch in gen_batch(batch_size, images):
+        print(f"{batchnr}/{total_batch}")
+
+        from_detect = detection.detect(
+            batch,
+            detection.model["fishy"][0],
+            detection.model["fishy"][1],
+        )
+
+        result: List[Frame] = []
+        for frame_no, detections in from_detect.items():
+            frame_no = frame_no + (batch_size * batchnr)
+            if len(detections) == 0:
+                result.append(Frame(frame_no, []))
+            else:
+                result.append(
+                    Frame(
+                        frame_no,
+                        [det_to_track(det, frame_no) for det in detections],
+                    )
                 )
-            )
 
-    for frame in result:
-        track.update(frame.detections)
+        for frame in result:
+            track.update(frame.detections)
 
-objects = {id: track_to_model(obj) for (id, obj) in track.get_objects().items()}
+    gt_mod_obj = sorted(
+        [track_to_model(obj) for obj in ground_truth.values()],
+        key=lambda x: x.time_in,
+    )
 
-print(len(ground_truth.values()))
-print(len(track.get_objects().values()))
+    mod_obj = sorted(
+        [track_to_model(obj) for obj in track.get_objects().values()],
+        key=lambda x: x.time_in,
+    )
+
+    print([obj.time_in for obj in gt_mod_obj[0:100:3]])
+    print([obj.time_in for obj in mod_obj[0:100:3]])
+    if gt_mod_obj[0].bbox == mod_obj[0].bbox:
+        print("first looks somewhat the same")
+
+    print(len(ground_truth.values()))
+    print(len(track.get_objects().values()))

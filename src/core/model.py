@@ -668,6 +668,35 @@ class BBox:
     x2: float
     y2: float
 
+    def __eq__(self, o: object) -> bool:
+        """Check if the two boundingboxes are witin 1 percent of eachother.
+
+        Parameters
+        ----------
+        o : BBox
+           Other BBox
+
+        Return
+        ------
+        bool :
+            If they're equal
+        """
+        if not isinstance(o, BBox):
+            raise NotImplementedError
+
+        x1 = abs(self.x1 - o.x1)
+        y1 = abs(self.y1 - o.y1)
+        x2 = abs(self.x2 - o.x2)
+        y2 = abs(self.y2 - o.y2)
+
+        tol = 0.1
+        return (
+            x1 < tol * abs(o.x1)
+            and x2 < tol * abs(o.x2)
+            and y1 < tol * abs(o.y1)
+            and y2 < tol * abs(o.y2)
+        )
+
 
 @dataclass
 class Detection:
