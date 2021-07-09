@@ -128,8 +128,8 @@ batch_size: int = 625
 result: List[Frame] = []
 
 track = tracker.SortTracker()
-images: List[Path] = gen_img_paths(
-    Path.home().joinpath("Dl/dataset_coco/images/default")
+images: List[Path] = sorted(
+    gen_img_paths(Path.home().joinpath("Dl/dataset_coco/images/default"))
 )
 
 with open(
