@@ -27,7 +27,9 @@ class Frame:
     video_id: Optional[int] = None
 
 
-def scale_convert(img: np.ndarray) -> np.ndarray:
+def scale_convert(img: np.ndarray) -> Optional[np.ndarray]:
+    if img is None:
+        return img
     new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
 
     new_img = cv.resize(  # type: ignore
@@ -35,11 +37,13 @@ def scale_convert(img: np.ndarray) -> np.ndarray:
         (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
         interpolation=cv.INTER_AREA,  # type: ignore
     )
+
     return new_img
 
 
-def read_img(img_path: Path) -> np.ndarray:
-    return scale_convert(cv.imread(img_path.as_posix(), cv.IMREAD_UNCHANGED))  # type: ignore
+def read_img(img_path: Path) -> Optional[np.ndarray]:
+    img = scale_convert(cv.imread(img_path.as_posix(), cv.IMREAD_COLOR))  # type: ignore
+    return img
 
 
 def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
@@ -53,6 +57,7 @@ def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
                 images[start : start + size],
                 size // os.cpu_count(),  # type: ignore
             )
+        batch = [img for img in batch if img is not None]
         yield batch_nr, len(images) // size, batch  # type: ignore
         start = start + size
         print(f"time spent: {round(time.monotonic()-start_time, 2)}")
