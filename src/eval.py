@@ -78,16 +78,6 @@ def det_to_track(det: detection.schema.Detection, frame_no):
     )
 
 
-detection.model["fishy"] = (  # type: ignore
-    torch.hub.load(  # type: ignore
-        "ultralytics/yolov5",
-        "custom",
-        path=str(detection.model_fishy_path.resolve()),
-    ),
-    640,
-)
-
-
 def track_to_model(obj: tracker.Object) -> model.Object:
     o = model.Object(
         obj.label,  # type: ignore
@@ -115,6 +105,15 @@ def track_to_model(obj: tracker.Object) -> model.Object:
 
     return o
 
+
+detection.model["fishy"] = (  # type: ignore
+    torch.hub.load(  # type: ignore
+        "ultralytics/yolov5",
+        "custom",
+        path=str(detection.model_fishy_path.resolve()),
+    ),
+    640,
+)
 
 detection.label["fishy"] = [
     "gjedde",
