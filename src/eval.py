@@ -156,6 +156,7 @@ def detect(batch_size, images) -> List[Frame]:
     ]
 
     result: List[Frame] = list()
+    from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 
     for batchnr, total_batch, batch in gen_batch(batch_size, images):
         print(f"{batchnr}/{total_batch}")
