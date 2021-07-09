@@ -154,14 +154,15 @@ from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
 ground_truth: Dict[int, tracker.Object] = dict()
 batch_size: int = 625
+data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
 
 track = tracker.SortTracker()
 images: List[Path] = sorted(
-    gen_img_paths(Path.home().joinpath("Dl/dataset_coco/images/default"))
+    gen_img_paths(data_folder.joinpath("images/default"))
 )
 
 with open(
-    os.path.join(coco_parse.json_path, coco_parse.json_file_name)
+    data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
 ) as file:
     ground_truth = coco_parse.parse(json.load(file))
 
