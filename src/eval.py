@@ -134,77 +134,61 @@ def detect(batch_size, images) -> List[Frame]:
 
 if __name__ == "__main__":
 
-    detection.model["fishy"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
-            "custom",
-            path=str(detection.model_fishy_path.resolve()),
-        ),
-        640,
-    )
-
-    detection.label["fishy"] = [
-        "gjedde",
-        "gullbust",
-        "rumpetroll",
-        "stingsild",
-        "ørekyt",
-        "abbor",
-        "brasme",
-        "mort",
-        "vederbuk",
-    ]
-
-    detection.model["fishy2"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
-            "custom",
-            path=str(detection.model_fishy2_path.resolve()),
-        ),
-        768,
-    )
-
-    detection.label["fishy2"] = [
-        "gjedde",
-        "gullbust",
-        "rumpetroll",
-        "stingsild",
-        "ørekyt",
-        "abbor",
-        "brasme",
-        "mort",
-        "vederbuk",
-    ]
-
-    batch: List[np.ndarray] = [np.zeros((640, 640, 3))]
     from_detect: Dict[int, List[detection.schema.Detection]] = dict()
     tracked = list()
     ground_truth: Dict[int, tracker.Object] = dict()
     batch_size: int = 625
     data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
     result: List[Frame] = []
-    from_file = False
+    from_file = True
 
-    track = tracker.SortTracker()
-    images: List[Path] = sorted(
-        gen_img_paths(data_folder.joinpath("images/default"))
-    )
+    if not from_file:
+        images: List[Path] = sorted(
+            gen_img_paths(data_folder.joinpath("images/default"))
+        )
 
-    with open(
-        data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
-    ) as file:
-        ground_truth = coco_parse.parse(json.load(file))
+        detection.model["fishy"] = (  # type: ignore
+            torch.hub.load(  # type: ignore
+                "ultralytics/yolov5",
+                "custom",
+                path=str(detection.model_fishy_path.resolve()),
+            ),
+            640,
+        )
 
-    if from_file:
-        mod_object: List[model.Object] = list()
-        with open("detections.json", "r") as det_file:
-            det_json = json.load(det_file)
-            for k, v in det_json.items():
-                result.append(
-                    Frame(k, [tracker.Detection.from_dict(det) for det in v])
-                )
-    else:
-        result = detect(batch_size, images)
+        detection.label["fishy"] = [
+            "gjedde",
+            "gullbust",
+            "rumpetroll",
+            "stingsild",
+            "ørekyt",
+            "abbor",
+            "brasme",
+            "mort",
+            "vederbuk",
+        ]
+
+        detection.model["fishy2"] = (  # type: ignore
+            torch.hub.load(  # type: ignore
+                "ultralytics/yolov5",
+                "custom",
+                path=str(detection.model_fishy2_path.resolve()),
+            ),
+            768,
+        )
+
+        detection.label["fishy2"] = [
+            "gjedde",
+            "gullbust",
+            "rumpetroll",
+            "stingsild",
+            "ørekyt",
+            "abbor",
+            "brasme",
+            "mort",
+            "vederbuk",
+        ]
+        result = detect(batch_size, images[0])
 
         obj_dict = {
             frame.idx: [o.to_dict() for o in frame.detections]
@@ -214,10 +198,24 @@ if __name__ == "__main__":
         with open("detections.json", "w") as det_file:
             det_file.write(json.dumps(obj_dict))
 
-        exit(1)
+    with open(
+        data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
+    ) as file:
+        ground_truth = coco_parse.parse(json.load(file))
 
+    with open("detections.json", "r") as det_file:
+        result = [
+            Frame(k, [tracker.Detection.from_dict(det) for det in v])
+            for (k, v) in json.load(det_file).items()
+        ]
+
+    print("tracking...")
+    start = time.monotonic()
+    track = tracker.SortTracker()
     for frame in result:
         track.update(frame.detections)
+    stop = time.monotonic()
+    print(f"tracking took: {stop-start}")
 
     gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
 
