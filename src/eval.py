@@ -217,12 +217,18 @@ if __name__ == "__main__":
     stop = time.monotonic()
     print(f"tracking took: {stop-start}")
 
+    print(len(ground_truth.values()))
+    print(len(track.get_objects().values()))
+
     gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
 
     mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
 
-    # if gt_mod_obj[0].bbox == mod_obj[0].bbox:
-    #     print("first looks somewhat the same")
+    gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
+    mod_sorted = sorted(mod_obj, key=lambda x: x.time_in)  # type: ignore
 
-    print(len(ground_truth.values()))
-    print(len(track.get_objects().values()))
+    for idx in range(min(len(mod_sorted), len(gt_mod_sorted))):
+        print(
+            f"{mod_sorted[idx].time_in : %M:%S } | {mod_sorted[idx].time_out : %M:%S} | {len(mod_sorted[idx]._detections) : 5}  ||"
+            + f"{gt_mod_sorted[idx].time_in : %M:%S} | {gt_mod_sorted[idx].time_out : %M:%S} | {len(gt_mod_sorted[idx]._detections) : 5} "
+        )
