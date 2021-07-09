@@ -125,7 +125,6 @@ from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 tracked = list()
 ground_truth: Dict[int, tracker.Object] = dict()
 batch_size: int = 625
-result: List[Frame] = []
 
 track = tracker.SortTracker()
 images: List[Path] = sorted(
@@ -146,6 +145,7 @@ for batchnr, total_batch, batch in gen_batch(batch_size, images):
         detection.model["fishy"][1],
     )
 
+    result: List[Frame] = []
     for frame_no, detections in from_detect.items():
         frame_no = frame_no + (batch_size * batchnr)
         if len(detections) == 0:
@@ -158,8 +158,8 @@ for batchnr, total_batch, batch in gen_batch(batch_size, images):
                 )
             )
 
-for frame in result:
-    track.update(frame.detections)
+    for frame in result:
+        track.update(frame.detections)
 
 print(len(ground_truth.values()))
 print(len(track.get_objects().values()))
