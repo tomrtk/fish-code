@@ -107,6 +107,49 @@ def track_to_model(obj: tracker.Object) -> model.Object:
 
 
 def detect(batch_size, images) -> List[Frame]:
+
+    detection.model["fishy"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path=str(detection.model_fishy_path.resolve()),
+        ),
+        640,
+    )
+
+    detection.label["fishy"] = [
+        "gjedde",
+        "gullbust",
+        "rumpetroll",
+        "stingsild",
+        "ørekyt",
+        "abbor",
+        "brasme",
+        "mort",
+        "vederbuk",
+    ]
+
+    detection.model["fishy2"] = (  # type: ignore
+        torch.hub.load(  # type: ignore
+            "ultralytics/yolov5",
+            "custom",
+            path=str(detection.model_fishy2_path.resolve()),
+        ),
+        768,
+    )
+
+    detection.label["fishy2"] = [
+        "gjedde",
+        "gullbust",
+        "rumpetroll",
+        "stingsild",
+        "ørekyt",
+        "abbor",
+        "brasme",
+        "mort",
+        "vederbuk",
+    ]
+
     result: List[Frame] = list()
 
     for batchnr, total_batch, batch in gen_batch(batch_size, images):
@@ -129,6 +172,7 @@ def detect(batch_size, images) -> List[Frame]:
                         [det_to_track(det, frame_no) for det in detections],
                     )
                 )
+
     return result
 
 
@@ -139,56 +183,15 @@ if __name__ == "__main__":
     ground_truth: Dict[int, tracker.Object] = dict()
     batch_size: int = 625
     data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
+    images: List[Path] = sorted(
+        gen_img_paths(data_folder.joinpath("images/default"))
+    )
     result: List[Frame] = []
-    from_file = True
+    from_file = False
 
     if not from_file:
-        images: List[Path] = sorted(
-            gen_img_paths(data_folder.joinpath("images/default"))
-        )
 
-        detection.model["fishy"] = (  # type: ignore
-            torch.hub.load(  # type: ignore
-                "ultralytics/yolov5",
-                "custom",
-                path=str(detection.model_fishy_path.resolve()),
-            ),
-            640,
-        )
-
-        detection.label["fishy"] = [
-            "gjedde",
-            "gullbust",
-            "rumpetroll",
-            "stingsild",
-            "ørekyt",
-            "abbor",
-            "brasme",
-            "mort",
-            "vederbuk",
-        ]
-
-        detection.model["fishy2"] = (  # type: ignore
-            torch.hub.load(  # type: ignore
-                "ultralytics/yolov5",
-                "custom",
-                path=str(detection.model_fishy2_path.resolve()),
-            ),
-            768,
-        )
-
-        detection.label["fishy2"] = [
-            "gjedde",
-            "gullbust",
-            "rumpetroll",
-            "stingsild",
-            "ørekyt",
-            "abbor",
-            "brasme",
-            "mort",
-            "vederbuk",
-        ]
-        result = detect(batch_size, images[0])
+        result = detect(batch_size, images)
 
         obj_dict = {
             frame.idx: [o.to_dict() for o in frame.detections]
