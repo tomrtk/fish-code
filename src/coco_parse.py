@@ -62,7 +62,7 @@ def parse(json: Dict[Any, Any]) -> Dict[int, tracker.Object]:
                 det[keys_image_id],
                 None,
                 None,
-                true_track_id=det[keys_id],
+                true_track_id=track_id,
             )
             for det in json[keys_annotations]
             if keys_track_id in det[keys_attributes]
