@@ -67,13 +67,24 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
     config_path = find_config_directory() + config_file
 
     if isfile(config_path):
-        config.read(config_path)  # TODO: Should surround with try
-        logger.info("Configuration file found.")
+        try:
+            logger.info("Configuration file found.")
+            config.read(config_path)
+        except configparser.MissingSectionHeaderError:
+            logger.error("Config file is missing section header.")
+        except configparser.ParsingError:
+            logger.error("Parsing error occured in config file.")
+        else:
+            return config
+
+        logger.warning(
+            "Falling back to default configuration, config file contains errors."
+        )
+        return get_default_config()
+
     else:
         logger.warning("Could not find config file, using defaults.")
-        config = get_default_config()
-
-    return config
+        return get_default_config()
 
 
 def write_config(config: configparser.ConfigParser) -> None:
