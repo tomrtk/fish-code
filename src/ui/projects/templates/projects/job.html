@@ -120,19 +120,21 @@
             <li class="table-row">
               <span class="table-cell w-full">Objects</span
               ><span class="table-cell text-right"
-                >{{ job._objects|length }}</span
+                >{{ job.stats["total_objects"] }}</span
               >
             </li>
             <li class="table-row">
               <span class="table-cell w-full">Species</span
-              ><span class="table-cell text-right">{{ obj_stats|length }}</span>
+              ><span class="table-cell text-right"
+                >{{ job.stats["total_labels"] }}</span
+              >
             </li>
           </ul>
         </div>
         <div class="w-1/2">
           <h5 class="block text-center font-semibold mb-2">Counter</h5>
           <ul class="pl-8 border-l border-gray-100 table pr-4">
-            {% for label, count in obj_stats.items()|sort %}
+            {% for label, count in job.stats["labels"].items()|sort %}
             <li class="table-row">
               <span class="table-cell w-full">{{ label }}</span
               ><span class="table-cell text-right">{{ count }}</span>
@@ -179,14 +181,11 @@
               d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
             ></path>
           </svg>
-          Objects
-          <!-- TODO: this will not work longer, but is this display needed with datatables?
-	   ({{ job._objects|length }})
-	  -->
+          Objects ({{ job.stats["total_objects"] }})
         </label>
       </h3>
       <div class="border-2">
-        {% if job._objects|length > 0 %}
+        {% if job._status == "Done" %}
         <table id="object_list" class="display table-auto w-full border">
           <thead class="bg-gray-100 border-b">
             <tr class="font-bold">

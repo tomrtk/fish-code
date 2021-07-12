@@ -132,7 +132,6 @@ class JobBare(JobBase):
 
     id: int
     status: model.Status
-    object_count: int
     video_count: int
     progress: int
     stats: JobStat
@@ -149,7 +148,6 @@ class Job(JobBase):
     id: int
     status: model.Status
     location: str
-    objects: List[Object] = []
     videos: List[Video] = []
     progress: int
     stats: JobStat
