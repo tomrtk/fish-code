@@ -16,12 +16,14 @@ import numpy as np
 from sqlalchemy.orm import Session
 
 import core.main
+from config import load_config
 from core import api
 from core.interface import Detector, to_track
 from core.model import Frame, Job, JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 job_queue: Queue = Queue()
 
@@ -252,7 +254,7 @@ def process_job(
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
 
-    batchsize: int = 50
+    batchsize: int = config.getint("CORE", "batch_size", fallback=50)
 
     all_frames = []
     video_loader = VideoLoader(job.videos, batchsize=batchsize)

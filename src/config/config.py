@@ -38,6 +38,7 @@ def get_default_config() -> configparser.ConfigParser:
     default_config["UI"]["port"] = "5000"
     default_config["CORE"] = {}
     default_config["CORE"]["port"] = "8000"
+    default_config["CORE"]["batch_size"] = "100"
     default_config["TRACING"] = {}
     default_config["TRACING"]["port"] = "8001"
     default_config["DETECTION"] = {}
