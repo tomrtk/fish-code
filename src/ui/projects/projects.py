@@ -32,7 +32,7 @@ from ui.projects.utils import validate_int
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
 
-root_folder = "~/Downloads"
+ROOT_FOLDER = "~/Downloads"
 
 
 def construct_projects_bp(cfg: Config) -> Blueprint:
@@ -246,16 +246,22 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     project_name=project.get_name(),
                     form_data=request.form,
                 )
+            logger.debug(
+                f"Video received from ui: {request.form.get('tree_data')}"
+            )
 
-            hardcoded_path = os.path.dirname(os.path.expanduser(root_folder))
+            hardcoded_path = os.path.dirname(os.path.expanduser(ROOT_FOLDER))
             videos = [
-                hardcoded_path + "/" + path[1:-1]
-                for path in request.form["tree_data"][1:-1].split(",")
+                os.path.join(hardcoded_path, path.strip('"'))
+                if not os.path.isabs(path.strip('"'))
+                else path
+                for path in request.form["tree_data"].strip("[]").split(",")
             ]
             videos = [
                 path if not os.path.isdir(path) else f"Folder is empty: {path}"
                 for path in videos
             ]
+            logger.debug(f"New job videos parsed to be: {videos}")
 
             job = Job(
                 **{
@@ -293,7 +299,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/json")
     def projects_json() -> Dict[str, Any]:
         """Create new job inside a project."""
-        data: Dict[str, Any] = path_to_dict(os.path.expanduser(root_folder))
+        data: Dict[str, Any] = path_to_dict(os.path.expanduser(ROOT_FOLDER))
 
         return data
 
