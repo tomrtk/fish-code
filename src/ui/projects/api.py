@@ -279,7 +279,7 @@ class Client:
         if isinstance(result, requests.Response):
             logger.info(
                 "Project %s posted with status_code: %s",
-                project.id,
+                result.json()["id"],
                 result.status_code,
             )
 
