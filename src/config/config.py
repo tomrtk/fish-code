@@ -96,4 +96,3 @@ def write_config(config: configparser.ConfigParser) -> None:
     Path(config_folder).mkdir(parents=True, exist_ok=True)
     with open(config_folder + config_file, "w") as configfile:
         config.write(configfile)
-        logger.info("New configuration file created from default.")

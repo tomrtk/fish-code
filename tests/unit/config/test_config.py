@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.fixture
-def preserve_config(scope="function"):
+def preserve_config(scope="module"):
     """Preserves the existing config file before running a function."""
     config_folder = config.find_config_directory()
     config_path = config_folder + config.config_file
@@ -25,6 +25,14 @@ def preserve_config(scope="function"):
         os.rename(config_folder + "config.bak", config_path)
     else:
         yield
+
+
+@pytest.fixture
+def cleanup_tmp_config(preserve_config, scope="function"):
+    """Purges temporary config file from disk after each test."""
+    config_path = config.find_config_directory() + config.config_file
+    yield
+    if isfile(config_path):
         os.remove(config_path)
 
 
@@ -40,8 +48,9 @@ def test_load_default_config():
     assert parser.getboolean("GLOBAL", "development") == False
 
 
-def test_load_config_from_disk(caplog):
+def test_load_config_from_disk(preserve_config, cleanup_tmp_config, caplog):
     """Checks that config can be read from disk at default config location."""
+    config.write_config(config.get_default_config())
     with caplog.at_level(logging.INFO):
         _ = config.load_config()
         assert caplog.records[0].getMessage() == "Configuration file found."
@@ -57,7 +66,7 @@ def test_config_not_found(preserve_config, caplog):
         )
 
 
-def test_write_config(preserve_config):
+def test_write_config(preserve_config, cleanup_tmp_config):
     """Test writing the config to file, then make sure its the same."""
     parser = configparser.ConfigParser()
     parser["TEST"] = {}
@@ -67,7 +76,7 @@ def test_write_config(preserve_config):
     assert parser.__eq__(from_file)
 
 
-def test_read_config_garbage_data(preserve_config, caplog):
+def test_read_config_garbage_data(preserve_config, cleanup_tmp_config, caplog):
     """Test that malformed configuration files throws error, and gives default conf."""
     config_path = config.find_config_directory() + config.config_file
     with open(config_path, "w") as configfile:
