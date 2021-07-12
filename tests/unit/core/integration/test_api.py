@@ -272,7 +272,6 @@ def test_add_and_get_job(setup):
                 "location": "test",
                 "id": job_id,
                 "status": "Pending",
-                "object_count": 0,
                 "video_count": 0,
                 "progress": 0,
                 "stats": {"total_objects": 0, "total_labels": 0, "labels": {}},
@@ -358,7 +357,6 @@ def test_get_job(setup):
             "id": job_id,
             "name": "Job name",
             "_status": "Pending",
-            "_objects": [],
             "videos": [],
             "location": "test",
             "progress": 0,
@@ -381,27 +379,17 @@ def test_get_done_job(setup, make_test_data):
 
         assert "id" in data
         assert "_status" in data
-        assert "_objects" in data
-
-        objs = data["_objects"]
-        assert len(objs) == 2
-
-        for obj in objs:
-            assert "label" in obj
-            assert "probability" in obj
-            assert "video_ids" in obj
-            assert "time_in" in obj
-            assert "time_out" in obj
+        assert "stats" in data
 
 
 def test_project_not_existing(setup):
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(api.core_api) as client:
 
-        response = client.get(f"/projects/0/jobs")
+        response = client.get("/projects/0/jobs")
         assert response.status_code == 404
 
-        response = client.get(f"/projects/abc/jobs")
+        response = client.get("/projects/abc/jobs")
         assert response.status_code == 422
 
         response = client.post(

@@ -270,7 +270,6 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     "_status": "Pending",
                     "videos": videos,
                     "location": request.form["job_location"],
-                    "_objects": list(),
                 }
             )
 
@@ -310,12 +309,24 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
 
-        if job is None or not isinstance(job, Job):
+        if job is None or not isinstance(job, Job) or job.stats is None:
             return abort(
                 404, f"Job {job_id} in project {project_id} not found."
             )
 
-        with tempfile.NamedTemporaryFile(suffix=".csv") as csv_file:
+        num_objs = job.stats.get("total_objects", 0)
+        result = client.get_objects(project_id, job_id, 0, num_objs)
+
+        if result is None:
+            return abort(
+                404,
+                f"No objects for job {job_id} in project {project_id} found.",
+            )
+        objects = result[0]
+
+        with tempfile.NamedTemporaryFile(
+            suffix=".csv", delete=False
+        ) as csv_file:
 
             # write headers to file
             csv_file.write(
@@ -323,7 +334,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 b"detection_label,detection_prob\n"
             )
 
-            for idx, obj in enumerate(job._objects, start=1):
+            for idx, obj in enumerate(objects, start=1):
                 for detection_label, detections in obj._detections.items():
                     for detection_prob in detections:
                         csv_file.write(

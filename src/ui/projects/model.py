@@ -47,12 +47,12 @@ class JobBare(JobBase):
     """Holds the base data of a Job."""
 
     _status: str
-    object_count: int
     video_count: int
     progress: int
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
+    stats: Optional[Dict[str, Any]] = None
 
     @classmethod
     def from_dict(
@@ -68,8 +68,8 @@ class JobBare(JobBase):
             project_id=project_id,
             project_name=project_name,
             progress=job_data["progress"],
-            object_count=job_data["object_count"],
             video_count=job_data["video_count"],
+            stats=job_data["stats"],
         )
 
 
@@ -79,11 +79,11 @@ class Job(JobBase):
 
     _status: str
     videos: List[str]
-    _objects: List[Object]
     id: Optional[int] = None
     project_id: Optional[int] = None
     project_name: Optional[str] = None
     progress: Optional[int] = None
+    stats: Optional[Dict[str, Any]] = None
 
     def to_post_dict(self) -> Dict[str, Union[str | List[str]]]:
         """Return prepared dict for posting.
@@ -109,11 +109,6 @@ class Job(JobBase):
         cls, job_data: Dict[str, Any], project_id: int, project_name: str
     ) -> Job:
         """Create job from dict data."""
-        job_objects: List[Object] = list()
-
-        for job_object in list(job_data["_objects"]):
-            job_objects.append(Object(**job_object))
-
         return cls(
             _status=job_data["_status"],
             description=job_data["description"],
@@ -123,22 +118,13 @@ class Job(JobBase):
             project_id=project_id,
             project_name=project_name,
             videos=job_data["videos"],
-            _objects=job_objects,
             progress=job_data["progress"],
+            stats=job_data["stats"],
         )
 
-    def get_object_stats(self) -> Dict[str, int]:
+    def get_object_stats(self) -> Optional[Dict[str, Any]]:
         """Return total stat for all objects inside the job."""
-        object_count: Dict[str, int] = dict()
-
-        for obj in self._objects:
-            res = object_count.get(obj.label)
-            if not res:
-                object_count[obj.label] = 1
-            else:
-                object_count[obj.label] += 1
-
-        return object_count
+        return self.stats
 
 
 @dataclass

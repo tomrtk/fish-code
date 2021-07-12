@@ -2,6 +2,7 @@
 import logging
 from pathlib import Path
 import time
+import os
 
 import flask
 import pytest
@@ -13,10 +14,16 @@ from ui.main import create_app
 logger = logging.getLogger(__name__)
 
 TEST_VIDEO_PATH = (
-    Path(__file__).parent
-    / "test_data"
-    / "test-abbor[2021-01-01_00-00-00]-000.mp4"
+    (
+        Path(__file__).parent
+        / "test_data"
+        / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+    )
+    .resolve()
+    .as_posix()
 )
+
+WAIT_TIME = 30 if os.getenv("GITHUB_ACTIONS") == "true" else 5
 
 
 def test_index():
@@ -110,7 +117,7 @@ def _new_job(client, project_id, name, location, description, video):
 
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
 def test_post_new_project_and_job() -> None:
-    """Test making a new project and job."""
+    """Test making a new project and job, end to end test."""
     app = create_app()
     ui.projects.projects.ROOT_FOLDER = "/"
 
@@ -172,7 +179,10 @@ def test_post_new_project_and_job() -> None:
 
         while requests.get(url).json()["_status"] != "Done":
             logger.info("Waiting for job to finish.")
-            time.sleep(5)
+            time.sleep(WAIT_TIME)
+
+        # wait due to CI need some more time to complete job
+        time.sleep(WAIT_TIME)
 
         # test object preview
         response = client.get(
@@ -187,6 +197,36 @@ def test_post_new_project_and_job() -> None:
         )
         assert response.status_code == 302
         assert response.headers["Location"] == f"{host_core}/objects/1/preview"
+
+        # test download csv ok
+        response = client.get(
+            "/projects/1/jobs/1/csv",
+            follow_redirects=True,
+        )
+        assert response.status_code == 200
+
+        # test download csv not ok
+        response = _new_job(
+            client,
+            1,
+            "ui test job name",
+            "ui test job location",
+            "ui test job description",
+            [f"{str(TEST_VIDEO_PATH)}"],
+        )
+        assert response.status_code == 200
+
+        response = client.get(
+            "/projects/1/jobs/2/csv",
+            follow_redirects=True,
+        )
+        assert response.status_code == 404
+
+        response = client.get(
+            "/projects/1/jobs/0/csv",
+            follow_redirects=True,
+        )
+        assert response.status_code == 404
 
 
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
