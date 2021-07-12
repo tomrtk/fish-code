@@ -74,14 +74,10 @@ def test_processing_and_scheduler():
     assert job_data["_status"] == "Done"
     assert job_data["progress"] == 100
 
-    objects = job_data["_objects"]
-
-    for obj in objects:
-        assert "label" in obj
-        assert "probability" in obj
-        assert "time_in" in obj
-        assert "time_out" in obj
-        assert "video_ids" in obj
+    assert "stats" in job_data
+    assert "labels" in job_data["stats"]
+    assert "total_objects" in job_data["stats"]
+    assert "total_labels" in job_data["stats"]
 
 
 def test_video_loader():

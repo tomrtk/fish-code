@@ -64,9 +64,13 @@ def mock_client(requests_mock):
         "location": "string",
         "id": 1,
         "_status": "Pending",
-        "_objects": [],
         "videos": [],
         "progress": 0,
+        "stats": {
+            "total_objects": 0,
+            "total_labels": 0,
+            "labels": {},
+        },
     }
     job_done = {
         "name": "string",
@@ -74,9 +78,15 @@ def mock_client(requests_mock):
         "location": "string",
         "id": 2,
         "_status": "Done",
-        "_objects": [],
         "videos": [],
         "progress": 100,
+        "stats": {
+            "total_objects": 1,
+            "total_labels": 1,
+            "labels": {
+                "Abbor": 1,
+            },
+        },
     }
 
     # mock for Client.get_projects() call to core api
