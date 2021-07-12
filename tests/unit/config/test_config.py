@@ -64,3 +64,37 @@ def test_write_config(preserve_config):
     config.write_config(parser)
     from_file = config.load_config()
     assert parser.__eq__(from_file)
+
+
+def test_read_config_garbage_data(preserve_config, caplog):
+    """Test that malformed configuration files throws error, and gives default conf."""
+    config_path = config.find_config_directory() + config.config_file
+    with open(config_path, "w") as configfile:
+        text = [
+            "[Just some garbage data]\n",
+            "This is not a config file!\n",
+            "= 2\n",
+        ]
+        configfile.writelines(text)
+
+    with caplog.at_level(logging.ERROR):
+        parser = config.load_config()
+        assert (
+            caplog.records[0].getMessage()
+            == "Parsing error occured in config file."
+        )
+        assert parser.__eq__(config.get_default_config())
+
+    with open(config_path, "w") as configfile:
+        text = [
+            "Just some garbage data",
+        ]
+        configfile.writelines(text)
+
+    with caplog.at_level(logging.ERROR):
+        parser = config.load_config()
+        assert (
+            caplog.records[1].getMessage()
+            == "Config file is missing section header."
+        )
+        assert parser.__eq__(config.get_default_config())
