@@ -9,11 +9,26 @@ config_file = "config.ini"
 
 
 def _find_config_directory() -> str:
+    """Get configuration directory.
+
+    Returns
+    -------
+    str     :
+        Path represented as a string to a directory.
+        Ends with a trailing /
+    """
     # TODO: Check if windows or linux, use enviroment variables
     return expanduser("~") + "/.config/nina/"
 
 
 def _get_default_config() -> configparser.ConfigParser:
+    """Get default settings stored in ConfigParser object.
+
+    Returns
+    -------
+    ConfigParser    :
+        ConfigParser object containing default values.
+    """
     default_config = configparser.ConfigParser()
     default_config["DEFAULT"]["hostname"] = "127.0.0.1"
     default_config["DEFAULT"]["enable"] = "true"
@@ -30,12 +45,23 @@ def _get_default_config() -> configparser.ConfigParser:
     return default_config
 
 
-def load_config() -> configparser.ConfigParser:
-    """Load configuration data from disk into ConfigParser object."""
-    # TODO: Check default config file enviroment variable
-    # if default:
-    #     logger.info("Using default configuration paramaters.")
-    #     return _get_default_config()
+def load_config(default: bool = False) -> configparser.ConfigParser:
+    """Load configuration data from disk into ConfigParser object.
+
+    Parameter
+    ---------
+    default :   bool
+        True in order to get the default config, and ignore config file.
+        This parameter is optional, and is defalt set to False.
+
+    Returns
+    -------
+    ConfigParser    :
+        ConfigParser object containing configuration options from disk.
+        If the file does not exist, default configuration is returned instead.
+    """
+    if default:
+        return _get_default_config()
 
     config = configparser.ConfigParser()
     config_folder = _find_config_directory()
