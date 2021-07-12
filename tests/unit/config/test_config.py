@@ -25,6 +25,7 @@ def preserve_config(scope="function"):
         os.rename(config_folder + "config.bak", config_path)
     else:
         yield
+        os.remove(config_path)
 
 
 def test_load_default_config():
