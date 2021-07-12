@@ -1,0 +1,66 @@
+"""Unit test of config package functionality."""
+import configparser
+import logging
+import pytest
+import os
+
+import config.config as config
+from os.path import isfile
+
+logger = logging.getLogger(__name__)
+
+
+@pytest.fixture
+def preserve_config(scope="function"):
+    """Preserves the existing config file before running a function."""
+    config_folder = config.find_config_directory()
+    config_path = config_folder + config.config_file
+
+    # Only backup config file if it is present
+    if isfile(config_path):
+        logger.info("Backing up config file...")
+        os.rename(config_path, config_folder + "config.bak")
+        yield
+        logger.info("Restoring config file...")
+        os.rename(config_folder + "config.bak", config_path)
+    else:
+        yield
+
+
+def test_load_default_config():
+    """Checks the default config to contain correct sections."""
+    parser = config.load_config(default=True)
+
+    assert set(parser.sections()) == set(
+        ["GLOBAL", "CORE", "TRACING", "DETECTION", "UI"]
+    )
+    assert parser.get("DEFAULT", "hostname") == "127.0.0.1"
+    assert parser.getboolean("DEFAULT", "enable") == True
+    assert parser.getboolean("GLOBAL", "development") == False
+
+
+def test_load_config_from_disk(caplog):
+    """Checks that config can be read from disk at default config location."""
+    with caplog.at_level(logging.INFO):
+        _ = config.load_config()
+        assert caplog.records[0].getMessage() == "Configuration file found."
+
+
+def test_config_not_found(preserve_config, caplog):
+    """Checks that the config package does not find the config file if missing."""
+    with caplog.at_level(logging.INFO):
+        _ = config.load_config()
+        assert (
+            caplog.records[0].getMessage()
+            == "Could not find config file, using defaults."
+        )
+
+
+def test_write_config(preserve_config):
+    """Test writing the config to file, then make sure its the same."""
+    parser = configparser.ConfigParser()
+    parser["TEST"] = {}
+    parser["TEST"]["some_var"] = "Test, please ignore."
+    config.write_config(parser)
+    from_file = config.load_config()
+    assert parser.__eq__(from_file)
