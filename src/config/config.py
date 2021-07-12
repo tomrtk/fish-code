@@ -21,6 +21,17 @@ def find_config_directory() -> str:
     return expanduser("~") + "/.config/nina/"
 
 
+def get_config_file_path() -> str:
+    """Get configuration file path.
+
+    Returns
+    -------
+    str     :
+        Path represented as a string to the configuration file.
+    """
+    return find_config_directory() + config_file
+
+
 def get_default_config() -> configparser.ConfigParser:
     """Get default settings stored in ConfigParser object.
 

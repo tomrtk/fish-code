@@ -4,7 +4,7 @@ import logging
 import pytest
 import os
 
-import config.config as config
+import config
 from os.path import isfile
 
 logger = logging.getLogger(__name__)
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def preserve_config(scope="module"):
     """Preserves the existing config file before running a function."""
     config_folder = config.find_config_directory()
-    config_path = config_folder + config.config_file
+    config_path = config.get_config_file_path()
 
     # Only backup config file if it is present
     if isfile(config_path):
@@ -30,7 +30,7 @@ def preserve_config(scope="module"):
 @pytest.fixture
 def cleanup_tmp_config(preserve_config, scope="function"):
     """Purges temporary config file from disk after each test."""
-    config_path = config.find_config_directory() + config.config_file
+    config_path = config.get_config_file_path()
     yield
     if isfile(config_path):
         os.remove(config_path)
@@ -78,7 +78,7 @@ def test_write_config(preserve_config, cleanup_tmp_config):
 
 def test_read_config_garbage_data(preserve_config, cleanup_tmp_config, caplog):
     """Test that malformed configuration files throws error, and gives default conf."""
-    config_path = config.find_config_directory() + config.config_file
+    config_path = config.get_config_file_path()
     with open(config_path, "w") as configfile:
         text = [
             "[Just some garbage data]\n",
