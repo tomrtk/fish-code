@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 config_file = "config.ini"
 
 
-def _find_config_directory() -> str:
+def find_config_directory() -> str:
     """Get configuration directory.
 
     Returns
@@ -21,7 +21,7 @@ def _find_config_directory() -> str:
     return expanduser("~") + "/.config/nina/"
 
 
-def _get_default_config() -> configparser.ConfigParser:
+def get_default_config() -> configparser.ConfigParser:
     """Get default settings stored in ConfigParser object.
 
     Returns
@@ -61,24 +61,27 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
         If the file does not exist, default configuration is returned instead.
     """
     if default:
-        return _get_default_config()
+        return get_default_config()
 
     config = configparser.ConfigParser()
-    config_folder = _find_config_directory()
-    config_path = config_folder + config_file
+    config_path = find_config_directory() + config_file
 
     if isfile(config_path):
-        config.read(config_path)
+        config.read(config_path)  # TODO: Should surround with try
+        logger.info("Configuration file found.")
     else:
-        logger.warning(
-            "Could not find config file, creating new one at '{}'".format(
-                config_path
-            )
-        )
-        config = _get_default_config()
-        Path(config_folder).mkdir(parents=True, exist_ok=True)
-        with open(config_path, "w") as configfile:
-            config.write(configfile)
-            logger.info("New configuration file created from default.")
+        logger.warning("Could not find config file, using defaults.")
+        config = get_default_config()
 
     return config
+
+
+def write_config(config: configparser.ConfigParser) -> None:
+    """Write a ConfigParser object to disk at the applications config file path."""
+    config_folder = find_config_directory()
+
+    # TODO: Error check
+    Path(config_folder).mkdir(parents=True, exist_ok=True)
+    with open(config_folder + config_file, "w") as configfile:
+        config.write(configfile)
+        logger.info("New configuration file created from default.")
