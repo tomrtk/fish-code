@@ -161,7 +161,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         try:
             validated_project_id = validate_int(project_id, 1)
             validated_job_id = validate_int(job_id, 1)
-        except ValidationError:
+        except ValidationError:  # pragma: no cover
             return abort(422, "Invalid project or job id.")
         else:
             if validated_project_id is None or validated_job_id is None:
@@ -222,7 +222,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         old_status, new_status = client.change_job_status(project_id, job_id)
 
         if old_status is None or new_status is None:
-            return "404"
+            return abort(500, "Could not change status of job.")
 
         return jsonify(old_status=old_status, new_status=new_status), 201
 

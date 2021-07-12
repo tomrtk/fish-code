@@ -108,6 +108,9 @@ def mock_client(requests_mock):
     requests_mock.get(f"{TEST_API_URI}/projects/1/jobs/1", json=job)
     requests_mock.get(f"{TEST_API_URI}/projects/1/jobs/2", json=job_done)
 
+    # mock core object preview endpoint
+    requests_mock.get(f"{TEST_API_URI}/objects/1/preview", json={})
+
     return requests_mock
 
 
@@ -246,3 +249,19 @@ def test_errorhandler_404(get_app) -> None:
         assert b"Something fishy happened..." in response.data
         assert b"Nothing was found here." in response.data
         assert b"404 Not Found" in response.data
+
+
+def test_get_object_preview(mock_client, get_app) -> None:
+    """Test errors in route for object preview."""
+    app = get_app
+
+    with app.test_client() as client:
+        response = client.get(
+            "/projects/objects/1/preview",
+        )
+        assert response.status_code == 302
+
+        response = client.get(
+            "/projects/objects/0/preview",
+        )
+        assert response.status_code == 422

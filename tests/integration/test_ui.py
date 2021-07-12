@@ -1,9 +1,13 @@
 """Integration tests for web `ui`."""
 import logging
 from pathlib import Path
+import time
 
+import flask
 import pytest
+import requests
 
+import ui
 from ui.main import create_app
 
 logger = logging.getLogger(__name__)
@@ -12,7 +16,7 @@ TEST_VIDEO_PATH = (
     Path(__file__).parent
     / "test_data"
     / "test-abbor[2021-01-01_00-00-00]-000.mp4"
-).resolve()
+)
 
 
 def test_index():
@@ -105,9 +109,10 @@ def _new_job(client, project_id, name, location, description, video):
 
 
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
-def test_post_new_project_and_job():
+def test_post_new_project_and_job() -> None:
     """Test making a new project and job."""
     app = create_app()
+    ui.projects.projects.ROOT_FOLDER = "/"
 
     with app.test_client() as client:
         response = _new_project(
@@ -124,8 +129,7 @@ def test_post_new_project_and_job():
         assert b"ui project test loc" in response.data
         assert b"ui project test desc" in response.data
 
-    # test content of new job page
-    with app.test_client() as client:
+        # test content of new job page
         response = client.get("/projects/1/jobs/new", follow_redirects=True)
 
         assert response.status_code == 200
@@ -137,21 +141,52 @@ def test_post_new_project_and_job():
         assert b"Cancel" in response.data
         assert b"Create" in response.data
 
-    # test posting a new job
-    with app.test_client() as client:
+        # test posting a new job
         response = _new_job(
             client,
             1,
             "ui test job name",
             "ui test job location",
             "ui test job description",
-            [str(TEST_VIDEO_PATH)],
+            [f"{str(TEST_VIDEO_PATH)}"],
         )
 
         assert response.status_code == 200
         assert b"ui test job name" in response.data
         assert b"ui test job location" in response.data
         assert b"ui test job description" in response.data
+
+        # toggle job
+        response = client.put(
+            "/projects/1/jobs/1/toggle",
+            follow_redirects=True,
+        )
+        assert response.status_code == 201
+        assert (
+            response.data == b'{"new_status":"queued","old_status":"pending"}\n'
+        )
+
+        # wait for job to complete
+        host_core = app.config.get("BACKEND_URL")
+        url = f"{host_core}/projects/1/jobs/1"
+
+        while requests.get(url).json()["_status"] != "Done":
+            logger.info("Waiting for job to finish.")
+            time.sleep(5)
+
+        # test object preview
+        response = client.get(
+            "/projects/objects/0/preview",
+            follow_redirects=True,
+        )
+        assert response.status_code == 422
+        assert b"Object id 0 not valid." in response.data
+
+        response = client.get(
+            "/projects/objects/1/preview",
+        )
+        assert response.status_code == 302
+        assert response.headers["Location"] == f"{host_core}/objects/1/preview"
 
 
 @pytest.mark.usefixtures("start_core", "detection_api", "tracing_api")
