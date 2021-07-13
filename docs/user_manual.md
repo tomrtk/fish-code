@@ -42,7 +42,7 @@ If you do not want to install the application in a virtual environment,
 install it to your user by running:
 
 ```terminal
-py pip install --user 'git+https://github.com/MindTooth/fish-code'
+py -m pip install --user 'git+https://github.com/MindTooth/fish-code'
 ```
 
 To run the application call the `nina` command and from a browser go to the
@@ -54,14 +54,14 @@ Optionally if the application is to be installed in a virtual environment,
 run the following commands to create the environment:
 
 ```terminal
-py virtualenv venv --download  # or `python -m venv venv --upgrade-deps`
+py -m virtualenv venv --download  # or `python -m venv venv --upgrade-deps`
 . venv/bin/activate
 ```
 
 Then install the application in the virtual environment:
 
 ```terminal
-py pip install 'git+https://github.com/MindTooth/fish-code'
+py -m pip install 'git+https://github.com/MindTooth/fish-code'
 ```
 
 To run the application call the `nina` command and from a browser go to the
