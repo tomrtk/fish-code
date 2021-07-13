@@ -18,7 +18,7 @@
 
 **Extra Dependencies:**
 
-- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) 
+- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
 
 First check if required Python version is installed on your computer. Open
 `powershell` or `cmd` and run the command `python --version` as showed in
