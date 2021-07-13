@@ -451,7 +451,7 @@ class Client:
     def get_objects(
         self, project_id: int, job_id: int, start: int, length: int
     ) -> Optional[Tuple[List[Object], int]]:
-        """Get a list of Objects for `job_id` from `start` to `start + lenght`.
+        """Get a list of Objects for `job_id` from `start` to `start + length`.
 
         Parameters
         ----------
