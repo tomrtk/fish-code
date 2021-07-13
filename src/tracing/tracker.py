@@ -273,7 +273,8 @@ class Object:
 class AbstractTracker(abc.ABC):
     """Abstract tracker class."""
 
-    _objects: Dict[int, Object] = dict()
+    def __init__(self) -> None:
+        self._objects: Dict[int, Object] = dict()
 
     def update(self, detections: List[Detection]) -> None:
         """Update the tracker."""
@@ -322,6 +323,7 @@ class SortTracker(AbstractTracker):
         tracker : sort.Sort
             A Sort tracker.
         """
+        super().__init__()
         self._tracker: sort.Sort = sort.Sort(max_age, min_hits, iou_threshold)
 
     def update(self, detecions: List[Detection]) -> None:
