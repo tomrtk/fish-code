@@ -16,8 +16,6 @@ video material they had collected at various locations.
 
 ## Installation
 
-TODO: update url's when repo or `whl` is public.
-
 It is recommended to install the application in a virtual environment using
 for example [virtualenv](https://virtualenv.pypa.io/en/latest/).
 
@@ -32,10 +30,10 @@ Install instruction:
 # install option 1
 virtualenv .venv --download  # or `python -m venv .venv --upgrade-deps`
 . .venv/bin/activate
-pip install <url-to-repo-or-whl>
+pip install 'git+https://github.com/MindTooth/fish-code'
 
 # install option 2, without venv
-pip install -U <url-to-repo-or-whl>
+pip install --user 'git+https://github.com/MindTooth/fish-code'
 
 # to run application from terminal call
 nina
