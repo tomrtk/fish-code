@@ -590,18 +590,27 @@ def test_get_job_objects_no_job_project(make_test_data) -> None:
         assert response.status_code == 422
 
 
+def test_get_storage_empty_path():
+    """Test storage without parameter."""
+    with TestClient(api.core_api) as client:
+        response = client.get("storage")
+        assert response.status_code == 200
+
+        # Add test for complete response when config is added.
+
+
 def test_get_storage():
     """Test getting the directory listing from the API."""
     with TestClient(api.core_api) as client:
-        pathb = (
-            "tests/integration/test_data/test_directory_listing_folder".encode(
-                "utf-8"
-            )
+        response = client.get("storage/bad_path_parameter")
+        assert response.status_code == 400
+
+        encoded_path = base64.urlsafe_b64encode(
+            "tests/integration/test_data/test_directory_listing_folder".encode()
         )
-        path64e = base64.urlsafe_b64encode(pathb)
 
         response = client.get(
-            f"storage/{str(path64e, 'utf-8')}",
+            f"storage/{str(encoded_path, 'utf-8')}",
         )
         response_data = response.json()
         assert response.status_code == 200

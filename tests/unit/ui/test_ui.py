@@ -1,21 +1,35 @@
 """Unit testing ui Flask app and api Client."""
+import json
 from dataclasses import asdict
 
 import pytest
 import requests
+from werkzeug.exceptions import HTTPException
 
 from ui.main import create_app
 from ui.projects.api import Client
-from ui.projects.model import ProjectBare, Object
+from ui.projects.model import Object, ProjectBare
 
 TEST_API_URI = "mock://testing"
 TEST_API_URI_ERROR = "mock://testingerrors"
 
 
 @pytest.fixture
-def get_app():
+def test_client():
     """Create flask app with test config."""
-    return create_app({"BACKEND_URL": TEST_API_URI})
+    app = create_app({"BACKEND_URL": TEST_API_URI, "TESTING": True})
+
+    with app.test_client() as client:
+        yield client
+
+
+@pytest.fixture
+def test_client_error():
+    """Create flask app with test config."""
+    app = create_app({"BACKEND_URL": TEST_API_URI_ERROR, "TESTING": True})
+
+    with app.test_client() as client:
+        yield client
 
 
 @pytest.fixture
@@ -89,6 +103,37 @@ def mock_client(requests_mock):
         },
     }
 
+    root = [
+        {
+            "id": "/mnt/videos",
+            "text": "/mnt/videos",
+            "children": [
+                {
+                    "id": "/mnt/videos/summer-2021",
+                    "text": "summer-2021",
+                    "children": True,
+                },
+                {
+                    "id": "/mnt/videos/summer-2020",
+                    "text": "summer-2020",
+                    "type": "file",
+                },
+            ],
+            "type": "root",
+        }
+    ]
+
+    child = [
+        {
+            "id": "/mnt/videos/summer-2021",
+            "text": "summer-2021",
+            "children": [
+                {"id": 4, "text": "Child node 3"},
+                {"id": 5, "text": "Child node 4"},
+            ],
+        }
+    ]
+
     # mock for Client.get_projects() call to core api
     requests_mock.get(
         f"{TEST_API_URI}/projects/", headers=header, json=projects
@@ -121,6 +166,17 @@ def mock_client(requests_mock):
     # mock core object preview endpoint
     requests_mock.get(f"{TEST_API_URI}/objects/1/preview", json={})
 
+    # mock storage
+    requests_mock.get(f"{TEST_API_URI}/storage/bad_parameter")
+    requests_mock.get(f"{TEST_API_URI}/storage", json=root)
+    requests_mock.get(f"{TEST_API_URI}/storage/Lw==", json=root)
+    requests_mock.get(f"{TEST_API_URI}/projects/storage/Lw==", json=root)
+    requests_mock.get(
+        f"{TEST_API_URI}/storage/L21udC9zdW1tZXItMjAyMQ==", json=child
+    )
+
+    # mock ...
+
     return requests_mock
 
 
@@ -136,6 +192,20 @@ def test_client_get_projects(mock_client):
     assert isinstance(projects[0], ProjectBare)
     assert projects[0].name == "Test name"
     assert x_total == 1
+
+
+def test_client_get_storage(mock_client):
+    """Unit test the Client."""
+    client = Client(TEST_API_URI)
+
+    response_root = client.get_storage()
+    assert response_root is not None
+    assert "children" in response_root[0]
+
+    response_child = client.get_storage("/mnt/summer-2021")
+    assert response_child is not None
+    assert "children" in response_child[0]
+    assert response_child[0].get("text") == "summer-2021"
 
 
 def test_client_get_project(mock_client):
@@ -171,107 +241,104 @@ def test_client_get_objects_no_response() -> None:
 
 # Testing of the Flask app can be more or less be copied from integration
 # tests in root.
-def test_projects(mock_client, get_app):
+def test_projects(mock_client, test_client):
     """Test projects listing in ui."""
-    app = get_app
-
-    with app.test_client() as client:
-        response = client.get("/projects", follow_redirects=True)
-
-        assert response.status_code == 200
-        assert b"Test name" in response.data
-        assert b"NINA-123" in response.data
+    response = test_client.get("/projects", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Test name" in response.data
+    assert b"NINA-123" in response.data
 
 
-def test_pending_job_and_objects(mock_client, get_app) -> None:
+def test_pending_job_and_objects(mock_client, test_client) -> None:
     """Test job page with objects."""
-    app = get_app
-
-    with app.test_client() as client:
-        response = client.get("/projects/1/jobs/1", follow_redirects=True)
-
-        assert response.status_code == 200
-        assert b"Test name" in response.data
-        assert b"Statistics" in response.data
-        assert (
-            b"Not enough information gathered to display statistics."
-            in response.data
-        )
+    response = test_client.get("/projects/1/jobs/1", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Test name" in response.data
+    assert b"Statistics" in response.data
+    assert (
+        b"Not enough information gathered to display statistics."
+        in response.data
+    )
 
 
-def test_done_job_and_objects(mock_client, get_app) -> None:
+def test_done_job_and_objects(mock_client, test_client) -> None:
     """Test job page with objects."""
-    app = get_app
-
-    with app.test_client() as client:
-        response = client.get("/projects/1/jobs/2", follow_redirects=True)
-
-        assert response.status_code == 200
-        assert b"Test name" in response.data
-        assert b"Statistics" in response.data
-        assert b"Total" in response.data
-        assert b"Counter" in response.data
+    response = test_client.get("/projects/1/jobs/2", follow_redirects=True)
+    assert response.status_code == 200
+    assert b"Test name" in response.data
+    assert b"Statistics" in response.data
+    assert b"Total" in response.data
+    assert b"Counter" in response.data
 
 
-def test_get_objects_from_job_route(mock_client, get_app) -> None:
+def test_get_objects_from_job_route(mock_client, test_client) -> None:
     """Test route for pagination in `ui`."""
-    app = get_app
-
-    with app.test_client() as client:
-        response = client.post(
-            "/projects/1/jobs/1/objects",
-            data={"draw": 1, "start": 0, "length": 10},
-            follow_redirects=True,
-        )
-
-        assert response.status_code == 200
-        assert b"data" in response.data
-        assert b"draw" in response.data
-        assert b"recordsTotal" in response.data
-        assert b"recordsFiltered" in response.data
+    response = test_client.post(
+        "/projects/1/jobs/1/objects",
+        data={"draw": 1, "start": 0, "length": 10},
+        follow_redirects=True,
+    )
+    assert response.status_code == 200
+    assert b"data" in response.data
+    assert b"draw" in response.data
+    assert b"recordsTotal" in response.data
+    assert b"recordsFiltered" in response.data
 
 
-def test_get_objects_from_job_errors(mock_client, get_app) -> None:
+def test_get_objects_from_job_errors(mock_client, test_client_error) -> None:
     """Test errors in route for objects pagination in `ui`."""
-    app = create_app({"BACKEND_URL": TEST_API_URI_ERROR})
-
-    with app.test_client() as client:
-        response = client.post(
-            "/projects/1/jobs/1/objects",
-            data={"draw": 1, "start": 0, "length": 10},
-            follow_redirects=True,
-        )
-        assert response.status_code == 500
+    response = test_client_error.post(
+        "/projects/1/jobs/1/objects",
+        data={"draw": 1, "start": 0, "length": 10},
+        follow_redirects=True,
+    )
+    assert response.status_code == 500
 
 
-def test_errorhandler_404(get_app) -> None:
+def test_errorhandler_404(test_client) -> None:
     """Test 404 errorhandler."""
-    app = get_app
-
-    with app.test_client() as client:
-        response = client.post(
-            "/jobs",
-            data={"draw": 1, "start": 0, "length": 10},
-            follow_redirects=True,
-        )
-
-        assert response.status_code == 404
-        assert b"Something fishy happened..." in response.data
-        assert b"Nothing was found here." in response.data
-        assert b"404 Not Found" in response.data
+    response = test_client.post(
+        "/jobs",
+        data={"draw": 1, "start": 0, "length": 10},
+        follow_redirects=True,
+    )
+    assert response.status_code == 404
+    assert b"Something fishy happened..." in response.data
+    assert b"Nothing was found here." in response.data
+    assert b"404 Not Found" in response.data
 
 
-def test_get_object_preview(mock_client, get_app) -> None:
+def test_get_object_preview(mock_client, test_client) -> None:
     """Test errors in route for object preview."""
-    app = get_app
+    response = test_client.get(
+        "/projects/objects/1/preview",
+    )
+    assert response.status_code == 302
 
-    with app.test_client() as client:
-        response = client.get(
-            "/projects/objects/1/preview",
-        )
-        assert response.status_code == 302
+    response = test_client.get(
+        "/projects/objects/0/preview",
+    )
+    assert response.status_code == 422
 
-        response = client.get(
-            "/projects/objects/0/preview",
-        )
-        assert response.status_code == 422
+
+def test_get_storage_endpoint(mock_client, test_client) -> None:
+    """Test route for getting storage."""
+    response = test_client.get("/projects/storage/bad_parameter")
+    assert response.status_code == 400
+
+    response = test_client.get("/projects/storage")
+    assert response.status_code == 200
+    assert response is not None
+    assert b"children" in response.data
+
+    response = test_client.get("/projects/storage/Lw==")
+    assert response.status_code == 200
+    assert response is not None
+    assert b"children" in response.data
+
+    response = test_client.get("/projects/storage/L21udC9zdW1tZXItMjAyMQ==")
+    assert response.status_code == 200
+    assert response is not None
+    assert b"children" in response.data
+    data = json.loads(response.data)
+    assert data[0]["text"] == "summer-2021"
