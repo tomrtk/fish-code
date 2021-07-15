@@ -1,8 +1,8 @@
 """Integration tests for web `ui`."""
 import logging
-from pathlib import Path
-import time
 import os
+import time
+from pathlib import Path
 
 import flask
 import pytest
@@ -119,7 +119,6 @@ def _new_job(client, project_id, name, location, description, video):
 def test_post_new_project_and_job() -> None:
     """Test making a new project and job, end to end test."""
     app = create_app()
-    ui.projects.projects.ROOT_FOLDER = "/"
 
     with app.test_client() as client:
         response = _new_project(
