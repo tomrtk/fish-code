@@ -1,4 +1,5 @@
 """Blueprint for the projects module."""
+import base64
 import functools
 import json
 import logging
@@ -65,6 +66,8 @@ class Client:
         Create a new `Job` in project with `project_id`.
     change_job_status(project_id: int, job_id: int)
         Toggle the processing status of a `Job`
+    get_storage(path: str)
+        Get subtree of files
 
     Examples
     --------
@@ -433,13 +436,40 @@ class Client:
 
         return old_status, new_status  # type: ignore
 
+    def get_storage(self, path: Optional[str] = None) -> Optional[Any]:
+        """Retrieve the current folder and sub content.
+
+        Params
+        ------
+        path : str
+            The path to populate tree from.
+
+        Returns
+        -------
+        Dict
+            File structure.
+        """
+        if path is None:
+            result = self.get(f"{self._endpoint}/storage")
+        else:
+            encoded_path = base64.urlsafe_b64encode(path.encode()).decode()
+
+            result = self.get(f"{self._endpoint}/storage/{encoded_path}")
+
+        # This should be handled by jsTree with a notice that it
+        # received invalid data.
+        if not isinstance(result, requests.Response):
+            return []
+
+        return result.json()
+
     def check_api(self) -> bool:
         """Check if API responds.
 
         Returns
         -------
         bool
-            Wether the API is online or not.
+            Whether the API is online or not.
         """
         try:
             self._session.get(f"{self._endpoint}")  # type: ignore

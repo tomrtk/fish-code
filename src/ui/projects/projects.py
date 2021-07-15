@@ -1,4 +1,7 @@
 """Blueprint for the projects module."""
+import base64
+import binascii
+import http
 import logging
 import os
 import tempfile
@@ -23,6 +26,7 @@ from flask_paginate import (
     get_per_page_parameter,
 )
 from pydantic.error_wrappers import ValidationError
+from werkzeug.exceptions import HTTPException
 from werkzeug.wrappers import Response
 
 from ui.projects.api import Client
@@ -31,8 +35,6 @@ from ui.projects.utils import validate_int
 
 logger = logging.getLogger(__name__)
 logger.level = logging.DEBUG
-
-ROOT_FOLDER = "~/Downloads"
 
 
 def construct_projects_bp(cfg: Config) -> Blueprint:
@@ -250,16 +252,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 f"Video received from ui: {request.form.get('tree_data')}"
             )
 
-            hardcoded_path = os.path.dirname(os.path.expanduser(ROOT_FOLDER))
             videos = [
-                os.path.join(hardcoded_path, path.strip('"'))
-                if not os.path.isabs(path.strip('"'))
-                else path
+                path.strip('"')
                 for path in request.form["tree_data"].strip("[]").split(",")
-            ]
-            videos = [
-                path if not os.path.isdir(path) else f"Folder is empty: {path}"
-                for path in videos
             ]
             logger.debug(f"New job videos parsed to be: {videos}")
 
@@ -294,13 +289,6 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         return render_template(
             "projects/job_new.html", project_name=project.get_name()
         )
-
-    @projects_bp.route("/json")
-    def projects_json() -> Dict[str, Any]:
-        """Create new job inside a project."""
-        data: Dict[str, Any] = path_to_dict(os.path.expanduser(ROOT_FOLDER))
-
-        return data
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(
@@ -354,17 +342,33 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 attachment_filename=f"report_p{project_id}_j{job_id}.csv",
             )
 
+    @projects_bp.route("/storage")
+    def storage() -> flask.Response:
+        """Endpoint for serving the file structure to jsTree."""
+        response = client.get_storage()
+
+        logger.debug("Pulling storage endpoint without parameters.")
+
+        return jsonify(response)
+
+    @projects_bp.route("/storage/<string:path>")
+    def storage_path(path: str) -> flask.Response:
+        """Endpoint for serving the file structure to jsTree."""
+        try:
+            decoded_path = base64.urlsafe_b64decode(path).decode()
+        except binascii.Error:
+            logger.warning(f"Unable to decode: '{path}'.")
+            raise HTTPException(
+                description="Unable to decode path from parameter",
+                response=Response(
+                    "Unable to decode path from parameter",
+                    status=http.HTTPStatus.BAD_REQUEST,
+                ),
+            )
+        response = client.get_storage(decoded_path)
+
+        logger.debug(f"Pulling storage endpoint with {path}.")
+
+        return jsonify(response)
+
     return projects_bp
-
-
-def path_to_dict(path: str) -> Dict[str, Any]:
-    """Polute endpoint with stuff."""
-    d: Dict[str, Any] = {"text": os.path.basename(path)}
-    if os.path.isdir(path):
-        d["children"] = [
-            path_to_dict(os.path.join(path, x)) for x in os.listdir(path)
-        ]
-    else:
-        d["icon"] = "jstree-file"
-
-    return d
