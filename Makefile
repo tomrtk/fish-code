@@ -33,6 +33,7 @@ clean-all: clean-venv
 
 clean-venv:
 	find . -name "$(venv)" -type d -exec $(RM) -r {} +
+	find . -name "venv" -type d -exec $(RM) -r {} +
 	find . -name ".make.deps" -type f -exec $(RM) -f {} +
 
 venv: $(venv)
