@@ -16,12 +16,11 @@
 
 // Seems that it is not supported using {$, jQuery}, hence the double
 // import.
-import jQuery from "jquery";
 import $ from "jquery";
 
-window.$ = window.jQuery = jQuery;
+window.$ = window.jQuery = jQuery = $;
 
-import "jstree";
+import { attach_jstree } from "./jstree.js";
 
 import dt from "datatables.net";
 dt(window, $);
@@ -81,54 +80,7 @@ var createPreviewLinkIcon = function (object_id) {
 };
 
 $(function () {
-  /*
-   * jsTree
-   */
-
-  $("#jstree").jstree({
-    sort: 1,
-    core: {
-      data: {
-        url: "/projects/json",
-        dataType: "json", // needed only if you do not supply JSON headers
-      },
-      themes: {
-        name: "default",
-      },
-    },
-    plugins: ["checkbox", "sort", "types", "wholerow"],
-    sort: function (a, b) {
-      return this.get_type(a) === this.get_type(b)
-        ? this.get_text(a) > this.get_text(b)
-          ? 1
-          : -1
-        : this.get_type(a) >= this.get_type(b)
-        ? 1
-        : -1;
-    },
-  });
-
-  $("#jstree").on("ready.jstree", function (e, data) {
-    return data.instance.open_node("#j1_1_anchor", false, true);
-  });
-
-  $("#jstree").on("select_node.jstree deselect_node.jstree", function (e) {
-    var selected_titles = [];
-    var selectedIndexes = $("#jstree").jstree("get_selected", true);
-    $.each(selectedIndexes, function () {
-      var tree = $("#jstree").jstree();
-      if (tree.is_leaf(this)) {
-        selected_titles.push(tree.get_path(this, "/"));
-      }
-    });
-
-    if (selected_titles.length > 0) {
-      $("#tree_data").val(JSON.stringify(selected_titles));
-    } else {
-      $("#tree_data").removeAttr("value");
-    }
-  });
-
+  tree = attach_jstree("#jstree");
   /*
    * Start Job Button
    */

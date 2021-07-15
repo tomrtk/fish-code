@@ -6,14 +6,15 @@
     "css:build:dev": "TAILWIND_MODE=build NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
     "css:build:prod": "TAILWIND_MODE=build NODE_ENV=production postcss ./src/css/style.css -o ./static/dist/css/style.min.css",
     "css:watch": "TAILWIND_MODE=watch NODE_ENV=development postcss ./src/css/style.css -o ./static/dist/css/style.min.css --watch --verbose",
-    "js:build:dev": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js",
+    "js:build:dev": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --sourcemap",
     "js:build:prod": "NODE_ENV=production esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --minify",
-    "js:watch": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --watch",
+    "js:watch": "NODE_ENV=development esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --sourcemap --watch",
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "dependencies": {
     "@types/datatables.net": "^1.10.20",
     "@types/jquery": "^3.5.6",
+    "@types/jstree": "^3.3.41",
     "datatables.net": "^1.10.25",
     "datatables.net-dt": "^1.1.0",
     "jquery": "^3.6.0",

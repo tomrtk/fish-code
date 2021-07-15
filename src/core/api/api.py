@@ -7,6 +7,7 @@ server is running.
 
 import asyncio
 import base64
+import binascii
 import logging
 import pathlib
 import sys
@@ -592,9 +593,6 @@ def get_objects_from_job(
 
 
 @core_api.get("/storage", response_model=List[Union[Dict[str, Any], str, None]])
-@core_api.get(
-    "/storage/", response_model=List[Union[Dict[str, Any], str, None]]
-)
 async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
@@ -616,6 +614,7 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     HTTPException
         If the path is invalid.
     """
+    # TODO: Test when config is added
     path = pathlib.Path(sys.executable).anchor
 
     try:
@@ -654,15 +653,23 @@ async def get_storage_path(path: str) -> List[Union[Dict[str, Any], str, None]]:
     HTTPException
         If the path is invalid.
     """
-    pathd = base64.urlsafe_b64decode(path).decode("utf-8")
+    try:
+        decrypted_path = base64.urlsafe_b64decode(path).decode()
+    except binascii.Error:
+        logger.warning(f"Unable to decode: '{path}'.")
+        raise HTTPException(
+            status_code=400, detail="Unable to decode path from parameter'"
+        )
 
     try:
-        return get_directory_listing(pathd)
+        return get_directory_listing(decrypted_path)
     except NotADirectoryError:
-        logger.warning("Chosen path '{}' is not a directory.".format(pathd))
+        logger.warning(
+            "Chosen path '{}' is not a directory.".format(decrypted_path)
+        )
         raise HTTPException(
             status_code=400, detail="Chosen path is not a directory"
         )
     except FileNotFoundError:
-        logger.warning("Chosen path '{}' is not valid.".format(pathd))
+        logger.warning("Chosen path '{}' is not valid.".format(decrypted_path))
         raise HTTPException(status_code=404, detail="Chosen path is not valid")

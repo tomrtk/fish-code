@@ -635,7 +635,7 @@ def get_directory_listing(
     root_name = normalized_path.name
     root_node = {
         "id": str(normalized_path.as_posix()),
-        "text": normalized_path.name if root_name == "" else root_name,
+        "text": "/" if root_name == "" else root_name,
         "type": "folder",
         "children": sorted(child_list, key=lambda u: u["id"]),
     }
