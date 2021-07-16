@@ -1,6 +1,5 @@
 [project]
 name = "nina"
-version = "0.0.1"
 description = '''
 Application to detect, track and calculate statistics of objects in video.
 '''
