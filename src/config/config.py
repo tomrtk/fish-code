@@ -1,7 +1,7 @@
 """Module to handle configuration application configuration parameters."""
 import configparser
 import logging
-from os.path import expanduser, isfile
+import os.path
 from pathlib import Path
 from typing import Final
 
@@ -19,7 +19,7 @@ def find_config_directory() -> str:
         Ends with a trailing /
     """
     # TODO: Check if windows or linux, use enviroment variables
-    return expanduser("~") + "/.config/nina/"
+    return os.path.expanduser("~") + "/.config/nina/"
 
 
 def get_config_file_path() -> str:
@@ -30,7 +30,7 @@ def get_config_file_path() -> str:
     str     :
         Path represented as a string to the configuration file.
     """
-    return find_config_directory() + CONFIG_FILE_NAME
+    return os.path.join(find_config_directory(), CONFIG_FILE_NAME)
 
 
 def get_default_config() -> configparser.ConfigParser:
@@ -79,7 +79,7 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
     config = configparser.ConfigParser()
     config_path = find_config_directory() + CONFIG_FILE_NAME
 
-    if isfile(config_path):
+    if os.path.isfile(config_path):
         try:
             logger.info("Configuration file found.")
             config.read(config_path)
