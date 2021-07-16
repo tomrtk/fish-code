@@ -132,7 +132,7 @@ class Video:
         output_width: int = VIDEO_DEFAULT_WIDTH,
         output_height: int = VIDEO_DEFAULT_HEIGHT,
     ) -> None:
-        self.id: Optional[int] = None
+        self.id: int | None = None
         self._path: str = path
         self.frame_count: int = frame_count
         self.fps: int = fps
@@ -143,7 +143,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
-        self.frames: List[Frame] = list()
+        self.frames: list[Frame] = list()
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -252,7 +252,7 @@ class Video:
 
         return self._scale_convert(img)
 
-    def __getitem__(self, interval: Union[slice, int]) -> np.ndarray:
+    def __getitem__(self, interval: slice | int) -> np.ndarray:
         """Get a slice of video.
 
         Get a interval of frames from video, `variable[start:stop:step].
@@ -503,7 +503,7 @@ class Video:
         return True
 
 
-def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
+def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
     """Parse string to date.
 
     Input can either be a string with a date, or a string with a date and
@@ -560,7 +560,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
 
     date = "-".join(timestamp.split("_"))
 
-    year, month, day, hour, minute, second = [int(x) for x in date.split("-")]
+    year, month, day, hour, minute, second = (int(x) for x in date.split("-"))
 
     try:
         return datetime(year, month, day, hour, minute, second) + timedelta(
@@ -570,7 +570,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> Optional[datetime]:
         return None
 
 
-def _get_video_metadata(path: str) -> Tuple[int, ...]:
+def _get_video_metadata(path: str) -> tuple[int, ...]:
     """Get metadata from video using `opencv`.
 
     Parameter
@@ -619,9 +619,9 @@ class Frame:
     """Simple dataclass representing frame."""
 
     idx: int
-    detections: List[Detection]
-    timestamp: Optional[datetime] = None
-    video_id: Optional[int] = None
+    detections: list[Detection]
+    timestamp: datetime | None = None
+    video_id: int | None = None
 
     def __eq__(self, other: object) -> bool:
         """Check if two Frames are the same."""
@@ -631,7 +631,7 @@ class Frame:
             and self.video_id == other.video_id
         )
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         """Convert frame to json.
 
         Return
@@ -645,7 +645,7 @@ class Frame:
             }
 
         """
-        timestamp_tmp: Optional[str] = None
+        timestamp_tmp: str | None = None
         if self.timestamp:
             timestamp_tmp = self.timestamp.isoformat()
         else:
@@ -700,10 +700,10 @@ class Detection:
     probability: float
     label: int
     frame: int
-    frame_id: Optional[int] = None
-    video_id: Optional[int] = None
+    frame_id: int | None = None
+    video_id: int | None = None
 
-    def to_json(self) -> Dict[str, Any]:
+    def to_json(self) -> dict[str, Any]:
         """Convert detection to json.
 
         Return
@@ -728,7 +728,7 @@ class Detection:
         }
 
     def set_frame(
-        self, frame: int, frame_id: int, video_id: Optional[int]
+        self, frame: int, frame_id: int, video_id: int | None
     ) -> Detection:
         """Update frame nr.
 
@@ -759,7 +759,7 @@ class Detection:
     @classmethod
     def from_api(
         cls,
-        bbox: Dict[str, Any],
+        bbox: dict[str, Any],
         probability: float,
         label: int,
         frame: int,
@@ -792,7 +792,7 @@ class Object:
     def __init__(
         self,
         label: int,
-        detections: List[Detection] = [],
+        detections: list[Detection] = [],
         track_id: int | None = None,
     ) -> None:
         """Create an Object.
@@ -806,16 +806,16 @@ class Object:
         track_id    : int
             Tracking ID for this object. Default=None
         """
-        self.id: Optional[int]
+        self.id: int | None
         self.label: int = label
         self.probability: float = 0.0
-        self._detections: List[Detection] = detections
-        self.track_id: Optional[int] = track_id
-        self.time_in: Optional[datetime] = None
-        self.time_out: Optional[datetime] = None
+        self._detections: list[Detection] = detections
+        self.track_id: int | None = track_id
+        self.time_in: datetime | None = None
+        self.time_out: datetime | None = None
         self._calc_label()
 
-    def to_api(self) -> Dict[str, Any]:
+    def to_api(self) -> dict[str, Any]:
         """Convert relevant member data for use in api.
 
         Returns
@@ -843,16 +843,14 @@ class Object:
         )
 
         self.probability = sum(
-            [
-                detect.probability
-                for detect in self._detections
-                if detect.label == self.label
-            ]
+            detect.probability
+            for detect in self._detections
+            if detect.label == self.label
         ) / len(self._detections)
 
     @classmethod
     def from_api(
-        cls, track_id: int, detections: List[Dict[str, Any]], label: int
+        cls, track_id: int, detections: list[dict[str, Any]], label: int
     ) -> Object:
         """Create Object class from tracker.
 
@@ -873,7 +871,7 @@ class Object:
         dets = [Detection.from_api(**detect) for detect in detections]
         return cls(label, dets, track_id)
 
-    def get_results(self) -> Dict[str, Any]:
+    def get_results(self) -> dict[str, Any]:
         """Return information on this object.
 
         Return
@@ -924,7 +922,7 @@ class Object:
         """
         return len(self._detections)
 
-    def get_detection(self, idx: int) -> Optional[Detection]:
+    def get_detection(self, idx: int) -> Detection | None:
         """Return the detection at index idx.
 
         Parameter
@@ -942,7 +940,7 @@ class Object:
         except IndexError:
             return None
 
-    def get_frames(self) -> List[Tuple[Optional[int], Optional[int], BBox]]:
+    def get_frames(self) -> list[tuple[int | None, int | None, BBox]]:
         """Return which frame and which video this object is in.
 
         frame_id tells what frame in the video with video_id contains a
@@ -958,7 +956,7 @@ class Object:
         ]
 
     @property
-    def video_ids(self) -> List[int]:
+    def video_ids(self) -> list[int]:
         """Derive all video the object is part of.
 
         Return
@@ -966,7 +964,7 @@ class Object:
         List[int]
             List of video id's.
         """
-        video_id: Set[int] = set()
+        video_id: set[int] = set()
         for det in self._detections:
             if det.video_id is not None:
                 video_id.add(det.video_id)
@@ -984,18 +982,18 @@ class Job:
         status: Status = Status.PENDING,
         progress: int = 0,
     ) -> None:
-        self.id: Optional[int] = None
+        self.id: int | None = None
         self.name: str = name
         self.description: str = description
         self._status: Status = status
-        self._objects: List[Object] = list()
-        self.videos: List[Video] = list()
+        self._objects: list[Object] = list()
+        self.videos: list[Video] = list()
         self.location: str = location
         self.next_batch: int = 0
         self.progress: int = progress
 
     @property
-    def stats(self) -> Dict[str, Any]:
+    def stats(self) -> dict[str, Any]:
         """Return statistics for a job.
 
         Return
@@ -1011,13 +1009,13 @@ class Job:
                 }
             }
         """
-        dct: Dict[str, Any] = {
+        dct: dict[str, Any] = {
             "total_labels": 0,
             "total_objects": 0,
             "labels": dict(),
         }
 
-        labels: Dict[int, int] = dict()
+        labels: dict[int, int] = dict()
 
         for o in self._objects:
             if o.label not in labels:
@@ -1072,7 +1070,7 @@ class Job:
         """
         return len(self._objects)
 
-    def get_object(self, idx: int) -> Optional[Object]:
+    def get_object(self, idx: int) -> Object | None:
         """Return object at index.
 
         Paramter
@@ -1090,7 +1088,7 @@ class Job:
         except IndexError:
             return None
 
-    def get_result(self) -> List[Dict[str, Any]]:
+    def get_result(self) -> list[dict[str, Any]]:
         """Return result from all objects.
 
         Return
@@ -1127,7 +1125,7 @@ class Job:
         self.videos.sort(key=lambda x: x.timestamp.timestamp())
         return True
 
-    def add_videos(self, videos: List[Video]) -> bool:
+    def add_videos(self, videos: list[Video]) -> bool:
         """Add a list of videos to this job in order to be processed.
 
         Parameter
@@ -1183,7 +1181,7 @@ class Job:
         int     :
             Ammount of frames in total over all video objects in this job.
         """
-        return sum([v.frame_count for v in self.videos])
+        return sum(v.frame_count for v in self.videos)
 
     def status(self) -> Status:
         """Get the job status for this job."""
@@ -1264,14 +1262,14 @@ class Project:
         name: str,
         number: str,
         description: str,
-        location: Optional[str] = None,
+        location: str | None = None,
     ) -> None:
         self.id: int
         self.name: str = name
         self.number: str = number
         self.description: str = description
-        self.location: Optional[str] = location
-        self.jobs: List[Job] = list()
+        self.location: str | None = location
+        self.jobs: list[Job] = list()
 
     def __str__(self) -> str:
         """Print class members."""
@@ -1340,7 +1338,7 @@ class Project:
             self.jobs.append(job)
         return self
 
-    def get_jobs(self) -> List[Job]:
+    def get_jobs(self) -> list[Job]:
         """Retrieve all jobs from the project.
 
         Returns
@@ -1350,7 +1348,7 @@ class Project:
         """
         return self.jobs
 
-    def get_job(self, job_id: int) -> Optional[Job]:
+    def get_job(self, job_id: int) -> Job | None:
         """Retrive a single job from the project.
 
         Parameters

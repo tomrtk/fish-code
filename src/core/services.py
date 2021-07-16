@@ -31,7 +31,7 @@ class VideoLoader:
 
     def __init__(self, videos: List[Video], batchsize: int = 25) -> None:
         self.videos = videos
-        self.frames = sum([v.frame_count for v in self.videos])
+        self.frames = sum(v.frame_count for v in self.videos)
         self.batchsize = batchsize
 
     def __len__(self) -> int:
@@ -77,7 +77,7 @@ class VideoLoader:
         """
         curframe = 0
         logger.debug(f"Finding video for frame {frame}")
-        if frame > sum([vid.frame_count for vid in self.videos]):
+        if frame > sum(vid.frame_count for vid in self.videos):
             raise IndexError(f"Cannot find video index of frame {frame}.")
 
         for vid in self.videos:
@@ -390,7 +390,7 @@ class SchedulerThread(threading.Thread):
 
     def join(self) -> Any:  # type: ignore
         """Wrap method around `Thread` join to propagate exception."""
-        super(SchedulerThread, self).join()
+        super().join()
         if self.exc:
             raise RuntimeError("Exception in thread") from self.exc
         return self.ret
@@ -607,7 +607,7 @@ def get_directory_listing(
 
     if not isdir(normalized_path):
         raise FileNotFoundError(
-            "Directory at '{}' was not found.".format(normalized_path)
+            f"Directory at '{normalized_path}' was not found."
         )
 
     for p in normalized_path.iterdir():
