@@ -3,9 +3,10 @@ import configparser
 import logging
 from os.path import expanduser, isfile
 from pathlib import Path
+from typing import Final
 
 logger = logging.getLogger(__name__)
-config_file = "config.ini"
+CONFIG_FILE_NAME: Final[str] = "config.ini"
 
 
 def find_config_directory() -> str:
@@ -29,7 +30,7 @@ def get_config_file_path() -> str:
     str     :
         Path represented as a string to the configuration file.
     """
-    return find_config_directory() + config_file
+    return find_config_directory() + CONFIG_FILE_NAME
 
 
 def get_default_config() -> configparser.ConfigParser:
@@ -76,7 +77,7 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
         return get_default_config()
 
     config = configparser.ConfigParser()
-    config_path = find_config_directory() + config_file
+    config_path = find_config_directory() + CONFIG_FILE_NAME
 
     if isfile(config_path):
         try:
@@ -105,5 +106,5 @@ def write_config(config: configparser.ConfigParser) -> None:
 
     # TODO: Error check
     Path(config_folder).mkdir(parents=True, exist_ok=True)
-    with open(config_folder + config_file, "w") as configfile:
+    with open(config_folder + CONFIG_FILE_NAME, "w") as configfile:
         config.write(configfile)
