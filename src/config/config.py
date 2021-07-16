@@ -77,7 +77,7 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
         return get_default_config()
 
     config = configparser.ConfigParser()
-    config_path = find_config_directory() + CONFIG_FILE_NAME
+    config_path = get_config_file_path()
 
     if os.path.isfile(config_path):
         try:
