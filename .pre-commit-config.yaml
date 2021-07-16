@@ -18,6 +18,11 @@ repos:
             src/ui/static/
           )
       - id: trailing-whitespace
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v2.21.1
+    hooks:
+      - id: pyupgrade
+        args: [--py38-plus]
   - repo: https://github.com/pycqa/isort
     rev: 5.9.2
     hooks:
@@ -59,7 +64,9 @@ repos:
     hooks:
       - id: mypy
         name: Run mypy
-        additional_dependencies: [types-all]
+        additional_dependencies:
+          - "sqlalchemy[mypy]"
+          - "types-all"
         files: ^src/
   - repo: https://github.com/PyCQA/flake8
     rev: 3.9.2
