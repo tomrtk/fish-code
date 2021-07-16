@@ -11,8 +11,13 @@ CONFIG_FILE_NAME: Final[str] = "config.ini"
 CONFIG_DIRECTORY_NAME: Final[str] = "nina"
 
 
-def find_config_directory() -> Path:
+def find_config_directory() -> Path:  # Pragma: no cover
     """Get configuration directory.
+
+    Checks the operating system if it is windows or unix based. Uses enviroment
+    variables 'LOCALAPPDATA', 'XDG_CONFIG_HOME', and 'HOME' to determine
+    applications config directory. Defaults to the current working directory
+    if none of the above enviroment variables are set.
 
     Returns
     -------
@@ -23,8 +28,11 @@ def find_config_directory() -> Path:
         confighome = Path(os.environ["LOCALAPPDATA"])
     elif os.name == "posix" and "XDG_CONFIG_HOME" in os.environ:
         confighome = Path(os.environ["XDG_CONFIG_HOME"])
-    else:
+    elif "HOME" in os.environ:
         confighome = Path(os.path.join(os.environ["HOME"], ".config"))
+    else:
+        # Unable to find config directory, defaulting to current directory.
+        return Path().resolve()
 
     return Path(os.path.join(confighome, CONFIG_DIRECTORY_NAME))
 
