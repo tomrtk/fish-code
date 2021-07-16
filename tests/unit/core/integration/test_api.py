@@ -606,7 +606,7 @@ def test_get_storage():
         assert response.status_code == 400
 
         encoded_path = base64.urlsafe_b64encode(
-            "tests/integration/test_data/test_directory_listing_folder".encode()
+            b"tests/integration/test_data/test_directory_listing_folder"
         )
 
         response = client.get(
@@ -657,9 +657,7 @@ def test_get_storage():
             assert p in children_results
 
         # Check errors
-        pathb = "tests/integration/test_data/test_directory_listing_folder/emptyfile".encode(
-            "utf-8"
-        )
+        pathb = b"tests/integration/test_data/test_directory_listing_folder/emptyfile"
         path64e = base64.urlsafe_b64encode(pathb)
 
         response = client.get(
@@ -667,7 +665,7 @@ def test_get_storage():
         )
         assert response.status_code == 400
 
-        pathb = "invalid/path".encode("utf-8")
+        pathb = b"invalid/path"
         path64e = base64.urlsafe_b64encode(pathb)
 
         response = client.get(
