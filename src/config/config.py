@@ -1,25 +1,32 @@
 """Module to handle configuration application configuration parameters."""
 import configparser
 import logging
-import os.path
+import os
 from pathlib import Path
 from typing import Final
 
 logger = logging.getLogger(__name__)
+
 CONFIG_FILE_NAME: Final[str] = "config.ini"
+CONFIG_DIRECTORY_NAME: Final[str] = "nina"
 
 
-def find_config_directory() -> str:
+def find_config_directory() -> Path:
     """Get configuration directory.
 
     Returns
     -------
-    str     :
-        Path represented as a string to a directory.
-        Ends with a trailing /
+    Path    :
+        Path object to the configuration directory.
     """
-    # TODO: Check if windows or linux, use enviroment variables
-    return os.path.expanduser("~") + "/.config/nina/"
+    if os.name == "nt" and "LOCALAPPDATA" in os.environ:
+        confighome = Path(os.environ["LOCALAPPDATA"])
+    elif os.name == "posix" and "XDG_CONFIG_HOME" in os.environ:
+        confighome = Path(os.environ["XDG_CONFIG_HOME"])
+    else:
+        confighome = Path(os.path.join(os.environ["HOME"], ".config"))
+
+    return Path(os.path.join(confighome, CONFIG_DIRECTORY_NAME))
 
 
 def get_config_file_path() -> str:
@@ -102,9 +109,7 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
 
 def write_config(config: configparser.ConfigParser) -> None:
     """Write a ConfigParser object to disk at the applications config file path."""
-    config_folder = find_config_directory()
-
     # TODO: Error check
-    Path(config_folder).mkdir(parents=True, exist_ok=True)
-    with open(config_folder + CONFIG_FILE_NAME, "w") as configfile:
+    Path(find_config_directory()).mkdir(parents=True, exist_ok=True)
+    with open(get_config_file_path(), "w") as configfile:
         config.write(configfile)
