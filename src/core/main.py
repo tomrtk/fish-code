@@ -66,6 +66,8 @@ def main(
         "--dev", default=False, action="store_true"
     )  # No ops, needed for root-app.
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("CORE", "hostname", fallback="127.0.0.1")
+    port = config.getint("CORE", "port", fallback=8000)
 
     # Let host argument override config
     if args.host:
@@ -74,7 +76,7 @@ def main(
                 config.get("CORE", "hostname"), args.host
             )
         )
-        config["CORE"]["hostname"] = args.host
+        hostname = args.host
 
     # Let port argument override config
     if args.port:
@@ -83,7 +85,7 @@ def main(
                 config.getint("CORE", "port"), args.port
             )
         )
-        config["CORE"]["port"] = str(args.port)
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -99,8 +101,8 @@ def main(
 
         uvicorn.run(
             core_api,
-            host=config.get("CORE", "hostname"),
-            port=config.getint("CORE", "port"),
+            host=hostname,
+            port=port,
             reload=False,
             workers=1,
             debug=config.get("GLOBAL", "development"),

@@ -35,6 +35,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
 
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("TRACING", "hostname", fallback="127.0.0.1")
+    port = config.getint("TRACING", "port", fallback=8001)
 
     # Let host argument override config
     if args.host:
@@ -43,7 +45,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
                 config.get("TRACING", "hostname"), args.host
             )
         )
-        config["TRACING"]["hostname"] = args.host
+        hostname = args.host
 
     # Let port argument override config
     if args.port:
@@ -52,7 +54,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
                 config.getint("TRACING", "port"), args.port
             )
         )
-        config["TRACING"]["port"] = str(args.port)
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -65,8 +67,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if not args.test:  # pragma: no cover
         uvicorn.run(
             api.tracking,
-            host=config.get("TRACING", "hostname"),
-            port=config.getint("TRACING", "port"),
+            host=hostname,
+            port=port,
         )
 
     return 0
