@@ -39,6 +39,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         help="Used for testing only. API will not start.",
     )
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("DETECTION", "hostname", fallback="127.0.0.1")
+    port = config.getint("DETECTION", "port", fallback=8003)
 
     # Let host argument override config
     if args.host:
@@ -47,7 +49,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
                 config.get("DETECTION", "hostname"), args.host
             )
         )
-        config["DETECTION"]["hostname"] = args.host
+        hostname = args.host
 
     # Let port argument override config
     if args.port:
@@ -56,7 +58,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
                 config.getint("DETECTION", "port"), args.port
             )
         )
-        config["DETECTION"]["port"] = str(args.port)
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -69,8 +71,8 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if not args.test:  # pragma: no cover
         uvicorn.run(
             detection_api,
-            host=config.get("DETECTION", "hostname"),
-            port=config.getint("DETECTION", "port"),
+            host=hostname,
+            port=port,
         )
 
     return 0

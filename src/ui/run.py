@@ -26,8 +26,8 @@ def serve_debug() -> int:
 def serve_prod() -> int:
     """Workaround for avoiding lamdba. Starts UI in production."""
     logger = logging.getLogger("waitress")
-    host = config.get("UI", "hostname")
-    port = config.getint("UI", "port")
+    host = config.get("UI", "hostname", fallback="127.0.0.1")
+    port = config.getint("UI", "port", fallback=5000)
     logger.setLevel(logging.INFO)
     logger.info("Starting server in production")
 
