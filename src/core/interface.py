@@ -50,7 +50,7 @@ def to_track(
         objects = [core.model.Object.from_api(**obj) for obj in response.json()]
         for o in objects:
 
-            times = sorted([det.frame for det in o._detections])
+            times = sorted(det.frame for det in o._detections)
 
             time_in = frames[times[0]].timestamp
             if time_in is None:  # pragma: no cover

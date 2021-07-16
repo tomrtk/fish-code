@@ -27,7 +27,7 @@ class BBox:
         self.y2: float = y2
 
     @classmethod
-    def from_list(cls, list: List[float]) -> BBox:
+    def from_list(cls, list: list[float]) -> BBox:
         """Create a bounding box from a list.
 
         Paramters
@@ -46,7 +46,7 @@ class BBox:
 
         return cls(*list)
 
-    def to_list(self) -> List[float]:
+    def to_list(self) -> list[float]:
         """Return the boundingbox as a list.
 
         Returns
@@ -57,7 +57,7 @@ class BBox:
         return [self.x1, self.y1, self.x2, self.y2]
 
     @classmethod
-    def from_xywh(cls, bbox: List[float]) -> BBox:
+    def from_xywh(cls, bbox: list[float]) -> BBox:
         """Create a bounding box from x, y, width, height.
 
         Paramters
@@ -103,7 +103,7 @@ class BBox:
             and y2 < tol * abs(o.y2)
         )
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         """Convert boundingbox to dict.
 
         Return
@@ -128,8 +128,8 @@ class Detection:
         label: int,
         probability: float,
         frame: int,
-        frame_id: Optional[int],
-        video_id: Optional[int],
+        frame_id: int | None,
+        video_id: int | None,
         true_track_id: int = 0,
     ) -> None:
         """Create a detection.
@@ -149,11 +149,11 @@ class Detection:
         self.label: int = label
         self.probability: float = probability
         self.frame: int = frame
-        self.frame_id: Optional[int] = frame_id
-        self.video_id: Optional[int] = video_id
+        self.frame_id: int | None = frame_id
+        self.video_id: int | None = video_id
         self.true_track_id: int = true_track_id
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert self to dict.
 
         Return
@@ -171,7 +171,7 @@ class Detection:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> Detection:
+    def from_dict(cls, data: dict[str, Any]) -> Detection:
         """Create a detection from a dictionary.
 
         See Also
@@ -188,7 +188,7 @@ class Detection:
         )
 
     @classmethod
-    def from_api(cls, data: Dict[str, Any], frame: int) -> Detection:
+    def from_api(cls, data: dict[str, Any], frame: int) -> Detection:
         """Specialized from_dict used when converting from API.
 
         Paramter
@@ -230,8 +230,8 @@ class Object:
         tracing.tracker.Tracker
         """
         self.track_id: int = track_id
-        self.detections: List[Detection] = list()
-        self.label: Optional[int] = None
+        self.detections: list[Detection] = list()
+        self.label: int | None = None
 
     def update(self, detection: Detection) -> None:
         """Update the detections for this Object.
@@ -256,7 +256,7 @@ class Object:
         """Return a list of labels from associated detections."""
         return np.array([detection.label for detection in self.detections])
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to a dict.
 
         See Also
@@ -274,9 +274,9 @@ class AbstractTracker(abc.ABC):
     """Abstract tracker class."""
 
     def __init__(self) -> None:
-        self._objects: Dict[int, Object] = dict()
+        self._objects: dict[int, Object] = dict()
 
-    def update(self, detections: List[Detection]) -> None:
+    def update(self, detections: list[Detection]) -> None:
         """Update the tracker."""
         raise NotImplementedError
 
@@ -326,7 +326,7 @@ class SortTracker(AbstractTracker):
         super().__init__()
         self._tracker: sort.Sort = sort.Sort(max_age, min_hits, iou_threshold)
 
-    def update(self, detecions: List[Detection]) -> None:
+    def update(self, detecions: list[Detection]) -> None:
         """Update the Tracker.
 
         Paramter
@@ -366,7 +366,7 @@ class SortTracker(AbstractTracker):
             np.append(detection.bbox.to_list(), detection.probability)
         )
 
-    def _connect_bb(self, tracked: np.ndarray, detect: List[Detection]) -> None:
+    def _connect_bb(self, tracked: np.ndarray, detect: list[Detection]) -> None:
         """Re-associate boundingboxes with a detection to determine the label.
 
         Parameters

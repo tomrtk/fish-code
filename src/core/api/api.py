@@ -620,12 +620,12 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     try:
         return get_directory_listing(path)
     except NotADirectoryError:
-        logger.warning("Chosen path '{}' is not a directory.".format(path))
+        logger.warning(f"Chosen path '{path}' is not a directory.")
         raise HTTPException(
             status_code=400, detail="Chosen path is not a directory"
         )
     except FileNotFoundError:
-        logger.warning("Chosen path '{}' is not valid.".format(path))
+        logger.warning(f"Chosen path '{path}' is not valid.")
         raise HTTPException(status_code=404, detail="Chosen path is not valid")
 
 
@@ -664,12 +664,10 @@ async def get_storage_path(path: str) -> List[Union[Dict[str, Any], str, None]]:
     try:
         return get_directory_listing(decrypted_path)
     except NotADirectoryError:
-        logger.warning(
-            "Chosen path '{}' is not a directory.".format(decrypted_path)
-        )
+        logger.warning(f"Chosen path '{decrypted_path}' is not a directory.")
         raise HTTPException(
             status_code=400, detail="Chosen path is not a directory"
         )
     except FileNotFoundError:
-        logger.warning("Chosen path '{}' is not valid.".format(decrypted_path))
+        logger.warning(f"Chosen path '{decrypted_path}' is not valid.")
         raise HTTPException(status_code=404, detail="Chosen path is not valid")
