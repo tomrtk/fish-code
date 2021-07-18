@@ -6,6 +6,7 @@ on:
       - master
   pull_request:
     paths:
+      - ".github/**"
       - "setup.cfg"
       - "src/**"
       - "tests/**"
@@ -32,8 +33,8 @@ jobs:
         with:
           path: .git/lfs
           # The cache of lfs should be the same on all jobs. Not sure
-          # what happens when an updated has occured and every job tries
-          # to upload a new versions.
+          # what happens when an update has occured and every job tries
+          # to upload a new version.
           # key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
           key: lfs-${{ hashFiles('.lfs-assets-id') }}-v1
       - name: Git LFS Pull
