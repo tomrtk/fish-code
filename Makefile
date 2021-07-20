@@ -12,7 +12,8 @@ help: ## Show this help message.
 	@echo 'targets:'
 	@echo '  clean-all      Deletes all build/dev associated files'
 	@echo '  clean-venv     Deletes the virtual environment'
-	@echo '  deps           Installs dependencies in a virtual environment'
+	@echo '  deps-cpu       Installs dependencies in a virtual environment'
+	@echo '  deps-gpu       Installs dependencies in a virtual environment'
 	@echo '  nina           Builds nina in a virtual environment'
 	@echo '  run            Runs nina in a virtual environment'
 	@echo '  venv           Creates a virtual environment'
@@ -56,4 +57,16 @@ run: nina
 	pip install -e '.[dev,testing]' && \
 	touch $@
 
-deps: .make.deps
+.make.deps.cpu: .make.deps
+	@. $(activate) && \
+	pip install -e '.[cpu]' && \
+	touch $@
+
+.make.deps.gpu: .make.deps
+	@. $(activate) && \
+	pip install -e '.[gpu]' --find-links https://download.pytorch.org/whl/torch_stable.html && \
+	touch $@
+
+deps-cpu: .make.deps.cpu
+
+deps-gpu: .make.deps.gpu

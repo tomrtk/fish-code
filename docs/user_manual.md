@@ -12,7 +12,6 @@
 
 - Python (3.8, 3.9)
 - [`virtualenv`](https://virtualenv.pypa.io/en/latest/) (optional, but recommended)
-- [Git](https://git-scm.com/downloads)
 
 ### Windows
 
@@ -36,13 +35,33 @@ C++" box and hit install.
 
 ![Check development with C++](./images/cpp_build_tools.png)
 
+Find url to latest `whl`
+[here](https://github.com/MindTooth/fish-code/releases/latest) for use in
+command below.
+
 #### Install to user
 
 If you do not want to install the application in a virtual environment,
 install it to your user by running:
 
+If your computer do not have a `gpu`:
+
 ```terminal
-py -m pip install --user 'git+https://github.com/MindTooth/fish-code'
+py -m pip install --user '<url>'[cpu]
+
+# example:
+py -m pip install --user
+'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[cpu]
+```
+
+If your computer do have a `gpu`:
+
+```terminal
+py -m pip install --user '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+
+# example:
+py -m pip install --user
+'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
 
 To run the application call the `nina` command and from a browser go to the
@@ -55,13 +74,22 @@ run the following commands to create the environment:
 
 ```terminal
 py -m virtualenv venv --download  # or `python -m venv venv --upgrade-deps`
-. venv/bin/activate
+venv\Scripts\activate.bat
 ```
 
 Then install the application in the virtual environment:
 
+If your computer do not have a `gpu`:
+'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+
 ```terminal
-py -m pip install 'git+https://github.com/MindTooth/fish-code'
+py -m pip install '<url>'[cpu]
+```
+
+If your computer do have a `gpu`:
+
+```terminal
+py -m pip install '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
 
 To run the application call the `nina` command and from a browser go to the
@@ -71,6 +99,6 @@ Next time you running the application the virtual environment need to be
 activated before you can run the application.
 
 ```terminal
-. venv/bin/activate
+venv\Scripts\activate.bat
 nina
 ```

@@ -26,14 +26,22 @@ Running `nina` requires:
 
 Install instruction:
 
+Find url to latest `whl`
+[here](https://github.com/MindTooth/fish-code/releases/latest) for use in
+command below.
+
 ```sh
 # install option 1
 virtualenv .venv --download  # or `python -m venv .venv --upgrade-deps`
 . .venv/bin/activate
-pip install 'git+https://github.com/MindTooth/fish-code'
+pip install '<url>'[cpu]
+# or if you have a `gpu`
+pip install '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # install option 2, without venv
-pip install --user 'git+https://github.com/MindTooth/fish-code'
+pip install --user '<url>'[cpu]
+# or if you have a `gpu`
+pip install --user '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # to run application from terminal call
 nina
@@ -88,7 +96,9 @@ To install the requirements and setup virtual environment for development run:
 
 ```sh
 make nina # Builds the software so it can be easily ran.
-make deps # Installs development dependencies.
+make deps-cpu # Installs development dependencies.
+# or if you have `gpu`
+make deps-gpu # Installs development dependencies.
 ```
 
 To run the software use:
@@ -111,7 +121,7 @@ virtualenv .venv --download   # or `python -m venv .venv --upgrade-deps`
 # activate environment
 . .venv/bin/activate
 # get dependencies
-pip install -e .[testing]
+pip install -e .[testing, dev, cpu] # or `gpu`
 # run application with Flask dev-server
 python -m nina --dev
 # or run a single module
