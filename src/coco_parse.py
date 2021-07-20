@@ -53,15 +53,21 @@ def parse(json: Dict[Any, Any]) -> Dict[int, tracker.Object]:
         if keys_track_id in annotation[keys_attributes]
     }
 
+    image_map = dict()
+    for idx, id in enumerate([img["id"] for img in json["images"]]):
+        image_map[id] = idx
+
     for track_id in track_ids:
         detections = [
             tracker.Detection(
-                tracker.BBox(*det[keys_bbox]),
-                det[keys_category_id],
-                1,
-                det[keys_image_id],
-                None,
-                None,
+                bbox=tracker.BBox.from_xywh(
+                    det[keys_bbox],
+                ),
+                label=det[keys_category_id],
+                probability=1,
+                frame=image_map[det[keys_image_id]],
+                frame_id=None,
+                video_id=None,
                 true_track_id=track_id,
             )
             for det in json[keys_annotations]

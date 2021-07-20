@@ -7,10 +7,12 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from multiprocessing.pool import Pool as multiproc_pool
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+
 
 import cv2 as cv
 import numpy as np
+import random
 import torch
 
 import coco_parse
@@ -27,39 +29,114 @@ class Frame:
     video_id: Optional[int] = None
 
 
-def scale_convert(img: np.ndarray) -> Optional[np.ndarray]:
-    if img is None:
-        return img
-    new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+def outline(
+    img: np.ndarray,
+    bbx: model.BBox,
+    color: Tuple[int, int, int],
+    thickness: int,
+) -> np.ndarray:
+    """Convert numpy array to image and outline detection.
 
-    new_img = cv.resize(  # type: ignore
-        new_img,
-        (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
-        interpolation=cv.INTER_AREA,  # type: ignore
+    Parameters
+    ----------
+    img     : np.ndarray
+            Imagedata as numpy.ndarray
+    bbx    : model.BBox
+            Boundingbox associated with the detection
+
+    Returns
+    -------
+    np.ndarray
+            image encoded as jpeg
+    """
+    new_img = cv.rectangle(  # type: ignore
+        img,
+        (int(bbx.x1), int(bbx.y1)),
+        (int(bbx.x2), int(bbx.y2)),
+        color,
+        thickness,
     )
 
     return new_img
 
 
+def outline_objects(
+    images: List[np.ndarray], objects: list[model.Object], thickness=1
+) -> List[np.ndarray]:
+    colors = [
+        (
+            random.randint(0, 255),
+            random.randint(0, 255),
+            random.randint(0, 255),
+        )
+        for _ in range(len(objects))
+    ]
+
+    for obj in objects:
+        for det in obj._detections:
+            imgs[det.frame] = outline(
+                images[det.frame],
+                det.bbox,
+                colors[obj.id],  # type: ignore
+                thickness=thickness,
+            )
+
+    return imgs  # type: ignore
+
+
+def make_video(imgs: List[np.ndarray]):
+
+    out = cv.VideoWriter(  # type: ignore
+        "output_obj.avi",
+        cv.VideoWriter_fourcc(*"DIVX"),  # type: ignore
+        25,
+        (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
+    )
+
+    [out.write(cv.cvtColor(img, cv.COLOR_RGB2BGR)) for img in imgs]  # type: ignore
+    out.release()
+
+
+def scale_convert(img: np.ndarray) -> Optional[np.ndarray]:
+    if img is None:
+        return img
+    new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
+
+    return new_img
+
+
 def read_img(img_path: Path) -> Optional[np.ndarray]:
-    img = scale_convert(cv.imread(img_path.as_posix(), cv.IMREAD_COLOR))  # type: ignore
+    img = cv.cvtColor(cv.imread(img_path.as_posix(), cv.IMREAD_COLOR), cv.COLOR_BGR2RGB)  # type: ignore
     return img
 
 
 def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
+    start = 0
     for batch_nr in range(len(images) // size):
         start_time = time.monotonic()
-        start = 0
         batch: List[np.ndarray] = list()
+        end = start + size
+        print(f"{start} : {end}")
+        if end > len(images):
+            end = len(images)
         with multiproc_pool(os.cpu_count()) as pool:
             batch = pool.map(
                 read_img,
-                images[start : start + size],
+                images[start:end],
                 size // os.cpu_count(),  # type: ignore
             )
-        batch = [img for img in batch if img is not None]
+
+        batch = [
+            cv.resize(  # type: ignore
+                img,
+                (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
+                interpolation=cv.INTER_AREA,  # type: ignore
+            )
+            for img in batch
+            if img is not None
+        ]
         yield batch_nr, len(images) // size, batch  # type: ignore
-        start = start + size
+        start = end
         print(f"time spent: {round(time.monotonic()-start_time, 2)}")
 
 
@@ -88,10 +165,12 @@ def track_to_model(obj: tracker.Object) -> model.Object:
         obj.label,  # type: ignore
         [
             model.Detection(
-                model.BBox(det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2),
-                det.probability,
-                det.label,
-                det.frame,
+                bbox=model.BBox(
+                    det.bbox.x1, det.bbox.y1, det.bbox.x2, det.bbox.y2
+                ),
+                probability=det.probability,
+                label=det.label,
+                frame=det.frame,
             )
             for det in obj.detections
         ],
@@ -168,14 +247,14 @@ def detect(batch_size, images) -> List[Frame]:
         )
 
         for frame_no, detections in from_detect.items():
-            frame_no = frame_no + (batch_size * batchnr)
+            frame_no_new = frame_no + (batch_size * batchnr)
             if len(detections) == 0:
-                result.append(Frame(frame_no, []))
+                result.append(Frame(frame_no_new, []))
             else:
                 result.append(
                     Frame(
-                        frame_no,
-                        [det_to_track(det, frame_no) for det in detections],
+                        frame_no_new,
+                        [det_to_track(det, frame_no_new) for det in detections],
                     )
                 )
 
@@ -186,17 +265,15 @@ if __name__ == "__main__":
 
     tracked = list()
     ground_truth: Dict[int, tracker.Object] = dict()
-    batch_size: int = 625
-    data_folder: Path = Path.home().joinpath(
-        "Dl/datasett_gullbust/filtered-dataset/"
+    batch_size: int = 600
+    data_folder: Path = Path(
+        "/mnt/storage/trening/datasett_mort_stim_gode_coco/"
     )
-
-    data_folder: Path = Path.home().joinpath("Dl/dataset_coco/")
-    images_path = data_folder.joinpath("images/default")
+    images_path = data_folder.joinpath("images")
 
     images: List[Path] = sorted(gen_img_paths(images_path))
     result: List[Frame] = []
-    from_file = False
+    from_file = True
 
     if not from_file:
 
@@ -235,6 +312,11 @@ if __name__ == "__main__":
     gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
 
     mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
+    for idx, obj in enumerate(mod_obj):
+        obj.id = idx
+
+    for idx, obj in enumerate(gt_mod_obj):
+        obj.id = idx
 
     gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
     mod_sorted = sorted(mod_obj, key=lambda x: x.time_in)  # type: ignore
@@ -244,3 +326,25 @@ if __name__ == "__main__":
             f"{mod_sorted[idx].time_in : %M:%S } | {mod_sorted[idx].time_out : %M:%S} | {len(mod_sorted[idx]._detections) : 5}  ||"
             + f"{gt_mod_sorted[idx].time_in : %M:%S} | {gt_mod_sorted[idx].time_out : %M:%S} | {len(gt_mod_sorted[idx]._detections) : 5} "
         )
+
+    imgs = list()
+    print("reading in images..")
+    with multiproc_pool(os.cpu_count()) as pool:
+        imgs = pool.map(
+            read_img,
+            sorted(images),
+            len(images) // os.cpu_count(),  # type: ignore
+        )
+    imgs = [img for img in imgs if img is not None]
+
+    imgs = [
+        cv.resize(
+            img,
+            (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
+            interpolation=cv.INTER_AREA,  # type: ignore
+        )
+        for img in outline_objects(imgs, gt_mod_obj, thickness=5)
+    ]
+    imgs = outline_objects(imgs, mod_obj)
+
+    make_video(imgs)  # type: ignore

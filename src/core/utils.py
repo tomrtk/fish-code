@@ -6,8 +6,12 @@ import numpy as np
 
 import core.model as model
 
+from typing import Tuple
 
-def outline_detection(img: np.ndarray, bbx: model.BBox) -> np.ndarray:
+
+def outline_detection(
+    img: np.ndarray, bbx: model.BBox, color: Tuple[int, int, int]
+) -> np.ndarray:
     """Convert numpy array to image and outline detection.
 
     Parameters
@@ -26,7 +30,7 @@ def outline_detection(img: np.ndarray, bbx: model.BBox) -> np.ndarray:
         img,
         (int(bbx.x1), int(bbx.y1)),
         (int(bbx.x2), int(bbx.y2)),
-        (255, 0, 0),
+        color,
         1,
     )
 
