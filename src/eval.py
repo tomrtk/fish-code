@@ -17,6 +17,8 @@ import random
 import torch
 import itertools
 
+from traitlets.traitlets import Integer
+
 import coco_parse
 from core import model
 from detection import api as detection
@@ -301,46 +303,33 @@ if __name__ == "__main__":
         ]
 
     args: List[Tuple[int, int]] = itertools.permutations(  # type: ignore
-        np.arange(1, 10), r=2
+        np.arange(1, 25), r=2
     )
 
     track_res = list()
     args_list = list()
     gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
     gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
+    best: Optional[Tuple[int, Tuple[int, int]]] = None
 
     for attempt, arg in enumerate(args):
 
         start = time.monotonic()
-        track = tracker.SortTracker(arg[0], arg[1])
+        track = tracker.SortTracker(*arg)
         for frame in result:
             track.update(frame.detections)
         stop = time.monotonic()
 
         mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
 
-        track_res.append((len(gt_mod_obj) - len(mod_obj)) ** 2)
-        if True:
+        err: int = (len(gt_mod_obj) - len(mod_obj)) ** 2
+        track_res.append(err)
+        if best is None:
+            best = (err, arg)
+        elif best[0] > len(gt_mod_obj):
+            best = (err, arg)
 
-            print(f"{args}")
-
-            print(len(gt_mod_obj))
-            print(len(mod_obj))
-
-            for idx, obj in enumerate(mod_obj):
-                obj.id = idx
-
-            for idx, obj in enumerate(gt_mod_obj):
-                obj.id = idx
-
-            mod_sorted = sorted(mod_obj, key=lambda x: x.time_in)  # type: ignore
-
-            for idx in range(min(len(mod_sorted), len(gt_mod_sorted))):
-                print(
-                    f"{mod_sorted[idx].time_in : %M:%S } | {mod_sorted[idx].time_out : %M:%S} | {len(mod_sorted[idx]._detections) : 5}  ||"
-                    + f"{gt_mod_sorted[idx].time_in : %M:%S} | {gt_mod_sorted[idx].time_out : %M:%S} | {len(gt_mod_sorted[idx]._detections) : 5} "
-                )
-
+    print(best)
     plt.plot(track_res)
     plt.show()
 
