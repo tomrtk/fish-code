@@ -8,12 +8,14 @@ from datetime import datetime, timedelta
 from multiprocessing.pool import Pool as multiproc_pool
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+from matplotlib import pyplot as plt
 
 
 import cv2 as cv
 import numpy as np
 import random
 import torch
+import itertools
 
 import coco_parse
 from core import model
@@ -298,34 +300,51 @@ if __name__ == "__main__":
             for (k, v) in json.load(det_file).items()
         ]
 
-    print("tracking...")
-    start = time.monotonic()
-    track = tracker.SortTracker()
-    for frame in result:
-        track.update(frame.detections)
-    stop = time.monotonic()
-    print(f"tracking took: {stop-start}")
+    args: List[Tuple[int, int]] = itertools.permutations(  # type: ignore
+        np.arange(1, 10), r=2
+    )
 
-    print(len(ground_truth.values()))
-    print(len(track.get_objects().values()))
-
+    track_res = list()
+    args_list = list()
     gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
-
-    mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
-    for idx, obj in enumerate(mod_obj):
-        obj.id = idx
-
-    for idx, obj in enumerate(gt_mod_obj):
-        obj.id = idx
-
     gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
-    mod_sorted = sorted(mod_obj, key=lambda x: x.time_in)  # type: ignore
 
-    for idx in range(min(len(mod_sorted), len(gt_mod_sorted))):
-        print(
-            f"{mod_sorted[idx].time_in : %M:%S } | {mod_sorted[idx].time_out : %M:%S} | {len(mod_sorted[idx]._detections) : 5}  ||"
-            + f"{gt_mod_sorted[idx].time_in : %M:%S} | {gt_mod_sorted[idx].time_out : %M:%S} | {len(gt_mod_sorted[idx]._detections) : 5} "
-        )
+    for attempt, arg in enumerate(args):
+
+        start = time.monotonic()
+        track = tracker.SortTracker(arg[0], arg[1])
+        for frame in result:
+            track.update(frame.detections)
+        stop = time.monotonic()
+
+        mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
+
+        track_res.append((len(gt_mod_obj) - len(mod_obj)) ** 2)
+        if True:
+
+            print(f"{args}")
+
+            print(len(gt_mod_obj))
+            print(len(mod_obj))
+
+            for idx, obj in enumerate(mod_obj):
+                obj.id = idx
+
+            for idx, obj in enumerate(gt_mod_obj):
+                obj.id = idx
+
+            mod_sorted = sorted(mod_obj, key=lambda x: x.time_in)  # type: ignore
+
+            for idx in range(min(len(mod_sorted), len(gt_mod_sorted))):
+                print(
+                    f"{mod_sorted[idx].time_in : %M:%S } | {mod_sorted[idx].time_out : %M:%S} | {len(mod_sorted[idx]._detections) : 5}  ||"
+                    + f"{gt_mod_sorted[idx].time_in : %M:%S} | {gt_mod_sorted[idx].time_out : %M:%S} | {len(gt_mod_sorted[idx]._detections) : 5} "
+                )
+
+    plt.plot(track_res)
+    plt.show()
+
+    exit()
 
     imgs = list()
     print("reading in images..")
