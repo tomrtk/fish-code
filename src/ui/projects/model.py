@@ -16,11 +16,11 @@ class Object:
     probability: float
     time_in: datetime
     time_out: datetime
-    _detections: Dict[str, List[float]]
-    video_ids: List[int]
+    _detections: dict[str, list[float]]
+    video_ids: list[int]
 
     @classmethod
-    def from_dict(cls, object_data: Dict[str, Any]) -> Object:
+    def from_dict(cls, object_data: dict[str, Any]) -> Object:
         """Return a new object from a dict."""
         return cls(
             id=object_data["id"],
@@ -49,14 +49,14 @@ class JobBare(JobBase):
     _status: str
     video_count: int
     progress: int
-    id: Optional[int] = None
-    project_id: Optional[int] = None
-    project_name: Optional[str] = None
-    stats: Optional[Dict[str, Any]] = None
+    id: int | None = None
+    project_id: int | None = None
+    project_name: str | None = None
+    stats: dict[str, Any] | None = None
 
     @classmethod
     def from_dict(
-        cls, job_data: Dict[str, Any], project_id: int, project_name: str
+        cls, job_data: dict[str, Any], project_id: int, project_name: str
     ) -> JobBare:
         """Create job from dict data."""
         return cls(
@@ -78,14 +78,14 @@ class Job(JobBase):
     """Hold the job details."""
 
     _status: str
-    videos: List[str]
-    id: Optional[int] = None
-    project_id: Optional[int] = None
-    project_name: Optional[str] = None
-    progress: Optional[int] = None
-    stats: Optional[Dict[str, Any]] = None
+    videos: list[str]
+    id: int | None = None
+    project_id: int | None = None
+    project_name: str | None = None
+    progress: int | None = None
+    stats: dict[str, Any] | None = None
 
-    def to_post_dict(self) -> Dict[str, Union[str | List[str]]]:
+    def to_post_dict(self) -> dict[str, str | list[str]]:
         """Return prepared dict for posting.
 
         Return
@@ -106,7 +106,7 @@ class Job(JobBase):
 
     @classmethod
     def from_dict(
-        cls, job_data: Dict[str, Any], project_id: int, project_name: str
+        cls, job_data: dict[str, Any], project_id: int, project_name: str
     ) -> Job:
         """Create job from dict data."""
         return cls(
@@ -122,7 +122,7 @@ class Job(JobBase):
             stats=job_data["stats"],
         )
 
-    def get_object_stats(self) -> Optional[Dict[str, Any]]:
+    def get_object_stats(self) -> dict[str, Any] | None:
         """Return total stat for all objects inside the job."""
         return self.stats
 
@@ -135,10 +135,10 @@ class Project:
     name: str
     location: str
     number: str
-    owner: Optional[str] = None
-    id: Optional[int] = None
-    date: Optional[str] = None
-    jobs: Optional[List[Job]] = None
+    owner: str | None = None
+    id: int | None = None
+    date: str | None = None
+    jobs: list[Job] | None = None
 
     def get_job_count(self) -> int:
         """Get the count of jobs inside the project."""
@@ -151,7 +151,7 @@ class Project:
         """Return the projects name."""
         return self.name
 
-    def to_post_dict(self) -> Dict[str, str]:
+    def to_post_dict(self) -> dict[str, str]:
         """Return prepared dict for posting.
 
         Return
@@ -167,9 +167,9 @@ class Project:
         }
 
     @classmethod
-    def from_dict(cls, project_data: Dict[str, Any]) -> Project:
+    def from_dict(cls, project_data: dict[str, Any]) -> Project:
         """Convert text to a new Project object."""
-        project_jobs: List[Job] = list()
+        project_jobs: list[Job] = list()
 
         if "jobs" in project_data:
             for job in list(project_data["jobs"]):
@@ -213,7 +213,7 @@ class ProjectBare:
 class Projects:
     """Hold the projects."""
 
-    projects: List[Project]
+    projects: list[Project]
 
 
 @dataclass
