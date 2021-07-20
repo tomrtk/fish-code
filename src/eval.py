@@ -334,25 +334,3 @@ if __name__ == "__main__":
     plt.show()
 
     exit()
-
-    imgs = list()
-    print("reading in images..")
-    with multiproc_pool(os.cpu_count()) as pool:
-        imgs = pool.map(
-            read_img,
-            sorted(images),
-            len(images) // os.cpu_count(),  # type: ignore
-        )
-    imgs = [img for img in imgs if img is not None]
-
-    imgs = [
-        cv.resize(
-            img,
-            (model.VIDEO_DEFAULT_WIDTH, model.VIDEO_DEFAULT_HEIGHT),
-            interpolation=cv.INTER_AREA,  # type: ignore
-        )
-        for img in outline_objects(imgs, gt_mod_obj, thickness=5)
-    ]
-    imgs = outline_objects(imgs, mod_obj)
-
-    make_video(imgs)  # type: ignore
