@@ -78,7 +78,7 @@ skipsdist = True
 
 [testenv]
 deps =
-    -e .[testing]
+    -e .[testing, cpu]
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
