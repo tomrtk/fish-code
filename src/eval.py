@@ -1,28 +1,67 @@
 #!/usr/bin/env python3
 
+import itertools
 import json
 import os
+import random
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from multiprocessing.pool import Pool as multiproc_pool
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
-from matplotlib import pyplot as plt
-
 
 import cv2 as cv
 import numpy as np
-import random
 import torch
-import itertools
-
-from traitlets.traitlets import Integer
+from matplotlib import pyplot as plt
 
 import coco_parse
 from core import model
 from detection import api as detection
 from tracing import tracker
+
+detection.model["fishy"] = (  # type: ignore
+    torch.hub.load(  # type: ignore
+        "ultralytics/yolov5",
+        "custom",
+        path=str(detection.model_fishy_path.resolve()),
+    ),
+    640,
+)
+
+detection.label["fishy"] = [
+    "gjedde",
+    "gullbust",
+    "rumpetroll",
+    "stingsild",
+    "ørekyt",
+    "abbor",
+    "brasme",
+    "mort",
+    "vederbuk",
+]
+
+detection.model["fishy2"] = (  # type: ignore
+    torch.hub.load(  # type: ignore
+        "ultralytics/yolov5",
+        "custom",
+        path=str(detection.model_fishy2_path.resolve()),
+    ),
+    768,
+)
+
+detection.label["fishy2"] = [
+    "gjedde",
+    "gullbust",
+    "rumpetroll",
+    "stingsild",
+    "ørekyt",
+    "abbor",
+    "brasme",
+    "mort",
+    "vederbuk",
+]
 
 
 @dataclass
@@ -78,7 +117,7 @@ def outline_objects(
 
     for obj in objects:
         for det in obj._detections:
-            imgs[det.frame] = outline(
+            images[det.frame] = outline(
                 images[det.frame],
                 det.bbox,
                 colors[obj.id],  # type: ignore
@@ -101,22 +140,17 @@ def make_video(imgs: List[np.ndarray]):
     out.release()
 
 
-def scale_convert(img: np.ndarray) -> Optional[np.ndarray]:
-    if img is None:
-        return img
-    new_img = cv.cvtColor(img, cv.COLOR_BGR2RGB)  # type: ignore
-
-    return new_img
-
-
 def read_img(img_path: Path) -> Optional[np.ndarray]:
-    img = cv.cvtColor(cv.imread(img_path.as_posix(), cv.IMREAD_COLOR), cv.COLOR_BGR2RGB)  # type: ignore
+    try:
+        img = cv.cvtColor(cv.imread(img_path.as_posix(), cv.IMREAD_COLOR), cv.COLOR_BGR2RGB)  # type: ignore
+    except Exception:
+        return None
     return img
 
 
 def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
     start = 0
-    for batch_nr in range(len(images) // size):
+    for batch_nr in range(max(1, (len(images) // size))):
         start_time = time.monotonic()
         batch: List[np.ndarray] = list()
         end = start + size
@@ -139,6 +173,7 @@ def gen_batch(size: int, images: List[Path]) -> List[np.ndarray]:
             for img in batch
             if img is not None
         ]
+        print(len(batch))
         yield batch_nr, len(images) // size, batch  # type: ignore
         start = end
         print(f"time spent: {round(time.monotonic()-start_time, 2)}")
@@ -196,48 +231,6 @@ def track_to_model(obj: tracker.Object) -> model.Object:
 
 def detect(batch_size, images) -> List[Frame]:
 
-    detection.model["fishy"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
-            "custom",
-            path=str(detection.model_fishy_path.resolve()),
-        ),
-        640,
-    )
-
-    detection.label["fishy"] = [
-        "gjedde",
-        "gullbust",
-        "rumpetroll",
-        "stingsild",
-        "ørekyt",
-        "abbor",
-        "brasme",
-        "mort",
-        "vederbuk",
-    ]
-
-    detection.model["fishy2"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
-            "custom",
-            path=str(detection.model_fishy2_path.resolve()),
-        ),
-        768,
-    )
-
-    detection.label["fishy2"] = [
-        "gjedde",
-        "gullbust",
-        "rumpetroll",
-        "stingsild",
-        "ørekyt",
-        "abbor",
-        "brasme",
-        "mort",
-        "vederbuk",
-    ]
-
     result: List[Frame] = list()
     from_detect: Dict[int, List[detection.schema.Detection]] = dict()
 
@@ -267,70 +260,121 @@ def detect(batch_size, images) -> List[Frame]:
 
 if __name__ == "__main__":
 
-    tracked = list()
-    ground_truth: Dict[int, tracker.Object] = dict()
-    batch_size: int = 600
-    data_folder: Path = Path(
-        "/mnt/storage/trening/datasett_mort_stim_gode_coco/"
-    )
-    images_path = data_folder.joinpath("images")
+    data_folder_base = Path("/mnt/storage/trening/")
+    data_folders: List[Path] = [
+        Path("datasett_brasme_coco"),
+        Path("datasett_gjedde_gode_coco"),
+        Path("datasett_gjedde_middles_coco"),
+        Path("datasett_gjedde_morke_coco"),
+        Path("datasett_gullbust_coco"),
+        Path("datasett_mort_morke_forhold_coco"),
+        Path("datasett_mort_motlys_coco"),
+        Path("datasett_mort_stim_gode_coco"),
+        Path("datasett_ørekyt_dårlige_forhold_coco"),
+        Path("datasett_ørekyt_gode_forhold_coco"),
+    ]
 
-    images: List[Path] = sorted(gen_img_paths(images_path))
-    result: List[Frame] = []
-    from_file = True
+    best_overall: List[Tuple[int, Tuple[int, int]]] = list()
 
-    if not from_file:
+    output = open("output_all_data_all_params.txt", "w")
 
-        result = detect(batch_size, images)
+    for data_folder in data_folders:
+        data_folder = data_folder_base.joinpath(data_folder)
+        images_path = data_folder.joinpath("images")
 
-        obj_dict = {
-            frame.idx: [o.to_dict() for o in frame.detections]
-            for frame in result
-        }
+        tracked = list()
+        ground_truth: Dict[int, tracker.Object] = dict()
+        batch_size: int = 600
 
-        with open("detections.json", "w") as det_file:
-            det_file.write(json.dumps(obj_dict))
+        images: List[Path] = sorted(gen_img_paths(images_path))
+        result: List[Frame] = []
+        from_file = True
 
-    with open(
-        data_folder.joinpath("annotations/").joinpath(coco_parse.json_file_name)
-    ) as file:
-        ground_truth = coco_parse.parse(json.load(file))
+        if not from_file:
 
-    with open("detections.json", "r") as det_file:
-        result = [
-            Frame(k, [tracker.Detection.from_dict(det) for det in v])
-            for (k, v) in json.load(det_file).items()
-        ]
+            if data_folder.joinpath("detections.json").is_file():
+                continue
 
-    args: List[Tuple[int, int]] = itertools.permutations(  # type: ignore
-        np.arange(1, 25), r=2
-    )
+            print(data_folder)
 
-    track_res = list()
-    args_list = list()
-    gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
-    gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
-    best: Optional[Tuple[int, Tuple[int, int]]] = None
+            result = detect(batch_size, images)
 
-    for attempt, arg in enumerate(args):
+            obj_dict = {
+                frame.idx: [o.to_dict() for o in frame.detections]
+                for frame in result
+            }
 
-        start = time.monotonic()
-        track = tracker.SortTracker(*arg)
-        for frame in result:
-            track.update(frame.detections)
-        stop = time.monotonic()
+            with open(data_folder.joinpath("detections.json"), "w") as det_file:
+                det_file.write(json.dumps(obj_dict))
 
-        mod_obj = [track_to_model(obj) for obj in track.get_objects().values()]
+            continue
 
-        err: int = (len(gt_mod_obj) - len(mod_obj)) ** 2
-        track_res.append(err)
-        if best is None:
-            best = (err, arg)
-        elif best[0] > len(gt_mod_obj):
-            best = (err, arg)
+        with open(
+            data_folder.joinpath("annotations/").joinpath(
+                coco_parse.json_file_name
+            )
+        ) as file:
+            ground_truth = coco_parse.parse(json.load(file))
 
-    print(best)
-    plt.plot(track_res)
-    plt.show()
+        with open(data_folder.joinpath("detections.json"), "r") as det_file:
+            result = [
+                Frame(k, [tracker.Detection.from_dict(det) for det in v])
+                for (k, v) in json.load(det_file).items()
+            ]
 
+        args: List[Tuple[int, int]] = list(
+            itertools.product([8], [1])  # type: ignore
+        )
+
+        gt_mod_obj = [track_to_model(obj) for obj in ground_truth.values()]
+        gt_mod_sorted = sorted(gt_mod_obj, key=lambda x: x.time_in)  # type: ignore
+
+        track_res = list()
+        args_list = list()
+        best: Optional[Tuple[int, Tuple[int, int], int, int]] = None
+
+        for attempt, arg in enumerate(args):
+
+            start = time.monotonic()
+            track = tracker.SortTracker(*arg)
+            for frame in result:
+                track.update(frame.detections)
+            stop = time.monotonic()
+
+            mod_obj = [
+                track_to_model(obj) for obj in track.get_objects().values()
+            ]
+
+            err: int = abs(len(gt_mod_obj) - len(mod_obj))
+            track_res.append(err)
+            if best is None:
+                best = (err, arg, len(gt_mod_obj), len(mod_obj))
+            elif best[0] > err:
+                best = (err, arg, len(gt_mod_obj), len(mod_obj))
+
+        err, args, gt, det = best
+        stats = f"{(err, args)}, gt={gt}, det={det}, {round(err/(gt/100), 3)}%, {data_folder}"
+
+        print(stats)
+
+        output.write(stats)
+
+        # plt.plot(track_res)
+        # plt.show()
+        best_overall.append(best)  # type: ignore
+
+    err_overall = 0
+    sum_gt = 0
+    sum_det = 0
+    for best in best_overall:
+        err, args, gt, det = best
+        sum_gt += gt
+        sum_det += det
+        err_overall += err / (gt / 100)
+
+    print(f"err: {err_overall}")
+    print(f"gt: {sum_gt}")
+    print(f"det: {sum_det}")
+
+    output.close()
     exit()
