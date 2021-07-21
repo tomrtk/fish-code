@@ -103,3 +103,6 @@ dmypy.json
 
 # Make
 .make.deps
+
+# setuptools_scm
+src/nina/version.py

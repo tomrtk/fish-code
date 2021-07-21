@@ -1,8 +1,9 @@
 graft src
+prune src/ui/node_modules
 graft tests
 
 include LICENSE
 include README.md
-include tox.ini .pre-commit-config.yaml pyproject.toml
+include .pre-commit-config.yaml pyproject.toml
 
 global-exclude *.py[cod] __pycache__/* *.so *.dylib

@@ -1,3 +1,9 @@
 # pragma: no cover
 # noqa: D104
-__version__ = "1.0.0-rc1"
+from importlib.metadata import PackageNotFoundError, version
+
+try:
+    __version__ = version("nina")
+except PackageNotFoundError:  # pragma: no cover
+    # package is not installed
+    pass
