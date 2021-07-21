@@ -14,7 +14,7 @@ tracking = FastAPI()
 
 def make_tracker() -> tracker.SortTracker:
     """Return a SORT tracker."""
-    return tracker.SortTracker()
+    return tracker.SortTracker(8, 1)
 
 
 class BBox(BaseModel):
