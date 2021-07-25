@@ -32,7 +32,7 @@ def test_load_config(mock_isfile):
     """Checks that config can be read from disk at default config location."""
     mock_isfile.return_value = True
     with patch.object(configparser.ConfigParser, "read_file") as mock_method:
-        config.load_config()
+        config.load_config(path="./tests/integration/test_data/test_config.ini")
 
     mock_method.assert_called_once()
 
