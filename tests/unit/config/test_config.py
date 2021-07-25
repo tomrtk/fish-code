@@ -48,14 +48,14 @@ def test_load_config_not_found(mock_isfile):
     assert data.__eq__(config.get_default_config())
 
 
-def test_write_config():
-    """Checks that config can be read from disk at default config location."""
+@patch("builtins.open")
+def test_write_config(mock_open):
+    """Checks that config can be written to disk at default config location."""
     with patch.object(configparser.ConfigParser, "write") as mock_method:
-        mock_method.call
         config.write_config(config.get_default_config())
 
     mock_method.assert_called_once()
-    assert mock_method.call_args[0][0].name == config.get_config_file_path()
+    mock_open.assert_called_once()
 
 
 def test_read_config_garbage_data(caplog):
