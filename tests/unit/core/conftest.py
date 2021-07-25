@@ -16,7 +16,7 @@ from core.repository import SqlAlchemyProjectRepository as ProjectRepo
 @pytest.fixture
 def in_memory_sqlite_db():
     """Create a sqlite database in memory for use with tests."""
-    core.main.setup(":memory:")
+    core.main.setup(db_name=":memory:")
     yield core.main.engine
     metadata.drop_all(core.main.engine)
     core.main.shutdown()

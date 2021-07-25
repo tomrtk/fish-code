@@ -1,6 +1,7 @@
 """Module containing runtime of _core_."""
 import argparse
 import logging
+from pathlib import Path
 from typing import Optional, Sequence
 
 import uvicorn
@@ -23,12 +24,19 @@ sessionfactory: Optional[scoped_session] = None
 engine: Optional[Engine] = None
 
 
-def setup(db_name: str = "data.db") -> None:
+def setup(db_name: Optional[str] = None) -> None:
     """Set up database."""
     global sessionfactory, engine
+    if db_name is None:
+        db_file = config.get("CORE", "database_path", fallback="data.db")
+        # Ensure application data folder is created
+        Path(db_file).parent.mkdir(parents=True, exist_ok=True)
+    else:
+        db_file = db_name
+
     logger.info("Creating database engine")
     engine = create_engine(
-        f"sqlite:///{db_name}",
+        f"sqlite:///{db_file}",
         connect_args={"check_same_thread": False},
     )  # type: ignore
     # Create tables from defined schema.
@@ -53,7 +61,7 @@ def shutdown() -> None:
 
 
 def main(
-    argsv: Optional[Sequence[str]] = None, db_path: str = "data.db"
+    argsv: Optional[Sequence[str]] = None, db_path: Optional[str] = None
 ) -> int:
     """Start runtime of core module."""
     # Handle any command argument.
