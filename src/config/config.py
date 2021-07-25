@@ -92,7 +92,7 @@ def get_video_root_path() -> str:
     elif "HOME" in os.environ:
         return str(Path(os.environ["HOME"]))
     else:
-        logger.warning(
+        logger.debug(
             "Unable to determine video root directory, defaulting to filesystem root."
         )
         return str(Path(sys.executable).anchor)
