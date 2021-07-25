@@ -32,7 +32,7 @@ def setup(tmp_path):
     """Override setup of db for tests."""
     test_db = tmp_path / "test.db"
     logger.info(f"Making a test db at {str(test_db)}")
-    core.main.setup(str(test_db.resolve()))
+    core.main.setup(db_name=str(test_db.resolve()))
 
     try:
         yield
