@@ -2,6 +2,7 @@
 import configparser
 import logging
 import pytest
+from unittest.mock import patch
 import os
 
 import config
@@ -52,32 +53,35 @@ def test_load_default_config():
     assert parser.getboolean("GLOBAL", "development") == False
 
 
-def test_load_config_from_disk(preserve_config, cleanup_tmp_config, caplog):
+@patch("os.path.isfile")
+def test_load_config(mock_isfile):
     """Checks that config can be read from disk at default config location."""
-    config.write_config(config.get_default_config())
-    with caplog.at_level(logging.INFO):
-        _ = config.load_config()
-        assert caplog.records[0].getMessage() == "Configuration file found."
+    mock_isfile.return_value = True
+    with patch.object(configparser.ConfigParser, "read") as mock_method:
+        config.load_config()
+
+    mock_method.assert_called_once()
 
 
-def test_config_not_found(preserve_config, caplog):
-    """Checks that the config package does not find the config file if missing."""
-    with caplog.at_level(logging.INFO):
-        _ = config.load_config()
-        assert (
-            caplog.records[0].getMessage()
-            == "Could not find config file, using defaults."
-        )
+@patch("os.path.isfile")
+def test_load_config_not_found(mock_isfile):
+    """Checks that config can be read from disk at default config location."""
+    mock_isfile.return_value = False
+    with patch.object(configparser.ConfigParser, "read") as mock_method:
+        data = config.load_config()
+
+    mock_method.assert_not_called()
+    assert data.__eq__(config.get_default_config())
 
 
-def test_write_config(preserve_config, cleanup_tmp_config):
-    """Test writing the config to file, then make sure its the same."""
-    parser = configparser.ConfigParser()
-    parser["TEST"] = {}
-    parser["TEST"]["some_var"] = "Test, please ignore."
-    config.write_config(parser)
-    from_file = config.load_config()
-    assert parser.__eq__(from_file)
+def test_write_config():
+    """Checks that config can be read from disk at default config location."""
+    with patch.object(configparser.ConfigParser, "write") as mock_method:
+        mock_method.call
+        config.write_config(config.get_default_config())
+
+    mock_method.assert_called_once()
+    assert mock_method.call_args[0][0].name == config.get_config_file_path()
 
 
 def test_read_config_garbage_data(preserve_config, cleanup_tmp_config, caplog):
