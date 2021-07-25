@@ -15,25 +15,16 @@
 
 ### Windows
 
-**Extra Dependencies:**
-
-- [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)
-
 First check if required Python version is installed on your computer. Open
-`powershell` or `cmd` and run the command `python --version` as showed in
+`cmd` and run the command `python --version` as showed in
 example below. If you see an output of a supported Python version you are ready
 to proceed. If not [download](https://www.python.org/downloads/windows/) and
 install Python before proceeding. Ensure that the check box "Add Python `<version>`
 to PATH" is checked.
 
-![Check Add to PATH](./images/path_highlight.png)
-
 ![Check python version](./images/python_version.jpg)
 
-When installing Microsoft C++ Build Tools, check the "Desktop development with
-C++" box and hit install.
-
-![Check development with C++](./images/cpp_build_tools.png)
+![Check Add to PATH](./images/path_highlight.png)
 
 Find url to latest `whl`
 [here](https://github.com/MindTooth/fish-code/releases/latest) for use in
@@ -46,23 +37,25 @@ install it to your user by running:
 
 If your computer do not have a `gpu`:
 
+<!-- prettier-ignore-start -->
 ```terminal
-py -m pip install --user '<url>'[cpu]
+py -m pip install --user 'nina[cpu] @ <url>'
 
 # example:
-py -m pip install --user
-'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[cpu]
+py -m pip install --user 'nina[cpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'
 ```
+<!-- prettier-ignore-end -->
 
 If your computer do have a `gpu`:
 
+<!-- prettier-ignore-start -->
 ```terminal
-py -m pip install --user '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+py -m pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # example:
-py -m pip install --user
-'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+py -m pip install --user 'nina[gpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl' --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
+<!-- prettier-ignore-end -->
 
 To run the application call the `nina` command and from a browser go to the
 local address `0.0.0.0:5000`.
@@ -80,17 +73,18 @@ venv\Scripts\activate.bat
 Then install the application in the virtual environment:
 
 If your computer do not have a `gpu`:
-'https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
 
 ```terminal
-py -m pip install '<url>'[cpu]
+py -m pip install 'nina[cpu] @ <url>'
 ```
 
 If your computer do have a `gpu`:
 
+<!-- prettier-ignore-start -->
 ```terminal
-py -m pip install '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+py -m pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
+<!-- prettier-ignore-end -->
 
 To run the application call the `nina` command and from a browser go to the
 local address `0.0.0.0:5000`.

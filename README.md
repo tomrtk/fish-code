@@ -30,22 +30,24 @@ Find url to latest `whl`
 [here](https://github.com/MindTooth/fish-code/releases/latest) for use in
 command below.
 
+<!-- prettier-ignore-start -->
 ```sh
 # install option 1
 virtualenv .venv --download  # or `python -m venv .venv --upgrade-deps`
 . .venv/bin/activate
-pip install '<url>'[cpu]
+pip install 'nina[cpu] @ <url>'
 # or if you have a `gpu`
-pip install '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # install option 2, without venv
-pip install --user '<url>'[cpu]
+pip install --user 'nina[cpu] @ <url>'
 # or if you have a `gpu`
-pip install --user '<url>'[gpu] --find-links https://download.pytorch.org/whl/torch_stable.html
+pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # to run application from terminal call
 nina
 ```
+<!-- prettier-ignore-end -->
 
 ## Configuration
 
