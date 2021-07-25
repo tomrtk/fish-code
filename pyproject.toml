@@ -12,8 +12,11 @@ authors = [
 license = "GPL-3.0"
 
 [build-system]
-requires = ["setuptools >= 35.0.2", "setuptools_scm >= 2.0.0, <3"]
+requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/nina/version.py"
 
 [tool.isort]
 profile = "black"
@@ -62,7 +65,14 @@ python_files = ["test_*.py", "*_test.py", "tests.py"]
 [tool.coverage.run]
 branch = true
 source = ["src"]
-omit = ["*/.tox/*", "*/__main__.py", "*/setup.py", "*/.venv*/*", "*/venv*/*"]
+omit = [
+  "*/.tox/*",
+  "*/__main__.py",
+  "*/setup.py",
+  "*/.venv*/*",
+  "*/venv*/*",
+  "src/nina/version.py"
+]
 
 [tool.coverage.report]
 show_missing = true
