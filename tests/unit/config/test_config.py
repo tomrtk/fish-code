@@ -19,10 +19,10 @@ def preserve_config(scope="module"):
     # Only backup config file if it is present
     if isfile(config_path):
         logger.info("Backing up config file...")
-        os.rename(config_path, config_folder + "config.bak")
+        os.rename(config_path, os.path.join(config_folder, "config.bak"))
         yield
         logger.info("Restoring config file...")
-        os.rename(config_folder + "config.bak", config_path)
+        os.rename(os.path.join(config_folder, "config.bak"), config_path)
     else:
         yield
 
