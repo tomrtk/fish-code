@@ -8,7 +8,8 @@ from typing import Final
 logger = logging.getLogger(__name__)
 
 CONFIG_FILE_NAME: Final[str] = "config.ini"
-CONFIG_DIRECTORY_NAME: Final[str] = "nina"
+DATABASE_FILE_NAME: Final[str] = "data.db"
+APP_DIRECTORY_NAME: Final[str] = "nina"
 
 
 def find_config_directory() -> Path:  # Pragma: no cover
@@ -34,7 +35,22 @@ def find_config_directory() -> Path:  # Pragma: no cover
         # Unable to find config directory, defaulting to current directory.
         return Path().resolve()
 
-    return Path(os.path.join(confighome, CONFIG_DIRECTORY_NAME))
+    return Path(os.path.join(confighome, APP_DIRECTORY_NAME))
+
+
+def find_data_directory() -> Path:  # Pragma: no cover
+    """Find application data directory."""
+    if os.name == "nt" and "LOCALAPPDATA" in os.environ:
+        confighome = Path(os.environ["LOCALAPPDATA"])
+    elif os.name == "posix" and "XDG_DATA_HOME" in os.environ:
+        confighome = Path(os.environ["XDG_DATA_HOME"])
+    elif "HOME" in os.environ:
+        confighome = Path(os.path.join(os.environ["HOME"], ".local", "share"))
+    else:
+        # Unable to find data directory, defaulting to current directory.
+        return Path().resolve()
+
+    return Path(os.path.join(confighome, APP_DIRECTORY_NAME))
 
 
 def get_config_file_path() -> str:
@@ -46,6 +62,17 @@ def get_config_file_path() -> str:
         Path represented as a string to the configuration file.
     """
     return os.path.join(find_config_directory(), CONFIG_FILE_NAME)
+
+
+def get_database_file_path() -> str:
+    """Get file path to the database file.
+
+    Returns
+    -------
+    str     :
+        Path represented as a string to the database file.
+    """
+    return os.path.join(find_data_directory(), DATABASE_FILE_NAME)
 
 
 def get_default_config() -> configparser.ConfigParser:
@@ -66,6 +93,7 @@ def get_default_config() -> configparser.ConfigParser:
     default_config["CORE"] = {}
     default_config["CORE"]["port"] = "8000"
     default_config["CORE"]["batch_size"] = "100"
+    default_config["CORE"]["database_path"] = get_database_file_path()
     default_config["TRACING"] = {}
     default_config["TRACING"]["port"] = "8001"
     default_config["DETECTION"] = {}
