@@ -4,7 +4,7 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Final
+from typing import Final, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +125,9 @@ def get_default_config() -> configparser.ConfigParser:
     return default_config
 
 
-def load_config(default: bool = False) -> configparser.ConfigParser:
+def load_config(
+    default: bool = False, path: Optional[str] = None
+) -> configparser.ConfigParser:
     """Load configuration data from disk into ConfigParser object.
 
     Parameter
@@ -143,8 +145,12 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
     if default:
         return get_default_config()
 
+    if not path:
+        config_path = get_config_file_path()
+    else:
+        config_path = path
+
     config = configparser.ConfigParser()
-    config_path = get_config_file_path()
 
     if os.path.isfile(config_path):
         try:
@@ -167,7 +173,9 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
         return get_default_config()
 
     else:
-        logger.warning("Could not find config file, using defaults.")
+        logger.warning(
+            f"Could not find config file at {config_path}, using defaults."
+        )
         return get_default_config()
 
 
