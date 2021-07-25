@@ -2,6 +2,7 @@
 import configparser
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Final
 
@@ -75,6 +76,28 @@ def get_database_file_path() -> str:
     return os.path.join(find_data_directory(), DATABASE_FILE_NAME)
 
 
+def get_video_root_path() -> str:
+    """Get the default path for the application file browser.
+
+    Defaults to the users home directory. Based on the HOME variable,
+    or HOMEPATH for windows users.
+
+    Returns
+    -------
+    str     :
+        Path represented as a string to the users home directory.
+    """
+    if os.name == "nt" and "HOMEPATH" in os.environ:
+        return str(Path(os.environ["HOMEPATH"]))
+    elif "HOME" in os.environ:
+        return str(Path(os.environ["HOME"]))
+    else:
+        logger.warning(
+            "Unable to determine video root directory, defaulting to filesystem root."
+        )
+        return str(Path(sys.executable).anchor)
+
+
 def get_default_config() -> configparser.ConfigParser:
     """Get default settings stored in ConfigParser object.
 
@@ -94,6 +117,7 @@ def get_default_config() -> configparser.ConfigParser:
     default_config["CORE"]["port"] = "8000"
     default_config["CORE"]["batch_size"] = "100"
     default_config["CORE"]["database_path"] = get_database_file_path()
+    default_config["CORE"]["video_root_path"] = get_video_root_path()
     default_config["TRACING"] = {}
     default_config["TRACING"]["port"] = "8001"
     default_config["DETECTION"] = {}
