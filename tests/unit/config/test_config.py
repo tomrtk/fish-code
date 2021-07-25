@@ -11,32 +11,6 @@ from os.path import isfile
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
-def preserve_config(scope="module"):
-    """Preserves the existing config file before running a function."""
-    config_folder = config.find_config_directory()
-    config_path = config.get_config_file_path()
-
-    # Only backup config file if it is present
-    if isfile(config_path):
-        logger.info("Backing up config file...")
-        os.rename(config_path, os.path.join(config_folder, "config.bak"))
-        yield
-        logger.info("Restoring config file...")
-        os.rename(os.path.join(config_folder, "config.bak"), config_path)
-    else:
-        yield
-
-
-@pytest.fixture
-def cleanup_tmp_config(preserve_config, scope="function"):
-    """Purges temporary config file from disk after each test."""
-    config_path = config.get_config_file_path()
-    yield
-    if isfile(config_path):
-        os.remove(config_path)
-
-
 def test_load_default_config():
     """Checks the default config to contain correct sections."""
     parser = config.load_config(default=True)
@@ -84,35 +58,24 @@ def test_write_config():
     assert mock_method.call_args[0][0].name == config.get_config_file_path()
 
 
-def test_read_config_garbage_data(preserve_config, cleanup_tmp_config, caplog):
+def test_read_config_garbage_data(caplog):
     """Test that malformed configuration files throws error, and gives default conf."""
-    config_path = config.get_config_file_path()
-    with open(config_path, "w") as configfile:
-        text = [
-            "[Just some garbage data]\n",
-            "This is not a config file!\n",
-            "= 2\n",
-        ]
-        configfile.writelines(text)
-
-    with caplog.at_level(logging.ERROR):
-        parser = config.load_config()
+    with caplog.at_level(logging.WARNING):
+        parser = config.load_config(
+            path="./tests/integration/test_data/malformed_config.ini"
+        )
         assert (
             caplog.records[0].getMessage()
             == "Parsing error occured in config file."
         )
         assert parser.__eq__(config.get_default_config())
 
-    with open(config_path, "w") as configfile:
-        text = [
-            "Just some garbage data",
-        ]
-        configfile.writelines(text)
-
-    with caplog.at_level(logging.ERROR):
-        parser = config.load_config()
+    with caplog.at_level(logging.WARNING):
+        parser = config.load_config(
+            path="./tests/integration/test_data/missing_header.ini"
+        )
         assert (
-            caplog.records[1].getMessage()
+            caplog.records[2].getMessage()
             == "Config file is missing section header."
         )
         assert parser.__eq__(config.get_default_config())
