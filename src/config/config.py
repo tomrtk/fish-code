@@ -149,16 +149,20 @@ def load_config(default: bool = False) -> configparser.ConfigParser:
     if os.path.isfile(config_path):
         try:
             logger.info("Configuration file found.")
-            config.read(config_path)
+            config.read_file(open(config_path))
         except configparser.MissingSectionHeaderError:
             logger.error("Config file is missing section header.")
         except configparser.ParsingError:
             logger.error("Parsing error occured in config file.")
+        except OSError:
+            logger.error(
+                f"Unable to read configuration file from {config_path}"
+            )
         else:
             return config
 
         logger.warning(
-            "Falling back to default configuration, config file contains errors."
+            "Falling back to default configuration, errors occured with config file."
         )
         return get_default_config()
 

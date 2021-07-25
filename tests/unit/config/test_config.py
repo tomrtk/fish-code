@@ -57,7 +57,7 @@ def test_load_default_config():
 def test_load_config(mock_isfile):
     """Checks that config can be read from disk at default config location."""
     mock_isfile.return_value = True
-    with patch.object(configparser.ConfigParser, "read") as mock_method:
+    with patch.object(configparser.ConfigParser, "read_file") as mock_method:
         config.load_config()
 
     mock_method.assert_called_once()
@@ -67,7 +67,7 @@ def test_load_config(mock_isfile):
 def test_load_config_not_found(mock_isfile):
     """Checks that config can be read from disk at default config location."""
     mock_isfile.return_value = False
-    with patch.object(configparser.ConfigParser, "read") as mock_method:
+    with patch.object(configparser.ConfigParser, "read_file") as mock_method:
         data = config.load_config()
 
     mock_method.assert_not_called()
