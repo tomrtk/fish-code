@@ -40,9 +40,13 @@ def test_load_default_config():
     """Checks the default config to contain correct sections."""
     parser = config.load_config(default=True)
 
-    assert set(parser.sections()) == set(
-        ["GLOBAL", "CORE", "TRACING", "DETECTION", "UI"]
-    )
+    assert set(parser.sections()) == {
+        "GLOBAL",
+        "CORE",
+        "TRACING",
+        "DETECTION",
+        "UI",
+    }
     assert parser.get("DEFAULT", "hostname") == "127.0.0.1"
     assert parser.getboolean("DEFAULT", "enable") == True
     assert parser.getboolean("GLOBAL", "development") == False
