@@ -10,8 +10,12 @@
 
 ### Dependencies
 
-- Python (3.8, 3.9)
-- [`virtualenv`](https://virtualenv.pypa.io/en/latest/) (optional, but recommended)
+Running `nina` requires:
+
+- Python 3.8 or higher
+- [`venv`](https://docs.python.org/3/library/venv.html) or
+  [`virtualenv`](https://virtualenv.pypa.io) (recommended)
+- The URL for downloading the package
 
 ### Windows
 
@@ -39,10 +43,10 @@ If your computer do not have a `gpu`:
 
 <!-- prettier-ignore-start -->
 ```terminal
-py -m pip install --user 'nina[cpu] @ <url>'
+python -m pip install --user 'nina[cpu] @ <url>'
 
 # example:
-py -m pip install --user 'nina[cpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'
+python -m pip install --user 'nina[cpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'
 ```
 <!-- prettier-ignore-end -->
 
@@ -50,24 +54,31 @@ If your computer do have a `gpu`:
 
 <!-- prettier-ignore-start -->
 ```terminal
-py -m pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
+python -m pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 
 # example:
-py -m pip install --user 'nina[gpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl' --find-links https://download.pytorch.org/whl/torch_stable.html
+python -m pip install --user 'nina[gpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl' --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
 <!-- prettier-ignore-end -->
 
 To run the application call the `nina` command and from a browser go to the
-local address `0.0.0.0:5000`.
+local address `http://localhost:5000`.
 
-#### Install in virtual environment
+#### Install in a virtual environment
 
 Optionally if the application is to be installed in a virtual environment,
 run the following commands to create the environment:
 
 ```terminal
-py -m virtualenv venv --download  # or `python -m venv venv --upgrade-deps`
+python -m virtualenv venv
+# or
+python -m venv venv
+
+# load environment
 venv\Scripts\activate.bat
+
+# update environment
+python -m pip install --upgrade pip setuptools wheel
 ```
 
 Then install the application in the virtual environment:
@@ -75,19 +86,19 @@ Then install the application in the virtual environment:
 If your computer do not have a `gpu`:
 
 ```terminal
-py -m pip install 'nina[cpu] @ <url>'
+python -m pip install 'nina[cpu] @ <url>'
 ```
 
 If your computer do have a `gpu`:
 
 <!-- prettier-ignore-start -->
 ```terminal
-py -m pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
+python -m pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
 ```
 <!-- prettier-ignore-end -->
 
 To run the application call the `nina` command and from a browser go to the
-local address `0.0.0.0:5000`.
+local address `http://localhost:5000`.
 
 Next time you running the application the virtual environment need to be
 activated before you can run the application.
