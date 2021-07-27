@@ -3,6 +3,7 @@ import configparser
 import logging
 import os
 import sys
+from os import name as os_name
 from pathlib import Path
 from typing import Final, Optional
 
@@ -13,7 +14,12 @@ DATABASE_FILE_NAME: Final[str] = "data.db"
 APP_DIRECTORY_NAME: Final[str] = "nina"
 
 
-def find_config_directory() -> Path:  # Pragma: no cover
+def get_os_name() -> str:
+    """Get operation system name from `os.name`."""
+    return os_name
+
+
+def find_config_directory() -> Path:
     """Get configuration directory.
 
     Checks the operating system if it is windows or unix based. Uses enviroment
@@ -26,32 +32,36 @@ def find_config_directory() -> Path:  # Pragma: no cover
     Path    :
         Path object to the configuration directory.
     """
-    if os.name == "nt" and "LOCALAPPDATA" in os.environ:
+    if (
+        get_os_name() == "nt" and "LOCALAPPDATA" in os.environ
+    ):  # pragma: no cover
         confighome = Path(os.environ["LOCALAPPDATA"])
-    elif os.name == "posix" and "XDG_CONFIG_HOME" in os.environ:
+    elif get_os_name() == "posix" and "XDG_CONFIG_HOME" in os.environ:
         confighome = Path(os.environ["XDG_CONFIG_HOME"])
     elif "HOME" in os.environ:
-        confighome = Path(os.path.join(os.environ["HOME"], ".config"))
+        confighome = Path(os.environ["HOME"]) / ".config"
     else:
         # Unable to find config directory, defaulting to current directory.
         return Path().resolve()
 
-    return Path(os.path.join(confighome, APP_DIRECTORY_NAME))
+    return Path(confighome) / APP_DIRECTORY_NAME
 
 
-def find_data_directory() -> Path:  # Pragma: no cover
+def find_data_directory() -> Path:
     """Find application data directory."""
-    if os.name == "nt" and "LOCALAPPDATA" in os.environ:
+    if (
+        get_os_name() == "nt" and "LOCALAPPDATA" in os.environ
+    ):  # pragma: no cover
         confighome = Path(os.environ["LOCALAPPDATA"])
-    elif os.name == "posix" and "XDG_DATA_HOME" in os.environ:
+    elif get_os_name() == "posix" and "XDG_DATA_HOME" in os.environ:
         confighome = Path(os.environ["XDG_DATA_HOME"])
     elif "HOME" in os.environ:
-        confighome = Path(os.path.join(os.environ["HOME"], ".local", "share"))
+        confighome = Path(os.environ["HOME"]) / ".local" / "share"
     else:
         # Unable to find data directory, defaulting to current directory.
         return Path().resolve()
 
-    return Path(os.path.join(confighome, APP_DIRECTORY_NAME))
+    return Path(confighome) / APP_DIRECTORY_NAME
 
 
 def get_config_file_path() -> str:
@@ -87,7 +97,7 @@ def get_video_root_path() -> str:
     str     :
         Path represented as a string to the users home directory.
     """
-    if os.name == "nt" and "HOMEPATH" in os.environ:
+    if get_os_name() == "nt" and "HOMEPATH" in os.environ:  # pragma: no cover
         return str(Path(os.environ["HOMEPATH"]))
     elif "HOME" in os.environ:
         return str(Path(os.environ["HOME"]))
