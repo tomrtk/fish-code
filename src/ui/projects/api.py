@@ -20,7 +20,6 @@ import requests
 from ui.projects.model import Job, JobBare, Object, Project, ProjectBare
 
 logger = logging.getLogger(__name__)
-logger.level = logging.DEBUG
 
 T = TypeVar("T")
 Result = Optional[T]

@@ -34,7 +34,6 @@ from ui.projects.model import Job, JobBare, Project, ProjectBare
 from ui.projects.utils import validate_int
 
 logger = logging.getLogger(__name__)
-logger.level = logging.DEBUG
 
 
 def construct_projects_bp(cfg: Config) -> Blueprint:
