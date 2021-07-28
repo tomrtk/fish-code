@@ -1,5 +1,6 @@
 /* TailwindCSS Base */
 @import "tailwindcss/base";
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* TailwindCSS Components */
 @import "tailwindcss/components";

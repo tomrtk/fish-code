@@ -30,17 +30,11 @@ function attach_jstree(selector) {
         ttl: 300000,
       },
       types: {
-        "#": {
-          valid_children: ["root"],
-        },
-        root: {
-          valid_children: ["default"],
-        },
         default: {
-          valid_children: ["default", "file"],
+          icon: ["bi-file-earmark"],
         },
-        file: {
-          valid_children: [],
+        folder: {
+          icon: ["bi-folder"],
         },
       },
     })
