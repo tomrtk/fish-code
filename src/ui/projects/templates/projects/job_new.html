@@ -92,17 +92,18 @@
           <div class="flex-1">
             <label class="block" for="job_name"
               ><span>Name <span class="text-red-800">*</span></span>
-              <input id="job_name" name="job_name" class="w-full" type="text"
-              maxlength="255" required="required" {% if form_data %} value="{{
-              form_data["job_name"] }}" {% endif %} />
+              <input id="job_name" name="job_name" class="form-input w-full"
+              type="text" maxlength="255" required="required" {% if form_data %}
+              value="{{ form_data["job_name"] }}" {% endif %} />
             </label>
           </div>
           <div class="flex-1">
             <label class="block" for="location-select"
               ><span>Location <span class="text-red-800">*</span></span>
-              <input id="job_location" name="job_location" class="w-full"
-              type="text" maxlength="255" required="required" {% if form_data %}
-              value="{{ form_data["job_location"] }}" {% endif %} />
+              <input id="job_location" name="job_location" class="form-input
+              w-full" type="text" maxlength="255" required="required" {% if
+              form_data %} value="{{ form_data["job_location"] }}" {% endif %}
+              />
             </label>
           </div>
         </div>
@@ -111,7 +112,7 @@
         <label class="" for="description"
           ><span>Description <span class="text-red-800">*</span></span>
           <textarea
-            class="block w-full h-44"
+            class="form-textarea block w-full h-44"
             id="job_description"
             name="job_description"
             required="required"
