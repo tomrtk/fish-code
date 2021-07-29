@@ -1,6 +1,7 @@
 """Integration test between model and services."""
 import logging
 import time
+from json import JSONDecodeError
 from pathlib import Path
 from typing import Dict, List
 
@@ -64,9 +65,19 @@ def test_processing_and_scheduler():
 
     assert response_finished.status_code == 200
 
-    while requests.get(url).json()["_status"] != "Done":
+    status = ""
+    while status != "Done":
         logger.info("Waiting for job to finish.")
-        time.sleep(15)
+        time.sleep(5)
+        res = requests.get(url)
+
+        try:
+            status = res.json().get("_status", "")
+        except JSONDecodeError as e:
+            logger.warning(
+                f"Response not valid json, error: {repr(e)}, response: {repr(res)}"
+            )
+            continue
 
     job_data = requests.get(url).json()
     print(job_data)
