@@ -344,7 +344,17 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/storage")
     def storage() -> flask.Response:
         """Endpoint for serving the file structure to jsTree."""
-        response = client.get_storage()
+        try:
+            response = client.get_storage()
+        except PermissionError:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "permission_error",
+                    }
+                ),
+                403,
+            )
 
         logger.debug("Pulling storage endpoint without parameters.")
 
@@ -364,7 +374,17 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     status=http.HTTPStatus.BAD_REQUEST,
                 ),
             )
-        response = client.get_storage(decoded_path)
+        try:
+            response = client.get_storage(decoded_path)
+        except PermissionError:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "permission_error",
+                    }
+                ),
+                403,
+            )
 
         logger.debug(f"Pulling storage endpoint with {path}.")
 

@@ -1,0 +1,13 @@
+/* jstree-custom.css
+ *
+ * TODO: This seriously needs to be reworked in the future.
+ */
+
+a.jstree-disabled::after {
+  @apply ml-2 text-red-400 italic !important;
+  content: "Permission denied.";
+}
+
+a.jstree-disabled i.jstree-checkbox {
+  background-image: unset !important;
+}

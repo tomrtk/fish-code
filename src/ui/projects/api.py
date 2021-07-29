@@ -139,7 +139,7 @@ class Client:
             else:
                 return decorator_call(request)
 
-    @Api.call(status_code=200)
+    @Api.call(status_code=200, acceptable_error=403)
     def get(self, uri: str, params: Dict = {}) -> requests.Response:
         """Perform a GET request to `uri.
 
@@ -466,6 +466,9 @@ class Client:
         # received invalid data.
         if not isinstance(result, requests.Response):
             return []
+
+        if result.status_code == HTTPStatus.FORBIDDEN:
+            raise PermissionError("Path was inaccessable")
 
         return result.json()
 

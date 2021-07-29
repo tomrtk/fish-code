@@ -611,6 +611,11 @@ def get_directory_listing(
             f"Directory at '{normalized_path}' was not found."
         )
 
+    if not os.access(normalized_path, os.R_OK):
+        raise PermissionError(
+            f"Directory at '{normalized_path}' is inaccessable."
+        )
+
     for p in normalized_path.iterdir():
         if p.is_dir():
             child_list.append(

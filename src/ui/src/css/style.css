@@ -9,6 +9,9 @@
 @import "jstree/src/themes/default/style.css";
 @import "datatables.net-dt";
 
+/* Custom Module Styles */
+@import "./jstree-custom.css";
+
 /* Custom Components */
 @import "./button-component.css";
 @import "./preview-component.css";
