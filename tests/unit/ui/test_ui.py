@@ -1,6 +1,7 @@
 """Unit testing ui Flask app and api Client."""
 import json
 from dataclasses import asdict
+from http import HTTPStatus
 
 import pytest
 import requests
@@ -8,7 +9,7 @@ from werkzeug.exceptions import HTTPException
 
 from ui.main import create_app
 from ui.projects.api import Client
-from ui.projects.model import Object, ProjectBare
+from ui.projects.model import Job, Object, ProjectBare
 
 TEST_API_URI = "mock://testing"
 TEST_API_URI_ERROR = "mock://testingerrors"
@@ -163,6 +164,21 @@ def mock_client(requests_mock):
     requests_mock.get(f"{TEST_API_URI}/projects/1/jobs/1", json=job)
     requests_mock.get(f"{TEST_API_URI}/projects/1/jobs/2", json=job_done)
 
+    # mock Client.get_job - broken
+    requests_mock.get(
+        f"{TEST_API_URI}/projects/13", json={}, status_code=HTTPStatus.NOT_FOUND
+    )
+    requests_mock.get(
+        f"{TEST_API_URI}/projects/1/jobs/31",
+        json={},
+        status_code=HTTPStatus.NOT_FOUND,
+    )
+    requests_mock.get(
+        f"{TEST_API_URI}/projects/13/jobs/31",
+        json={},
+        status_code=HTTPStatus.NOT_FOUND,
+    )
+
     # mock core object preview endpoint
     requests_mock.get(f"{TEST_API_URI}/objects/1/preview", json={})
 
@@ -216,6 +232,27 @@ def test_client_get_project(mock_client):
     assert response is not None
     assert isinstance(response, ProjectBare)
     assert response.name == "Test name"
+
+
+def test_client_get_job(mock_client):
+    """Unit test the Client."""
+    client = Client(TEST_API_URI)
+
+    response = client.get_job(1, 1)
+    assert response is not None
+    assert isinstance(response, Job)
+    assert response.name == "string"
+
+
+def test_client_get_noexisting_job(mock_client):
+    """Unit test the Client."""
+    client = Client(TEST_API_URI)
+
+    response = client.get_job(1, 31)
+    assert response is None
+
+    response = client.get_job(13, 31)
+    assert response is None
 
 
 def test_client_get_objects(mock_client) -> None:
