@@ -57,6 +57,11 @@ function attach_jstree(selector) {
         },
       },
     })
+    .on("ready.jstree", function (_, data) {
+      $.each(data.instance.get_node("#").children, function () {
+        data.instance.open_node(this);
+      });
+    })
     .on("select_node.jstree deselect_node.jstree", function (_, data) {
       let selected_videos = [];
       $.each(data.instance.get_selected(true), function () {
