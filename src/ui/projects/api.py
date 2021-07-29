@@ -3,6 +3,7 @@ import base64
 import functools
 import json
 import logging
+from http import HTTPStatus
 from typing import (
     Any,
     Callable,
@@ -111,7 +112,7 @@ class Client:
                 def wrapper_call(*args, **kwargs) -> Result[requests.Response]:  # type: ignore
                     try:
                         response = request(*args, **kwargs)  # type: ignore
-                    except requests.ConnectionError as e:
+                    except (requests.ConnectionError, requests.Timeout) as e:
                         logger.warning(
                             f"ConnectionError: {request.__name__} - "
                             f"{request.__dict__} - {repr(e)}"
@@ -345,18 +346,24 @@ class Client:
                     Single `Job` from `core`.
         """
         result_project = self.get(f"{self._endpoint}/projects/{project_id}")
+        if not isinstance(result_project, requests.Response) or (
+            isinstance(result_project, requests.Response)
+            and result_project.status_code == HTTPStatus.NOT_FOUND
+        ):
+            return None
+
         result_job = self.get(
             f"{self._endpoint}/projects/{project_id}/jobs/{job_id}"
         )
-
-        if isinstance(result_project, requests.Response) and isinstance(
-            result_job, requests.Response
+        if not isinstance(result_job, requests.Response) or (
+            isinstance(result_job, requests.Response)
+            and result_job.status_code == HTTPStatus.NOT_FOUND
         ):
-            return Job.from_dict(
-                result_job.json(), project_id, result_project.json()["name"]  # type: ignore
-            )
+            return None
 
-        return None
+        return Job.from_dict(
+            result_job.json(), project_id, result_project.json()["name"]
+        )
 
     def post_job(self, project_id: int, job: Job) -> Optional[int]:
         """Post a single job to the endpoint.
