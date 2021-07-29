@@ -295,15 +295,19 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     ) -> Union[Tuple[str, int], Response]:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
-
         if job is None or not isinstance(job, Job) or job.stats is None:
             return abort(
                 404, f"Job {job_id} in project {project_id} not found."
             )
 
         num_objs = job.stats.get("total_objects", 0)
-        result = client.get_objects(project_id, job_id, 0, num_objs)
+        if num_objs == 0:
+            return abort(
+                404,
+                f"Job {job_id} in project {project_id} has not completed processing.",
+            )
 
+        result = client.get_objects(project_id, job_id, 0, num_objs)
         if result is None:
             return abort(
                 404,
