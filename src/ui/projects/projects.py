@@ -1,10 +1,10 @@
 """Blueprint for the projects module."""
 import base64
 import binascii
-import http
 import logging
 import os
 import tempfile
+from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import flask
@@ -368,16 +368,17 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     def storage_path(path: str) -> flask.Response:
         """Endpoint for serving the file structure to jsTree."""
         try:
-            decoded_path = base64.urlsafe_b64decode(path).decode()
+            decoded_path = str(base64.urlsafe_b64decode(path), "utf-8")
         except binascii.Error:
             logger.warning(f"Unable to decode: '{path}'.")
             raise HTTPException(
                 description="Unable to decode path from parameter",
                 response=Response(
                     "Unable to decode path from parameter",
-                    status=http.HTTPStatus.BAD_REQUEST,
+                    status=HTTPStatus.BAD_REQUEST,
                 ),
             )
+
         try:
             response = client.get_storage(decoded_path)
         except PermissionError:

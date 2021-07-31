@@ -622,9 +622,9 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
         )
         raise HTTPException(
             status_code=404, detail="Video root folder could not be found."
-            )
+        )
     except PermissionError:
-        logger.warning(f"Chosen path 'video_root_path' is not accessable.")
+        logger.warning("Chosen path 'video_root_path' is not accessable.")
         raise HTTPException(
             status_code=403, detail="Chosen path is inaccessable"
         )
