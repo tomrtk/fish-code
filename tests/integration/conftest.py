@@ -46,7 +46,9 @@ def start_core(tmp_path):
     logger.info(f"Making a test db at {str(test_db)}")
 
     core_process = Process(
-        target=core_main, args=(None, str(test_db.resolve())), daemon=True
+        target=core_main,
+        kwargs={"db_path": test_db.resolve()},
+        daemon=True,
     )
     core_process.start()
     logger.info("Starting core")

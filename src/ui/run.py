@@ -3,46 +3,40 @@
 Includes an option for running using livereload.  This helps out a lot
 when developing.
 """
-
-
 import logging
-import os
 
 import waitress
 
 import ui.main as web  # type: ignore
+from config import load_config
+
+logger = logging.getLogger(__name__)
+config = load_config()
 
 
-def serve_debug() -> None:
+def serve_debug() -> int:
     """Workaround for avoiding lamdba. Starts UI in debug."""
-    serve(production=False)
+    ui_server = web.create_app()  # type: ignore
+    ui_server.debug = True
+
+    ui_server.run(use_reloader=False)
+    return 0
 
 
-def serve_prod() -> None:
+def serve_prod() -> int:
     """Workaround for avoiding lamdba. Starts UI in production."""
-    serve(production=True)
+    logger = logging.getLogger("waitress")
+    host = config.get("UI", "hostname", fallback="127.0.0.1")
+    port = config.getint("UI", "port", fallback=5000)
+    logger.setLevel(logging.INFO)
+    logger.info("Starting server in production")
 
+    ui_server = web.create_app()
+    ui_server.debug = False
 
-def serve(
-    production: bool = True, port: int = 5000, host: str = "0.0.0.0"
-) -> int:
-    """Serve the application."""
-    if production:
-        logger = logging.getLogger("waitress")
-        logger.setLevel(logging.INFO)
-        logger.info("Starting server in production")
-
-        ui_server = web.create_app()
-        ui_server.debug = True
-
-        waitress.serve(ui_server.wsgi_app, host=host, port=port)  # type: ignore
-    else:
-        ui_server = web.create_app()  # type: ignore
-        ui_server.debug = True
-
-        ui_server.run(use_reloader=False)
+    waitress.serve(ui_server.wsgi_app, host=host, port=port)  # type: ignore
     return 0
 
 
 if __name__ == "__main__":
-    exit(serve(False))
+    exit(serve_debug())  # pragma: no cover

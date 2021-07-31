@@ -1,9 +1,7 @@
 """Services used in this application."""
 import logging
 import math
-import os
 import pathlib
-import sys
 import threading
 import time
 from datetime import datetime
@@ -16,12 +14,14 @@ import numpy as np
 from sqlalchemy.orm import Session
 
 import core.main
+from config import get_video_root_path, load_config
 from core import api
 from core.interface import Detector, to_track
 from core.model import Frame, Job, JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 job_queue: Queue = Queue()
 
@@ -252,7 +252,7 @@ def process_job(
     # make sure its sorted before we start
     job.videos.sort(key=lambda x: x.timestamp.timestamp())
 
-    batchsize: int = 50
+    batchsize: int = config.getint("CORE", "batch_size", fallback=50)
 
     all_frames = []
     video_loader = VideoLoader(job.videos, batchsize=batchsize)
@@ -568,7 +568,7 @@ def get_job_objects(
 
 
 def get_directory_listing(
-    path: str,
+    path: Optional[str] = None,
 ) -> List[Optional[Union[Dict[str, Any], str]]]:
     """Get contents found in a given directory. Does not search recursivly.
 
@@ -591,12 +591,13 @@ def get_directory_listing(
         jsTree formatted json containing information about root node at path.
     """
     if path is None:
-        # https://stackoverflow.com/a/65975115/182868
-        # TODO: The root folders should have been set via the new config
-        # system.
-        path = pathlib.Path(sys.executable).anchor
+        directory = config.get(
+            "CORE", "video_root_path", fallback=str(get_video_root_path())
+        )
+    else:
+        directory = path
 
-    normalized_path = pathlib.Path(path)
+    normalized_path = pathlib.Path(directory)
 
     tree: List[Optional[Union[Dict[str, Any], str]]] = list()
     root_node: Dict[str, Any] = dict()

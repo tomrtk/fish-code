@@ -5,9 +5,11 @@ from typing import Optional, Sequence
 
 import uvicorn
 
+from config import load_config
 from tracing import api
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
@@ -15,13 +17,10 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
         type=str,
-        help="IP to listen to, default 0.0.0.0",
+        help="IP to listen to.",
     )
-    parser.add_argument(
-        "--port", default=8001, type=str, help="Bind port, default 8001"
-    )
+    parser.add_argument("--port", type=int, help="Bind port.")
     parser.add_argument(
         "--debug",
         default=False,
@@ -36,6 +35,26 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
 
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("TRACING", "hostname", fallback="127.0.0.1")
+    port = config.getint("TRACING", "port", fallback=8001)
+
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding tracing API hostname from {} to {}".format(
+                config.get("TRACING", "hostname"), args.host
+            )
+        )
+        hostname = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding tracing API port from {} to {}".format(
+                config.getint("TRACING", "port"), args.port
+            )
+        )
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -44,8 +63,13 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logging.basicConfig(level=logging.INFO)
         logger.info("Tracing started")
 
-    if not args.test:
-        uvicorn.run(api.tracking, host=args.host, port=args.port)
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
+        uvicorn.run(
+            api.tracking,
+            host=hostname,
+            port=port,
+        )
 
     return 0
 

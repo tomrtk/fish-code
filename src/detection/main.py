@@ -5,9 +5,11 @@ from typing import Optional, Sequence
 
 import uvicorn  # type: ignore
 
+from config import load_config
 from detection.api import detection_api
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 
 def main(argsv: Optional[Sequence[str]] = None) -> int:
@@ -22,13 +24,11 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--host",
-        default="0.0.0.0",
         type=str,
         help="IP-adresse, defaults to `0.0.0.0`.",
     )
     parser.add_argument(
         "--port",
-        default=8003,
         type=int,
         help="Port for API to run on, defaults to `8003`.",
     )
@@ -39,6 +39,26 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         help="Used for testing only. API will not start.",
     )
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("DETECTION", "hostname", fallback="127.0.0.1")
+    port = config.getint("DETECTION", "port", fallback=8003)
+
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding detection API hostname from {} to {}".format(
+                config.get("DETECTION", "hostname"), args.host
+            )
+        )
+        hostname = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding detection API port from {} to {}".format(
+                config.getint("DETECTION", "port"), args.port
+            )
+        )
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -47,8 +67,13 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         logging.basicConfig(level=logging.INFO)
         logger.info("Detection started")
 
-    if not args.test:  # only part not tested in tests
-        uvicorn.run(detection_api, host=args.host, port=args.port)  # type: ignore
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
+        uvicorn.run(
+            detection_api,
+            host=hostname,
+            port=port,
+        )
 
     return 0
 

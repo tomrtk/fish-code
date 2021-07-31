@@ -1,6 +1,7 @@
 """Module containing runtime of _core_."""
 import argparse
 import logging
+from pathlib import Path
 from typing import Optional, Sequence
 
 import uvicorn
@@ -11,24 +12,33 @@ from sqlalchemy.orm.session import close_all_sessions
 
 import core.api
 import core.services
+from config import load_config
 from core.repository.orm import metadata, start_mappers
 
 logger = logging.getLogger(__name__)
 
 core_api = core.api.core_api  # type: ignore
+config = load_config()
 
 sessionfactory: Optional[scoped_session] = None
 engine: Optional[Engine] = None
 
 
-def setup(db_name: str = "data.db") -> None:
+def setup(db_name: Optional[str] = None) -> None:
     """Set up database."""
     global sessionfactory, engine
+    if db_name is None:
+        db_file = config.get("CORE", "database_path", fallback="data.db")
+        # Ensure application data folder is created
+        Path(db_file).parent.mkdir(parents=True, exist_ok=True)
+    else:
+        db_file = db_name
+
     logger.info("Creating database engine")
     engine = create_engine(
-        f"sqlite:///{db_name}",
+        f"sqlite:///{db_file}",
         connect_args={"check_same_thread": False},
-    )
+    )  # type: ignore
     # Create tables from defined schema.
     logger.info("Creating database schema")
     metadata.create_all(engine)
@@ -51,19 +61,39 @@ def shutdown() -> None:
 
 
 def main(
-    argsv: Optional[Sequence[str]] = None, db_path: str = "data.db"
+    argsv: Optional[Sequence[str]] = None, db_path: Optional[str] = None
 ) -> int:
     """Start runtime of core module."""
     # Handle any command argument.
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
-    parser.add_argument("--host", default="0.0.0.0", type=str, help="IP")
-    parser.add_argument("--port", default="8000", type=int, help="Port")
+    parser.add_argument("--host", type=str, help="IP")
+    parser.add_argument("--port", type=int, help="Port")
     parser.add_argument("--test", default=False, action="store_true")
     parser.add_argument(
         "--dev", default=False, action="store_true"
     )  # No ops, needed for root-app.
     args, _ = parser.parse_known_args(argsv)
+    hostname = config.get("CORE", "hostname", fallback="127.0.0.1")
+    port = config.getint("CORE", "port", fallback=8000)
+
+    # Let host argument override config
+    if args.host:
+        logger.info(
+            "Overriding core API hostname from {} to {}".format(
+                config.get("CORE", "hostname"), args.host
+            )
+        )
+        hostname = args.host
+
+    # Let port argument override config
+    if args.port:
+        logger.info(
+            "Overriding core API port from {} to {}".format(
+                config.getint("CORE", "port"), args.port
+            )
+        )
+        port = args.port
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
@@ -72,17 +102,18 @@ def main(
         logging.basicConfig(level=logging.INFO)
         logger.info("Core started")
 
-    if not args.test:  # only part not tested in tests
+    # only part not tested in tests
+    if not args.test:  # pragma: no cover
         setup(db_path)
         core.services.start_scheduler()
 
         uvicorn.run(
             core_api,
-            host=args.host,
-            port=args.port,
+            host=hostname,
+            port=port,
             reload=False,
             workers=1,
-            debug=False,
+            debug=config.get("GLOBAL", "development"),
             access_log=False,
         )
 
@@ -93,4 +124,4 @@ def main(
 
 
 if __name__ == "__main__":
-    exit(main())
+    exit(main())  # pragma: no cover

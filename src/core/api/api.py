@@ -9,8 +9,6 @@ import asyncio
 import base64
 import binascii
 import logging
-import pathlib
-import sys
 from typing import Any, AsyncGenerator, Dict, Generator, List, Union
 
 from fastapi import (
@@ -26,6 +24,7 @@ from fastapi.responses import StreamingResponse
 
 import core.api.schema as schema
 import core.main
+from config import load_config
 from core import model, services
 from core.api import utils
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
@@ -37,6 +36,7 @@ from core.services import get_directory_listing
 from core.utils import outline_detection
 
 logger = logging.getLogger(__name__)
+config = load_config()
 
 core_api = FastAPI()
 
@@ -596,15 +596,10 @@ def get_objects_from_job(
 async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
-    Parameters
-    ----------
-    path:   str
-        Path to a folder as a string.
-
     Returns
     -------
     Dict[str, Any]
-        Json data explaining the file structure in jsTree format for a folder.
+        Json data explaining the file structure in jsTree format from video root directory.
         Does not run recursivly through all subfolders.
 
     Raises
@@ -614,19 +609,20 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
     HTTPException
         If the path is invalid.
     """
-    # TODO: Test when config is added
-    path = pathlib.Path(sys.executable).anchor
-
     try:
-        return get_directory_listing(path)
+        return get_directory_listing()
     except NotADirectoryError:
-        logger.warning(f"Chosen path '{path}' is not a directory.")
+        logger.warning("Config parameter 'video_root_path' is not a directory.")
         raise HTTPException(
-            status_code=400, detail="Chosen path is not a directory"
+            status_code=400, detail="Video root is not a directory"
         )
     except FileNotFoundError:
-        logger.warning(f"Chosen path '{path}' is not valid.")
-        raise HTTPException(status_code=404, detail="Chosen path is not valid")
+        logger.warning(
+            "Value of config parameter 'video_root_path' is invalid."
+        )
+        raise HTTPException(
+            status_code=404, detail="Video root folder could not be found."
+        )
 
 
 @core_api.get(
