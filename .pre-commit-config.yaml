@@ -19,12 +19,12 @@ repos:
           )
       - id: trailing-whitespace
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.23.0
+    rev: v2.23.1
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
   - repo: https://github.com/pycqa/isort
-    rev: 5.9.2
+    rev: 5.9.3
     hooks:
       - id: isort
         name: Sort imports (core)
