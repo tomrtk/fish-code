@@ -2,7 +2,10 @@
 import base64
 import logging
 from datetime import datetime
+from os import chmod
 from pathlib import Path
+from sys import platform
+from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -40,6 +43,14 @@ def setup(tmp_path):
         close_all_sessions()
         metadata.drop_all(core.main.engine)
         clear_mappers()
+
+
+@pytest.fixture
+def empty_directory_encoded_normal_perm(tmp_path: Path) -> str:
+    """Encode the empty directory."""
+    path_encoded = base64.urlsafe_b64encode(str(tmp_path).encode())
+
+    return str(path_encoded, "utf-8")
 
 
 @pytest.fixture
@@ -672,3 +683,17 @@ def test_get_storage():
             f"storage/{str(path64e, 'utf-8')}",
         )
         assert response.status_code == 404
+
+
+@patch("os.access", return_value=False)
+def test_get_storage_permissionerror(mock, empty_directory_encoded_normal_perm):
+    """Test getting storage with PermissionError."""
+    with TestClient(api.core_api) as client:
+        response = client.get(
+            f"storage",
+        )
+        assert response.status_code == 403
+        response = client.get(
+            f"storage/{empty_directory_encoded_normal_perm}",
+        )
+        assert response.status_code == 403

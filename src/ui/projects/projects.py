@@ -1,10 +1,10 @@
 """Blueprint for the projects module."""
 import base64
 import binascii
-import http
 import logging
 import os
 import tempfile
+from http import HTTPStatus
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 import flask
@@ -295,15 +295,19 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     ) -> Union[Tuple[str, int], Response]:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
-
         if job is None or not isinstance(job, Job) or job.stats is None:
             return abort(
                 404, f"Job {job_id} in project {project_id} not found."
             )
 
         num_objs = job.stats.get("total_objects", 0)
-        result = client.get_objects(project_id, job_id, 0, num_objs)
+        if num_objs == 0:
+            return abort(
+                404,
+                f"Job {job_id} in project {project_id} has not completed processing.",
+            )
 
+        result = client.get_objects(project_id, job_id, 0, num_objs)
         if result is None:
             return abort(
                 404,
@@ -344,7 +348,17 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/storage")
     def storage() -> flask.Response:
         """Endpoint for serving the file structure to jsTree."""
-        response = client.get_storage()
+        try:
+            response = client.get_storage()
+        except PermissionError:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "permission_error",
+                    }
+                ),
+                403,
+            )
 
         logger.debug("Pulling storage endpoint without parameters.")
 
@@ -354,17 +368,28 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     def storage_path(path: str) -> flask.Response:
         """Endpoint for serving the file structure to jsTree."""
         try:
-            decoded_path = base64.urlsafe_b64decode(path).decode()
+            decoded_path = str(base64.urlsafe_b64decode(path), "utf-8")
         except binascii.Error:
             logger.warning(f"Unable to decode: '{path}'.")
             raise HTTPException(
                 description="Unable to decode path from parameter",
                 response=Response(
                     "Unable to decode path from parameter",
-                    status=http.HTTPStatus.BAD_REQUEST,
+                    status=HTTPStatus.BAD_REQUEST,
                 ),
             )
-        response = client.get_storage(decoded_path)
+
+        try:
+            response = client.get_storage(decoded_path)
+        except PermissionError:
+            return make_response(
+                jsonify(
+                    {
+                        "error": "permission_error",
+                    }
+                ),
+                403,
+            )
 
         logger.debug(f"Pulling storage endpoint with {path}.")
 

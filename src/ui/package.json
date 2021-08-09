@@ -12,6 +12,7 @@
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "dependencies": {
+    "bootstrap-icons": "^1.5.0",
     "datatables.net": "^1.10.25",
     "datatables.net-dt": "^1.1.0",
     "jquery": "^3.6.0",

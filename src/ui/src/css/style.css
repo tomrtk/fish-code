@@ -1,5 +1,6 @@
 /* TailwindCSS Base */
 @import "tailwindcss/base";
+@import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* TailwindCSS Components */
 @import "tailwindcss/components";
@@ -7,6 +8,9 @@
 /* Module Imports */
 @import "jstree/src/themes/default/style.css";
 @import "datatables.net-dt";
+
+/* Custom Module Styles */
+@import "./jstree-custom.css";
 
 /* Custom Components */
 @import "./button-component.css";

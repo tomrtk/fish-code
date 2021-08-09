@@ -1,4 +1,6 @@
 """Unit tests for service functions in core."""
+from unittest.mock import patch
+
 import pytest
 
 from core.model import Object
@@ -129,3 +131,13 @@ def test_get_directory_listing():
 
     with pytest.raises(FileNotFoundError):
         get_directory_listing("this/path/should/not/exist")
+
+
+@patch("os.access", return_value=False)
+def test_get_directory_listing_permission_error(mock, tmp_path) -> None:
+    """Test if directory is not accessible."""
+    error_dir = tmp_path / "test"
+    error_dir.mkdir()
+
+    with pytest.raises(PermissionError):
+        _ = get_directory_listing(str(error_dir))

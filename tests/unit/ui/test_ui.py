@@ -1,7 +1,10 @@
 """Unit testing ui Flask app and api Client."""
+import base64
 import json
 from dataclasses import asdict
 from http import HTTPStatus
+from os import chmod
+from unittest.mock import patch
 
 import pytest
 import requests
@@ -34,7 +37,9 @@ def test_client_error():
 
 
 @pytest.fixture
-def mock_client(requests_mock):
+def mock_client(
+    requests_mock,
+):
     """Mock response from core api to unit test ui."""
     requests_mock.real_http = True  # type: ignore
     # Creation of objects needed for reply from core:
@@ -191,6 +196,13 @@ def mock_client(requests_mock):
         f"{TEST_API_URI}/storage/L21udC9zdW1tZXItMjAyMQ==", json=child
     )
 
+    # permissionerror
+    # Mock with no path is mocked inside the function
+    requests_mock.get(
+        f"{TEST_API_URI}/storage/cGVybWlzc2lvbmVycm9y",
+        status_code=HTTPStatus.FORBIDDEN,
+    )
+
     # mock ...
 
     return requests_mock
@@ -210,7 +222,8 @@ def test_client_get_projects(mock_client):
     assert x_total == 1
 
 
-def test_client_get_storage(mock_client):
+@patch("os.access", return_value=False)
+def test_client_get_storage(mock, mock_client):
     """Unit test the Client."""
     client = Client(TEST_API_URI)
 
@@ -222,6 +235,18 @@ def test_client_get_storage(mock_client):
     assert response_child is not None
     assert "children" in response_child[0]
     assert response_child[0].get("text") == "summer-2021"
+
+    # Overwrite the global mock.
+    mock_client.get(
+        f"{TEST_API_URI}/storage",
+        status_code=HTTPStatus.FORBIDDEN,
+    )
+
+    with pytest.raises(PermissionError):
+        _ = client.get_storage()
+
+    with pytest.raises(PermissionError):
+        _ = client.get_storage("permissionerror")
 
 
 def test_client_get_project(mock_client):
@@ -379,3 +404,20 @@ def test_get_storage_endpoint(mock_client, test_client) -> None:
     assert b"children" in response.data
     data = json.loads(response.data)
     assert data[0]["text"] == "summer-2021"
+
+
+def test_get_storage_endpoint_permission_denied(
+    mock_client,
+    test_client,
+) -> None:
+    """Test for PermissionError."""
+    mock_client.get(f"{TEST_API_URI}/storage", status_code=403)
+    response = test_client.get(
+        f"/projects/storage",
+    )
+    assert response.status_code == 403
+
+    response = test_client.get(
+        f"/projects/storage/cGVybWlzc2lvbmVycm9y",
+    )
+    assert response.status_code == 403

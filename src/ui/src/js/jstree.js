@@ -8,21 +8,40 @@ function attach_jstree(selector) {
   return $(selector)
     .jstree({
       core: {
-        data: {
-          url: function (node) {
-            return node.id === "#"
+        data: function (node, cb) {
+          calculatedUrl =
+            node.id === "#"
               ? `/projects/storage`
               : `/projects/storage/${btoa(node.id)}`;
-          },
+
+          // Do the call
+          $.ajax({
+            type: "GET",
+            url: calculatedUrl,
+            dataType: "json",
+          })
+            .done(function (data) {
+              cb.call(this, data);
+            })
+            .fail(function (data) {
+              tree = $.jstree.reference(selector);
+
+              if (data.status == 403) {
+                tree.disable_node(node);
+                tree.set_icon(node, "bi bi-x-circle");
+                cb.call(this, "[]");
+              }
+            });
         },
       },
+      check_callback: true,
       plugins: ["checkbox", "conditionalselect", "state", "types"],
       checkbox: {
         cascade: "down+undetermined",
         three_state: false,
       },
       conditionalselect: function (node, _) {
-        return $.jstree.reference("#jstree").is_leaf(node);
+        return $.jstree.reference(selector).is_leaf(node);
       },
       state: {
         key: "file-browser",
@@ -30,19 +49,18 @@ function attach_jstree(selector) {
         ttl: 300000,
       },
       types: {
-        "#": {
-          valid_children: ["root"],
-        },
-        root: {
-          valid_children: ["default"],
-        },
         default: {
-          valid_children: ["default", "file"],
+          icon: ["bi-file-earmark"],
         },
-        file: {
-          valid_children: [],
+        folder: {
+          icon: ["bi-folder"],
         },
       },
+    })
+    .on("ready.jstree", function (_, data) {
+      $.each(data.instance.get_node("#").children, function () {
+        data.instance.open_node(this);
+      });
     })
     .on("select_node.jstree deselect_node.jstree", function (_, data) {
       let selected_videos = [];

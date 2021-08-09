@@ -1,6 +1,7 @@
 """Services used in this application."""
 import logging
 import math
+import os
 import pathlib
 import threading
 import time
@@ -609,6 +610,11 @@ def get_directory_listing(
     if not isdir(normalized_path):
         raise FileNotFoundError(
             f"Directory at '{normalized_path}' was not found."
+        )
+
+    if not os.access(normalized_path, os.R_OK):
+        raise PermissionError(
+            f"Directory at '{normalized_path}' is inaccessable."
         )
 
     for p in normalized_path.iterdir():
