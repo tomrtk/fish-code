@@ -26,7 +26,7 @@
     "@types/jstree": "^3.3.41",
     "autoprefixer": "^10.3.1",
     "concurrently": "^6.2.1",
-    "cssnano": "^5.0.7",
+    "cssnano": "^5.0.8",
     "esbuild": "^0.12.20",
     "postcss": "^8.3.6",
     "postcss-cli": "^8.3.1",
