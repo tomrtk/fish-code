@@ -405,22 +405,26 @@ class Video:
         if not Path(path).exists():
             raise FileNotFoundError("Video file %s not found.", path)
 
-        timestamp = parse_str_to_date(Path(path).name)
-        if timestamp is None:
-            raise TimestampNotFoundError(f"No timestamp found for file {path}")
-
         height, width, fps, frame_numbers = _get_video_metadata(path)
-
-        return cls(
+        video = cls(
             path=path,
             frame_count=frame_numbers,
             fps=fps,
             width=width,
             height=height,
-            timestamp=timestamp,
+            timestamp=datetime(1, 1, 1),
             output_width=output_width,
             output_height=output_height,
         )
+
+        video_length = (video.frame_count * (1 / video.fps)) / 60
+        timestamp = parse_str_to_date(Path(path).name, video_length)
+
+        if timestamp is None:
+            raise TimestampNotFoundError(f"No timestamp found for file {path}")
+
+        video.timestamp = timestamp
+        return video
 
     def timestamp_at(self, idx: int) -> datetime:
         """Return timestamp at index in video.
@@ -503,7 +507,7 @@ class Video:
         return True
 
 
-def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
+def parse_str_to_date(string: str, offset_min: float = 30) -> datetime | None:
     """Parse string to date.
 
     Input can either be a string with a date, or a string with a date and
