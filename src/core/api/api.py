@@ -9,7 +9,9 @@ import asyncio
 import base64
 import binascii
 import logging
-from typing import Any, AsyncGenerator, Dict, Generator, List, Union
+import pathlib
+from datetime import datetime, timedelta
+from typing import Any, AsyncGenerator, Dict, Generator, List, Optional, Union
 
 from fastapi import (
     Depends,
@@ -306,9 +308,30 @@ def add_job_to_project(
         errors: Dict[str, List[str]] = dict()
         file_not_found = []
         time_not_found = []
+        next_timestamp: Optional[datetime] = None
+        first_timestamp: Optional[datetime] = None
+
+        sorted(job.videos, key=lambda x: pathlib.Path(x).name)
+
         for video_path in job.videos:
             try:
-                videos.append(model.Video.from_path(video_path))
+                video = model.Video.from_path(video_path)
+
+                if first_timestamp is None:
+                    first_timestamp = video.timestamp
+                elif first_timestamp != video.timestamp:
+                    next_timestamp = None
+                    first_timestamp = video.timestamp
+
+                if next_timestamp is not None:
+                    video.timestamp = next_timestamp
+
+                video_length = timedelta(
+                    seconds=round(video.frame_count * (1 / video.fps), 0)
+                )
+                next_timestamp = video.timestamp + video_length
+
+                videos.append(video)
             except FileNotFoundError:
                 file_not_found.append(video_path)
             except model.TimestampNotFoundError:
