@@ -16,7 +16,7 @@
     "datatables.net": "^1.10.25",
     "datatables.net-dt": "^1.1.0",
     "jquery": "^3.6.0",
-    "jstree": "^3.3.11"
+    "jstree": "^3.3.12"
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.1",
