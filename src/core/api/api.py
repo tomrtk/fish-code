@@ -316,10 +316,13 @@ def add_job_to_project(
         for video_path in job.videos:
             try:
                 video = model.Video.from_path(video_path)
+                base_timestamp = model.parse_str_to_date(
+                    pathlib.Path(video._path).name, 0
+                )
 
                 if first_timestamp is None:
                     first_timestamp = video.timestamp
-                elif first_timestamp != video.timestamp:
+                elif first_timestamp != base_timestamp:
                     next_timestamp = None
                     first_timestamp = video.timestamp
 

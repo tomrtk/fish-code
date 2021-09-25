@@ -586,19 +586,19 @@ def test_add_job_timestamps(setup):
                 "location": "test",
                 "videos": [
                     str(
-                        (
+                        (  # 4 seconds long video
                             Path(__file__).parent
                             / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
                         ).resolve()
                     ),
                     str(
-                        (
+                        (  # 2 seconds long video
                             Path(__file__).parent
                             / "test-abbor[2021-01-01_00-00-00]-001-small.mp4"
                         ).resolve()
                     ),
                     str(
-                        (
+                        (  # 2 seconds long video
                             Path(__file__).parent
                             / "test-abbor[2021-01-02_00-00-00]-000-small.mp4"
                         ).resolve()
@@ -628,7 +628,7 @@ def test_add_job_timestamps(setup):
         # Checks second video. This is the same timestamp as the one before it,
         # but has an offset number. Offset number should add the video duration
         # to the first timestamp.
-        assert video_timestamps[1] == datetime(2021, 1, 1, 00, 00, 2)
+        assert video_timestamps[1] == datetime(2021, 1, 1, 00, 00, 4)
 
         # Third video has a completely different timestamp and should therefor
         # be the same as the timestamp it is.
