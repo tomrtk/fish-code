@@ -6,6 +6,7 @@ from os import chmod
 from pathlib import Path
 from sys import platform
 from unittest.mock import patch
+from fastapi import testclient
 
 import pytest
 from fastapi.testclient import TestClient
@@ -558,6 +559,80 @@ def test_add_and_get_job_with_videos(setup):
         )
 
         assert response_job.status_code == 415
+
+
+def test_add_job_timestamps(setup):
+    """Testing if timestamps are calculated correctly."""
+    with TestClient(api.core_api) as client:
+        response = client.post(
+            "/projects/",
+            json={
+                "name": "Project name",
+                "number": "AB-123",
+                "description": "A project description",
+            },
+        )
+        assert response.status_code == 201
+        project_data = response.json()
+        assert "id" in project_data
+        project_id = project_data["id"]
+
+        # Test adding job with valid path to a video
+        response_job = client.post(
+            f"/projects/{project_id}/jobs/",
+            json={
+                "name": "Job name",
+                "description": "Job description",
+                "location": "test",
+                "videos": [
+                    str(
+                        (
+                            Path(__file__).parent
+                            / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
+                        ).resolve()
+                    ),
+                    str(
+                        (
+                            Path(__file__).parent
+                            / "test-abbor[2021-01-01_00-00-00]-001-small.mp4"
+                        ).resolve()
+                    ),
+                    str(
+                        (
+                            Path(__file__).parent
+                            / "test-abbor[2021-01-02_00-00-00]-000-small.mp4"
+                        ).resolve()
+                    ),
+                ],
+            },
+        )
+        job_data = response_job.json()
+        assert "id" in job_data
+        job_id = job_data["id"]
+
+        assert response_job.status_code == 201
+
+        response_get_job = client.get(f"/projects/{project_id}/jobs/{job_id}")
+        assert response_get_job.status_code == 200
+
+        assert "videos" in response_get_job.json()
+        video_timestamps = [
+            datetime.fromisoformat(video["timestamp"])
+            for video in response_get_job.json()["videos"]
+        ]
+        job_data = response_get_job.json()
+
+        # Checks first video
+        assert video_timestamps[0] == datetime(2021, 1, 1, 00, 00, 00)
+
+        # Checks second video. This is the same timestamp as the one before it,
+        # but has an offset number. Offset number should add the video duration
+        # to the first timestamp.
+        assert video_timestamps[1] == datetime(2021, 1, 1, 00, 00, 2)
+
+        # Third video has a completely different timestamp and should therefor
+        # be the same as the timestamp it is.
+        assert video_timestamps[2] == datetime(2021, 1, 2, 00, 00, 00)
 
 
 def test_object_preview(make_test_data):
