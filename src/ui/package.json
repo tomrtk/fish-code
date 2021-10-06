@@ -19,7 +19,7 @@
     "jstree": "^3.3.12"
   },
   "devDependencies": {
-    "@tailwindcss/aspect-ratio": "^0.2.2",
+    "@tailwindcss/aspect-ratio": "^0.3.0",
     "@tailwindcss/forms": "^0.3.4",
     "@types/datatables.net": "^1.10.21",
     "@types/jquery": "^3.5.6",
