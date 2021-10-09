@@ -219,7 +219,7 @@ def process_job(
 
     # Update job status
     if event.is_set():
-        if job.status() in [Status.QUEUED, Status.PAUSED]:
+        if job.status() in [Status.QUEUED, Status.PAUSED]:  # pragma: no cover
             job.start()
             repo.save()
         elif job.status() is Status.RUNNING:
@@ -305,11 +305,7 @@ def process_job(
                     logger.debug(f"Now detecting batch {batchnr}...")
                     frames = det.predict(batch, "fishy")
                     logger.debug(f"Finished detecting batch {batchnr}.")
-                except ConnectionError as e:
-                    logger.error(e)
-                    _pause_job_if_running(job)
-                    return
-                except RuntimeError as e:
+                except (ConnectionError, RuntimeError, KeyboardInterrupt) as e:
                     logger.error(e)
                     _pause_job_if_running(job)
                     return
@@ -354,7 +350,8 @@ def process_job(
             )
             _pause_job_if_running(job)
             event.clear()
-        except Exception as e:
+            return
+        except Exception as e:  # pragma: no cover
             logger.error("Job processing experienced an error: %s", e)
             # Disregard all uncommitted changes to db.
             repo.session.rollback()

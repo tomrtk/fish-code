@@ -87,7 +87,7 @@ $(function () {
 
   btn = $("#btn-toggle-job");
 
-  if (btn.hasClass("btn-pending")) {
+  if (btn.hasClass("btn-pending") || btn.hasClass("btn-paused")) {
     btn.one("click", function () {
       $.ajax({
         type: "PUT",
