@@ -219,7 +219,7 @@ def process_job(
 
     # Update job status
     if event.is_set():
-        if job.status() is Status.QUEUED or Status.PAUSED:
+        if job.status() in [Status.QUEUED, Status.PAUSED]:
             job.start()
             repo.save()
         elif job.status() is Status.RUNNING:
@@ -354,6 +354,15 @@ def process_job(
             )
             _pause_job_if_running(job)
             event.clear()
+        except Exception as e:
+            logger.error("Job processing experienced an error: %s", e)
+            # Disregard all uncommitted changes to db.
+            repo.session.rollback()
+
+            # Set job to paused. Should maybe look at using an error started
+            # later.
+            _pause_job_if_running(job)
+            return
 
     # Tracing
     if event.is_set():
