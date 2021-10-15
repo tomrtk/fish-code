@@ -1,3 +1,4 @@
+---
 name: Tests
 
 on:
@@ -10,6 +11,9 @@ on:
       - "setup.cfg"
       - "src/**"
       - "tests/**"
+      - "!src/ui/package.json"
+      - "!src/ui/package-lock.json"
+      - "!src/ui/static/**"
 
 jobs:
   tests:
