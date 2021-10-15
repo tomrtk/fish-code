@@ -1,10 +1,18 @@
 """Unit tests for service functions in core."""
 from unittest.mock import patch
+from typing import Any
 
 import pytest
 
-from core.model import Object
-from core.services import get_directory_listing, get_job_objects
+from core.model import Object, Status
+from core import interface
+from core import services
+from core.services import (
+    get_directory_listing,
+    get_job_objects,
+    _bulk_job_status_change,
+    process_job,
+)
 
 
 def test_get_job_objects(make_test_project_repo):
@@ -34,7 +42,7 @@ def test_get_job_objects_wrong_project_job(make_test_project_repo):
     result = get_job_objects(2, 1, 0, 1)
     assert result is None
 
-    result = get_job_objects(1, 2, 0, 1)
+    result = get_job_objects(1, 999, 0, 1)
     assert result is None
 
 
@@ -141,3 +149,69 @@ def test_get_directory_listing_permission_error(mock, tmp_path) -> None:
 
     with pytest.raises(PermissionError):
         _ = get_directory_listing(str(error_dir))
+
+
+def test_bulk_job_status_change(make_test_project_repo) -> None:
+    """Test bulk change of status for jobs."""
+    repo = make_test_project_repo
+
+    _bulk_job_status_change(
+        repo.session,
+        [Status.RUNNING, Status.QUEUED],
+        Status.PAUSED,
+    )
+
+    projects = repo.list()
+
+    assert projects[0].jobs[0].status() is Status.DONE
+    assert projects[0].jobs[1].status() is Status.PAUSED
+    assert projects[0].jobs[2].status() is Status.PAUSED
+
+    with pytest.raises(NotImplementedError):
+        _bulk_job_status_change(
+            repo.session,
+            [Status.PAUSED],
+            Status.DONE,
+        )
+
+
+@pytest.mark.parametrize(
+    ("side_effect_raises", "expexted_status"),
+    [
+        (RuntimeError, Status.ERROR),
+        (ConnectionError, Status.PAUSED),
+        (KeyboardInterrupt, Status.PAUSED),
+    ],
+)
+def test_process_job_errors(
+    make_test_project_repo,
+    side_effect_raises,
+    expexted_status,
+) -> None:
+    """Test error handling in `process_job`."""
+    import threading
+
+    repo = make_test_project_repo
+    event = threading.Event()
+    event.set()
+
+    assert repo.get(1).jobs[3].status() == Status.QUEUED
+
+    with patch.object(services.Detector, "_models") as mock_1:
+        mock_1.return_value = [
+            interface.Model(
+                "fishy",
+                [
+                    "test",
+                ],
+            )
+        ]
+        with patch.object(services.Detector, "predict") as mock_2:
+
+            def side_effect(*args: Any) -> None:
+                raise side_effect_raises
+
+            mock_2.side_effect = side_effect
+            process_job(1, 4, event, repo.session)
+
+        assert repo.get(1).jobs[3].status() == expexted_status

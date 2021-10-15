@@ -1,4 +1,6 @@
 """Services used in this application."""
+from __future__ import annotations
+
 import logging
 import math
 import os
@@ -16,9 +18,8 @@ from sqlalchemy.orm import Session
 
 import core.main
 from config import get_video_root_path, load_config
-from core import api
 from core.interface import Detector, to_track
-from core.model import Frame, Job, JobStatusException, Status, Video
+from core.model import Job, JobStatusException, Status, Video
 from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 
 logger = logging.getLogger(__name__)
@@ -30,7 +31,7 @@ job_queue: Queue = Queue()
 class VideoLoader:
     """Utility class to abstract away video files and turn them into an iterator of frames."""
 
-    def __init__(self, videos: List[Video], batchsize: int = 25) -> None:
+    def __init__(self, videos: list[Video], batchsize: int = 25) -> None:
         self.videos = videos
         self.frames = sum(v.frame_count for v in self.videos)
         self.batchsize = batchsize
@@ -56,7 +57,7 @@ class VideoLoader:
         """
         return math.ceil(self.frames / self.batchsize)
 
-    def _video_for_frame(self, frame: int) -> Tuple[int, int]:
+    def _video_for_frame(self, frame: int) -> tuple[int, int]:
         """Find the video belonging to an absolute frame number, along with start position.
 
         Parameter
@@ -90,9 +91,9 @@ class VideoLoader:
     def generate_batches(
         self, batch_index: int = 0
     ) -> Generator[
-        Tuple[
+        tuple[
             int,
-            Tuple[int, np.ndarray, List[datetime], Dict[int, Video], List[int]],
+            tuple[int, np.ndarray, list[datetime], dict[int, Video], list[int]],
         ],
         None,
         None,
@@ -134,8 +135,8 @@ class VideoLoader:
 
         batch = []
         timestamps = []
-        framenumbers: List[int] = []
-        video_for_frame: Dict[int, Video] = dict()
+        framenumbers: list[int] = []
+        video_for_frame: dict[int, Video] = dict()
         current_batch = batch_index
         batch_start_time = time.time()
         for vid in self.videos[start_vid:]:
@@ -305,9 +306,22 @@ def process_job(
                     logger.debug(f"Now detecting batch {batchnr}...")
                     frames = det.predict(batch, "fishy")
                     logger.debug(f"Finished detecting batch {batchnr}.")
-                except (ConnectionError, RuntimeError, KeyboardInterrupt) as e:
+                except ConnectionError as e:
                     logger.error(e)
                     _pause_job_if_running(job)
+                    return
+                except RuntimeError as e:
+                    logger.error(e)
+                    # Disregard all uncommitted changes to db.
+                    repo.session.rollback()
+                    # Mark job status as error
+                    job.mark_as_error()
+                    repo.save()
+                    return
+                except KeyboardInterrupt as e:
+                    logger.error(e)
+                    _pause_job_if_running(job)
+                    event.clear()
                     return
 
                 # Iterate over all frames to set variables in frame
@@ -355,10 +369,9 @@ def process_job(
             logger.error("Job processing experienced an error: %s", e)
             # Disregard all uncommitted changes to db.
             repo.session.rollback()
-
-            # Set job to paused. Should maybe look at using an error started
-            # later.
-            _pause_job_if_running(job)
+            # Mark job status as error
+            job.mark_as_error()
+            repo.save()
             return
 
     # Tracing
@@ -438,12 +451,38 @@ schedule_thread = SchedulerThread(
 )
 
 
+def _bulk_job_status_change(
+    session: Session,
+    from_status: list[Status],
+    to_status: Status = Status.PAUSED,
+) -> None:
+    """Bulk change status of all jobs with a specific status.
+
+    Parameters
+    ----------
+    session :   Session
+        sqlalchemy session to db.
+    from_status :   list[Status]
+        List of `Status` condition to change from.
+    to_status   :   Status
+        To what `Status` the jobs who meet the `from_status` conditions are
+        to be changed to. Only implemented for `Status.PAUSED` at the moment.
+    """
+    repo = ProjectRepository(session)
+
+    for project in repo.list():
+        for job in project.get_jobs():
+            if job.status() in from_status:
+                if to_status is Status.PAUSED:
+                    job.pause()
+                    repo.save()
+                else:
+                    raise NotImplementedError
+
+
 def stop_scheduler() -> None:
     """Stop the scheduler thread."""
     logger.info("Stopping")
-
-    # Clear queue, TODO Store jobs in queue and handle running jobs.
-    # job_queue.queue.clear()
 
     # signal scheduler_thread to close.
     schedule_event.clear()
@@ -453,7 +492,7 @@ def stop_scheduler() -> None:
     logger.info("Stopped")
 
 
-def start_scheduler() -> None:
+def start_scheduler(session: Session) -> None:
     """Start the scheduler thread."""
     if not schedule_thread.is_alive():  # type: ignore
         try:
@@ -469,6 +508,15 @@ def start_scheduler() -> None:
     else:
         logger.error("Scheduler is already running")
 
+    # Pause jobs not completed last run so user can re-queue them.
+    # This is done on start up, instead of on stop, to catch cases where
+    # the program is not gracefully shut-down.
+    _bulk_job_status_change(
+        session,
+        [Status.QUEUED, Status.RUNNING],
+        Status.PAUSED,
+    )
+
 
 def queue_job(project_id: int, job_id: int, session: Session) -> None:
     """Enqueue a job in the scheduler.
@@ -476,7 +524,7 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
     Parameters
     ----------
     project_id  :   int
-        Project id of the porject to start processing.
+        Project id of the project to start processing.
     job_id      :   int
         Job id of the job to start processing.
     """
@@ -494,23 +542,11 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
         return
 
     try:
-        if job.status() is Status.PENDING:
+        if job.status() in [Status.PENDING, Status.PAUSED]:
             job.queue()
             repo.save()
             logger.info(
-                f"Pending job {job_id} in project {project_id} scheduled to be processed."
-            )
-            job_queue.put((project_id, job_id))
-            return
-        elif job.status() is Status.RUNNING:
-            logger.info(
-                f"Running job {job_id} in project {project_id} scheduled to resume."
-            )
-            job_queue.put((project_id, job_id))
-            return
-        elif job.status() is Status.PAUSED:
-            logger.info(
-                f"Paused job {job_id} in project {project_id} scheduled to resume."
+                f"{job.status()} job {job_id} in project {project_id} scheduled to be processed."
             )
             job_queue.put((project_id, job_id))
             return
@@ -524,7 +560,7 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
 
 def get_job_objects(
     project_id: int, job_id: int, start: int, length: int
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Collect a set of `Objects` from job.
 
     Collect a set of `Objects` from `start` to `start + length` part of job
@@ -567,7 +603,7 @@ def get_job_objects(
     if job is None:
         return None
 
-    response: Dict[str, Any] = {}
+    response: dict[str, Any] = {}
     response["total_objects"] = len(job._objects)
     response["data"] = job._objects[start : start + length]
 
@@ -575,8 +611,8 @@ def get_job_objects(
 
 
 def get_directory_listing(
-    path: Optional[str] = None,
-) -> List[Optional[Union[Dict[str, Any], str]]]:
+    path: str | None = None,
+) -> list[dict[str, Any] | str | None]:
     """Get contents found in a given directory. Does not search recursivly.
 
     Parameters
@@ -606,8 +642,8 @@ def get_directory_listing(
 
     normalized_path = pathlib.Path(directory)
 
-    tree: List[Optional[Union[Dict[str, Any], str]]] = list()
-    root_node: Dict[str, Any] = dict()
+    tree: list[dict[str, Any] | str | None] = list()
+    root_node: dict[str, Any] = dict()
     child_list = []
 
     if isfile(normalized_path):

@@ -105,7 +105,8 @@ def main(
     # only part not tested in tests
     if not args.test:  # pragma: no cover
         setup(db_path)
-        core.services.start_scheduler()
+        assert sessionfactory is not None
+        core.services.start_scheduler(sessionfactory())
 
         uvicorn.run(
             core_api,
