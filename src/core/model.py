@@ -43,6 +43,7 @@ class Status(str, Enum):
     PAUSED = "Paused"
     DONE = "Done"
     QUEUED = "Queued"
+    ERROR = "Error"
 
 
 class Video:
@@ -1190,30 +1191,41 @@ class Job:
     def start(self) -> None:
         """Mark the job as started."""
         if self._status is Status.DONE or self._status is Status.RUNNING:
-            raise JobStatusException
+            raise JobStatusException(
+                "A running or completed job can not be started."
+            )
         logger.debug("Job '%s' starting", self.name)
         self._status = Status.RUNNING
 
     def pause(self) -> None:
         """Mark the job as paused."""
-        if self._status is not Status.RUNNING:
-            raise JobStatusException
+        if self._status not in [Status.RUNNING, Status.QUEUED]:
+            raise JobStatusException("Only a running job can be paused.")
         logger.debug("Job '%s' paused", self.name)
         self._status = Status.PAUSED
 
     def complete(self) -> None:
         """Mark the job as completed."""
         if self._status is not Status.RUNNING:
-            raise JobStatusException
+            raise JobStatusException("Only a running job can be completed.")
         logger.debug("Job '%s' marked as completed", self.name)
         self._status = Status.DONE
 
     def queue(self) -> None:
         """Mark the job as queued."""
-        if self._status is not Status.PENDING:
-            raise JobStatusException
+        if self._status not in [Status.PENDING, Status.PAUSED]:
+            raise JobStatusException(
+                "Only a pending or paused job can be queued."
+            )
         logger.debug("Job '%s' marked as queued", self.name)
         self._status = Status.QUEUED
+
+    def mark_as_error(self) -> None:
+        """Mark the job as in a error state."""
+        if self._status is not Status.RUNNING:
+            raise JobStatusException("Only a running job can error")
+        logger.debug("Job '%s' has status as error", self.name)
+        self._status = Status.ERROR
 
 
 class JobStatusException(Exception):

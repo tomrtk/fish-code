@@ -107,6 +107,8 @@ def test_job_status(make_test_job: Job):
         job.pause()
     with pytest.raises(JobStatusException):
         job.complete()
+    with pytest.raises(JobStatusException):
+        job.mark_as_error()
     assert job.status() == Status.PENDING
 
     # queue job
@@ -118,6 +120,8 @@ def test_job_status(make_test_job: Job):
         job.queue()
     with pytest.raises(JobStatusException):
         job.complete()
+    with pytest.raises(JobStatusException):
+        job.mark_as_error()
     assert job.status() == Status.QUEUED
 
     # start job
@@ -140,10 +144,20 @@ def test_job_status(make_test_job: Job):
         job.pause()
     with pytest.raises(JobStatusException):
         job.complete()
+    with pytest.raises(JobStatusException):
+        job.mark_as_error()
     assert job.status() == Status.PAUSED
 
     # Restart job
     job.start()
+    assert job.status() == Status.RUNNING
+
+    # Mark status as error
+    job.mark_as_error()
+    assert job.status() == Status.ERROR
+
+    # Change job status to running for remaining tests
+    job._status = Status.RUNNING
     assert job.status() == Status.RUNNING
 
     # Complete job
@@ -159,6 +173,8 @@ def test_job_status(make_test_job: Job):
         job.complete()
     with pytest.raises(JobStatusException):
         job.start()
+    with pytest.raises(JobStatusException):
+        job.mark_as_error()
     assert job.status() == Status.DONE
 
 

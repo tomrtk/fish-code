@@ -427,7 +427,7 @@ class Client:
         old_status = job.get_status()
         new_status: str = ""
 
-        if old_status == "pending":
+        if old_status in ["pending", "paused"]:
             # type:ignore
             r_post = self.toggle(
                 f"{self._endpoint}/projects/{project_id}/jobs/{job_id}/start",
