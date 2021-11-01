@@ -32,7 +32,7 @@ repos:
         additional_dependencies: [toml]
         files: ^src/
   - repo: https://github.com/psf/black
-    rev: 21.9b0
+    rev: 21.10b0
     hooks:
       - id: black
         name: Format code (Python)
@@ -91,6 +91,6 @@ repos:
             ci/
             )
   - repo: https://github.com/asottile/setup-cfg-fmt
-    rev: v1.18.0
+    rev: v1.19.0
     hooks:
       - id: setup-cfg-fmt
