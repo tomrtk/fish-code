@@ -29,7 +29,7 @@
     "cssnano": "^5.0.9",
     "esbuild": "^0.13.12",
     "postcss": "^8.3.11",
-    "postcss-cli": "^9.0.1",
+    "postcss-cli": "^9.0.2",
     "postcss-import": "^14.0.1",
     "postcss-nesting": "^9.0.0",
     "postcss-url": "^10.1.3",
