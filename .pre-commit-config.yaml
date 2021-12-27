@@ -5,7 +5,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.0.1
+    rev: v4.1.0
     hooks:
       - id: check-ast
         name: Check Python AST
@@ -63,7 +63,7 @@ repos:
           - "@vidavidorra/commitlint-config"
           - "commitlint-plugin-function-rules"
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.920
+    rev: v0.930
     hooks:
       - id: mypy
         name: Run mypy
