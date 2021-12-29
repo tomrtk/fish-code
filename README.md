@@ -112,7 +112,16 @@ interface.
 
 ## Configuration
 
-TODO
+A configuration file(`config.ini`) is saved to a local path if not found at first start-up.
+Path it is saved to depend on operation system as specified below:
+
+- linux/unix:
+  - If `XDG_CONFIG_HOME` environment variable is set, it is saved to a folder
+    `nina` in this location.
+  - Else, it is saved to `~/.config/nina/`.
+- windows: config is saved to `LOCALAPPDATA`.
+- if it should not be able to determine where to save the config, it will be saved
+  to the current working directory, where the solution are started from.
 
 ## Development
 

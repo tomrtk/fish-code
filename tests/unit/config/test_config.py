@@ -5,6 +5,7 @@ from unittest.mock import patch
 import configparser
 import logging
 import os
+import os.path
 import pytest
 import sys
 
@@ -12,6 +13,7 @@ from config import find_config_directory
 from config import find_data_directory
 from config import load_config
 from config import get_default_config
+from config import get_config_file_path
 from config import write_config
 from config import get_os_name
 from config import get_video_root_path
@@ -19,9 +21,10 @@ from config import get_video_root_path
 logger = logging.getLogger(__name__)
 
 
-def test_load_default_config() -> None:
+def test_load_default_config(tmpdir) -> None:
     """Checks the default config to contain correct sections."""
-    parser = load_config(default=True)
+    config_path = tmpdir.join("config.ini")
+    parser = load_config(default=True, path=config_path)
 
     assert set(parser.sections()) == {
         "GLOBAL",
@@ -46,11 +49,12 @@ def test_load_config(mock_isfile) -> None:
 
 
 @patch("os.path.isfile")
-def test_load_config_not_found(mock_isfile) -> None:
+def test_load_config_not_found(mock_isfile, tmpdir) -> None:
     """Checks that config can be read from disk at default config location."""
+    config_path = tmpdir.join("config.ini")
     mock_isfile.return_value = False
     with patch.object(configparser.ConfigParser, "read_file") as mock_method:
-        data = load_config()
+        data = load_config(path=config_path)
 
     mock_method.assert_not_called()
     assert data.__eq__(get_default_config())
@@ -79,10 +83,18 @@ def test_load_config_oserror(mock_isfile, caplog) -> None:
 def test_write_config(mock_open) -> None:
     """Checks that config can be written to disk at default config location."""
     with patch.object(configparser.ConfigParser, "write") as mock_method:
-        write_config(get_default_config())
+        write_config(get_default_config(), get_config_file_path())
 
     mock_method.assert_called_once()
     mock_open.assert_called_once()
+
+
+def test_write_config_to_given_path(tmpdir) -> None:
+    """Checks that config can be written to disk at given path."""
+    conf_path = tmpdir.join("config.ini")
+    write_config(get_default_config(), conf_path)
+
+    assert os.path.exists(conf_path)
 
 
 def test_read_config_garbage_data(caplog) -> None:

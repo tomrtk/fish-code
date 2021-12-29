@@ -185,13 +185,14 @@ def load_config(
     else:
         logger.warning(
             f"Could not find config file at {config_path}, using defaults."
+            f"Saving it to {config_path}"
         )
-        return get_default_config()
+        config = get_default_config()
+        write_config(config, config_path)
+        return config
 
 
-def write_config(config: configparser.ConfigParser) -> None:
+def write_config(config: configparser.ConfigParser, path: str) -> None:
     """Write a ConfigParser object to disk at the applications config file path."""
-    # TODO: Error check
-    Path(find_config_directory()).mkdir(parents=True, exist_ok=True)
-    with open(get_config_file_path(), "w") as configfile:
+    with open(path, "w") as configfile:
         config.write(configfile)
