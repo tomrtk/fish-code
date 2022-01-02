@@ -403,17 +403,20 @@ class Video:
         FileNotFoundError
             If `path` to file do not exists.
         """
-        if not Path(path).exists():
-            raise FileNotFoundError("Video file %s not found.", path)
+        normalized_path = os.path.normpath(path)
+        if not Path(normalized_path).exists():
+            raise FileNotFoundError("Video file %s not found.", normalized_path)
 
-        timestamp = parse_str_to_date(Path(path).name)
+        timestamp = parse_str_to_date(Path(normalized_path).name)
         if timestamp is None:
-            raise TimestampNotFoundError(f"No timestamp found for file {path}")
+            raise TimestampNotFoundError(
+                f"No timestamp found for file {normalized_path}"
+            )
 
-        height, width, fps, frame_numbers = _get_video_metadata(path)
+        height, width, fps, frame_numbers = _get_video_metadata(normalized_path)
 
         return cls(
-            path=path,
+            path=normalized_path,
             frame_count=frame_numbers,
             fps=fps,
             width=width,

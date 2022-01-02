@@ -640,7 +640,7 @@ def get_directory_listing(
     else:
         directory = path
 
-    normalized_path = pathlib.Path(directory)
+    normalized_path = os.path.normpath(directory)
 
     tree: list[dict[str, Any] | str | None] = list()
     root_node: dict[str, Any] = dict()
@@ -659,7 +659,7 @@ def get_directory_listing(
             f"Directory at '{normalized_path}' is inaccessable."
         )
 
-    for p in normalized_path.iterdir():
+    for p in pathlib.Path(normalized_path).iterdir():
         if p.is_dir():
             child_list.append(
                 {
@@ -681,9 +681,9 @@ def get_directory_listing(
             )
 
     # Create root node
-    root_name = normalized_path.name
+    root_name = pathlib.Path(normalized_path).name
     root_node = {
-        "id": str(normalized_path.as_posix()),
+        "id": str(pathlib.Path(normalized_path).as_posix()),
         "text": "/" if root_name == "" else root_name,
         "type": "folder",
         "children": sorted(child_list, key=lambda u: u["id"]),
