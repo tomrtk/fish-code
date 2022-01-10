@@ -24,7 +24,7 @@
     "@types/datatables.net": "^1.10.21",
     "@types/jquery": "^3.5.11",
     "@types/jstree": "^3.3.41",
-    "autoprefixer": "^10.4.1",
+    "autoprefixer": "^10.4.2",
     "concurrently": "^7.0.0",
     "cssnano": "^5.0.14",
     "esbuild": "^0.14.10",
