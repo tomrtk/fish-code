@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import validate_arguments
 
-SQLITE_INTEGER_LIMIT = 2 ** 63 - 1
+SQLITE_INTEGER_LIMIT = 2**63 - 1
 
 
 @validate_arguments
