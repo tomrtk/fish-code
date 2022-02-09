@@ -75,7 +75,7 @@ jobs:
           python-version: "3.x"
       - name: Generate Coverage Report (XML)
         run: |
-          pip install --upgrade coverage[toml]
+          pip install --upgrade coverage[toml] covdefaults
           coverage combine coverage-*
           coverage xml
       - name: Upload Coverage Report
