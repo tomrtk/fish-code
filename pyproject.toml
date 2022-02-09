@@ -67,7 +67,7 @@ norecursedirs = [".git", ".tox", ".env", "dist", "build"]
 python_files = ["test_*.py", "*_test.py", "tests.py"]
 
 [tool.coverage.run]
-branch = true
+plugins = ["covdefaults"]
 source = ["src"]
 omit = [
   "*/.tox/*",
@@ -80,8 +80,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-show_missing = true
-skip_covered = false
+fail_under = 85
 
 [tool.tox]
 legacy_tox_ini = '''
@@ -90,6 +89,8 @@ envlist = py{38,39}-{integration,unit},
           coverage
 isolated_build = True
 skipsdist = True
+requires = pip >= 22.0.3
+	setuptools >= 60.8.0
 
 [testenv]
 deps =
@@ -101,7 +102,9 @@ commands =
     unit: coverage run -p -m pytest tests/unit {posargs}
 
 [testenv:coverage]
-deps = coverage[toml] >= 5.0
+deps =
+	coverage[toml] >= 5.0
+	covdefaults
 skip_install = True
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage}
