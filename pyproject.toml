@@ -22,6 +22,9 @@ write_to = "src/nina/version.py"
 profile = "black"
 line_length = 80
 multi_line_output = 3
+skip = [
+    "./src/vendor",
+]
 
 [tool.black]
 line-length = 80
@@ -43,6 +46,7 @@ exclude = '''
   | dist
   | venv
   | node_modules
+  | src/vendor
   | README.md
 )/
 '''
@@ -71,7 +75,8 @@ omit = [
   "*/setup.py",
   "*/.venv*/*",
   "*/venv*/*",
-  "src/nina/version.py"
+  "src/nina/version.py",
+  "src/vendor/*"
 ]
 
 [tool.coverage.report]

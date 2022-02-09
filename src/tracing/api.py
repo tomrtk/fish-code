@@ -5,7 +5,8 @@ from typing import List, Optional
 import uvicorn
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
-from sort import sort
+
+from vendor.sort import sort
 
 from . import tracker
 

@@ -5,7 +5,8 @@ import abc
 from typing import Any, Dict, List, Optional
 
 import numpy as np
-from sort import sort
+
+from vendor.sort import sort
 
 
 class BBox:
