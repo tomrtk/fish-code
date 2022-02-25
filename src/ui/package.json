@@ -22,7 +22,7 @@
     "@tailwindcss/aspect-ratio": "^0.4.0",
     "@tailwindcss/forms": "^0.4.0",
     "@types/datatables.net": "^1.10.21",
-    "@types/jquery": "^3.5.13",
+    "@types/jquery": "^3.5.14",
     "@types/jstree": "^3.3.41",
     "autoprefixer": "^10.4.2",
     "concurrently": "^7.0.0",
