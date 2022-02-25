@@ -34,7 +34,7 @@ async def startup_event() -> None:
     """Load models at API startup."""
     model["fishy"] = (  # type: ignore
         torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
+            "ultralytics/yolov5:v6.0",
             "custom",
             path=str(model_fishy_path.resolve()),
         ),
@@ -55,7 +55,7 @@ async def startup_event() -> None:
 
     model["fishy2"] = (  # type: ignore
         torch.hub.load(  # type: ignore
-            "ultralytics/yolov5",
+            "ultralytics/yolov5:v6.0",
             "custom",
             path=str(model_fishy2_path.resolve()),
         ),
