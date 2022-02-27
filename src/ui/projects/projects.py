@@ -67,6 +67,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         assert projects is not None
 
         pagination = Pagination(
+            css_framework="bootstrap2",
             page=page,
             per_page=per_page,
             prev_label="Previous",
@@ -116,6 +117,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
             return abort(404, f"Project {project_id} was not found.")
 
         pagination = Pagination(
+            css_framework="bootstrap2",
             page=page,
             per_page=per_page,
             prev_label="Previous",
