@@ -43,12 +43,12 @@ repos:
     hooks:
       - id: pydocstyle
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.5.1
+    rev: v2.6.0
     hooks:
       - id: prettier
         name: Format other code (CSS, HTML, JS, MD, TOML, YAML)
         additional_dependencies:
-          - prettier@2.5.1
+          - prettier@2.6.0
           - "prettier-plugin-toml"
         types: [file]
         files: \.(css|html|js|markdown|md|toml|yaml|yml)$
@@ -65,7 +65,7 @@ repos:
           - "@vidavidorra/commitlint-config"
           - "commitlint-plugin-function-rules"
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.940
+    rev: v0.941
     hooks:
       - id: mypy
         name: Run mypy
