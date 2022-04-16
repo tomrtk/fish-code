@@ -54,7 +54,7 @@ jobs:
       - name: Run ${{ matrix.tests }} Tests
         run: |
           tox -e ${{ matrix.tests }}
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3
         if: ${{ matrix.python-version == 3.9 &&  matrix.os == 'ubuntu-latest' }}
         with:
           name: coverage-${{ matrix.tests }}
