@@ -27,22 +27,8 @@ jobs:
     env:
       COVERAGE_FILE: ${{ github.workspace }}/.coverage.${{ matrix.python-version }}-${{ matrix.tests }}
     steps:
-      - uses: actions/checkout@v3
-      - name: Create LFS file list
-        run: |
-          git lfs ls-files -l | cut -d' ' -f1 | sort > .lfs-assets-id
-      - name: Restore LFS cache
-        uses: actions/cache@v3
-        id: lfs-cache
-        with:
-          path: .git/lfs
-          # The cache of lfs should be the same on all jobs. Not sure
-          # what happens when an update has occured and every job tries
-          # to upload a new version.
-          # key: ${{ runner.os }}-lfs-${{ hashFiles('.lfs-assets-id') }}-v1
-          key: lfs-${{ hashFiles('.lfs-assets-id') }}-v1
-      - name: Git LFS Pull
-        run: git lfs pull
+      - name: Checkout code w/ LFS
+        uses: nschloe/action-cached-lfs-checkout@v1
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v3
         with:
