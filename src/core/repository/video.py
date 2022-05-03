@@ -37,7 +37,7 @@ class AbstractVideoRepository(abc.ABC):
         """Save and commit changes to repository."""
         raise NotImplementedError
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def remove(self, vid: model.Video) -> None:  # pragma: no cover
         """Delete video from repository."""
         raise NotImplementedError
@@ -100,12 +100,12 @@ class SqlAlchemyVideoRepository(AbstractVideoRepository):
         """Commit and save changes."""
         self.session.commit()
 
-    def remove(self, obj: model.Video) -> None:
+    def remove(self, vid: model.Video) -> None:
         """Delete video from repository.
 
         Parameter
         ---------
-        obj : model.Video
+        vid : model.Video
            Video to remove
         """
-        self.session.delete(obj)
+        self.session.delete(vid)
