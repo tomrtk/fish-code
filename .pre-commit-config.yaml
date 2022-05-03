@@ -72,6 +72,9 @@ repos:
         additional_dependencies:
           - "sqlalchemy[mypy]"
           - "types-all"
+          # XXX: type issue with request.post files argument
+          # https://github.com/python/typeshed/issues/7724
+          - "types-requests==2.27.20"
         files: ^src/
   - repo: https://github.com/PyCQA/flake8
     rev: 4.0.1

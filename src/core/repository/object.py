@@ -37,7 +37,7 @@ class AbstractObjectRepository(abc.ABC):
         """Save and commit changes to repository."""
         raise NotImplementedError
 
-    @abc.abstractclassmethod
+    @abc.abstractmethod
     def remove(self, obj: model.Object) -> None:  # pragma: no cover
         """Delete object from repository."""
         raise NotImplementedError
