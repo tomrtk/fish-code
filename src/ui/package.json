@@ -27,7 +27,7 @@
     "autoprefixer": "^10.4.7",
     "concurrently": "^7.1.0",
     "cssnano": "^5.1.7",
-    "esbuild": "^0.14.38",
+    "esbuild": "^0.14.39",
     "postcss": "^8.4.13",
     "postcss-cli": "^9.1.0",
     "postcss-import": "^14.1.0",
