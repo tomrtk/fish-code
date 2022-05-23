@@ -28,7 +28,7 @@
     "concurrently": "^7.2.0",
     "cssnano": "^5.1.8",
     "esbuild": "^0.14.39",
-    "postcss": "^8.4.13",
+    "postcss": "^8.4.14",
     "postcss-cli": "^9.1.0",
     "postcss-import": "^14.1.0",
     "postcss-nesting": "^10.1.7",
