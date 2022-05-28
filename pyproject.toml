@@ -65,12 +65,12 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 85
+fail_under = 87
 
 [tool.tox]
 legacy_tox_ini = '''
 [tox]
-envlist = py{38,39}-{integration,unit},
+envlist = py{38,39}
           coverage
 isolated_build = True
 skipsdist = True
@@ -83,8 +83,7 @@ deps =
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
-    integration: coverage run -p -m pytest tests/integration {posargs}
-    unit: coverage run -p -m pytest tests/unit {posargs}
+    coverage run -p -m pytest {posargs}
 
 [testenv:coverage]
 deps =
@@ -96,5 +95,4 @@ setenv =
 commands = coverage combine
            coverage report -m
            coverage xml
-depends = py39-{integration,unit}
 '''
