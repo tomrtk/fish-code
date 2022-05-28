@@ -406,22 +406,26 @@ class Video:
         if not Path(path).exists():
             raise FileNotFoundError("Video file %s not found.", path)
 
-        timestamp = parse_str_to_date(Path(path).name)
-        if timestamp is None:
-            raise TimestampNotFoundError(f"No timestamp found for file {path}")
-
         height, width, fps, frame_numbers = _get_video_metadata(path)
-
-        return cls(
+        video = cls(
             path=path,
             frame_count=frame_numbers,
             fps=fps,
             width=width,
             height=height,
-            timestamp=timestamp,
+            timestamp=datetime(1, 1, 1),
             output_width=output_width,
             output_height=output_height,
         )
+
+        video_length = int(video.frame_count * (1 / video.fps))
+        timestamp = parse_str_to_date(Path(path).name, video_length)
+
+        if timestamp is None:
+            raise TimestampNotFoundError(f"No timestamp found for file {path}")
+
+        video.timestamp = timestamp
+        return video
 
     def timestamp_at(self, idx: int) -> datetime:
         """Return timestamp at index in video.
@@ -504,11 +508,11 @@ class Video:
         return True
 
 
-def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
+def parse_str_to_date(string: str, offset_time: int = 1800) -> datetime | None:
     """Parse string to date.
 
     Input can either be a string with a date, or a string with a date and
-    offset. If an offset is found, `offset_min` will be multiplied with the
+    offset. If an offset is found, `offset_time` will be multiplied with the
     offset and the result will be to the returned date.
 
     Parameter
@@ -516,8 +520,8 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
     string: str
         string to parse to date on the format:
         `[yyyy-mm-dd_hh-mm-ss]` or `[yyyy-mm-dd_hh-mm-ss]-xxx`
-    offset_min: int
-        Minutes to offset for each increment
+    offset_time: int
+        Seconds to offset for each increment, default 30 minutes
 
 
     Return
@@ -565,7 +569,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
 
     try:
         return datetime(year, month, day, hour, minute, second) + timedelta(
-            minutes=offset_min * offset_int
+            seconds=offset_time * offset_int
         )
     except ValueError:
         return None
