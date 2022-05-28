@@ -3,7 +3,6 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/MindTooth/fish-code/master.svg)](https://results.pre-commit.ci/latest/github/MindTooth/fish-code/master)
 [![GitHub](https://img.shields.io/github/license/MindTooth/fish-code)](./LICENSE)
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MindTooth/fish-code/Tests)](https://github.com/MindTooth/fish-code/actions/workflows/tests.yaml)
-[![codecov](https://codecov.io/gh/MindTooth/fish-code/branch/master/graph/badge.svg?token=ZQ3PSGY6P2)](https://codecov.io/gh/MindTooth/fish-code)
 
 Application to detect, track and calculate statistics of objects in video. With
 the option to view the statistics by using the UI or exporting to CSV.
@@ -209,17 +208,15 @@ so that tests can be executed separately or all at once.
 # to build and run tests for all supported versions:
 $ tox
 # or for a specific Python version or target:
-$ tox -e py39-integration
+$ tox -e py39
 ```
 
 Pass `-l` to `tox` to see all targets.
 
 ```sh
 $ tox -l
-py38-integration
-py38-unit
-py39-integration
-py39-unit
+py38
+py39
 coverage
 ```
 

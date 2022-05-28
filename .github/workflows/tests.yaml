@@ -17,15 +17,12 @@ on:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python-version }} - ${{ matrix.tests }} - ${{ matrix.os }}
+    name: Python ${{ matrix.python-version }} - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: [3.8, 3.9]
-        tests: [integration, unit]
-    env:
-      COVERAGE_FILE: ${{ github.workspace }}/.coverage.${{ matrix.python-version }}-${{ matrix.tests }}
     steps:
       - name: Checkout code w/ LFS
         uses: nschloe/action-cached-lfs-checkout@v1
@@ -36,35 +33,10 @@ jobs:
       - name: Install Base Dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install --upgrade tox
-      - name: Run ${{ matrix.tests }} Tests
+          pip install --upgrade tox virtualenv
+      - name: Run tests on ${{ matrix.os }} with python ${{matrix.python-version }}
         run: |
-          tox -e ${{ matrix.tests }}
-      - uses: actions/upload-artifact@v3
-        if: ${{ matrix.python-version == 3.9 &&  matrix.os == 'ubuntu-latest' }}
-        with:
-          name: coverage-${{ matrix.tests }}
-          path: ${{ env.COVERAGE_FILE }}.*
-
-  upload-to-codecov:
-    name: Upload Coverage to Codecov
-    needs: [tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Download artifacts
-        uses: actions/download-artifact@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: "3.x"
-      - name: Generate Coverage Report (XML)
+          tox -e py
+      - name: Make coverage report
         run: |
-          pip install --upgrade coverage[toml] covdefaults
-          coverage combine coverage-*
-          coverage xml
-      - name: Upload Coverage Report
-        uses: codecov/codecov-action@v3.1.0
-        with:
-          fail_ci_if_error: true
+          tox -e coverage
