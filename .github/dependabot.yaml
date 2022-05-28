@@ -10,7 +10,11 @@ updates:
     directory: "/src/ui"
     schedule:
       interval: "daily"
+    # Disable version updates for dependencies, only security updates
+    open-pull-requests-limit: 0
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "daily"
+    # Disable version updates for dependencies, only security updates
+    open-pull-requests-limit: 0
