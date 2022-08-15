@@ -87,7 +87,7 @@ repos:
             ci/
             )
   - repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v1.6.0
+    rev: v1.7.0
     hooks:
       - id: autopep8
         exclude: |
