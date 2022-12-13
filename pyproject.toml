@@ -71,28 +71,28 @@ fail_under = 86
 legacy_tox_ini = '''
 [tox]
 envlist = py{38,39}
-          coverage
+  coverage
 isolated_build = True
 skipsdist = True
 requires = pip >= 22.0.3
-	setuptools >= 60.8.0
+  setuptools >= 60.8.0
 
 [testenv]
 deps =
-    -e .[testing, cpu]
+  -e .[cpu,testing]
 setenv =
-    COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
+  COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
-    coverage run -p -m pytest {posargs}
+  coverage run -p -m pytest {posargs}
 
 [testenv:coverage]
 deps =
-	coverage[toml] >= 5.0
-	covdefaults
+  coverage[toml] >= 5.0
+  covdefaults
 skip_install = True
 setenv =
-    COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage}
+  COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage}
 commands = coverage combine
-           coverage report -m
-           coverage xml
+  coverage report -m
+  coverage xml
 '''
