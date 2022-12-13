@@ -65,7 +65,7 @@ omit = [
 ]
 
 [tool.coverage.report]
-fail_under = 87
+fail_under = 86
 
 [tool.tox]
 legacy_tox_ini = '''
