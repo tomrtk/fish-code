@@ -120,7 +120,9 @@ def test_read_config_garbage_data(caplog) -> None:
         assert parser.__eq__(get_default_config())
 
 
-@pytest.mark.skipif(os.name == "nt", reason="Not run on Windows")
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="Should not run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "name, env, config_path, expected",
     [
@@ -144,7 +146,9 @@ def test_find_config_dir(
         assert find_config_directory() == Path(expected)
 
 
-@pytest.mark.skipif(not os.name == "nt", reason="Only run on Windows")
+@pytest.mark.skipif(
+    not sys.platform == "win32", reason="Should only run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "env, config_path, expected",
     [
@@ -163,7 +167,9 @@ def test_find_config_dir_windows(
         assert find_config_directory() == Path(expected)
 
 
-@pytest.mark.skipif(os.name == "nt", reason="Not run on Windows")
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="Should not run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "name, env, config_path, expected",
     [
@@ -187,7 +193,9 @@ def test_find_data_dir(
         assert find_data_directory() == Path(expected)
 
 
-@pytest.mark.skipif(not os.name == "nt", reason="Only run on Windows")
+@pytest.mark.skipif(
+    not sys.platform == "win32", reason="Should only run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "env, config_path, expected",
     [
@@ -206,19 +214,25 @@ def test_find_data_dir_windows(
         assert find_data_directory() == Path(expected)
 
 
-@pytest.mark.skipif(not os.name == "nt", reason="Only run on Windows")
+@pytest.mark.skipif(
+    not sys.platform == "win32", reason="Should only run on win32 platforms."
+)
 def test_get_os_name_windows() -> None:
     """Test get os name."""
     assert get_os_name() == "nt"
 
 
-@pytest.mark.skipif(not os.name == "posix", reason="Only run on posix")
+@pytest.mark.skipif(
+    not os.name == "posix", reason="Should only run on POSIX platforms."
+)
 def test_get_os_name_posix() -> None:
     """Test get os name."""
     assert get_os_name() == "posix"
 
 
-@pytest.mark.skipif(not os.name == "nt", reason="Only run on Windows")
+@pytest.mark.skipif(
+    not sys.platform == "win32", reason="Should only run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "env, config_path, expected",
     [
@@ -237,7 +251,9 @@ def test_video_root_dir_windows(
         assert get_video_root_path() == expected
 
 
-@pytest.mark.skipif(os.name == "nt", reason="Not run on Windows")
+@pytest.mark.skipif(
+    sys.platform == "win32", reason="Should not run on win32 platforms."
+)
 @pytest.mark.parametrize(
     "env, config_path, expected",
     [
