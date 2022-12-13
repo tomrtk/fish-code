@@ -78,8 +78,7 @@ requires = pip >= 22.0.3
 	setuptools >= 60.8.0
 
 [testenv]
-deps =
-    -e .[testing, cpu]
+deps = -e.[testing,cpu]
 setenv =
     COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
