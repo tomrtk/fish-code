@@ -39,7 +39,7 @@ repos:
       - id: black
         name: Format code (Python)
   - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.2.3
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         exclude: ^scripts/
