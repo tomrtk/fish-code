@@ -114,7 +114,6 @@ def main(
             port=port,
             reload=False,
             workers=1,
-            debug=config.get("GLOBAL", "development"),
             access_log=False,
         )
 
