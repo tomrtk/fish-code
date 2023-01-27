@@ -14,6 +14,7 @@ on:
       - "!src/ui/package.json"
       - "!src/ui/package-lock.json"
       - "!src/ui/static/**"
+  workflow_dispatch:
 
 jobs:
   tests:
