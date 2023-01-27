@@ -277,6 +277,7 @@ class AbstractTracker(abc.ABC):
     def __init__(self) -> None:
         self._objects: dict[int, Object] = dict()
 
+    @abc.abstractmethod
     def update(self, detections: list[Detection]) -> None:
         """Update the tracker."""
         raise NotImplementedError
@@ -285,10 +286,12 @@ class AbstractTracker(abc.ABC):
         """Return the object dict."""
         return self._objects
 
+    @abc.abstractmethod
     def get_false_positive(self) -> int:
         """Get the false positives from the tracker. Used for benchmarking."""
         raise NotImplementedError
 
+    @abc.abstractmethod
     def get_misses(self) -> int:
         """Get the misses from the tracker. Used for benchmarking."""
         raise NotImplementedError
