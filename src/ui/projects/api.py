@@ -140,7 +140,7 @@ class Client:
                 return decorator_call(request)
 
     @Api.call(status_code=200, acceptable_error=403)
-    def get(self, uri: str, params: Dict = {}) -> requests.Response:
+    def get(self, uri: str, params: Optional[Dict] = None) -> requests.Response:
         """Perform a GET request to `uri.
 
         Expects a successful call to return a status_code = 200.

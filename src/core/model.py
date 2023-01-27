@@ -793,7 +793,7 @@ class Object:
     def __init__(
         self,
         label: int,
-        detections: list[Detection] = [],
+        detections: list[Detection] | None = None,
         track_id: int | None = None,
     ) -> None:
         """Create an Object.
@@ -810,7 +810,7 @@ class Object:
         self.id: int | None
         self.label: int = label
         self.probability: float = 0.0
-        self._detections: list[Detection] = detections
+        self._detections = detections if detections is not None else []
         self.track_id: int | None = track_id
         self.time_in: datetime | None = None
         self.time_out: datetime | None = None
