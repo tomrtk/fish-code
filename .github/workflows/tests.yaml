@@ -27,6 +27,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Cache torch-hub downloads
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/torch
+          key: ${{ runner.os }}-torch-hub
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
