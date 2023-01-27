@@ -32,11 +32,12 @@ if not model_fishy_path.exists() or model_fishy_path.is_dir():
 @detection_api.on_event("startup")  # type: ignore
 async def startup_event() -> None:
     """Load models at API startup."""
-    model["fishy"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5:v6.0",
+    model["fishy"] = (
+        torch.hub.load(
+            "ultralytics/yolov5:v7.0",
             "custom",
             path=str(model_fishy_path.resolve()),
+            trust_repo=True,
         ),
         640,
     )
@@ -53,11 +54,12 @@ async def startup_event() -> None:
         "vederbuk",
     ]
 
-    model["fishy2"] = (  # type: ignore
-        torch.hub.load(  # type: ignore
-            "ultralytics/yolov5:v6.0",
+    model["fishy2"] = (
+        torch.hub.load(
+            "ultralytics/yolov5:v7.0",
             "custom",
             path=str(model_fishy2_path.resolve()),
+            trust_repo=True,
         ),
         768,
     )
