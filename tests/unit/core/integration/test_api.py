@@ -415,50 +415,6 @@ def test_project_not_existing(setup):
         assert response.status_code == 404
 
 
-def test_pause_job(setup):
-    """Test pausing of a job."""
-    with TestClient(api.core_api) as client:
-        response_post_project = client.post(
-            "/projects/",
-            json={
-                "name": "Project name",
-                "number": "AB-123",
-                "description": "A project description",
-            },
-        )
-
-        project_data = response_post_project.json()
-        project_id = project_data["id"]
-
-        response_post_job = client.post(
-            f"/projects/{project_id}/jobs/",
-            json={
-                "name": "Job name",
-                "description": "Job description",
-                "videos": [],
-                "location": "test",
-            },
-        )
-
-        job_data = response_post_job.json()
-        job_id = job_data["id"]
-
-        response_wrong_project = client.post(
-            f"/projects/{project_id+99999}/jobs/{job_id}/pause"
-        )
-        assert response_wrong_project.status_code == 404
-
-        response_wrong_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id+99999}/pause"
-        )
-        assert response_wrong_job.status_code == 404
-
-        response_start_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id}/pause",
-        )
-        assert response_start_job.status_code == 202
-
-
 def test_start_job(setup):
     """Test starting a job."""
     with TestClient(api.core_api) as client:

@@ -415,48 +415,6 @@ def set_job_status_start(
     services.queue_job(project_id, job_id, repo.session)
 
 
-@core_api.post(
-    "/projects/{project_id}/jobs/{job_id}/pause",
-    status_code=status.HTTP_202_ACCEPTED,
-)
-def set_job_status_pause(
-    project_id: int,
-    job_id: int,
-    repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-) -> model.Job:
-    """Mark the job to be paused.
-
-    Returns
-    -------
-    Job
-        Job with updated status.
-
-    Raises
-    ------
-    HTTPException
-        If no project with _project_id_ found. Status code: 404.
-    HTTPException
-        If no job with _job_id_ found. Status code: 404.
-    HTTPException
-        If job is already paused or completed. Status code: 403.
-    """
-    project = repo.get(project_id)
-
-    if not project:
-        logger.warning("Project %s not found,", project_id)
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    job = project.get_job(job_id)
-
-    if job is None:
-        logger.warning("Job %s not found,", job_id)
-        raise HTTPException(status_code=404, detail="Job not found")
-
-    # TODO: Schedule a job to be paused
-
-    return job
-
-
 async def _frame_generator(
     obj: model.Object, video_repo: VideoRepostory
 ) -> AsyncGenerator[bytes, None]:
