@@ -1,4 +1,1 @@
-__pycache__/
-node_modules/
-ui/ui/static/
-.venv/
+pyproject.toml

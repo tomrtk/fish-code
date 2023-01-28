@@ -1,0 +1,14 @@
+[flake8]
+min_python_version = 3.9
+max-line-length = 80
+ignore = E203,E501,F403,F401,W503
+exclude =
+    .git,
+    __pycache__,
+    src/vendor
+    build,
+    dist,
+    .venv,
+    venv
+
+# vim: set filetype=cfg :

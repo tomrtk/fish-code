@@ -1,19 +1,100 @@
+# pyproject.toml
+[project]
+name = "nina"
+description = "Application to detect, track and calculate statistics of objects in video."
+license = { text = "GPL-3.0" }
+authors = [
+  { name = "Birger Johan Nordølum" },
+  { name = "Eirik Osland Lavik" },
+  { name = "Kristian André Dahl Haugen" },
+  { name = "Tom-Ruben Traavik Kvalvaag" },
+]
+requires-python = ">=3.8"
+dependencies = [
+  "async-exit-stack>=1.0.1",
+  "async-generator>=1.10",
+  "fastapi[all]>=0.78",
+  "filterpy>=1.4.5",
+  "flask>=2.2.2",
+  "flask-paginate>=2022.1.8",
+  "gitpython>=3.1.29", # yolov5 requirements
+  "ipython>=8.7", # yolov5 requirements
+  "opencv-python-headless>=4.5.5.64",
+  "psutil>=5.9.4", # yolov5 requirements
+  "seaborn>=0.11.2",
+  "sqlalchemy>=1.4.36",
+  "torch>=1.13.1",
+  "torchvision>=0.14.1",
+  "tqdm>=4.64",
+  "waitress>=2.1.1",
+]
+dynamic = [
+  "readme",
+  "version",
+]
+classifiers = [
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+[project.optional-dependencies]
+dev = [
+  "black>=22.1",
+  "build>=0.7",
+  "flake8>=4.0.1",
+  "isort>=5.10.1",
+  "mypy>=0.902",
+  "pip-tools>=6.12.1",
+  "pre-commit>=2.17",
+  "pydocstyle[tomli]>=6.2.1",
+  "pyproject-fmt>=0.5",
+  "pyupgrade>=2.31",
+  "sqlalchemy[mypy]>=1.4.21",
+  "types-requests>=2.28.11.8",
+  "types-waitress>=2.1.4.4",
+]
+testing = [
+  "covdefaults>=2",
+  "coverage[toml]>=6.3.1",
+  "pytest>=4",
+  "requests-mock>=1.9.3",
+  "tox>=4.0.14",
+]
+
+[project.urls]
+repository = "https://github.com/tomrtk/fish-code"
+
+[project.scripts]
+nina = "nina.run:main"
+nina-core = "core.main:main"
+nina-detection = "detection.main:main"
+nina-tracing = "tracing.main:main"
+nina-ui = "ui.run:serve"
+
+
 [build-system]
-requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
 build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=42",
+  "setuptools_scm[toml]>=3.4",
+  "wheel",
+]
+
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+readme = { file = ["README.md"] }
 
 [tool.setuptools_scm]
 write_to = "src/nina/version.py"
 
-[tool.isort]
-profile = "black"
-line_length = 80
-multi_line_output = 3
-skip = ["./src/vendor"]
-
+#######################
+# Tools Configuration #
+#######################
 [tool.black]
 line-length = 80
-target-version = ['py37']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -37,19 +118,10 @@ exclude = '''
 '''
 verbose = true
 
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
-testpaths = ["tests"]
-filterwarnings = [
-  'ignore:the imp module is deprecated:DeprecationWarning',
-  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning',
-  'ignore:Named tensors and all their associated APIs:UserWarning'
-]
-log_cli = "False"
-log_level = "INFO"
-norecursedirs = [".git", ".tox", ".env", "dist", "build"]
-python_files = ["test_*.py", "*_test.py", "tests.py"]
+
+[tool.coverage.report]
+fail_under = 86
+
 
 [tool.coverage.run]
 plugins = ["covdefaults"]
@@ -64,13 +136,53 @@ omit = [
   "src/vendor/*"
 ]
 
-[tool.coverage.report]
-fail_under = 86
+
+[tool.isort]
+profile = "black"
+line_length = 80
+multi_line_output = 3
+skip = ["./src/vendor"]
+
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+plugins = "sqlalchemy.ext.mypy.plugin"
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
+
+[[tool.mypy.overrides]]
+module = "vendor.*"
+ignore_errors = true
+
+
+[tool.pydocstyle]
+convention = "numpy"
+
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
+testpaths = ["tests"]
+filterwarnings = [
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning',
+  'ignore:Named tensors and all their associated APIs:UserWarning'
+]
+log_cli = "False"
+log_level = "INFO"
+norecursedirs = [".git", ".tox", ".env", "dist", "build"]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+
 
 [tool.tox]
 legacy_tox_ini = '''
 [tox]
-envlist = py{38,39}
+envlist = py{39,310}
   coverage
 isolated_build = True
 skipsdist = True
@@ -79,7 +191,8 @@ requires = pip >= 22.0.3
 
 [testenv]
 deps =
-  -e .[cpu,testing]
+  -e .[testing]
+allowlist_externals = coverage
 setenv =
   COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
 commands =
