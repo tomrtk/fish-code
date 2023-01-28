@@ -344,7 +344,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 csv_file.name,
                 as_attachment=True,
                 mimetype="text/plain",
-                attachment_filename=f"report_p{project_id}_j{job_id}.csv",
+                download_name=f"report_p{project_id}_j{job_id}.csv",
             )
 
     @projects_bp.route("/storage")
