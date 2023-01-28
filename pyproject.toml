@@ -9,7 +9,7 @@ authors = [
   { name = "Kristian André Dahl Haugen" },
   { name = "Tom-Ruben Traavik Kvalvaag" },
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
   "async-exit-stack>=1.0.1",
   "async-generator>=1.10",
@@ -138,9 +138,10 @@ omit = [
 
 
 [tool.isort]
-profile = "black"
 line_length = 80
 multi_line_output = 3
+profile = "black"
+py_version = 39
 skip = ["./src/vendor"]
 
 
