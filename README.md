@@ -38,7 +38,7 @@ We recommend using a virtual environment when developing and as a user
 when installing for production. This has the benefit of not to interfere
 with the global packages.
 
-**Note!** Make sure that the `python` command is versions 3.8 or higher.
+**Note!** Make sure that the `python` command is versions 3.9 or higher.
 This can be verifid by running `python --version`. If `python` reports
 back version 2.7, attempt to use `python3` instead.
 
@@ -215,8 +215,8 @@ Pass `-l` to `tox` to see all targets.
 
 ```sh
 $ tox -l
-py38
 py39
+py310
 coverage
 ```
 
