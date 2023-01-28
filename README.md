@@ -84,17 +84,7 @@ application.
 virtual environment.
 
 ```sh
-$ pip install 'nina[cpu] @ <url>'
-# or if you have a `gpu`
-$ pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
-```
-
-#### Install as user
-
-```sh
-$ pip install --user 'nina[cpu] @ <url>'
-# or if you have a `gpu`
-$ pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
+$ pip install nina @ <url>
 ```
 
 ### Run the application
@@ -143,43 +133,6 @@ Running development environment requires:
 - Python (3.8, 3.9)
 - `pip` >= 21.1
 - `virtualenv` (recommended)
-- [git-lfs](https://git-lfs.github.com/)
-
-#### Makefile
-
-This adds an extra dependency on `make`.
-
-The provided Makefile sets up a virtual environment, installs all the
-dependencies, and overall automates the entire process of running the software.
-For manual steps see [Manually](#Manually).
-
-This ensures all commands are ran inside a virtual environment, and your global
-Python paths will not get polluted. Also makes it easier to run commands from
-inside your editor.
-
-To get an overview of the targets run:
-
-```sh
-$ make help
-```
-
-To install the requirements and setup virtual environment for development run:
-
-```sh
-$ make nina # Build the software so it can be easily ran.
-$ make deps-cpu # Install development dependencies.
-# or if you have `gpu`
-$ make deps-gpu # Install development dependencies.
-```
-
-To run the software use:
-
-```sh
-make run
-```
-
-Testing is not included here, as when using `tox`, it handles its own virtual
-environments. Using pytest could require running inside a virtual environment.
 
 #### Manually
 
@@ -218,14 +171,6 @@ $ tox -l
 py39
 py310
 coverage
-```
-
-or to run only tests
-
-```sh
-$ make deps
-$ . .venv/bin/activate
-$ pytest
 ```
 
 ### Build package
