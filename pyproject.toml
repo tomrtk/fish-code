@@ -10,6 +10,15 @@ authors = [
   { name = "Tom-Ruben Traavik Kvalvaag" },
 ]
 requires-python = ">=3.9"
+classifiers = [
+  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+]
+dynamic = [
+  "readme",
+  "version",
+]
 dependencies = [
   "async-exit-stack>=1.0.1",
   "async-generator>=1.10",
@@ -27,15 +36,6 @@ dependencies = [
   "torchvision>=0.14.1",
   "tqdm>=4.64",
   "waitress>=2.1.1",
-]
-dynamic = [
-  "readme",
-  "version",
-]
-classifiers = [
-  "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-  "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3 :: Only",
 ]
 [project.optional-dependencies]
 dev = [
