@@ -2,7 +2,7 @@
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/MindTooth/fish-code/master.svg)](https://results.pre-commit.ci/latest/github/MindTooth/fish-code/master)
 [![GitHub](https://img.shields.io/github/license/MindTooth/fish-code)](./LICENSE)
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MindTooth/fish-code/Tests)](https://github.com/MindTooth/fish-code/actions/workflows/tests.yaml)
+[![Tests](https://github.com/tomrtk/fish-code/actions/workflows/tests.yaml/badge.svg)](https://github.com/tomrtk/fish-code/actions/workflows/tests.yaml)
 
 Application to detect, track and calculate statistics of objects in video. With
 the option to view the statistics by using the UI or exporting to CSV.
@@ -20,7 +20,7 @@ for example [virtualenv](https://virtualenv.pypa.io/en/latest/).
 
 Running `nina` requires:
 
-- Python 3.8 or higher
+- Python 3.9 or higher
 - [`venv`](https://docs.python.org/3/library/venv.html) or
   [`virtualenv`](https://virtualenv.pypa.io) (recommended)
 - The URL for downloading the package
@@ -130,7 +130,7 @@ $ pre-commit install --hook-type commit-msg  # Enable commitlint
 
 Running development environment requires:
 
-- Python (3.8, 3.9)
+- Python (3.9, 3.10)
 - `pip` >= 21.1
 - `virtualenv` (recommended)
 
@@ -145,7 +145,7 @@ $ virtualenv .venv --download   # or `python -m venv .venv --upgrade-deps`
 # activate environment
 $ . .venv/bin/activate
 # get dependencies
-$ pip install -e .[testing, dev, cpu] # or `gpu`
+$ pip install -e '.[testing, dev]'
 # run application with Flask dev-server
 $ python -m nina --dev
 # or run a single module
