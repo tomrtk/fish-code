@@ -12,7 +12,7 @@
 
 Running `nina` requires:
 
-- Python 3.8 or higher
+- Python 3.9 or higher
 - [`venv`](https://docs.python.org/3/library/venv.html) or
   [`virtualenv`](https://virtualenv.pypa.io) (recommended)
 - The URL for downloading the package
@@ -31,7 +31,7 @@ to PATH" is checked.
 ![Check Add to PATH](./images/path_highlight.png)
 
 Find url to latest `whl`
-[here](https://github.com/MindTooth/fish-code/releases/latest) for use in
+[here](https://github.com/tomrtk/fish-code/releases/latest) for use in
 command below.
 
 #### Install to user
@@ -39,25 +39,12 @@ command below.
 If you do not want to install the application in a virtual environment,
 install it to your user by running:
 
-If your computer do not have a `gpu`:
-
 <!-- prettier-ignore-start -->
 ```terminal
-python -m pip install --user 'nina[cpu] @ <url>'
+python -m pip install --user 'nina @ <url>'
 
 # example:
-python -m pip install --user 'nina[cpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'
-```
-<!-- prettier-ignore-end -->
-
-If your computer do have a `gpu`:
-
-<!-- prettier-ignore-start -->
-```terminal
-python -m pip install --user 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
-
-# example:
-python -m pip install --user 'nina[gpu] @ https://github.com/MindTooth/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl' --find-links https://download.pytorch.org/whl/torch_stable.html
+python -m pip install --user 'nina @ https://github.com/tomrtk/fish-code/releases/download/v1.0.0/nina-1.0.0-py3-none-any.whl'
 ```
 <!-- prettier-ignore-end -->
 
@@ -83,19 +70,9 @@ python -m pip install --upgrade pip setuptools wheel
 
 Then install the application in the virtual environment:
 
-If your computer do not have a `gpu`:
-
 ```terminal
-python -m pip install 'nina[cpu] @ <url>'
+python -m pip install 'nina @ <url>'
 ```
-
-If your computer do have a `gpu`:
-
-<!-- prettier-ignore-start -->
-```terminal
-python -m pip install 'nina[gpu] @ <url>' --find-links https://download.pytorch.org/whl/torch_stable.html
-```
-<!-- prettier-ignore-end -->
 
 To run the application call the `nina` command and from a browser go to the
 local address `http://localhost:5000`.
