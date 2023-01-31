@@ -47,7 +47,7 @@ repos:
         additional_dependencies:
           - "tomli"
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v2.7.1
+    rev: v3.0.0-alpha.4
     hooks:
       - id: prettier
         name: Format other code (CSS, HTML, JS, MD, TOML, YAML)
