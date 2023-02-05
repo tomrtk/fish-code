@@ -6,6 +6,14 @@ ci:
 exclude: ^src/vendor/
 
 repos:
+  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
+    rev: v9.4.0
+    hooks:
+      - id: commitlint
+        stages: [commit-msg]
+        additional_dependencies:
+          - "@vidavidorra/commitlint-config"
+          - "commitlint-plugin-function-rules"
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:
@@ -21,31 +29,6 @@ repos:
             src/ui/static/
           )
       - id: trailing-whitespace
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.3.1
-    hooks:
-      - id: pyupgrade
-        args: [--py38-plus]
-  - repo: https://github.com/pycqa/isort
-    rev: 5.12.0
-    hooks:
-      - id: isort
-        name: Sort imports (core)
-        additional_dependencies:
-          - "toml"
-        files: ^src/
-  - repo: https://github.com/psf/black
-    rev: 23.1.0
-    hooks:
-      - id: black
-        name: Format code (Python)
-  - repo: https://github.com/pycqa/pydocstyle
-    rev: 6.3.0
-    hooks:
-      - id: pydocstyle
-        exclude: ^scripts/
-        additional_dependencies:
-          - "tomli"
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v3.0.0-alpha.4
     hooks:
@@ -60,16 +43,21 @@ repos:
           (?x)^(
             src/ui/static/dist
           )
-  - repo: https://github.com/alessandrojcm/commitlint-pre-commit-hook
-    rev: v9.4.0
+  - repo: https://github.com/tox-dev/pyproject-fmt
+    rev: 0.6.0
     hooks:
-      - id: commitlint
-        stages: [commit-msg]
-        additional_dependencies:
-          - "@vidavidorra/commitlint-config"
-          - "commitlint-plugin-function-rules"
+      - id: pyproject-fmt
+  - repo: https://github.com/psf/black
+    rev: 23.1.0
+    hooks:
+      - id: black
+        name: Format code (Python)
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: "v0.0.241"
+    hooks:
+      - id: ruff
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.0.1
+    rev: v0.991
     hooks:
       - id: mypy
         name: Run mypy
@@ -78,26 +66,3 @@ repos:
           - "types-requests"
           - "types-waitress"
         files: ^src/
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
-    hooks:
-      - id: flake8
-        additional_dependencies: [flake8-typing-imports==1.14.0]
-        exclude: |
-          (?x)^(
-            tests/|
-            ci/
-            )
-  - repo: https://github.com/pre-commit/mirrors-autopep8
-    rev: v2.0.1
-    hooks:
-      - id: autopep8
-        exclude: |
-          (?x)^(
-            tests/|
-            ci/
-            )
-  - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: 0.9.2
-    hooks:
-      - id: pyproject-fmt

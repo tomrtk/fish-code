@@ -41,14 +41,11 @@ dependencies = [
 dev = [
   "black>=22.1",
   "build>=0.7",
-  "flake8>=4.0.1",
-  "isort>=5.10.1",
   "mypy>=0.902",
   "pip-tools>=6.12.1",
   "pre-commit>=2.17",
-  "pydocstyle[tomli]>=6.2.1",
   "pyproject-fmt>=0.5",
-  "pyupgrade>=2.31",
+  "ruff>=0.0.241",
   "sqlalchemy[mypy]>=1.4.21",
   "tox>=4.0.14",
   "types-requests>=2.28.11.8",
@@ -116,13 +113,6 @@ exclude = '''
 '''
 verbose = true
 
-[tool.isort]
-line_length = 80
-multi_line_output = 3
-profile = "black"
-py_version = 39
-skip = ["./src/vendor"]
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
@@ -169,7 +159,57 @@ disallow_untyped_defs = false
 module = "vendor.*"
 ignore_errors = true
 
-[tool.pydocstyle]
+
+
+
+
+
+
+
+
+
+[tool.ruff]
+exclude = [
+  ".git",
+  "__pycache__",
+  "src/vendor",
+  "build",
+  "dist",
+  ".venv",
+  "venv",
+]
+# ignore = [
+#     "E501",
+#     "F401",
+#     "F403",
+# ]
+extend-select = [
+  "B",
+  "C90",
+  "D",
+  "I",
+  "Q",
+  "UP",
+  "W"
+]
+ignore = [
+  "E501",
+]
+line-length = 80
+
+src = [
+  "src",
+  "tests"
+]
+
+target-version = "py310"
+
+
+[tool.ruff.isort]
+known-third-party = ["src/vendor"]
+
+
+[tool.ruff.pydocstyle]
 convention = "numpy"
 
 [tool.tox]
