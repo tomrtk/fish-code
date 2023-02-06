@@ -178,14 +178,8 @@ exclude = [
   "src/vendor",
   "venv",
 ]
-# ignore = [
-#     "E501",
-#     "F401",
-#     "F403",
-# ]
 extend-select = [
   "B",
-  "C90",
   "D",
   "I",
   "Q",
@@ -194,15 +188,14 @@ extend-select = [
 ]
 ignore = [
   "E501",
+  "F403",
   "UP006",
 ]
 line-length = 80
-
 src = [
   "src",
   "tests"
 ]
-
 target-version = "py39"
 
 
