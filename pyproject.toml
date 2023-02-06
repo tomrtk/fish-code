@@ -194,6 +194,7 @@ extend-select = [
 ]
 ignore = [
   "E501",
+  "UP006",
 ]
 line-length = 80
 
