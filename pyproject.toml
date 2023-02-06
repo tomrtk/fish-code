@@ -212,6 +212,7 @@ known-third-party = ["src/vendor"]
 
 [tool.ruff.per-file-ignores]
 "scripts/download_weights.py" = ["D100", "D101", "D103"]
+"src/core/api/api.py" = ["B008"]
 
 
 [tool.ruff.pydocstyle]
