@@ -7,11 +7,12 @@ import os
 import pathlib
 import threading
 import time
+from collections.abc import Generator
 from datetime import datetime
 from mimetypes import guess_type
 from os.path import isdir, isfile
 from queue import Empty, Queue
-from typing import Any, Dict, Generator, List, Optional, Tuple, Union
+from typing import Any
 
 import numpy as np
 from sqlalchemy.orm import Session

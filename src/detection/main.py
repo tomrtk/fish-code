@@ -1,7 +1,8 @@
 """Module defining main runtime for detection package."""
 import argparse
 import logging
-from typing import Optional, Sequence
+from collections.abc import Sequence
+from typing import Optional
 
 import uvicorn  # type: ignore
 

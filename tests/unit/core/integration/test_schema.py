@@ -1,10 +1,11 @@
 """Integration tests for schema."""
 
 from datetime import datetime
-from core import model
-from core.api import schema
 
 import pytest
+
+from core import model
+from core.api import schema
 
 
 def test_job_stats():

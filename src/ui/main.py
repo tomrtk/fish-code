@@ -1,12 +1,12 @@
 """Initilization of the application."""
 
 import os
-from typing import Any, Mapping, Optional, Tuple, Union
+from collections.abc import Mapping
+from typing import Any, Optional, Tuple, Union
 
 from flask import Flask, render_template
 from werkzeug.exceptions import (
     HTTPException,
-    InternalServerError,
     NotFound,
     UnprocessableEntity,
 )

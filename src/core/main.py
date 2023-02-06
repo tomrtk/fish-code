@@ -1,8 +1,9 @@
 """Module containing runtime of _core_."""
 import argparse
 import logging
+from collections.abc import Sequence
 from pathlib import Path
-from typing import Optional, Sequence
+from typing import Optional
 
 import uvicorn
 from sqlalchemy import create_engine

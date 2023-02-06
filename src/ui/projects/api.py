@@ -1,7 +1,6 @@
 """Blueprint for the projects module."""
 import base64
 import functools
-import json
 import logging
 from http import HTTPStatus
 from typing import (
@@ -12,7 +11,6 @@ from typing import (
     Optional,
     Tuple,
     TypeVar,
-    Union,
     cast,
 )
 

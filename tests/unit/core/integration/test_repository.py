@@ -1,8 +1,6 @@
 """Integration test between _repository_ and _SQLAlchemy_."""
 from typing import List
 
-import pytest
-
 from core import model
 from core.repository import SqlAlchemyProjectRepository
 
@@ -140,7 +138,7 @@ def test_save_project(sqlite_session_factory):
     repo1.add(project1)
     project_get = repo1.get(1)
 
-    assert project_get != None
+    assert project_get is not None
 
     project_get.description = "Changed description"
     repo1.save()
@@ -150,7 +148,7 @@ def test_save_project(sqlite_session_factory):
     repo2 = SqlAlchemyProjectRepository(session2)
 
     project_after = repo2.get(1)
-    assert project_after != None
+    assert project_after is not None
     assert project_after.description == "Changed description"
     assert hex(id(project_get)) != hex(id(project_after))
 

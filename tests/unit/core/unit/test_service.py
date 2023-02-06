@@ -1,16 +1,15 @@
 """Unit tests for service functions in core."""
-from unittest.mock import patch
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
+from core import interface, services
 from core.model import Object, Status
-from core import interface
-from core import services
 from core.services import (
+    _bulk_job_status_change,
     get_directory_listing,
     get_job_objects,
-    _bulk_job_status_change,
     process_job,
 )
 

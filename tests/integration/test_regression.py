@@ -3,8 +3,8 @@ import logging
 import time
 from pathlib import Path
 
-import requests
 import pytest
+import requests
 
 logger = logging.getLogger(__name__)
 

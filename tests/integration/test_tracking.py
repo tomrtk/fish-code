@@ -53,7 +53,7 @@ def test_to_track(make_frames: List[Frame]):
 
     objects = interface.to_track(frames)
 
-    assert objects != None
+    assert objects is not None
     assert isinstance(objects[0], Object)
     assert isinstance(objects[0]._detections[0], Detection)
     assert isinstance(objects[0]._detections[0].bbox, BBox)

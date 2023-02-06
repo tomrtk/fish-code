@@ -1,14 +1,11 @@
 """Unit testing ui Flask app and api Client."""
-import base64
 import json
 from dataclasses import asdict
 from http import HTTPStatus
-from os import chmod
 from unittest.mock import patch
 
 import pytest
 import requests
-from werkzeug.exceptions import HTTPException
 
 from ui.main import create_app
 from ui.projects.api import Client
@@ -413,11 +410,11 @@ def test_get_storage_endpoint_permission_denied(
     """Test for PermissionError."""
     mock_client.get(f"{TEST_API_URI}/storage", status_code=403)
     response = test_client.get(
-        f"/projects/storage",
+        "/projects/storage",
     )
     assert response.status_code == 403
 
     response = test_client.get(
-        f"/projects/storage/cGVybWlzc2lvbmVycm9y",
+        "/projects/storage/cGVybWlzc2lvbmVycm9y",
     )
     assert response.status_code == 403

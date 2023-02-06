@@ -4,11 +4,9 @@ import os
 import time
 from pathlib import Path
 
-import flask
 import pytest
 import requests
 
-import ui
 from ui.main import create_app
 
 logger = logging.getLogger(__name__)

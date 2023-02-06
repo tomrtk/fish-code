@@ -1,10 +1,10 @@
 """Unit tests for `api/schema.py`."""
 from datetime import datetime
 
+import pytest
+
 from core import model
 from core.api import schema
-
-import pytest
 
 
 def test_object():

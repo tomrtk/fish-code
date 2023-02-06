@@ -51,13 +51,13 @@ def test_bbox_from_list(bbox_list):
 def test_bbox_from_list_five():
     """Test bbox from list with five elements."""
     with pytest.raises(ValueError):
-        bbox = BBox.from_list([10, 10, 10, 10, 10])
+        BBox.from_list([10, 10, 10, 10, 10])
 
 
 def test_bbox_from_list_three():
     """Test bbox from list with three elements."""
     with pytest.raises(ValueError):
-        bbox = BBox.from_list([10, 10, 10])
+        BBox.from_list([10, 10, 10])
 
 
 def test_bbox_from_xywh(bbox_list):
@@ -70,13 +70,13 @@ def test_bbox_from_xywh(bbox_list):
 def test_bbox_from_xywh_five():
     """Test bbox from xywh with five elements."""
     with pytest.raises(ValueError):
-        bbox = BBox.from_xywh([10, 10, 10, 10, 10])
+        BBox.from_xywh([10, 10, 10, 10, 10])
 
 
 def test_bbox_from_xywh_three():
     """Test bbox from xywh with three elements."""
     with pytest.raises(ValueError):
-        bbox = BBox.from_xywh([10, 10, 10])
+        BBox.from_xywh([10, 10, 10])
 
 
 def test_bbox__eq__same(bbox_list):

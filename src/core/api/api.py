@@ -9,7 +9,8 @@ import asyncio
 import base64
 import binascii
 import logging
-from typing import Any, AsyncGenerator, Dict, Generator, List, Union
+from collections.abc import AsyncGenerator, Generator
+from typing import Any, Dict, List, Union
 
 from fastapi import (
     Depends,
@@ -538,7 +539,7 @@ def get_objects_from_job(
     try:
         data = services.get_job_objects(project_id, job_id, start, length)
     except RuntimeError as e:
-        raise HTTPException(503, repr(e))
+        raise HTTPException(503, repr(e)) from e
 
     if data is None:
         msg = f"project with id {project_id} or job with id {job_id} not found"

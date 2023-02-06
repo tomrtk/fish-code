@@ -1,22 +1,24 @@
 """Unit test of config package functionality."""
-from os.path import isfile
-from pathlib import Path
-from unittest.mock import patch
 import configparser
 import logging
 import os
 import os.path
-import pytest
 import sys
+from pathlib import Path
+from unittest.mock import patch
 
-from config import find_config_directory
-from config import find_data_directory
-from config import load_config
-from config import get_default_config
-from config import get_config_file_path
-from config import write_config
-from config import get_os_name
-from config import get_video_root_path
+import pytest
+
+from config import (
+    find_config_directory,
+    find_data_directory,
+    get_config_file_path,
+    get_default_config,
+    get_os_name,
+    get_video_root_path,
+    load_config,
+    write_config,
+)
 
 logger = logging.getLogger(__name__)
 
