@@ -202,7 +202,7 @@ src = [
   "tests"
 ]
 
-target-version = "py310"
+target-version = "py39"
 
 
 [tool.ruff.isort]
