@@ -171,11 +171,12 @@ ignore_errors = true
 [tool.ruff]
 exclude = [
   ".git",
+  ".venv",
   "__pycache__",
-  "src/vendor",
   "build",
   "dist",
-  ".venv",
+  "scripts",
+  "src/vendor",
   "venv",
 ]
 # ignore = [
