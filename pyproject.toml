@@ -220,6 +220,8 @@ envlist = py{39,310}
 isolated_build = true
 requires = pip >= 22.0.3
   setuptools >= 60.8.0
+passenv =
+  XDG_CONFIG_HOME
 
 [testenv]
 use_develop = true
