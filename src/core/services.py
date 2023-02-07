@@ -281,7 +281,6 @@ def process_job(
 
     # Detecting
     if event.is_set():
-
         if job.next_batch > 0:
             logger.info(f"Job resuming from batch {job.next_batch}")
 
@@ -430,7 +429,6 @@ def schedule(event: threading.Event) -> None:
         )
 
         if isinstance(next_task, tuple):
-
             if core.main.sessionfactory is None:
                 raise RuntimeError("Sessionfactory is not made")
 

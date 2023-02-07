@@ -196,7 +196,6 @@ def test_release(make_test_video):
     vid = make_test_video
 
     try:
-
         vid.vidcap_release()
 
         _ = vid[1]

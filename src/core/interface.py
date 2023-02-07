@@ -49,7 +49,6 @@ def to_track(
     if response.status_code == 200:
         objects = [core.model.Object.from_api(**obj) for obj in response.json()]
         for o in objects:
-
             times = sorted(det.frame for det in o._detections)
 
             time_in = frames[times[0]].timestamp
@@ -188,7 +187,6 @@ class Detector:
 
         result: List[core.model.Frame] = []
         for frame_no, detections in response.json().items():
-
             # No detections found in frame
             if len(detections) == 0:
                 result.append(core.model.Frame(int(frame_no), []))
