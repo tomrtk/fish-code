@@ -46,6 +46,8 @@ jobs:
       - name: Run tests on ${{ matrix.os }} with python ${{matrix.python-version }}
         run: |
           tox -e py
+        env:
+          XDG_CONFIG_HOME: "${RUNNER_TEMP}/nina_config_${GITHUB_RUN_ID}"
       - name: Make coverage report
         run: |
           tox -e coverage
