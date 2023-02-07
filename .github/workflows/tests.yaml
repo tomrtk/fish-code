@@ -8,7 +8,7 @@ on:
   pull_request:
     paths:
       - ".github/**"
-      - "setup.cfg"
+      - "pyproject.toml"
       - "src/**"
       - "tests/**"
       - "!src/ui/package.json"

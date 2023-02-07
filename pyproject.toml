@@ -50,6 +50,7 @@ dev = [
   "pyproject-fmt>=0.5",
   "pyupgrade>=2.31",
   "sqlalchemy[mypy]>=1.4.21",
+  "tox>=4.0.14",
   "types-requests>=2.28.11.8",
   "types-waitress>=2.1.4.4",
 ]
@@ -58,7 +59,6 @@ testing = [
   "coverage[toml]>=6.3.1",
   "pytest>=4",
   "requests-mock>=1.9.3",
-  "tox>=4.0.14",
 ]
 
 [project.urls]
@@ -185,14 +185,13 @@ legacy_tox_ini = '''
 [tox]
 envlist = py{39,310}
   coverage
-isolated_build = True
-skipsdist = True
+isolated_build = true
 requires = pip >= 22.0.3
   setuptools >= 60.8.0
 
 [testenv]
-deps =
-  -e .[testing]
+use_develop = true
+extras = testing
 allowlist_externals = coverage
 setenv =
   COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}

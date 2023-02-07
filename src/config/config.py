@@ -194,5 +194,6 @@ def load_config(
 
 def write_config(config: configparser.ConfigParser, path: str) -> None:
     """Write a ConfigParser object to disk at the applications config file path."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w") as configfile:
         config.write(configfile)
