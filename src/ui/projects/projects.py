@@ -320,7 +320,6 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         with tempfile.NamedTemporaryFile(
             suffix=".csv", delete=False
         ) as csv_file:
-
             # write headers to file
             csv_file.write(
                 b"id,label,time_in,time_out,probability,"

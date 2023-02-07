@@ -396,7 +396,6 @@ def test_get_done_job(setup, make_test_data):
 def test_project_not_existing(setup):
     """Test posting a new job to a project and getting list of jobs."""
     with TestClient(api.core_api) as client:
-
         response = client.get("/projects/0/jobs")
         assert response.status_code == 404
 

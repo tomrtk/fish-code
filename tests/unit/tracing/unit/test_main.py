@@ -17,7 +17,6 @@ def test_main(capsys):
 def test_main_debug(caplog):
     """Happy case of main with debug."""
     with caplog.at_level(logging.DEBUG):
-
         main(["--debug", "--test"])
 
         assert caplog.records[0].getMessage() == "Tracing started in debug mode"
