@@ -201,7 +201,7 @@ target-version = "py39"
 
 
 [tool.ruff.isort]
-known-third-party = ["src/vendor"]
+known-third-party = ["vendor"]
 
 
 [tool.ruff.per-file-ignores]
