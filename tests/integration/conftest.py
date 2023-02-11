@@ -83,7 +83,7 @@ def check_api(
         try:
             requests.get(f"http://{host}:{port}/")
             return True
-        except:
+        except requests.exceptions.RequestException:
             return False
 
     while (not ping(host, port)) and max_try:
