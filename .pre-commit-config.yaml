@@ -19,6 +19,8 @@ repos:
     hooks:
       - id: check-ast
         name: Check Python AST
+      - id: check-json
+        name: Check JSON
       - id: check-toml
         name: Check TOML
       - id: check-yaml
@@ -53,7 +55,7 @@ repos:
       - id: black
         name: Format code (Python)
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: "v0.0.244"
+    rev: "v0.0.245"
     hooks:
       - id: ruff
   - repo: https://github.com/pre-commit/mirrors-mypy
