@@ -165,6 +165,7 @@ ignore_errors = true
 
 
 
+
 [tool.setuptools_scm]
 write_to = "src/nina/version.py"
 
