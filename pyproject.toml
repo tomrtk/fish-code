@@ -151,15 +151,10 @@ no_implicit_optional = true
 warn_redundant_casts = true
 plugins = "sqlalchemy.ext.mypy.plugin"
 
-[[tool.mypy.overrides]]
-module = "tests.*"
-disallow_untyped_defs = false
-
-[[tool.mypy.overrides]]
-module = "vendor.*"
-ignore_errors = true
-
-
+overrides = [
+  { module = "tests.*", disallow_untyped_defs = false },
+  { module = "vendor.*", ignore_errors = true },
+]
 
 
 [tool.ruff]
