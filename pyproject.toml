@@ -156,7 +156,6 @@ overrides = [
   { module = "vendor.*", ignore_errors = true },
 ]
 
-
 [tool.ruff]
 exclude = [
   ".git",
