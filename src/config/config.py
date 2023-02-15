@@ -155,10 +155,7 @@ def load_config(
     if default:
         return get_default_config()
 
-    if not path:
-        config_path = get_config_file_path()
-    else:
-        config_path = path
+    config_path = path if path else get_config_file_path()
 
     config = configparser.ConfigParser()
 

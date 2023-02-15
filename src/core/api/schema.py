@@ -63,10 +63,10 @@ class Object(BaseModel):
         cls, _detections: List[Detection]
     ) -> Dict[str, List[float]]:
         """Convert detections to Dict."""
-        detections: Dict[str, List[float]] = dict()
+        detections: Dict[str, List[float]] = {}
         for d in _detections:
             if get_label(d.label) not in detections:
-                detections[get_label(d.label)] = list()
+                detections[get_label(d.label)] = []
 
             detections[get_label(d.label)].append(d.probability)
         return detections
@@ -107,7 +107,7 @@ class JobStat(BaseModel):
 
     total_objects: int
     total_labels: int
-    labels: Dict[str, int] = dict()
+    labels: Dict[str, int] = {}
 
     @validator("labels", pre=False)
     def convert_labels(cls, labels_dict: Dict[Any, int]) -> Dict[str, int]:
@@ -120,7 +120,7 @@ class JobStat(BaseModel):
         except ValueError:
             # Some edgecase causes FastAPI to do this twice. If every key is of
             # type `str` then we assume they have a valid label.
-            if True in [not isinstance(k, str) for k in labels_dict.keys()]:
+            if True in [not isinstance(k, str) for k in labels_dict]:
                 raise TypeError("Expected every element to be of type str.")
             return labels_dict
         else:

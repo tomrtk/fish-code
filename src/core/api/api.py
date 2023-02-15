@@ -77,7 +77,7 @@ def construct_pagination_data(
     parameters : dict
         Complete dictionary with computed data.
     """
-    pagination: Dict = dict()
+    pagination: Dict = {}
 
     pagination["x-total"] = f"{count}"
     pagination["x-page"] = f"{page}"
@@ -152,7 +152,7 @@ def list_projects(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: List[schema.ProjectBare] = list()
+    resp: List[schema.ProjectBare] = []
 
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
@@ -267,7 +267,7 @@ def list_project_jobs(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: List[schema.JobBare] = list()
+    resp: List[schema.JobBare] = []
 
     for job in project.jobs[slice(begin_idx, end_idx)]:
         try:
@@ -304,7 +304,7 @@ def add_job_to_project(
     if project:
         # Create videos from list of paths
         videos: List[model.Video] = []
-        errors: Dict[str, List[str]] = dict()
+        errors: Dict[str, List[str]] = {}
         file_not_found = []
         time_not_found = []
         for video_path in job.videos:

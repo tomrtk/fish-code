@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 detection_api = FastAPI()
 
 # Variable to store models
-model: Dict[str, Tuple[Any, int]] = dict()
-label: Dict[str, List[str]] = dict()
+model: Dict[str, Tuple[Any, int]] = {}
+label: Dict[str, List[str]] = {}
 
 model_fishy_path = Path(__file__).parent / "weights/yolov5s-imgsize-640.pt"
 model_fishy2_path = (
@@ -189,7 +189,7 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
 
 
     """
-    new_batches: List[List[np.ndarray]] = list()
+    new_batches: List[List[np.ndarray]] = []
     for b in batches:
         halve = len(b) // 2
 
@@ -232,7 +232,7 @@ def detect(
     """
     # Try infer from imgs received
     out_of_memory = False
-    xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
+    xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = []
 
     try:
         results = model(imgs, size=img_size)  # type: ignore
@@ -242,7 +242,7 @@ def detect(
     else:
         xyxy = results.xyxy  # type: ignore
 
-    batches: List[List[np.ndarray]] = list()
+    batches: List[List[np.ndarray]] = []
     if out_of_memory:
         batches = [imgs]
 
@@ -266,7 +266,7 @@ def detect(
             xyxy = [result.xyxy[0] for result in results]  # type: ignore
 
     # Convert results to schema object
-    response: Dict[int, List[schema.Detection]] = dict()
+    response: Dict[int, List[schema.Detection]] = {}
 
     for i, result in enumerate(xyxy):  # for each image
         # for each detection

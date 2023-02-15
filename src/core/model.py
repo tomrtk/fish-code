@@ -137,7 +137,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
-        self.frames: list[Frame] = list()
+        self.frames: list[Frame] = []
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -479,7 +479,7 @@ class Video:
             True if the entire video has been processed. The entire detection_frames dict must be fully
             mapped with data-frames for all frames in video.
         """
-        if not len(self.frames) == self.frame_count:
+        if len(self.frames) != self.frame_count:
             logger.info(
                 f"Video {self._path} is not fully processed. {len(self.frames)}/{self.frame_count}"
             )
@@ -640,10 +640,7 @@ class Frame:
 
         """
         timestamp_tmp: str | None = None
-        if self.timestamp:
-            timestamp_tmp = self.timestamp.isoformat()
-        else:
-            timestamp_tmp = None
+        timestamp_tmp = self.timestamp.isoformat() if self.timestamp else None
 
         return {
             "idx": self.idx,
@@ -980,8 +977,8 @@ class Job:
         self.name: str = name
         self.description: str = description
         self._status: Status = status
-        self._objects: list[Object] = list()
-        self.videos: list[Video] = list()
+        self._objects: list[Object] = []
+        self.videos: list[Video] = []
         self.location: str = location
         self.next_batch: int = 0
         self.progress: int = progress
@@ -1006,10 +1003,10 @@ class Job:
         dct: dict[str, Any] = {
             "total_labels": 0,
             "total_objects": 0,
-            "labels": dict(),
+            "labels": {},
         }
 
-        labels: dict[int, int] = dict()
+        labels: dict[int, int] = {}
 
         for o in self._objects:
             if o.label not in labels:
@@ -1274,7 +1271,7 @@ class Project:
         self.number: str = number
         self.description: str = description
         self.location: str | None = location
-        self.jobs: list[Job] = list()
+        self.jobs: list[Job] = []
 
     def __str__(self) -> str:
         """Print class members."""

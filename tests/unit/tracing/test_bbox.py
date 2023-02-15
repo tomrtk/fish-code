@@ -114,14 +114,14 @@ def test_bbox__eq__not_same(bbox_list):
     other_bbox.y1 += bbox.y1 * tol
     other_bbox.x2 += bbox.x2 * tol
     other_bbox.y2 += bbox.y2 * tol
-    assert not bbox == other_bbox
+    assert bbox != other_bbox
 
     other_bbox = BBox(*bbox_list)
     other_bbox.x1 -= bbox.x1 * tol
     other_bbox.y1 -= bbox.y1 * tol
     other_bbox.x2 -= bbox.x2 * tol
     other_bbox.y2 -= bbox.y2 * tol
-    assert not bbox == other_bbox
+    assert bbox != other_bbox
 
 
 def test_bbox_to_dict(bbox_list):

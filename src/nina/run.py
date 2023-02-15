@@ -31,7 +31,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         help="Run web server in development mode.",
     )
     main_args, _ = main_parser.parse_known_args(argsv)
-    processes: List[Process] = list()
+    processes: List[Process] = []
 
     # Let dev argument override global config parameter
     if main_args.dev:

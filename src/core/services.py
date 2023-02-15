@@ -137,7 +137,7 @@ class VideoLoader:
         batch = []
         timestamps = []
         framenumbers: list[int] = []
-        video_for_frame: dict[int, Video] = dict()
+        video_for_frame: dict[int, Video] = {}
         current_batch = batch_index
         batch_start_time = time.time()
         for vid in self.videos[start_vid:]:
@@ -176,7 +176,7 @@ class VideoLoader:
                     batch = []
                     timestamps = []
                     framenumbers = []
-                    video_for_frame = dict()
+                    video_for_frame = {}
 
             start_frame = 0
 
@@ -641,8 +641,8 @@ def get_directory_listing(
 
     normalized_path = pathlib.Path(directory)
 
-    tree: list[dict[str, Any] | str | None] = list()
-    root_node: dict[str, Any] = dict()
+    tree: list[dict[str, Any] | str | None] = []
+    root_node: dict[str, Any] = {}
     child_list = []
 
     if isfile(normalized_path):

@@ -172,9 +172,13 @@ exclude = [
 ]
 extend-select = [
   "B",
+  "BLE",
+  "C4",
   "D",
   "I",
   "Q",
+  "RSE",
+  "SIM",
   "UP",
   "W"
 ]

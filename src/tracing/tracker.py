@@ -230,7 +230,7 @@ class Object:
         tracing.tracker.Tracker
         """
         self.track_id: int = track_id
-        self.detections: list[Detection] = list()
+        self.detections: list[Detection] = []
         self.label: int | None = None
 
     def update(self, detection: Detection) -> None:
@@ -274,7 +274,7 @@ class AbstractTracker(abc.ABC):
     """Abstract tracker class."""
 
     def __init__(self) -> None:
-        self._objects: dict[int, Object] = dict()
+        self._objects: dict[int, Object] = {}
 
     @abc.abstractmethod
     def update(self, detections: list[Detection]) -> None:

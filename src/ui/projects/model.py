@@ -168,7 +168,7 @@ class Project:
     @classmethod
     def from_dict(cls, project_data: dict[str, Any]) -> Project:
         """Convert text to a new Project object."""
-        project_jobs: list[Job] = list()
+        project_jobs: list[Job] = []
 
         if "jobs" in project_data:
             for job in list(project_data["jobs"]):

@@ -149,7 +149,7 @@ def test_find_config_dir(
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -196,7 +196,7 @@ def test_find_data_dir(
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -217,7 +217,7 @@ def test_find_data_dir_windows(
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 def test_get_os_name_windows() -> None:
     """Test get os name."""
@@ -225,7 +225,7 @@ def test_get_os_name_windows() -> None:
 
 
 @pytest.mark.skipif(
-    not os.name == "posix", reason="Should only run on POSIX platforms."
+    os.name != "posix", reason="Should only run on POSIX platforms."
 )
 def test_get_os_name_posix() -> None:
     """Test get os name."""
@@ -233,7 +233,7 @@ def test_get_os_name_posix() -> None:
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",

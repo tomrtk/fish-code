@@ -202,7 +202,7 @@ def test_release(make_test_video):
 
         vid.vidcap_release()
     except:
-        raise AssertionError()
+        raise AssertionError
     else:
         assert True
 

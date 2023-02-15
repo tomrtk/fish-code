@@ -118,7 +118,7 @@ class Client:
                         return None
 
                     if (
-                        not response.status_code == status_code
+                        response.status_code != status_code
                         and acceptable_error is None
                     ):
                         logger.warning(

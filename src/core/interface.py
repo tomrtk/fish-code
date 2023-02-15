@@ -235,4 +235,4 @@ class Detector:
             response.json(),
         )
 
-        return list()
+        return []
