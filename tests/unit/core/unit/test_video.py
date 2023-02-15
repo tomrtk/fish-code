@@ -14,7 +14,7 @@ TEST_VIDEO: str = str(
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_video() -> Video:
     """Fixture returning a valid `Video` object."""
     return Video.from_path(TEST_VIDEO)

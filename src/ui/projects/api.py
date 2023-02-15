@@ -284,7 +284,7 @@ class Client:
                 result.status_code,
             )
 
-        return None
+        return
 
     def get_jobs(
         self,

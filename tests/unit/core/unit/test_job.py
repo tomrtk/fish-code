@@ -21,7 +21,7 @@ TEST_VIDEO = str(
 TEST_VIDEO_NO_TIME = str(Path(__file__).parent / "test-no-time.mp4")
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_job() -> Job:
     """Create a test job with some objects."""
     job = Job("Test Name", "Test Description", "Test location")

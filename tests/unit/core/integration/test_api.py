@@ -28,7 +28,7 @@ TEST_VIDEO = str(
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def setup(tmp_path):
     """Override setup of db for tests."""
     test_db = tmp_path / "test.db"
@@ -43,7 +43,7 @@ def setup(tmp_path):
         clear_mappers()
 
 
-@pytest.fixture
+@pytest.fixture()
 def empty_directory_encoded_normal_perm(tmp_path: Path) -> str:
     """Encode the empty directory."""
     path_encoded = base64.urlsafe_b64encode(str(tmp_path).encode())
@@ -51,7 +51,7 @@ def empty_directory_encoded_normal_perm(tmp_path: Path) -> str:
     return str(path_encoded, "utf-8")
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_data(setup):
     """Override dependency function to get repo for FastAPI."""
     _ = setup

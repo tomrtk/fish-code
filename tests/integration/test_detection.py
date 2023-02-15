@@ -14,13 +14,13 @@ TEST_VIDEO_PATH = (
 )
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_images() -> np.ndarray:
     """Make a numpy array of many frames from test video."""
     return Video.from_path(str(TEST_VIDEO_PATH.resolve()))[0:10]
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_image() -> np.ndarray:
     """Make a numpy array of one frame from test video."""
     return Video.from_path(str(TEST_VIDEO_PATH.resolve()))[0]  # type: ignore

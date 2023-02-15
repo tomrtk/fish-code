@@ -15,7 +15,7 @@ TEST_API_URI = "mock://testing"
 TEST_API_URI_ERROR = "mock://testingerrors"
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_client():
     """Create flask app with test config."""
     app = create_app({"BACKEND_URL": TEST_API_URI, "TESTING": True})
@@ -24,7 +24,7 @@ def test_client():
         yield client
 
 
-@pytest.fixture
+@pytest.fixture()
 def test_client_error():
     """Create flask app with test config."""
     app = create_app({"BACKEND_URL": TEST_API_URI_ERROR, "TESTING": True})
@@ -33,7 +33,7 @@ def test_client_error():
         yield client
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_client(
     requests_mock,
 ):

@@ -126,7 +126,7 @@ def test_read_config_garbage_data(caplog) -> None:
     sys.platform == "win32", reason="Should not run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "name, env, config_path, expected",
+    ("name", "env", "config_path", "expected"),
     [
         (
             "posix",
@@ -152,7 +152,7 @@ def test_find_config_dir(
     sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "env, config_path, expected",
+    ("env", "config_path", "expected"),
     [
         (
             "LOCALAPPDATA",
@@ -173,7 +173,7 @@ def test_find_config_dir_windows(
     sys.platform == "win32", reason="Should not run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "name, env, config_path, expected",
+    ("name", "env", "config_path", "expected"),
     [
         ("posix", "XDG_DATA_HOME", "/posix/test/path", "/posix/test/path/nina"),
         (
@@ -199,7 +199,7 @@ def test_find_data_dir(
     sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "env, config_path, expected",
+    ("env", "config_path", "expected"),
     [
         (
             "LOCALAPPDATA",
@@ -236,7 +236,7 @@ def test_get_os_name_posix() -> None:
     sys.platform != "win32", reason="Should only run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "env, config_path, expected",
+    ("env", "config_path", "expected"),
     [
         (
             "HOMEPATH",
@@ -257,7 +257,7 @@ def test_video_root_dir_windows(
     sys.platform == "win32", reason="Should not run on win32 platforms."
 )
 @pytest.mark.parametrize(
-    "env, config_path, expected",
+    ("env", "config_path", "expected"),
     [
         ("HOME", "/home/test", "/home/test"),
         ("DUMMY", "DUMMY", str(Path(sys.executable).anchor)),

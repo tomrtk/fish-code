@@ -19,7 +19,7 @@ TEST_VIDEO: str = str(
 )
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def in_memory_sqlite_db():
     """Create a sqlite database in memory for use with tests."""
     core.main.setup(db_name=":memory:")
@@ -30,13 +30,13 @@ def in_memory_sqlite_db():
     core.main.engine = None
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def sqlite_session_factory(in_memory_sqlite_db):
     """Create a SQLAlchemy Session to be used during testing."""
-    yield core.main.sessionfactory
+    return core.main.sessionfactory
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_obj() -> List[model.Object]:
     """Make two fully fledged test objects."""
     obj1 = model.Object(1)
@@ -80,7 +80,7 @@ def make_test_obj() -> List[model.Object]:
     return [obj1, obj2]
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def make_test_project_repo(sqlite_session_factory) -> ProjectRepo:
     """Create a test project for testing."""
     project_repo = ProjectRepo(sqlite_session_factory())

@@ -8,7 +8,7 @@ from core import interface
 from core.model import BBox, Detection, Frame, Object
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_frames() -> List[Frame]:
     """Return a list of valid frames."""
     frames = [

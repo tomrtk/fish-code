@@ -30,7 +30,7 @@ def tracing_api():
     tracing_process.terminate()
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def start_core(tmp_path):
     """Start core API.
 

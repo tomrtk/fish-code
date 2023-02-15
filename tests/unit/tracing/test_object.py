@@ -6,13 +6,13 @@ import pytest
 from tracing.tracker import BBox, Detection, Object
 
 
-@pytest.fixture
+@pytest.fixture()
 def bbox():
     """Return a valid bbox."""
     return BBox(*[10, 20, 30, 40])
 
 
-@pytest.fixture
+@pytest.fixture()
 def detection(bbox):
     """Return a valid detection."""
     return Detection(

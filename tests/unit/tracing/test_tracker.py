@@ -6,7 +6,7 @@ from vendor.sort import sort
 from tracing.tracker import BBox, Detection, SortTracker
 
 
-@pytest.fixture
+@pytest.fixture()
 def detection():
     """Return a valid detection."""
     return Detection(BBox(10, 20, 30, 40), 1, 1.0, 1, 1, 1, 1)

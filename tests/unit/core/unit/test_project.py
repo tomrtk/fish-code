@@ -4,7 +4,7 @@ import pytest
 from core.model import Job, Project
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_project() -> Project:
     """Create a test project for testing."""
     project = Project(

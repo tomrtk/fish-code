@@ -4,7 +4,7 @@ import pytest
 from tracing.tracker import BBox, Detection
 
 
-@pytest.fixture
+@pytest.fixture()
 def detection() -> Detection:
     """Return a valid detection."""
     return Detection(
@@ -18,7 +18,7 @@ def detection() -> Detection:
     )
 
 
-@pytest.fixture
+@pytest.fixture()
 def detection_json():
     """Return detection as json."""
     return {

@@ -7,7 +7,7 @@ from core import model
 from core.repository.video import SqlAlchemyVideoRepository
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_test_video() -> model.Video:
     """Make test video."""
     return model.Video.from_path("./tests/unit/test.mp4")

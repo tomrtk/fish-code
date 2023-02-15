@@ -4,7 +4,7 @@ import pytest
 from core.model import BBox, Detection
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_detection():
     """Create a detection object."""
     return Detection(BBox(*[10, 20, 30, 40]), 1.0, 1, 1)

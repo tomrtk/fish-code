@@ -15,19 +15,19 @@ TEST_API_PORT = "9999"
 TEST_API_URI_ERROR = "mock://127.0.0.2"
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_images() -> np.ndarray:
     """Make a numpy array of many frames from test video."""
     return Video.from_path(str(TEST_VIDEO_PATH.resolve()))[0:3]
 
 
-@pytest.fixture
+@pytest.fixture()
 def make_image() -> np.ndarray:
     """Make a numpy array of many frames from test video."""
     return Video.from_path(str(TEST_VIDEO_PATH.resolve()))[0]
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_to_track(requests_mock: Mocker):
     """Mock response from tracking api."""
     json_expected = [
@@ -63,7 +63,7 @@ def mock_to_track(requests_mock: Mocker):
     return requests_mock
 
 
-@pytest.fixture
+@pytest.fixture()
 def mock_detector(requests_mock: Mocker):
     """Mock response from detection api."""
     requests_mock.real_http = True  # type: ignore

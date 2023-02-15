@@ -8,7 +8,7 @@ from tracing.tracker import BBox
 
 
 ### Bounding Box BBox ###
-@pytest.fixture
+@pytest.fixture()
 def bbox_list() -> List[float]:
     """Create a list for creating BBox.
 
