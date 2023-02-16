@@ -13,7 +13,7 @@ from tracing.main import main as tracing_main  # type: ignore
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture
+@pytest.fixture(scope="package")
 def tracing_api():
     """Start tracing API.
 
@@ -95,7 +95,7 @@ def check_api(
     assert ping(host, port)
 
 
-@pytest.fixture
+@pytest.fixture(scope="package")
 def detection_api():
     """Start detection API.
 
@@ -109,6 +109,6 @@ def detection_api():
         target=detection_main, args=(None,), daemon=True
     )
     detection_process.start()
-    check_api(max_tries=60, host="localhost", port="8003")
+    check_api(host="localhost", port="8003")
     yield
     detection_process.terminate()

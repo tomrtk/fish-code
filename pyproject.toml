@@ -195,6 +195,8 @@ extras = testing
 allowlist_externals = coverage
 setenv =
   COVERAGE_FILE = {env:COVERAGE_FILE:{toxworkdir}/.coverage.{envname}}
+passenv =
+  CI
 commands =
   coverage run -p -m pytest {posargs}
 

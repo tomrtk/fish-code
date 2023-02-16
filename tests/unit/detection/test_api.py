@@ -2,6 +2,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 from fastapi.testclient import TestClient
 
 from detection.api import detection_api, halve_batch
@@ -9,99 +10,100 @@ from detection.api import detection_api, halve_batch
 TEST_FILE_PATH = Path(__file__).parent / "test_data"
 
 
-def test_list_models():
+@pytest.fixture(scope="module")
+def client():
+    with TestClient(detection_api) as client:
+        yield client
+
+
+def test_list_models(client):
     """Test getting project list endpoint."""
-    with TestClient(detection_api) as client:
-        response = client.get("/models/")
+    response = client.get("/models/")
 
-        assert response.status_code == 200
-        result = response.json()
-        assert "fishy" in result
-        assert len(result["fishy"]) == 9
+    assert response.status_code == 200
+    result = response.json()
+    assert "fishy" in result
+    assert len(result["fishy"]) == 9
 
 
-def test_predict():
+def test_predict(client):
     """Test prediction of one image."""
-    with TestClient(detection_api) as client:
-        response = client.post(
-            "/predictions/fishy/",
-            files=[
-                (
-                    "images",
-                    open(str((TEST_FILE_PATH / "mort3.png").resolve()), "rb"),
-                ),
-                (
-                    "images",
-                    open(str((TEST_FILE_PATH / "abbor.png").resolve()), "rb"),
-                ),
-            ],
-        )
+    response = client.post(
+        "/predictions/fishy/",
+        files=[
+            (
+                "images",
+                open(str((TEST_FILE_PATH / "mort3.png").resolve()), "rb"),
+            ),
+            (
+                "images",
+                open(str((TEST_FILE_PATH / "abbor.png").resolve()), "rb"),
+            ),
+        ],
+    )
 
-        assert response.status_code == 200
-        data = response.json()
+    assert response.status_code == 200
+    data = response.json()
 
-        assert len(data) == 2
+    assert len(data) == 2
 
-        # Testing if all keys are present
-        assert "0" in data
-        assert "x1" in data["0"][0]
-        assert "y1" in data["0"][0]
-        assert "x2" in data["0"][0]
-        assert "y2" in data["0"][0]
-        assert "confidence" in data["0"][0]
-        assert "label" in data["0"][0]
+    # Testing if all keys are present
+    assert "0" in data
+    assert "x1" in data["0"][0]
+    assert "y1" in data["0"][0]
+    assert "x2" in data["0"][0]
+    assert "y2" in data["0"][0]
+    assert "confidence" in data["0"][0]
+    assert "label" in data["0"][0]
 
 
-def test_predict_no_results():
+def test_predict_no_results(client):
     """Test prediction of one image with no results."""
-    with TestClient(detection_api) as client:
-        response = client.post(
-            "/predictions/fishy/",
-            files=[
-                (
-                    "images",
-                    open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
-                ),
-            ],
-        )
+    response = client.post(
+        "/predictions/fishy/",
+        files=[
+            (
+                "images",
+                open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
+            ),
+        ],
+    )
 
-        assert response.status_code == 200
-        data = response.json()
+    assert response.status_code == 200
+    data = response.json()
 
-        assert len(data) == 1
-        assert len(data["0"]) == 0
+    assert len(data) == 1
+    assert len(data["0"]) == 0
 
 
-def test_predict_wrong_model_name():
+def test_predict_wrong_model_name(client):
     """Test prediction for model_name not existing."""
-    with TestClient(detection_api) as client:
-        response = client.post(
-            "/predictions/test/",
-            files=[
-                (
-                    "images",
-                    open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
-                ),
-            ],
-        )
+    response = client.post(
+        "/predictions/test/",
+        files=[
+            (
+                "images",
+                open(str((TEST_FILE_PATH / "white.jpg").resolve()), "rb"),
+            ),
+        ],
+    )
 
-        assert response.status_code == 422
+    assert response.status_code == 422
 
 
-def test_predict_wrong_image_data_format():
+def test_predict_wrong_image_data_format(client):
     """Test prediction with wrong file type."""
-    with TestClient(detection_api) as client:
-        response = client.post(
-            "/predictions/test/",
-            files=[
-                (
-                    "images",
-                    open(str((TEST_FILE_PATH / "test.txt").resolve()), "rb"),
-                ),
-            ],
-        )
+    response = client.post(
+        "/predictions/test/",
+        files=[
+            (
+                "images",
+                open(str((TEST_FILE_PATH / "test.txt").resolve()), "rb"),
+            ),
+        ],
+    )
 
-        assert response.status_code == 422
+    assert response.status_code == 422
 
 
 def test_halve_batch():
