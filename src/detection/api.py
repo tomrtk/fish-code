@@ -1,6 +1,7 @@
 """Module defining detection API."""
 
 import logging
+import os
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple, Union
@@ -28,6 +29,8 @@ model_fishy2_path = (
 if not model_fishy_path.exists() or model_fishy_path.is_dir():
     raise FileNotFoundError
 
+IN_CI = os.environ.get("CI", False)
+
 
 @detection_api.on_event("startup")  # type: ignore
 async def startup_event() -> None:
@@ -38,6 +41,7 @@ async def startup_event() -> None:
             "custom",
             path=str(model_fishy_path.resolve()),
             trust_repo=True,
+            skip_validation=True if IN_CI else False,
         ),
         640,
     )
@@ -60,6 +64,7 @@ async def startup_event() -> None:
             "custom",
             path=str(model_fishy2_path.resolve()),
             trust_repo=True,
+            skip_validation=True if IN_CI else False,
         ),
         768,
     )
