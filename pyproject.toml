@@ -60,17 +60,14 @@ testing = [
   "pytest>=4",
   "requests-mock>=1.9.3",
 ]
-
 [project.urls]
 repository = "https://github.com/tomrtk/fish-code"
-
 [project.scripts]
 nina = "nina.run:main"
 nina-core = "core.main:main"
 nina-detection = "detection.main:main"
 nina-tracing = "tracing.main:main"
 nina-ui = "ui.run:serve"
-
 
 [build-system]
 build-backend = "setuptools.build_meta"
@@ -92,6 +89,7 @@ write_to = "src/nina/version.py"
 #######################
 # Tools Configuration #
 #######################
+
 [tool.black]
 line-length = 80
 target-version = ['py39']
@@ -118,6 +116,26 @@ exclude = '''
 '''
 verbose = true
 
+[tool.isort]
+line_length = 80
+multi_line_output = 3
+profile = "black"
+py_version = 39
+skip = ["./src/vendor"]
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
+testpaths = ["tests"]
+filterwarnings = [
+  'ignore:the imp module is deprecated:DeprecationWarning',
+  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning',
+  'ignore:Named tensors and all their associated APIs:UserWarning'
+]
+log_cli = "False"
+log_level = "INFO"
+norecursedirs = [".git", ".tox", ".env", "dist", "build"]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
 
 [tool.coverage.report]
 fail_under = 86
@@ -136,15 +154,6 @@ omit = [
   "src/vendor/*"
 ]
 
-
-[tool.isort]
-line_length = 80
-multi_line_output = 3
-profile = "black"
-py_version = 39
-skip = ["./src/vendor"]
-
-
 [tool.mypy]
 check_untyped_defs = true
 disallow_untyped_defs = true
@@ -161,24 +170,9 @@ module = "vendor.*"
 ignore_errors = true
 
 
+
 [tool.pydocstyle]
 convention = "numpy"
-
-
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
-testpaths = ["tests"]
-filterwarnings = [
-  'ignore:the imp module is deprecated:DeprecationWarning',
-  'ignore:"@coroutine" decorator is deprecated:DeprecationWarning',
-  'ignore:Named tensors and all their associated APIs:UserWarning'
-]
-log_cli = "False"
-log_level = "INFO"
-norecursedirs = [".git", ".tox", ".env", "dist", "build"]
-python_files = ["test_*.py", "*_test.py", "tests.py"]
-
 
 [tool.tox]
 legacy_tox_ini = '''
