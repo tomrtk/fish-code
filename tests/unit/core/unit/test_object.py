@@ -26,7 +26,8 @@ def test_get_object(make_test_obj: List[Object]):
 
     assert det is not None
 
-    assert det.probability == 0.8 and det.label == 2
+    assert det.probability == 0.8
+    assert det.label == 2
 
     assert obj.get_detection(10) is None
 

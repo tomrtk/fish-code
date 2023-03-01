@@ -41,7 +41,7 @@ async def startup_event() -> None:
             "custom",
             path=str(model_fishy_path.resolve()),
             trust_repo=True,
-            skip_validation=True if IN_CI else False,
+            skip_validation=bool(IN_CI),
         ),
         640,
     )
@@ -64,7 +64,7 @@ async def startup_event() -> None:
             "custom",
             path=str(model_fishy2_path.resolve()),
             trust_repo=True,
-            skip_validation=True if IN_CI else False,
+            skip_validation=bool(IN_CI),
         ),
         768,
     )
