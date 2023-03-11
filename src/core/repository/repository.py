@@ -80,7 +80,7 @@ class AbstractProjectRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _list(self) -> List[model.Project]:  # pragma: no cover
+    def _list(self) -> list[model.Project]:  # pragma: no cover
         raise NotImplementedError
 
     def __len__(self) -> int:
