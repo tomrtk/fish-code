@@ -48,10 +48,10 @@ class Object(BaseModel):
     id: int
     label: str
     probability: float
-    detections: Dict[str, List[float]]
+    detections: dict[str, list[float]]
     time_in: datetime
     time_out: datetime
-    video_ids: List[int]
+    video_ids: list[int]
 
     @validator("label", pre=True)
     def convert_label(cls, label_id: int) -> str:
@@ -60,10 +60,10 @@ class Object(BaseModel):
 
     @validator("detections", pre=True)
     def convert_detection(
-        cls, _detections: List[Detection]
-    ) -> Dict[str, List[float]]:
+        cls, _detections: list[Detection]
+    ) -> dict[str, list[float]]:
         """Convert detections to Dict."""
-        detections: Dict[str, List[float]] = dict()
+        detections: dict[str, list[float]] = dict()
         for d in _detections:
             if get_label(d.label) not in detections:
                 detections[get_label(d.label)] = list()
@@ -107,10 +107,10 @@ class JobStat(BaseModel):
 
     total_objects: int
     total_labels: int
-    labels: Dict[str, int] = dict()
+    labels: dict[str, int] = dict()
 
     @validator("labels", pre=False)
-    def convert_labels(cls, labels_dict: Dict[Any, int]) -> Dict[str, int]:
+    def convert_labels(cls, labels_dict: dict[Any, int]) -> dict[str, int]:
         """Convert labels with ints to identify labels to their respective strings."""
         try:
             labels = {
@@ -137,7 +137,7 @@ class JobBare(JobBase):
     stats: JobStat
 
     @validator("stats", pre=True)
-    def convert_stats(cls, stats_dict: Dict[str, Any]) -> JobStat:
+    def convert_stats(cls, stats_dict: dict[str, Any]) -> JobStat:
         """Convert dictionary stats to JobStats."""
         return JobStat(**stats_dict)
 
@@ -148,12 +148,12 @@ class Job(JobBase):
     id: int
     status: model.Status
     location: str
-    videos: List[Video] = []
+    videos: list[Video] = []
     progress: int
     stats: JobStat
 
     @validator("stats", pre=True)
-    def convert_stats(cls, stats_dict: Dict[str, Any]) -> JobStat:
+    def convert_stats(cls, stats_dict: dict[str, Any]) -> JobStat:
         """Convert dictionary stats to JobStats."""
         return JobStat(**stats_dict)
 
@@ -173,7 +173,7 @@ class Job(JobBase):
 class JobCreate(JobBase):
     """Class for new Job received on API."""
 
-    videos: List[str]
+    videos: list[str]
 
 
 class ProjectBase(HashableBaseModel):
@@ -196,7 +196,7 @@ class Project(ProjectBase):
     """`Project` class used to send object on API."""
 
     id: int
-    jobs: List[Job] = []
+    jobs: list[Job] = []
 
     class Config:
         """Pydantic configuration options."""

@@ -9,7 +9,7 @@ from tracing.tracker import BBox
 
 ### Bounding Box BBox ###
 @pytest.fixture
-def bbox_list() -> List[float]:
+def bbox_list() -> list[float]:
     """Create a list for creating BBox.
 
     Return

@@ -51,7 +51,7 @@ class Detection(BaseModel):
 class Frame(BaseModel):
     """API frame dataclass."""
 
-    detections: List[Detection]
+    detections: list[Detection]
     idx: int
 
 
@@ -64,14 +64,14 @@ class Object(BaseModel):
     """
 
     track_id: int
-    detections: List[Detection]
+    detections: list[Detection]
     label: int
 
 
-@tracking.post("/tracking/track", response_model=List[Object])
+@tracking.post("/tracking/track", response_model=list[Object])
 def track_frames(
-    frames: List[Frame], trk: tracker.SortTracker = Depends(make_tracker)
-) -> List[Object]:
+    frames: list[Frame], trk: tracker.SortTracker = Depends(make_tracker)
+) -> list[Object]:
     """Create a tracker to track the recieved frames.
 
     Using this endpoint will not make a persistant tracker.

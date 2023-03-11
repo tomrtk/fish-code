@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 detection_api = FastAPI()
 
 # Variable to store models
-model: Dict[str, Tuple[Any, int]] = dict()
-label: Dict[str, List[str]] = dict()
+model: dict[str, tuple[Any, int]] = dict()
+label: dict[str, list[str]] = dict()
 
 model_fishy_path = Path(__file__).parent / "weights/yolov5s-imgsize-640.pt"
 model_fishy2_path = (
@@ -83,7 +83,7 @@ async def startup_event() -> None:
 
 
 @detection_api.get("/models/")
-def list_models() -> Dict[str, List[str]]:
+def list_models() -> dict[str, list[str]]:
     """List available models.
 
     Returns
@@ -97,11 +97,11 @@ def list_models() -> Dict[str, List[str]]:
 
 @detection_api.post(
     "/predictions/{model_name}/",
-    response_model=Dict[int, List[schema.Detection]],
+    response_model=dict[int, list[schema.Detection]],
 )
 async def predict(
-    model_name: str, images: List[bytes] = File(..., media_type="images")
-) -> Dict[int, List[schema.Detection]]:
+    model_name: str, images: list[bytes] = File(..., media_type="images")
+) -> dict[int, list[schema.Detection]]:
     """Perform predictions on List of images on named model_name.
 
     Note: If a `RuntimeError` is encountered due to e.g. `CUDA out of memory`
@@ -154,7 +154,7 @@ async def predict(
     return detect(imgs, model[model_name][0], model[model_name][1])  # type: ignore
 
 
-def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
+def halve_batch(batches: list[list[np.ndarray]]) -> list[list[np.ndarray]]:
     """Halve a list of batches.
 
     Will iterate over all batches and halve all of them.
@@ -189,7 +189,7 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
 
 
     """
-    new_batches: List[List[np.ndarray]] = list()
+    new_batches: list[list[np.ndarray]] = list()
     for b in batches:
         halve = len(b) // 2
 
@@ -200,10 +200,10 @@ def halve_batch(batches: List[List[np.ndarray]]) -> List[List[np.ndarray]]:
 
 
 def detect(
-    imgs: List[np.ndarray],
-    model: Callable[[List[np.ndarray], int], Dict[int, List[schema.Detection]]],
+    imgs: list[np.ndarray],
+    model: Callable[[list[np.ndarray], int], dict[int, list[schema.Detection]]],
     img_size: int,
-) -> Dict[int, List[schema.Detection]]:
+) -> dict[int, list[schema.Detection]]:
     """Detect in images.
 
     Paramters
@@ -232,7 +232,7 @@ def detect(
     """
     # Try infer from imgs received
     out_of_memory = False
-    xyxy: List[Union[torch.Tensor, List[torch.Tensor]]] = list()
+    xyxy: list[Union[torch.Tensor, list[torch.Tensor]]] = list()
 
     try:
         results = model(imgs, size=img_size)  # type: ignore
@@ -242,7 +242,7 @@ def detect(
     else:
         xyxy = results.xyxy  # type: ignore
 
-    batches: List[List[np.ndarray]] = list()
+    batches: list[list[np.ndarray]] = list()
     if out_of_memory:
         batches = [imgs]
 
@@ -266,7 +266,7 @@ def detect(
             xyxy = [result.xyxy[0] for result in results]  # type: ignore
 
     # Convert results to schema object
-    response: Dict[int, List[schema.Detection]] = dict()
+    response: dict[int, list[schema.Detection]] = dict()
 
     for i, result in enumerate(xyxy):  # for each image
         # for each detection

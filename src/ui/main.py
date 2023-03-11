@@ -1,7 +1,8 @@
 """Initilization of the application."""
 
 import os
-from typing import Any, Mapping, Optional, Tuple, Union
+from collections.abc import Mapping
+from typing import Any, Optional, Tuple, Union
 
 from flask import Flask, render_template
 from werkzeug.exceptions import (
@@ -46,7 +47,7 @@ def create_app(test_config: Optional[Mapping[str, Any]] = None) -> Flask:
     @app.errorhandler(Exception)
     def handle_exception(
         e: HTTPException,
-    ) -> Union[HTTPException, Tuple[str, int]]:
+    ) -> Union[HTTPException, tuple[str, int]]:
         # pass through HTTP errors
         if isinstance(e, HTTPException):
             return e
@@ -55,12 +56,12 @@ def create_app(test_config: Optional[Mapping[str, Any]] = None) -> Flask:
         return render_template("error.html", msg=msg, e=e), 500
 
     @app.errorhandler(NotFound)
-    def page_not_found(e: HTTPException) -> Tuple[str, int]:
+    def page_not_found(e: HTTPException) -> tuple[str, int]:
         msg = "Nothing was found here."
         return render_template("error.html", msg=msg, e=e), 404
 
     @app.errorhandler(UnprocessableEntity)
-    def unprocessable_entity(e: HTTPException) -> Tuple[str, int]:
+    def unprocessable_entity(e: HTTPException) -> tuple[str, int]:
         msg = "Could not process request."
         return render_template("error.html", msg=msg, e=e), 422
 

@@ -140,7 +140,7 @@ class Client:
                 return decorator_call(request)
 
     @Api.call(status_code=200, acceptable_error=403)
-    def get(self, uri: str, params: Optional[Dict] = None) -> requests.Response:
+    def get(self, uri: str, params: Optional[dict] = None) -> requests.Response:
         """Perform a GET request to `uri.
 
         Expects a successful call to return a status_code = 200.
@@ -164,7 +164,7 @@ class Client:
 
     @Api.call(status_code=201, acceptable_error=415)
     def post(
-        self, uri: str, data: Optional[Dict[str, Any]] = None
+        self, uri: str, data: Optional[dict[str, Any]] = None
     ) -> requests.Response:
         """Perform a POST request to `uri` with `data` as body of request.
 
@@ -214,7 +214,7 @@ class Client:
 
     def get_projects(
         self, page: int = 1, per_page: int = 10
-    ) -> Optional[Tuple[List[ProjectBare], int]]:
+    ) -> Optional[tuple[list[ProjectBare], int]]:
         """Get all projects from endpoint.
 
         Parameters
@@ -293,7 +293,7 @@ class Client:
         project_id: int,
         page: int = 1,
         per_page: int = 10,
-    ) -> Optional[Tuple[List[JobBare], int]]:
+    ) -> Optional[tuple[list[JobBare], int]]:
         """Get a list of jobs from the endpoint.
 
         Parameters
@@ -403,7 +403,7 @@ class Client:
 
     def change_job_status(
         self, project_id: int, job_id: int
-    ) -> Tuple[Optional[str], Optional[str]]:
+    ) -> tuple[Optional[str], Optional[str]]:
         """Change job status.
 
         Parameters
@@ -489,7 +489,7 @@ class Client:
 
     def get_objects(
         self, project_id: int, job_id: int, start: int, length: int
-    ) -> Optional[Tuple[List[Object], int]]:
+    ) -> Optional[tuple[list[Object], int]]:
         """Get a list of Objects for `job_id` from `start` to `start + length`.
 
         Parameters

@@ -9,7 +9,8 @@ import asyncio
 import base64
 import binascii
 import logging
-from typing import Any, AsyncGenerator, Dict, Generator, List, Union
+from collections.abc import AsyncGenerator, Generator
+from typing import Any, Dict, List, Union
 
 from fastapi import (
     Depends,
@@ -56,7 +57,7 @@ def get_runtime_repo() -> Generator[ProjectRepository, None, None]:
 
 def construct_pagination_data(
     count: int, page: int, per_page: int
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """Create pagination data for easy usage when contruction routes.
 
     The function returns a dict which has all it values calculated
@@ -76,7 +77,7 @@ def construct_pagination_data(
     parameters : dict
         Complete dictionary with computed data.
     """
-    pagination: Dict = dict()
+    pagination: dict = dict()
 
     pagination["x-total"] = f"{count}"
     pagination["x-page"] = f"{page}"
@@ -98,7 +99,7 @@ def construct_pagination_data(
     return pagination
 
 
-@core_api.get("/projects/", response_model=List[schema.ProjectBare])
+@core_api.get("/projects/", response_model=list[schema.ProjectBare])
 def list_projects(
     response: Response,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
@@ -110,7 +111,7 @@ def list_projects(
     per_page: int = Query(
         10, ge=1, description="Choose how many items per page."
     ),
-) -> List[schema.ProjectBare]:
+) -> list[schema.ProjectBare]:
     """List all projects.
 
     Endpoint returns a list of all projects to GET requests.
@@ -151,7 +152,7 @@ def list_projects(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: List[schema.ProjectBare] = list()
+    resp: list[schema.ProjectBare] = list()
 
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
@@ -212,7 +213,7 @@ def get_project(
 
 
 @core_api.get(
-    "/projects/{project_id}/jobs/", response_model=List[schema.JobBare]
+    "/projects/{project_id}/jobs/", response_model=list[schema.JobBare]
 )
 def list_project_jobs(
     project_id: int,
@@ -226,7 +227,7 @@ def list_project_jobs(
     per_page: int = Query(
         10, ge=1, description="Choose how many items per page."
     ),
-) -> List[schema.JobBare]:
+) -> list[schema.JobBare]:
     """List all jobs associated with Project with _project_id_.
 
     Endpoint returns a list of Jobs from Project with _project_id_.
@@ -266,7 +267,7 @@ def list_project_jobs(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: List[schema.JobBare] = list()
+    resp: list[schema.JobBare] = list()
 
     for job in project.jobs[slice(begin_idx, end_idx)]:
         try:
@@ -284,7 +285,7 @@ def add_job_to_project(
     project_id: int,
     job: schema.JobCreate,
     repo: ProjectRepository = Depends(get_runtime_repo, use_cache=False),
-) -> Dict[str, int]:
+) -> dict[str, int]:
     """Add a `Job` to a `Project` who has`project_id`.
 
     Returns
@@ -302,8 +303,8 @@ def add_job_to_project(
     project = repo.get(project_id)
     if project:
         # Create videos from list of paths
-        videos: List[model.Video] = []
-        errors: Dict[str, List[str]] = dict()
+        videos: list[model.Video] = []
+        errors: dict[str, list[str]] = dict()
         file_not_found = []
         time_not_found = []
         for video_path in job.videos:
@@ -512,14 +513,14 @@ async def get_object_image(
 
 @core_api.get(
     "/projects/{project_id}/jobs/{job_id}/objects",
-    response_model=Dict[str, Any],
+    response_model=dict[str, Any],
 )
 def get_objects_from_job(
     project_id: int = Path(..., ge=1),
     job_id: int = Path(..., ge=1),
     start: int = Query(0, ge=0),
     length: int = Query(10, ge=1),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Endpoint to get part of objects from a job.
 
     Returns
@@ -550,8 +551,8 @@ def get_objects_from_job(
     return data
 
 
-@core_api.get("/storage", response_model=List[Union[Dict[str, Any], str, None]])
-async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
+@core_api.get("/storage", response_model=list[Union[dict[str, Any], str, None]])
+async def get_storage() -> list[Union[dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
     Returns
@@ -589,9 +590,9 @@ async def get_storage() -> List[Union[Dict[str, Any], str, None]]:
 
 
 @core_api.get(
-    "/storage/{path:str}", response_model=List[Union[Dict[str, Any], str, None]]
+    "/storage/{path:str}", response_model=list[Union[dict[str, Any], str, None]]
 )
-async def get_storage_path(path: str) -> List[Union[Dict[str, Any], str, None]]:
+async def get_storage_path(path: str) -> list[Union[dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
 
     Parameters

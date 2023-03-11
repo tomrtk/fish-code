@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 def to_track(
-    frames: List[core.model.Frame],
+    frames: list[core.model.Frame],
     host: str = "http://127.0.0.1",
     port: str = "8001",
-) -> List[core.model.Object]:
+) -> list[core.model.Object]:
     """Send frames to tracker.
 
     Parameter
@@ -70,7 +70,7 @@ class Model:
     """Containing detection model information."""
 
     name: str
-    classes: List[str]
+    classes: list[str]
 
 
 class Detector:
@@ -115,12 +115,12 @@ class Detector:
     ) -> None:
         self.host: str = host
         self.port: str = port
-        self.available_models: List[Model] = self._models()
+        self.available_models: list[Model] = self._models()
         logger.debug("Interface detector constructed")
 
     def predict(
         self, frames: np.ndarray, model_name: str
-    ) -> List[core.model.Frame]:
+    ) -> list[core.model.Frame]:
         """Call `/predictions/{model_name}/` endpoint to do inference.
 
         Parameters
@@ -185,7 +185,7 @@ class Detector:
                 f"{response.status_code}"
             )
 
-        result: List[core.model.Frame] = []
+        result: list[core.model.Frame] = []
         for frame_no, detections in response.json().items():
             # No detections found in frame
             if len(detections) == 0:
@@ -213,7 +213,7 @@ class Detector:
 
         return result
 
-    def _models(self) -> List[Model]:
+    def _models(self) -> list[Model]:
         """Call `/models/` endpoint to get available models.
 
         Returns

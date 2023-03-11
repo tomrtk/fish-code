@@ -8,7 +8,7 @@ from core.model import BBox, Detection, Object
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_add_object(make_test_obj: List[Object]):
+def test_add_object(make_test_obj: list[Object]):
     """Test add object."""
     obj = make_test_obj[0]
     assert obj.number_of_detections() == 4
@@ -18,7 +18,7 @@ def test_add_object(make_test_obj: List[Object]):
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_get_object(make_test_obj: List[Object]):
+def test_get_object(make_test_obj: list[Object]):
     """Test get object."""
     obj = make_test_obj[0]
 
@@ -32,7 +32,7 @@ def test_get_object(make_test_obj: List[Object]):
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_calc_label(make_test_obj: List[Object]):
+def test_calc_label(make_test_obj: list[Object]):
     """Test calculating label label and probability."""
     obj = make_test_obj[0]
 
@@ -49,7 +49,7 @@ def test_calc_label(make_test_obj: List[Object]):
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_get_result(make_test_obj: List[Object]):
+def test_get_result(make_test_obj: list[Object]):
     """Test get result."""
     obj = make_test_obj[0]
 
@@ -73,7 +73,7 @@ def test_get_result(make_test_obj: List[Object]):
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_get_result_no_time(make_test_obj: List[Object]):
+def test_get_result_no_time(make_test_obj: list[Object]):
     """Test get result when timestamps are None."""
     obj = make_test_obj[0]
     obj.time_in = None
@@ -109,12 +109,12 @@ def test_object_from_api():
     objects = [Object.from_api(**obj) for obj in json]
 
     assert len(objects) == 1
-    assert isinstance(objects, List)
+    assert isinstance(objects, list)
     assert isinstance(objects[0], Object)
     obj = objects[0]
     assert obj.track_id == 1
 
-    assert isinstance(obj._detections, List)
+    assert isinstance(obj._detections, list)
     assert len(obj._detections) == 1
     assert isinstance(obj._detections[0], Detection)
     det = obj._detections[0]
@@ -191,7 +191,7 @@ def test_object_from_api_multiple():
 
 
 @pytest.mark.usefixtures("make_test_obj")
-def test_video_ids(make_test_obj: List[Object]):
+def test_video_ids(make_test_obj: list[Object]):
     """Test video_ids property of object."""
     obj = make_test_obj[0]
 

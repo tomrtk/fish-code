@@ -40,7 +40,7 @@ def sqlite_session_factory(in_memory_sqlite_db):
 
 
 @pytest.fixture
-def make_test_obj() -> List[model.Object]:
+def make_test_obj() -> list[model.Object]:
     """Make two fully fledged test objects."""
     obj1 = model.Object(1)
     obj1._detections = []

@@ -1,8 +1,9 @@
 """Start all sub-packages as a new prosess."""
 import argparse
 import logging
+from collections.abc import Sequence
 from multiprocessing import Process
-from typing import List, Optional, Sequence
+from typing import List, Optional
 
 from config import load_config
 from core.main import main as core_main  # type: ignore
@@ -30,7 +31,7 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         help="Run web server in development mode.",
     )
     main_args, _ = main_parser.parse_known_args(argsv)
-    processes: List[Process] = list()
+    processes: list[Process] = list()
 
     # Let dev argument override global config parameter
     if main_args.dev:
