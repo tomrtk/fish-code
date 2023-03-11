@@ -28,7 +28,7 @@ class AbstractVideoRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def list(self) -> List[model.Video]:  # pragma: no cover
+    def list(self) -> list[model.Video]:  # pragma: no cover
         """Get all videos from repository."""
         raise NotImplementedError
 
@@ -87,7 +87,7 @@ class SqlAlchemyVideoRepository(AbstractVideoRepository):
         """
         return self.session.query(model.Video).filter_by(id=video_id).first()
 
-    def list(self) -> List[model.Video]:
+    def list(self) -> list[model.Video]:
         """Get all videos.
 
         Return

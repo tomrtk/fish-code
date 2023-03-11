@@ -4,21 +4,12 @@ from __future__ import annotations
 import logging
 import os.path
 import re
+from collections.abc import Generator
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import (
-    Any,
-    DefaultDict,
-    Dict,
-    Generator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Union,
-)
+from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
 
 import cv2 as cv
 import numpy as np

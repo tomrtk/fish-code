@@ -48,7 +48,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     endpoint_path: str = cfg["BACKEND_URL"]
     client = Client(endpoint_path)
 
-    def check_api_connection() -> Optional[Tuple[str, int]]:
+    def check_api_connection() -> Optional[tuple[str, int]]:
         if not client.check_api():
             return render_template("api_down.html"), 502
         return None
@@ -104,7 +104,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         return render_template("projects/project_new.html")
 
     @projects_bp.route("/<int:project_id>")
-    def projects_project(project_id: int) -> Union[str, Tuple[str, int]]:
+    def projects_project(project_id: int) -> Union[str, tuple[str, int]]:
         """View a single project."""
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = request.args.get(
@@ -139,7 +139,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(
         project_id: int, job_id: int
-    ) -> Union[str, Tuple[str, int]]:
+    ) -> Union[str, tuple[str, int]]:
         """View a single job."""
         job = client.get_job(project_id, job_id)
         if job is None:
@@ -159,7 +159,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     )
     def projects_job_objects(
         project_id: int, job_id: int
-    ) -> Union[Response, Tuple[str, int]]:
+    ) -> Union[Response, tuple[str, int]]:
         """Get list of Objects to a job."""
         try:
             validated_project_id = validate_int(project_id, 1)
@@ -190,7 +190,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
 
         # Creating response dict with required values as defined by Datatable
         # for server side processing https://datatables.net/manual/server-side
-        result: Dict[str, Any] = {}
+        result: dict[str, Any] = {}
 
         result["data"] = objects
         result["draw"] = int(flask.request.form["draw"])
@@ -201,7 +201,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         return make_response(jsonify(result), 200)
 
     @projects_bp.route("/objects/<int:object_id>/preview")
-    def object_preview(object_id: int) -> Union[Response, Tuple[str, int]]:
+    def object_preview(object_id: int) -> Union[Response, tuple[str, int]]:
         """View preview of an Object."""
         try:
             validated_object_id = validate_int(object_id, 1)
@@ -220,7 +220,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     )
     def projects_job_toggle(
         project_id: int, job_id: int
-    ) -> Union[str, Tuple[Response, int]]:
+    ) -> Union[str, tuple[Response, int]]:
         """Toogle job status."""
         old_status, new_status = client.change_job_status(project_id, job_id)
 
@@ -232,7 +232,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/<int:project_id>/jobs/new", methods=["POST", "GET"])
     def projects_job_new(
         project_id: int,
-    ) -> Union[str, Response, Tuple[str, int]]:
+    ) -> Union[str, Response, tuple[str, int]]:
         """Create new job inside a project."""
         project = client.get_project(project_id)
 
@@ -294,7 +294,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(
         project_id: int, job_id: int
-    ) -> Union[Tuple[str, int], Response]:
+    ) -> Union[tuple[str, int], Response]:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
         if job is None or not isinstance(job, Job) or job.stats is None:

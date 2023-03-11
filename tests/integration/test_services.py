@@ -110,9 +110,9 @@ def test_video_loader():
         assert isinstance(batchnr, int)
         assert isinstance(progress, int)
         assert isinstance(batch, np.ndarray)
-        assert isinstance(timestamp, List)
-        assert isinstance(video_for_frame, Dict)
-        assert isinstance(framenumbers, List)
+        assert isinstance(timestamp, list)
+        assert isinstance(video_for_frame, dict)
+        assert isinstance(framenumbers, list)
 
         results.append(len(batch))
 

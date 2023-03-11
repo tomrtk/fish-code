@@ -61,7 +61,7 @@ class AbstractProjectRepository(abc.ABC):
             logger.info("Project with id %s not found", project_id)
         return project
 
-    def list(self) -> List[model.Project]:
+    def list(self) -> list[model.Project]:
         """Get a list off all Projects in repository."""
         return self._list()
 
@@ -138,5 +138,5 @@ class SqlAlchemyProjectRepository(AbstractProjectRepository):
 
         return result
 
-    def _list(self) -> List[model.Project]:
+    def _list(self) -> list[model.Project]:
         return self.session.query(model.Project).all()  # type: ignore

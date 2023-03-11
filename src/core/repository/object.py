@@ -28,7 +28,7 @@ class AbstractObjectRepository(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def list(self) -> List[model.Object]:  # pragma: no cover
+    def list(self) -> list[model.Object]:  # pragma: no cover
         """Get all objects from repository."""
         raise NotImplementedError
 
@@ -99,7 +99,7 @@ class SqlAlchemyObjectRepository(AbstractObjectRepository):
         """
         return self.session.query(model.Object).filter_by(id=object_id).first()
 
-    def list(self) -> List[model.Object]:
+    def list(self) -> list[model.Object]:
         """Get all objects.
 
         Return

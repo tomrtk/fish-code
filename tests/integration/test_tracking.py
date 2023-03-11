@@ -9,7 +9,7 @@ from core.model import BBox, Detection, Frame, Object
 
 
 @pytest.fixture
-def make_frames() -> List[Frame]:
+def make_frames() -> list[Frame]:
     """Return a list of valid frames."""
     frames = [
         Frame(
@@ -47,7 +47,7 @@ def make_frames() -> List[Frame]:
 
 
 @pytest.mark.usefixtures("tracing_api")
-def test_to_track(make_frames: List[Frame]):
+def test_to_track(make_frames: list[Frame]):
     """Test to see values returned from to_track are valid."""
     frames = make_frames
 

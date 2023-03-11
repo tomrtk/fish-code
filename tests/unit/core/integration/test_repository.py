@@ -156,7 +156,7 @@ def test_save_project(sqlite_session_factory):
 
 
 def test_add_job_with_objects(
-    sqlite_session_factory, make_test_obj: List[model.Object]
+    sqlite_session_factory, make_test_obj: list[model.Object]
 ):
     """Test adding a job with attached objects."""
     session1 = sqlite_session_factory()
