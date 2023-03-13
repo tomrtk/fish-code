@@ -4,7 +4,7 @@ from typing import List
 import pytest
 
 from core import model
-from core.repository import SqlAlchemyProjectRepository
+from core.repository.project import SqlAlchemyProjectRepository
 
 
 def test_add_project(sqlite_session_factory):

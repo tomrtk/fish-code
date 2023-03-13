@@ -15,7 +15,9 @@ from sqlalchemy.orm.session import close_all_sessions
 import core
 import core.main
 from core import api, model
-from core.repository import SqlAlchemyProjectRepository as ProjectRepository
+from core.repository.project import (
+    SqlAlchemyProjectRepository as ProjectRepository,
+)
 from core.repository.orm import metadata
 
 logger = logging.getLogger(__name__)

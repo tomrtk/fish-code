@@ -28,9 +28,11 @@ import core.main
 from config import load_config
 from core import model, services
 from core.api import utils
-from core.repository import SqlAlchemyProjectRepository as ProjectRepository
 from core.repository.object import (
     SqlAlchemyObjectRepository as ObjectRepository,
+)
+from core.repository.project import (
+    SqlAlchemyProjectRepository as ProjectRepository,
 )
 from core.repository.video import SqlAlchemyVideoRepository as VideoRepostory
 from core.services import get_directory_listing
