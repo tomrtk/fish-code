@@ -10,7 +10,7 @@ from sqlalchemy.orm import clear_mappers, sessionmaker
 
 import core.main
 import core.model as model
-from core.repository import SqlAlchemyProjectRepository as ProjectRepo
+from core.repository.project import SqlAlchemyProjectRepository as ProjectRepo
 from core.repository.orm import metadata, start_mappers
 
 TEST_VIDEO: str = str(

@@ -1,7 +1,6 @@
 """Repository abstraction for Object."""
-import abc
 import logging
-from typing import List, Optional
+from typing import List, Optional, Protocol
 
 from sqlalchemy.orm.session import Session
 
@@ -10,40 +9,24 @@ from core import model
 logger = logging.getLogger(__name__)
 
 
-class AbstractObjectRepository(abc.ABC):
-    """Base abstract repository class."""
+class _ObjectRepository(Protocol):
+    def add(self, obj: model.Object) -> model.Object:
+        ...
 
-    def __init__(self) -> None:  # pragma: no cover
-        """Create base abstract repository."""
-        logger.debug("Object repository created")
+    def get(self, reference: int) -> Optional[model.Object]:
+        ...
 
-    @abc.abstractmethod
-    def add(self, obj: model.Object) -> model.Object:  # pragma: no cover
-        """Add object to repsitory."""
-        raise NotImplementedError
+    def list(self) -> list[model.Object]:
+        ...
 
-    @abc.abstractmethod
-    def get(self, reference: int) -> Optional[model.Object]:  # pragma: no cover
-        """Get object from repository."""
-        raise NotImplementedError
+    def save(self) -> None:
+        ...
 
-    @abc.abstractmethod
-    def list(self) -> list[model.Object]:  # pragma: no cover
-        """Get all objects from repository."""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def save(self) -> None:  # pragma: no cover
-        """Save and commit changes to repository."""
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def remove(self, obj: model.Object) -> None:  # pragma: no cover
-        """Delete object from repository."""
-        raise NotImplementedError
+    def remove(self, obj: model.Object) -> None:
+        ...
 
 
-class SqlAlchemyObjectRepository(AbstractObjectRepository):
+class SqlAlchemyObjectRepository(_ObjectRepository):
     """Sql Alchemy repository abstraction."""
 
     def __init__(self, session: Session) -> None:
@@ -53,7 +36,6 @@ class SqlAlchemyObjectRepository(AbstractObjectRepository):
         --------
         session : Session
         """
-        super().__init__()
         logger.debug("Repository initialised")
         self.session = session
 

@@ -1,7 +1,6 @@
 """Repository abstraction for Video."""
-import abc
 import logging
-from typing import List, Optional
+from typing import List, Optional, Protocol
 
 from sqlalchemy.orm.session import Session
 
@@ -10,40 +9,24 @@ from core import model
 logger = logging.getLogger(__name__)
 
 
-class AbstractVideoRepository(abc.ABC):
-    """Base abstract repository class."""
-
-    def __init__(self) -> None:  # pragma: no cover
-        """Create base abstract repository."""
-        logger.debug("Video repository created")
-
-    @abc.abstractmethod
+class _VideoRepository(Protocol):
     def add(self, vid: model.Video) -> model.Video:  # pragma: no cover
-        """Add video to repsitory."""
-        raise NotImplementedError
+        ...
 
-    @abc.abstractmethod
     def get(self, video_id: int) -> Optional[model.Video]:  # pragma: no cover
-        """Get video from repository."""
-        raise NotImplementedError
+        ...
 
-    @abc.abstractmethod
     def list(self) -> list[model.Video]:  # pragma: no cover
-        """Get all videos from repository."""
-        raise NotImplementedError
+        ...
 
-    @abc.abstractmethod
     def save(self) -> None:  # pragma: no cover
-        """Save and commit changes to repository."""
-        raise NotImplementedError
+        ...
 
-    @abc.abstractmethod
     def remove(self, vid: model.Video) -> None:  # pragma: no cover
-        """Delete video from repository."""
-        raise NotImplementedError
+        ...
 
 
-class SqlAlchemyVideoRepository(AbstractVideoRepository):
+class SqlAlchemyVideoRepository(_VideoRepository):
     """Sql Alchemy repository abstraction."""
 
     def __init__(self, session: Session) -> None:
@@ -53,7 +36,6 @@ class SqlAlchemyVideoRepository(AbstractVideoRepository):
         --------
         session : Session
         """
-        super().__init__()
         logger.debug("Repository initialised")
         self.session = session
 

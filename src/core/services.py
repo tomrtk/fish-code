@@ -21,7 +21,9 @@ import core.main
 from config import get_video_root_path, load_config
 from core.interface import Detector, to_track
 from core.model import Job, JobStatusException, Status, Video
-from core.repository import SqlAlchemyProjectRepository as ProjectRepository
+from core.repository.project import (
+    SqlAlchemyProjectRepository as ProjectRepository,
+)
 
 logger = logging.getLogger(__name__)
 config = load_config()
