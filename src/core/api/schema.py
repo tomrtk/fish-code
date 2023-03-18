@@ -1,6 +1,6 @@
 """Pydantic shema of object recived and sent on API."""
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, validator
 
@@ -206,5 +206,3 @@ class Project(ProjectBase):
 
 class ProjectCreate(ProjectBase):
     """Class for new `Project` received on API."""
-
-    pass

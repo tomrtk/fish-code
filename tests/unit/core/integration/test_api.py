@@ -2,9 +2,7 @@
 import base64
 import logging
 from datetime import datetime
-from os import chmod
 from pathlib import Path
-from sys import platform
 from unittest.mock import patch
 
 import pytest

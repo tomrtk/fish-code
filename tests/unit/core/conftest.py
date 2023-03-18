@@ -1,17 +1,13 @@
 """Defining pytest fixtures used during testing."""
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import List
 
 import pytest
-from sqlalchemy import create_engine
-from sqlalchemy.orm import clear_mappers, sessionmaker
 
 import core.main
 import core.model as model
 from core.repository.project import SqlAlchemyProjectRepository as ProjectRepo
-from core.repository.orm import metadata, start_mappers
+from core.repository.orm import metadata
 
 TEST_VIDEO: str = str(
     (

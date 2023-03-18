@@ -1,12 +1,9 @@
 """Module defining API for communicating with tracing."""
 
-from typing import List, Optional
+from typing import Optional
 
-import uvicorn
 from fastapi import Depends, FastAPI
 from pydantic import BaseModel
-
-from vendor.sort import sort
 
 from . import tracker
 

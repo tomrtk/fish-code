@@ -3,7 +3,6 @@ import logging
 import time
 from json import JSONDecodeError
 from pathlib import Path
-from typing import Dict, List
 
 import numpy as np
 import pytest

@@ -1,7 +1,5 @@
 """Integration test between _repository_ and _SQLAlchemy_."""
-from typing import List
 
-import pytest
 
 from core import model
 from core.repository.project import SqlAlchemyProjectRepository

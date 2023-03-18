@@ -1,14 +1,11 @@
 """Unit testing ui Flask app and api Client."""
-import base64
 import json
 from dataclasses import asdict
 from http import HTTPStatus
-from os import chmod
 from unittest.mock import patch
 
 import pytest
 import requests
-from werkzeug.exceptions import HTTPException
 
 from ui.main import create_app
 from ui.projects.api import Client

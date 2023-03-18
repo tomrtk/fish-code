@@ -1,10 +1,9 @@
 """Collection of classes that fullfills the mocking."""
 from __future__ import annotations
 
-import json
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 @dataclass

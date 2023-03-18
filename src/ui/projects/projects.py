@@ -2,10 +2,9 @@
 import base64
 import binascii
 import logging
-import os
 import tempfile
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import flask
 from flask import (
@@ -30,7 +29,7 @@ from werkzeug.exceptions import HTTPException
 from werkzeug.wrappers import Response
 
 from ui.projects.api import Client
-from ui.projects.model import Job, JobBare, Project, ProjectBare
+from ui.projects.model import Job, Project
 from ui.projects.utils import validate_int
 
 logger = logging.getLogger(__name__)

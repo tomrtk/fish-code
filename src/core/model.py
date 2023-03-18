@@ -9,7 +9,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, DefaultDict, Dict, List, Optional, Set, Tuple, Union
+from typing import Any
 
 import cv2 as cv
 import numpy as np
@@ -22,8 +22,6 @@ VIDEO_DEFAULT_WIDTH: int = 640
 
 class TimestampNotFoundError(Exception):
     """Exception to raise if no timestamp are found."""
-
-    pass
 
 
 class Status(str, Enum):
@@ -1221,8 +1219,6 @@ class Job:
 
 class JobStatusException(Exception):
     """Exception when job attempt to change into invalid state."""
-
-    pass
 
 
 class Project:

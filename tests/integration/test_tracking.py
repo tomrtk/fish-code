@@ -1,6 +1,5 @@
 """Integration tests for interfacing with tracking."""
 from datetime import datetime
-from typing import List
 
 import pytest
 
