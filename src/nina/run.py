@@ -3,7 +3,7 @@ import argparse
 import logging
 from collections.abc import Sequence
 from multiprocessing import Process
-from typing import List, Optional
+from typing import Optional
 
 from config import load_config
 from core.main import main as core_main  # type: ignore

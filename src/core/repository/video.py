@@ -1,6 +1,6 @@
 """Repository abstraction for Video."""
 import logging
-from typing import List, Optional, Protocol
+from typing import Optional, Protocol
 
 from sqlalchemy.orm.session import Session
 

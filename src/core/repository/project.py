@@ -3,9 +3,8 @@
 All Repositories inherits from a Abstract Repository for the base object. The
 abstract class defines the methods all repositories needs to implement.
 """
-import abc
 import logging
-from typing import List, Optional, Protocol
+from typing import Optional, Protocol
 
 from sqlalchemy.orm.session import Session
 
@@ -16,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 class NotFound(Exception):
     """Not found exception for repository."""
-
-    pass
 
 
 class _ProjectRepository(Protocol):

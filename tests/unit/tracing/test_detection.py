@@ -1,5 +1,4 @@
 """Unit tests for detection class."""
-import numpy as np
 import pytest
 
 from tracing.tracker import BBox, Detection

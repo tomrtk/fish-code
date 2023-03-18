@@ -1,2 +1,2 @@
 """Configuration parsing package."""
-from .config import *
+from .config import *  # noqa: F401

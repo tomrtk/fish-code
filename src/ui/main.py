@@ -2,15 +2,10 @@
 
 import os
 from collections.abc import Mapping
-from typing import Any, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from flask import Flask, render_template
-from werkzeug.exceptions import (
-    HTTPException,
-    InternalServerError,
-    NotFound,
-    UnprocessableEntity,
-)
+from werkzeug.exceptions import HTTPException, NotFound, UnprocessableEntity
 
 from ui.projects.projects import construct_projects_bp
 

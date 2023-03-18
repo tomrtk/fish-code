@@ -1,7 +1,6 @@
 """Interface module for communicating with other packages like `Tracing`."""
 import logging
 from dataclasses import dataclass
-from typing import List
 
 import numpy as np
 import requests

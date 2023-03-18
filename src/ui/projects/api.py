@@ -1,20 +1,9 @@
 """Blueprint for the projects module."""
 import base64
 import functools
-import json
 import logging
 from http import HTTPStatus
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Tuple,
-    TypeVar,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Optional, TypeVar, cast
 
 import requests
 

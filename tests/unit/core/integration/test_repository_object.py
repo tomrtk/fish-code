@@ -1,5 +1,4 @@
 """Tests for Object Repository."""
-from typing import List
 
 import pytest
 
