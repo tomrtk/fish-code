@@ -83,7 +83,7 @@ def check_api(
         try:
             requests.get(f"http://{host}:{port}/")
             return True
-        except:
+        except requests.RequestException:
             return False
 
     while (not ping(host, port)) and max_try:
@@ -105,9 +105,7 @@ def detection_api():
     --------
     check_api()
     """
-    detection_process = Process(
-        target=detection_main, args=(None,), daemon=True
-    )
+    detection_process = Process(target=detection_main, args=(None,), daemon=True)
     detection_process.start()
     check_api(host="localhost", port="8003")
     yield

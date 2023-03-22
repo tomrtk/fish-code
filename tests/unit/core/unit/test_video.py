@@ -45,9 +45,7 @@ def test_video_members(make_test_video: Video):
     assert video.output_height == core.model.VIDEO_DEFAULT_HEIGHT  # type: ignore
     assert video.output_width == core.model.VIDEO_DEFAULT_WIDTH  # type: ignore
 
-    video_raw = Video(
-        "/some/path", 8, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
-    )
+    video_raw = Video("/some/path", 8, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30))
     assert video_raw.frame_count == 8
 
 
@@ -102,9 +100,7 @@ def test_make_file_exceptions():
         _ = Video.from_path("./tests/not_here.mp4")
 
     with pytest.raises(TimestampNotFoundError):
-        _ = Video.from_path(
-            str((Path(__file__).parent / "test-no-time.mp4").resolve())
-        )
+        _ = Video.from_path(str((Path(__file__).parent / "test-no-time.mp4").resolve()))
 
 
 def test_timestamp_at(make_test_video: Video):
@@ -115,9 +111,7 @@ def test_timestamp_at(make_test_video: Video):
 
     assert video.timestamp_at(30) == datetime(2020, 3, 28, 12, 30, 11)
 
-    assert video.timestamp_at(video.frame_count) == datetime(
-        2020, 3, 28, 12, 30, 12
-    )
+    assert video.timestamp_at(video.frame_count) == datetime(2020, 3, 28, 12, 30, 12)
 
     with pytest.raises(IndexError):
         video.timestamp_at(-1)
@@ -201,7 +195,7 @@ def test_release(make_test_video):
         _ = vid[1]
 
         vid.vidcap_release()
-    except:
+    except Exception:
         assert False
     else:
         assert True
@@ -248,9 +242,7 @@ def test_video_iter_from(make_test_video: Video):
 
     assert len(frames) == 2
 
-    assert not np.testing.assert_allclose(
-        video[video.frame_count - 3], frames[0]
-    )
+    assert not np.testing.assert_allclose(video[video.frame_count - 3], frames[0])
     np.testing.assert_allclose(video[video.frame_count - 2], frames[0])
 
     with pytest.raises(IndexError):
