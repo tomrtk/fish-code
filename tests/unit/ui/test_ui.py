@@ -410,11 +410,11 @@ def test_get_storage_endpoint_permission_denied(
     """Test for PermissionError."""
     mock_client.get(f"{TEST_API_URI}/storage", status_code=403)
     response = test_client.get(
-        f"/projects/storage",
+        "/projects/storage",
     )
     assert response.status_code == 403
 
     response = test_client.get(
-        f"/projects/storage/cGVybWlzc2lvbmVycm9y",
+        "/projects/storage/cGVybWlzc2lvbmVycm9y",
     )
     assert response.status_code == 403

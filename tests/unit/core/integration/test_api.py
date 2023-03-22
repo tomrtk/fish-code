@@ -645,7 +645,7 @@ def test_get_storage_permissionerror(mock, empty_directory_encoded_normal_perm):
     """Test getting storage with PermissionError."""
     with TestClient(api.core_api) as client:
         response = client.get(
-            f"storage",
+            "storage",
         )
         assert response.status_code == 403
         response = client.get(

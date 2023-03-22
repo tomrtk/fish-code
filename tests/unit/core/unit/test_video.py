@@ -27,11 +27,11 @@ def test_video_exists(make_test_video):
         "this_does_not_exist", 0, 0, 0, 0, datetime(2020, 3, 28, 10, 20, 30)
     )
 
-    assert video_valid.exists() == True
-    assert video_invalid.exists() == False
+    assert video_valid.exists() is True
+    assert video_invalid.exists() is False
 
     video_invalid._path = video_valid._path  # type: ignore
-    assert video_invalid.exists() == True
+    assert video_invalid.exists() is True
 
 
 def test_video_members(make_test_video: Video):
