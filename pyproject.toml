@@ -90,39 +90,6 @@ write_to = "src/nina/version.py"
 # Tools Configuration #
 #######################
 
-[tool.black]
-line-length = 80
-target-version = ['py39']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | \.pytest_cache
-  | __pycache__
-  | _build
-  | buck-out
-  | build
-  | dist
-  | venv
-  | node_modules
-  | src/vendor
-  | README.md
-)/
-'''
-verbose = true
-
-[tool.isort]
-line_length = 80
-multi_line_output = 3
-profile = "black"
-py_version = 39
-skip = ["./src/vendor"]
-
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -q -v --ignore=ci --import-mode=importlib"
@@ -168,6 +135,28 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = "vendor.*"
 ignore_errors = true
+
+[tool.ruff]
+target-version = "py39"
+line-length = 80
+
+extend-select = [
+    "UP",
+]
+
+exclude = [
+    ".git",
+    ".venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "src/vendor",
+    "venv",
+]
+ignore = [
+    "E501",
+    "F403",
+]
 
 [tool.pydocstyle]
 convention = "numpy"
