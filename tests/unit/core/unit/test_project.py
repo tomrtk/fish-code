@@ -27,7 +27,7 @@ def test_project_location(make_test_project):
     project = make_test_project
     assert project.location == "Test location"
     project = Project("Test name", "123", "Desc")
-    assert project.location == None
+    assert project.location is None
 
 
 def test_make_project_and_add_job(make_test_project):
@@ -62,7 +62,7 @@ def test_get_job(make_test_project):
     assert valid_job.name == "New Job"
 
     missing_job = project.get_job(13)
-    assert missing_job == None
+    assert missing_job is None
 
 
 def test_remove_job(make_test_project):
@@ -70,9 +70,9 @@ def test_remove_job(make_test_project):
     project = make_test_project
     jobs = project.get_jobs().copy()
 
-    assert project.remove_job(jobs[1]) == True
+    assert project.remove_job(jobs[1]) is True
     assert len(project.get_jobs()) == 2
-    assert project.remove_job(jobs[1]) == False
+    assert project.remove_job(jobs[1]) is False
     assert len(project.get_jobs()) == 2
 
     project.add_job(jobs[1])
