@@ -182,6 +182,28 @@ virtual environment:
 $ python -m build
 ```
 
+## Dataset
+
+The dataset developed and used in this work is published as part of the dataset
+published [here](https://www.kaggle.com/datasets/benjaminbjerken/freshwater-fish-dataset) by another group that also worked on a bachelor project for NINA.
+
+## Citing
+
+If you use the code or dataset in your research, consider citing the Bachelor thesis.
+Here is the BibTeX entry:
+
+```
+@mastersthesis{nordoelum_artsgjenkjenning_2021,
+	type = {Bachelor's thesis},
+	title = {Artsgjenkjenning av fisk},
+	author={Nord{\o}lum, Birger Johan and Lavik, Eirik Osland and Haugen, Kristian Andr{\'e} Dahl and Kvalvaag, Tom-Ruben Traavik},
+	year = {2021},
+	school = {Norwegian {U}niversity of {S}cience and {T}echnology ({NTNU})},
+	address = {Gj{\o}vik, {N}orway},
+	url = {https://hdl.handle.net/11250/2777966},
+}
+```
+
 ## Licensing
 
 The source code is licensed under GPLv3. License is available [here](./LICENSE).
