@@ -9,12 +9,18 @@ updates:
   - package-ecosystem: "npm"
     directory: "/src/ui"
     schedule:
-      interval: "daily"
-    # Disable version updates for dependencies, only security updates
-    open-pull-requests-limit: 0
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      ui-deps:
+        patterns:
+          - "*"
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
-      interval: "daily"
-    # Disable version updates for dependencies, only security updates
-    open-pull-requests-limit: 0
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      pip-deps:
+        patterns:
+          - "*"
