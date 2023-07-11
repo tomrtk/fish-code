@@ -41,8 +41,8 @@ class Detection(BaseModel):
     label: int
     probability: float
     frame: int
-    frame_id: Optional[int]
-    video_id: Optional[int]
+    frame_id: Optional[int] = None
+    video_id: Optional[int] = None
 
 
 class Frame(BaseModel):

@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, validator
+from pydantic import Field, field_validator, ConfigDict, BaseModel
 
 from core import model
 from core.model import Detection
@@ -48,17 +48,20 @@ class Object(BaseModel):
     id: int
     label: str
     probability: float
-    detections: dict[str, list[float]]
+    detections: dict[str, list[float]] = Field(alias="_detections")
     time_in: datetime
     time_out: datetime
     video_ids: list[int]
+    model_config = ConfigDict(from_attributes=True)
 
-    @validator("label", pre=True)
+    @field_validator("label", mode="before")
+    @classmethod
     def convert_label(cls, label_id: int) -> str:
         """Convert object label from id to str."""
         return get_label(label_id)
 
-    @validator("detections", pre=True)
+    @field_validator("detections", mode="before")
+    @classmethod
     def convert_detection(
         cls, _detections: list[Detection]
     ) -> dict[str, list[float]]:
@@ -71,27 +74,15 @@ class Object(BaseModel):
             detections[get_label(d.label)].append(d.probability)
         return detections
 
-    class Config:
-        """Pydantic configuration options."""
-
-        fields = {"detections": "_detections"}
-        orm_mode = True
-
 
 class Video(BaseModel):
     """Video class used in API."""
 
     id: int
-    path: str
+    path: str = Field(alias='_path')
     frame_count: int
-    timestamp: Optional[datetime]
-
-    class Config:
-        """Pydantic configuration options."""
-
-        orm_mode = True
-        fields = {"path": "_path"}
-        underscore_attrs_are_private = False
+    timestamp: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
 
 
 class JobBase(HashableBaseModel):
@@ -109,22 +100,17 @@ class JobStat(BaseModel):
     total_labels: int
     labels: dict[str, int] = dict()
 
-    @validator("labels", pre=False)
-    def convert_labels(cls, labels_dict: dict[Any, int]) -> dict[str, int]:
+    @field_validator("labels", mode="before")
+    @classmethod
+    def convert_labels(cls, labels_dict: dict[int, int]) -> dict[str, int]:
         """Convert labels with ints to identify labels to their respective strings."""
-        try:
-            labels = {
-                get_label(int(label_id)): count
-                for (label_id, count) in labels_dict.items()
-            }
-        except ValueError:
-            # Some edgecase causes FastAPI to do this twice. If every key is of
-            # type `str` then we assume they have a valid label.
-            if True in [not isinstance(k, str) for k in labels_dict.keys()]:
-                raise TypeError("Expected every element to be of type str.")
-            return labels_dict
-        else:
-            return labels
+        labels = {}
+        for (label_id, count) in labels_dict.items():
+            if not isinstance(label_id, str):
+                labels[get_label(int(label_id))] = count
+            else:
+                labels[label_id] = count
+        return labels
 
 
 class JobBare(JobBase):
@@ -136,7 +122,8 @@ class JobBare(JobBase):
     progress: int
     stats: JobStat
 
-    @validator("stats", pre=True)
+    @field_validator("stats", mode="before")
+    @classmethod
     def convert_stats(cls, stats_dict: dict[str, Any]) -> JobStat:
         """Convert dictionary stats to JobStats."""
         return JobStat(**stats_dict)
@@ -146,13 +133,15 @@ class Job(JobBase):
     """`Job` class used to send object on API."""
 
     id: int
-    status: model.Status
+    status: model.Status = Field(alias='_status')
     location: str
     videos: list[Video] = []
     progress: int
     stats: JobStat
+    model_config = ConfigDict(from_attributes=True)
 
-    @validator("stats", pre=True)
+    @field_validator("stats", mode="before")
+    @classmethod
     def convert_stats(cls, stats_dict: dict[str, Any]) -> JobStat:
         """Convert dictionary stats to JobStats."""
         return JobStat(**stats_dict)
@@ -160,14 +149,6 @@ class Job(JobBase):
     def __hash__(self) -> int:
         """Hash status data in job."""
         return hash((type(self),) + (self.name, self.description, self.id))
-
-    class Config:
-        """Pydantic configuration options."""
-
-        orm_mode = True
-        fields = {"status": "_status", "objects": "_objects"}
-        underscore_attrs_are_private = False
-        use_enum_values = True
 
 
 class JobCreate(JobBase):
@@ -197,11 +178,7 @@ class Project(ProjectBase):
 
     id: int
     jobs: list[Job] = []
-
-    class Config:
-        """Pydantic configuration options."""
-
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ProjectCreate(ProjectBase):
