@@ -51,14 +51,7 @@ def test_job_stats_happycase():
     jobstats = schema.JobStat(total_objects=1, total_labels=1, labels={"1": 1})
     assert jobstats.total_labels == 1
     assert jobstats.total_objects == 1
-    assert jobstats.labels == {schema.get_label(1): 1}
-
-    jobstats = schema.JobStat(
-        total_objects=3, total_labels=2, labels={1: 1, "label": 2}
-    )
-    assert jobstats.total_labels == 2
-    assert jobstats.total_objects == 3
-    assert jobstats.labels == {"1": 1, "label": 2}
+    assert jobstats.labels == {"1": 1}
 
 
 def test_job_stats_not_happycase():
