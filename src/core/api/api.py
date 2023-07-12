@@ -58,7 +58,9 @@ def get_runtime_repo() -> Generator[ProjectRepository, None, None]:
 
 
 def construct_pagination_data(
-    count: int, page: int, per_page: int
+    count: int,
+    page: int,
+    per_page: int,
 ) -> dict[str, str]:
     """Create pagination data for easy usage when contruction routes.
 
@@ -79,7 +81,7 @@ def construct_pagination_data(
     parameters : dict
         Complete dictionary with computed data.
     """
-    pagination: dict = dict()
+    pagination: dict = {}
 
     pagination["x-total"] = f"{count}"
     pagination["x-page"] = f"{page}"
@@ -111,7 +113,9 @@ def list_projects(
         description="Select which page to fetch.",
     ),
     per_page: int = Query(
-        10, ge=1, description="Choose how many items per page."
+        10,
+        ge=1,
+        description="Choose how many items per page.",
     ),
 ) -> list[schema.ProjectBare]:
     """List all projects.
@@ -154,7 +158,7 @@ def list_projects(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: list[schema.ProjectBare] = list()
+    resp: list[schema.ProjectBare] = []
 
     for proj in repo.list()[slice(begin_idx, end_idx)]:
         try:
@@ -215,7 +219,8 @@ def get_project(
 
 
 @core_api.get(
-    "/projects/{project_id}/jobs/", response_model=list[schema.JobBare]
+    "/projects/{project_id}/jobs/",
+    response_model=list[schema.JobBare],
 )
 def list_project_jobs(
     project_id: int,
@@ -227,7 +232,9 @@ def list_project_jobs(
         description="Select which page to fetch.",
     ),
     per_page: int = Query(
-        10, ge=1, description="Choose how many items per page."
+        10,
+        ge=1,
+        description="Choose how many items per page.",
     ),
 ) -> list[schema.JobBare]:
     """List all jobs associated with Project with _project_id_.
@@ -269,7 +276,7 @@ def list_project_jobs(
     if end_idx > list_length:
         end_idx = list_length
 
-    resp: list[schema.JobBare] = list()
+    resp: list[schema.JobBare] = []
 
     for job in project.jobs[slice(begin_idx, end_idx)]:
         try:
@@ -281,7 +288,8 @@ def list_project_jobs(
 
 
 @core_api.post(
-    "/projects/{project_id}/jobs/", status_code=status.HTTP_201_CREATED
+    "/projects/{project_id}/jobs/",
+    status_code=status.HTTP_201_CREATED,
 )
 def add_job_to_project(
     project_id: int,
@@ -306,7 +314,7 @@ def add_job_to_project(
     if project:
         # Create videos from list of paths
         videos: list[model.Video] = []
-        errors: dict[str, list[str]] = dict()
+        errors: dict[str, list[str]] = {}
         file_not_found = []
         time_not_found = []
         for video_path in job.videos:
@@ -419,7 +427,8 @@ def set_job_status_start(
 
 
 async def _frame_generator(
-    obj: model.Object, video_repo: VideoRepostory
+    obj: model.Object,
+    video_repo: VideoRepostory,
 ) -> AsyncGenerator[bytes, None]:
     """Generate frames with marked object.
 
@@ -480,7 +489,7 @@ async def _stream(generator: AsyncGenerator) -> AsyncGenerator[bytes, None]:
 
 @core_api.get("/objects/{object_id}/preview")
 async def get_object_image(
-    object_id: int = Path(..., ge=1)
+    object_id: int = Path(..., ge=1),
 ) -> StreamingResponse:
     """Display a preview video of an Object.
 
@@ -509,7 +518,8 @@ async def get_object_image(
     gen = _frame_generator(obj, v_repo)
 
     return StreamingResponse(
-        _stream(gen), media_type="multipart/x-mixed-replace;boundary=frame"
+        _stream(gen),
+        media_type="multipart/x-mixed-replace;boundary=frame",
     )
 
 
@@ -575,24 +585,28 @@ async def get_storage() -> list[Union[dict[str, Any], str, None]]:
     except NotADirectoryError:
         logger.warning("Config parameter 'video_root_path' is not a directory.")
         raise HTTPException(
-            status_code=400, detail="Video root is not a directory"
+            status_code=400,
+            detail="Video root is not a directory",
         )
     except FileNotFoundError:
         logger.warning(
-            "Value of config parameter 'video_root_path' is invalid."
+            "Value of config parameter 'video_root_path' is invalid.",
         )
         raise HTTPException(
-            status_code=404, detail="Video root folder could not be found."
+            status_code=404,
+            detail="Video root folder could not be found.",
         )
     except PermissionError:
         logger.warning("Chosen path 'video_root_path' is not accessable.")
         raise HTTPException(
-            status_code=403, detail="Chosen path is inaccessable"
+            status_code=403,
+            detail="Chosen path is inaccessable",
         )
 
 
 @core_api.get(
-    "/storage/{path:str}", response_model=list[Union[dict[str, Any], str, None]]
+    "/storage/{path:str}",
+    response_model=list[Union[dict[str, Any], str, None]],
 )
 async def get_storage_path(path: str) -> list[Union[dict[str, Any], str, None]]:
     """Get directory listing for a given path to a directory in jsTree json format.
@@ -620,7 +634,8 @@ async def get_storage_path(path: str) -> list[Union[dict[str, Any], str, None]]:
     except binascii.Error:
         logger.warning(f"Unable to decode: '{path}'.")
         raise HTTPException(
-            status_code=400, detail="Unable to decode path from parameter'"
+            status_code=400,
+            detail="Unable to decode path from parameter'",
         )
 
     try:
@@ -628,7 +643,8 @@ async def get_storage_path(path: str) -> list[Union[dict[str, Any], str, None]]:
     except NotADirectoryError:
         logger.warning(f"Chosen path '{decrypted_path}' is not a directory.")
         raise HTTPException(
-            status_code=400, detail="Chosen path is not a directory"
+            status_code=400,
+            detail="Chosen path is not a directory",
         )
     except FileNotFoundError:
         logger.warning(f"Chosen path '{decrypted_path}' is not valid.")
@@ -636,5 +652,6 @@ async def get_storage_path(path: str) -> list[Union[dict[str, Any], str, None]]:
     except PermissionError:
         logger.warning(f"Chosen path '{decrypted_path}' is not accessable.")
         raise HTTPException(
-            status_code=403, detail="Chosen path is inaccessable"
+            status_code=403,
+            detail="Chosen path is inaccessable",
         )

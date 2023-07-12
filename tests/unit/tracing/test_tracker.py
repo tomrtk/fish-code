@@ -1,9 +1,10 @@
 """Unit test for SortTracker."""
 
 import pytest
-from vendor.sort import sort
 
 from tracing.tracker import BBox, Detection, SortTracker
+
+from vendor.sort import sort
 
 
 @pytest.fixture

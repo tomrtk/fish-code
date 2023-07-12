@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import Field, field_validator, ConfigDict, BaseModel
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from core import model
 from core.model import Detection
@@ -63,13 +63,14 @@ class Object(BaseModel):
     @field_validator("detections", mode="before")
     @classmethod
     def convert_detection(
-        cls, _detections: list[Detection]
+        cls,
+        _detections: list[Detection],
     ) -> dict[str, list[float]]:
         """Convert detections to Dict."""
-        detections: dict[str, list[float]] = dict()
+        detections: dict[str, list[float]] = {}
         for d in _detections:
             if get_label(d.label) not in detections:
-                detections[get_label(d.label)] = list()
+                detections[get_label(d.label)] = []
 
             detections[get_label(d.label)].append(d.probability)
         return detections
@@ -79,7 +80,7 @@ class Video(BaseModel):
     """Video class used in API."""
 
     id: int
-    path: str = Field(alias='_path')
+    path: str = Field(alias="_path")
     frame_count: int
     timestamp: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
@@ -98,14 +99,14 @@ class JobStat(BaseModel):
 
     total_objects: int
     total_labels: int
-    labels: dict[str, int] = dict()
+    labels: dict[str, int] = {}
 
     @field_validator("labels", mode="before")
     @classmethod
     def convert_labels(cls, labels_dict: dict[int, int]) -> dict[str, int]:
         """Convert labels with ints to identify labels to their respective strings."""
         labels = {}
-        for (label_id, count) in labels_dict.items():
+        for label_id, count in labels_dict.items():
             if not isinstance(label_id, str):
                 labels[get_label(int(label_id))] = count
             else:
@@ -133,7 +134,7 @@ class Job(JobBase):
     """`Job` class used to send object on API."""
 
     id: int
-    status: model.Status = Field(alias='_status')
+    status: model.Status = Field(alias="_status")
     location: str
     videos: list[Video] = []
     progress: int

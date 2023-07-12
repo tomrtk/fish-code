@@ -16,7 +16,7 @@ from core.model import (
 )
 
 TEST_VIDEO = str(
-    (Path(__file__).parent / "test-[2020-03-28_12-30-10].mp4").resolve()
+    (Path(__file__).parent / "test-[2020-03-28_12-30-10].mp4").resolve(),
 )
 TEST_VIDEO_NO_TIME = str(Path(__file__).parent / "test-no-time.mp4")
 
@@ -277,7 +277,7 @@ def test_job_stats_full():
                 Detection(model.BBox(10, 10, 20, 30), 0.8, 1, 2),
                 Detection(model.BBox(10, 10, 20, 30), 0.8, 1, 3),
             ],
-        )
+        ),
     )
     job.add_object(
         Object(
@@ -287,7 +287,7 @@ def test_job_stats_full():
                 Detection(model.BBox(10, 10, 20, 30), 0.8, 2, 2),
                 Detection(model.BBox(10, 10, 20, 30), 0.8, 2, 3),
             ],
-        )
+        ),
     )
     job.add_object(
         Object(
@@ -297,7 +297,7 @@ def test_job_stats_full():
                 Detection(model.BBox(30, 10, 40, 20), 0.8, 2, 4),
                 Detection(model.BBox(30, 10, 40, 20), 0.8, 2, 5),
             ],
-        )
+        ),
     )
 
     stats_full = {

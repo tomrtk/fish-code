@@ -1,7 +1,6 @@
 """Unit test for date parsing."""
 from datetime import datetime
 
-
 from core.model import parse_str_to_date
 
 

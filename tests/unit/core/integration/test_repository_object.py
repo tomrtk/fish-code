@@ -24,7 +24,8 @@ def test_add_object(sqlite_session_factory, make_test_obj: list[model.Object]):
 
 
 def test_add_object_no_date(
-    sqlite_session_factory, make_test_obj: list[model.Object]
+    sqlite_session_factory,
+    make_test_obj: list[model.Object],
 ):
     """Test add object with no date."""
     session = sqlite_session_factory()
@@ -44,7 +45,8 @@ def test_add_object_no_date(
 
 
 def test_change_object(
-    sqlite_session_factory, make_test_obj: list[model.Object]
+    sqlite_session_factory,
+    make_test_obj: list[model.Object],
 ):
     """Tests updating of object."""
     session = sqlite_session_factory()
@@ -68,7 +70,8 @@ def test_change_object(
 
 
 def test_remove_object(
-    sqlite_session_factory, make_test_obj: list[model.Object]
+    sqlite_session_factory,
+    make_test_obj: list[model.Object],
 ):
     """Tests removing of object."""
     session = sqlite_session_factory()
@@ -91,7 +94,8 @@ def test_remove_object(
 
 
 def test_add_full_object(
-    sqlite_session_factory, make_test_obj: list[model.Object]
+    sqlite_session_factory,
+    make_test_obj: list[model.Object],
 ):
     """Tests adding full a object."""
     session = sqlite_session_factory()

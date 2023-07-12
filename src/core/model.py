@@ -133,7 +133,7 @@ class Video:
         self.timestamp: datetime = timestamp
         self._current_frame = 0
         self._video_capture: cv.VideoCapture = cv.VideoCapture(self._path)  # type: ignore
-        self.frames: list[Frame] = list()
+        self.frames: list[Frame] = []
 
         if output_height <= 0 or output_width <= 0:
             raise ValueError(
@@ -153,7 +153,7 @@ class Video:
         img : np.ndarray
             image to convert and scale
 
-        Return
+        Return:
         ------
         ndarray:
             Scaled and converted image
@@ -190,7 +190,7 @@ class Video:
     def __next__(self) -> np.ndarray:
         """Get next item from iterator.
 
-        Return
+        Return:
         ------
         np.ndarray
             One frame of video as `ndarray`.
@@ -228,14 +228,14 @@ class Video:
 
         if not retval:
             raise RuntimeError(  # pragma: no cover
-                f"Unexpected error when setting catpure property, {retval}"
+                f"Unexpected error when setting catpure property, {retval}",
             )
 
         retval, img = self._video_capture.read()
 
         if not retval:
             raise RuntimeError(
-                f"Unexpected error when reading frame at {key}"
+                f"Unexpected error when reading frame at {key}",
             )  # pragma: no cover
 
         self._video_capture.release()
@@ -307,7 +307,8 @@ class Video:
 
         self._video_capture = cv.VideoCapture(self._path)  # type: ignore
         retval = self._video_capture.set(
-            cv.CAP_PROP_POS_FRAMES, interval.start  # type: ignore
+            cv.CAP_PROP_POS_FRAMES,
+            interval.start,  # type: ignore
         )
 
         if not retval:
@@ -345,7 +346,7 @@ class Video:
         """
         if start >= self.frame_count or start < 0:
             raise IndexError(
-                f"Start is out of bounds for buffer of size {self.frame_count}, got {start}"
+                f"Start is out of bounds for buffer of size {self.frame_count}, got {start}",
             )
         self._video_capture = cv.VideoCapture(self._path)  # type: ignore
         retval = self._video_capture.set(cv.CAP_PROP_POS_FRAMES, start)  # type: ignore
@@ -420,7 +421,7 @@ class Video:
         idx : int
             Index in video.
 
-        Return
+        Return:
         ------
         datetime :
             Timestamp for the frame at index.
@@ -457,11 +458,11 @@ class Video:
         """
         if frame in self.frames:
             raise RuntimeError(
-                f"Frame with index {frame.idx} is already added to this video."
+                f"Frame with index {frame.idx} is already added to this video.",
             )
         if frame.idx > self.frame_count:
             raise IndexError(
-                f"Frame of index {frame.idx} is beyond total frames in video."
+                f"Frame of index {frame.idx} is beyond total frames in video.",
             )
 
         self.frames.append(frame)
@@ -469,7 +470,7 @@ class Video:
     def is_processed(self) -> bool:
         """Check if this video has been fully processed.
 
-        Return
+        Return:
         ------
         bool    :
             True if the entire video has been processed. The entire detection_frames dict must be fully
@@ -477,7 +478,7 @@ class Video:
         """
         if not len(self.frames) == self.frame_count:
             logger.info(
-                f"Video {self._path} is not fully processed. {len(self.frames)}/{self.frame_count}"
+                f"Video {self._path} is not fully processed. {len(self.frames)}/{self.frame_count}",
             )
             return False
 
@@ -485,7 +486,7 @@ class Video:
         for i in range(self.frame_count):
             if self.frames[i].idx != i:
                 logger.warning(
-                    "Frame index {self.detection_frames[i].idx} does not match videos index {i}"
+                    "Frame index {self.detection_frames[i].idx} does not match videos index {i}",
                 )
                 return False
 
@@ -509,12 +510,12 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
         Minutes to offset for each increment
 
 
-    Return
+    Return:
     ------
     datetime :
         parsed datetime object, or None if unsuccessful
 
-    Example
+    Example:
     -------
     >>> parse_str_to_date("test-[2020-03-28_12-30-10]-000.mp4")
     datetime.datetime(2020, 3, 28, 12, 30, 10)
@@ -526,7 +527,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
     None
     """
     match = re.compile(
-        r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\](-\d{3})?"
+        r"\[\d{4}(-\d{2}){2}_(\d{2}-){2}\d{2}\](-\d{3})?",
     ).search(string)
 
     if not match:
@@ -554,7 +555,7 @@ def parse_str_to_date(string: str, offset_min: int = 30) -> datetime | None:
 
     try:
         return datetime(year, month, day, hour, minute, second) + timedelta(
-            minutes=offset_min * offset_int
+            minutes=offset_min * offset_int,
         )
     except ValueError:
         return None
@@ -568,7 +569,7 @@ def _get_video_metadata(path: str) -> tuple[int, ...]:
     path : str
         path to file to get metadata from.
 
-    Return
+    Return:
     ------
     Typle[int, int, int, int] :
         A tuple with the metadata:
@@ -624,7 +625,7 @@ class Frame:
     def to_json(self) -> dict[str, Any]:
         """Convert frame to json.
 
-        Return
+        Return:
         ------
         Dict[str, Any] :
             Object as json:
@@ -678,7 +679,7 @@ class Detection:
     video_id: int
         ID of the video this detection is found.
 
-    Example
+    Example:
     -------
     >>> bbox = BBox(10,20,30,40)
     >>> detection = (bbox, 0.8, 1, 4)
@@ -696,7 +697,7 @@ class Detection:
     def to_json(self) -> dict[str, Any]:
         """Convert detection to json.
 
-        Return
+        Return:
         ------
         Dict[str, Any] :
             Detection as json,
@@ -718,7 +719,10 @@ class Detection:
         }
 
     def set_frame(
-        self, frame: int, frame_id: int, video_id: int | None
+        self,
+        frame: int,
+        frame_id: int,
+        video_id: int | None,
     ) -> Detection:
         """Update frame nr.
 
@@ -729,7 +733,7 @@ class Detection:
         frame : int
               The frame number the detection is found in.
 
-        Return
+        Return:
         ------
         Detection :
                   Returns self.
@@ -768,7 +772,8 @@ class Detection:
             Class label from detection
         frame: int
             Which frame it belongs to
-        Return
+
+        Return:
         ------
         Detection :
             A detection object
@@ -829,7 +834,7 @@ class Object:
             return
 
         self.label = int(
-            np.bincount([detect.label for detect in self._detections]).argmax()
+            np.bincount([detect.label for detect in self._detections]).argmax(),
         )
 
         self.probability = sum(
@@ -840,7 +845,10 @@ class Object:
 
     @classmethod
     def from_api(
-        cls, track_id: int, detections: list[dict[str, Any]], label: int
+        cls,
+        track_id: int,
+        detections: list[dict[str, Any]],
+        label: int,
     ) -> Object:
         """Create Object class from tracker.
 
@@ -853,7 +861,7 @@ class Object:
         label : int
             Class label
 
-        Return
+        Return:
         ------
         Object :
             Fully featured Object.
@@ -864,7 +872,7 @@ class Object:
     def get_results(self) -> dict[str, Any]:
         """Return information on this object.
 
-        Return
+        Return:
         ------
         Dict[str, Any] :
 
@@ -905,7 +913,7 @@ class Object:
     def number_of_detections(self) -> int:
         """Return the number of detections.
 
-        Return
+        Return:
         ------
         int :
            Number of detections
@@ -920,7 +928,7 @@ class Object:
         idx: int
             Index
 
-        Return
+        Return:
         ------
         Optional[Detection] :
             Detection at index idx or None if none found.
@@ -936,7 +944,7 @@ class Object:
         frame_id tells what frame in the video with video_id contains a
         detection associated with this object.
 
-        Return
+        Return:
         ------
         List[Tuple[Optional[int], Optional[int], BBox]] :
             [(frame_id, video_id), (frame_id, video_id)]
@@ -949,7 +957,7 @@ class Object:
     def video_ids(self) -> list[int]:
         """Derive all video the object is part of.
 
-        Return
+        Return:
         ------
         List[int]
             List of video id's.
@@ -976,8 +984,8 @@ class Job:
         self.name: str = name
         self.description: str = description
         self._status: Status = status
-        self._objects: list[Object] = list()
-        self.videos: list[Video] = list()
+        self._objects: list[Object] = []
+        self.videos: list[Video] = []
         self.location: str = location
         self.next_batch: int = 0
         self.progress: int = progress
@@ -986,7 +994,7 @@ class Job:
     def stats(self) -> dict[str, Any]:
         """Return statistics for a job.
 
-        Return
+        Return:
         ------
         Dict[str, any] :
             {
@@ -1002,10 +1010,10 @@ class Job:
         dct: dict[str, Any] = {
             "total_labels": 0,
             "total_objects": 0,
-            "labels": dict(),
+            "labels": {},
         }
 
-        labels: dict[int, int] = dict()
+        labels: dict[int, int] = {}
 
         for o in self._objects:
             if o.label not in labels:
@@ -1022,7 +1030,7 @@ class Job:
         """Hash of object used in eg. `set()` to avoid duplicate."""
         return hash(
             (type(self),)
-            + (self.name, self.description, self.id, self.location)
+            + (self.name, self.description, self.id, self.location),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1053,7 +1061,7 @@ class Job:
     def number_of_objects(self) -> int:
         """Return number of objects.
 
-        Return
+        Return:
         ------
         int :
             Number of objects
@@ -1068,7 +1076,7 @@ class Job:
         idx : int
             Index in the list
 
-        Return
+        Return:
         ------
         Optional[Object] :
             Object at index idx. If none are found, returns None.
@@ -1081,7 +1089,7 @@ class Job:
     def get_result(self) -> list[dict[str, Any]]:
         """Return result from all objects.
 
-        Return
+        Return:
         ------
         List[Dict[str, Any]] :
 
@@ -1096,7 +1104,7 @@ class Job:
         video   :   Video
             Video to add to this job. Must have a valid timestamp.
 
-        Return
+        Return:
         ------
         bool    :
             True if video has a set timestamp, and is not already in the
@@ -1123,7 +1131,7 @@ class Job:
         videos  :   List[Video]
             List of videos to add. All must have a valid timestamp.
 
-        Return
+        Return:
         ------
         bool    :
             True if all videos in the list has a timestamp, false otherwise.
@@ -1152,7 +1160,7 @@ class Job:
         video   :   Video
             video to remove from the job.
 
-        Return
+        Return:
         ------
         bool    :
             True if the video was removed from the job. False otherwise.
@@ -1166,7 +1174,7 @@ class Job:
     def total_frames(self) -> int:
         """Get the total frames in all videos for this job.
 
-        Return
+        Return:
         ------
         int     :
             Ammount of frames in total over all video objects in this job.
@@ -1181,7 +1189,7 @@ class Job:
         """Mark the job as started."""
         if self._status is Status.DONE or self._status is Status.RUNNING:
             raise JobStatusException(
-                "A running or completed job can not be started."
+                "A running or completed job can not be started.",
             )
         logger.debug("Job '%s' starting", self.name)
         self._status = Status.RUNNING
@@ -1204,7 +1212,7 @@ class Job:
         """Mark the job as queued."""
         if self._status not in [Status.PENDING, Status.PAUSED]:
             raise JobStatusException(
-                "Only a pending or paused job can be queued."
+                "Only a pending or paused job can be queued.",
             )
         logger.debug("Job '%s' marked as queued", self.name)
         self._status = Status.QUEUED
@@ -1268,7 +1276,7 @@ class Project:
         self.number: str = number
         self.description: str = description
         self.location: str | None = location
-        self.jobs: list[Job] = list()
+        self.jobs: list[Job] = []
 
     def __str__(self) -> str:
         """Print class members."""
@@ -1330,7 +1338,8 @@ class Project:
         """
         if job in self.jobs:
             logger.debug(
-                "Attempted to add existing job '%s' to a project", job.name
+                "Attempted to add existing job '%s' to a project",
+                job.name,
             )
         else:
             logger.debug("Added job '%s' to project", job.name)

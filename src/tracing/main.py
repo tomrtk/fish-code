@@ -43,8 +43,9 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if args.host:
         logger.info(
             "Overriding tracing API hostname from {} to {}".format(
-                config.get("TRACING", "hostname"), args.host
-            )
+                config.get("TRACING", "hostname"),
+                args.host,
+            ),
         )
         hostname = args.host
 
@@ -52,8 +53,9 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if args.port:
         logger.info(
             "Overriding tracing API port from {} to {}".format(
-                config.getint("TRACING", "port"), args.port
-            )
+                config.getint("TRACING", "port"),
+                args.port,
+            ),
         )
         port = args.port
 

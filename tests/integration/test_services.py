@@ -18,7 +18,7 @@ TEST_VIDEO = str(
         Path(__file__).parent
         / "test_data"
         / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-    ).resolve()
+    ).resolve(),
 )
 
 
@@ -74,7 +74,7 @@ def test_processing_and_scheduler():
             status = res.json().get("_status", "")
         except JSONDecodeError as e:
             logger.warning(
-                f"Response not valid json, error: {repr(e)}, response: {repr(res)}"
+                f"Response not valid json, error: {repr(e)}, response: {repr(res)}",
             )
             continue
 
@@ -131,7 +131,7 @@ def test_video_loader_from_batch():
 
     results = []
     for batchnr, (_, batch, _, _, _) in video_loader.generate_batches(
-        batch_index=1
+        batch_index=1,
     ):
         assert batchnr > 0
         results.append(len(batch))

@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 detection_api = FastAPI()
 
 # Variable to store models
-model: dict[str, tuple[Any, int]] = dict()
-label: dict[str, list[str]] = dict()
+model: dict[str, tuple[Any, int]] = {}
+label: dict[str, list[str]] = {}
 
 model_fishy_path = Path(__file__).parent / "weights/yolov5s-imgsize-640.pt"
 model_fishy2_path = (
@@ -100,7 +100,8 @@ def list_models() -> dict[str, list[str]]:
     response_model=dict[int, list[schema.Detection]],
 )
 async def predict(
-    model_name: str, images: list[bytes] = File(..., media_type="images")
+    model_name: str,
+    images: list[bytes] = File(..., media_type="images"),
 ) -> dict[int, list[schema.Detection]]:
     """Perform predictions on List of images on named model_name.
 
@@ -139,14 +140,13 @@ async def predict(
     if model_name not in model:
         logger.error(f"{model_name} is a unknown `model_name`")
         raise HTTPException(
-            status_code=422, detail=f"Unknown `model_name`: {model_name}"
+            status_code=422,
+            detail=f"Unknown `model_name`: {model_name}",
         )
 
     # Try to convert received bytes to a numpy array
     try:
-        imgs = [
-            np.array(Image.open(BytesIO(img))) for img in images  # type: ignore
-        ]
+        imgs = [np.array(Image.open(BytesIO(img))) for img in images]  # type: ignore
     except BaseException as e:
         logger.error("Could not convert to images", e)
         raise HTTPException(status_code=422, detail="Unable to process images")
@@ -164,12 +164,12 @@ def halve_batch(batches: list[list[np.ndarray]]) -> list[list[np.ndarray]]:
     batches : List[List[np.ndarray]]
             A list of batches to halve
 
-    Return
+    Return:
     ------
     List[List[np.ndarray]]  :
                             A list of halved batches.
 
-    Example
+    Example:
     -------
     >>> batch = [np.ones(10) for _ in range(10)]
     >>> len(batch)
@@ -189,7 +189,7 @@ def halve_batch(batches: list[list[np.ndarray]]) -> list[list[np.ndarray]]:
 
 
     """
-    new_batches: list[list[np.ndarray]] = list()
+    new_batches: list[list[np.ndarray]] = []
     for b in batches:
         halve = len(b) // 2
 
@@ -232,7 +232,7 @@ def detect(
     """
     # Try infer from imgs received
     out_of_memory = False
-    xyxy: list[Union[torch.Tensor, list[torch.Tensor]]] = list()
+    xyxy: list[Union[torch.Tensor, list[torch.Tensor]]] = []
 
     try:
         results = model(imgs, size=img_size)  # type: ignore
@@ -242,7 +242,7 @@ def detect(
     else:
         xyxy = results.xyxy  # type: ignore
 
-    batches: list[list[np.ndarray]] = list()
+    batches: list[list[np.ndarray]] = []
     if out_of_memory:
         batches = [imgs]
 
@@ -266,7 +266,7 @@ def detect(
             xyxy = [result.xyxy[0] for result in results]  # type: ignore
 
     # Convert results to schema object
-    response: dict[int, list[schema.Detection]] = dict()
+    response: dict[int, list[schema.Detection]] = {}
 
     for i, result in enumerate(xyxy):  # for each image
         # for each detection
@@ -279,7 +279,7 @@ def detect(
                     y2=one[3].cpu().detach().numpy(),  # type: ignore
                     confidence=one[4].cpu().detach().numpy(),  # type: ignore
                     label=int(one[5].cpu().detach().numpy()),  # type: ignore
-                )
+                ),
             )
 
         # if no detection in frame i add a empty list

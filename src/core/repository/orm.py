@@ -92,7 +92,8 @@ detections = Table(
     Column("video_id", Integer, nullable=False),
     Column("frame_id", Integer, nullable=False),
     ForeignKeyConstraint(
-        ["video_id", "frame_id"], ["frames.video_id", "frames.idx"]
+        ["video_id", "frame_id"],
+        ["frames.video_id", "frames.idx"],
     ),
 )
 
@@ -136,7 +137,7 @@ def start_mappers() -> None:
         model.Frame,
         frames,
         properties={
-            "detections": relationship(detection_mapper, cascade="all")
+            "detections": relationship(detection_mapper, cascade="all"),
         },
     )
 
@@ -148,7 +149,7 @@ def start_mappers() -> None:
                 detection_mapper,
                 collection_class=list,
                 cascade="all, delete",
-            )
+            ),
         },
     )
 
@@ -156,7 +157,7 @@ def start_mappers() -> None:
         model.Video,
         videos,
         properties={
-            "frames": relationship(frame_mapper, cascade="all, delete")
+            "frames": relationship(frame_mapper, cascade="all, delete"),
         },
     )
 
@@ -185,6 +186,6 @@ def start_mappers() -> None:
                 jobs_mapper,
                 collection_class=list,
                 cascade="all, delete",
-            )
+            ),
         },
     )

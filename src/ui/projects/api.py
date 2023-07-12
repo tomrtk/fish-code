@@ -104,7 +104,7 @@ class Client:
                     except (requests.ConnectionError, requests.Timeout) as e:
                         logger.warning(
                             f"ConnectionError: {request.__name__} - "
-                            f"{request.__dict__} - {repr(e)}"
+                            f"{request.__dict__} - {repr(e)}",
                         )
                         return None
 
@@ -153,7 +153,9 @@ class Client:
 
     @Api.call(status_code=201, acceptable_error=415)
     def post(
-        self, uri: str, data: Optional[dict[str, Any]] = None
+        self,
+        uri: str,
+        data: Optional[dict[str, Any]] = None,
     ) -> requests.Response:
         """Perform a POST request to `uri` with `data` as body of request.
 
@@ -202,7 +204,9 @@ class Client:
         return self._session.post(uri)
 
     def get_projects(
-        self, page: int = 1, per_page: int = 10
+        self,
+        page: int = 1,
+        per_page: int = 10,
     ) -> Optional[tuple[list[ProjectBare], int]]:
         """Get all projects from endpoint.
 
@@ -228,7 +232,7 @@ class Client:
             return None
 
         return [ProjectBare(**p) for p in result.json()], int(
-            result.headers["x-total"]
+            result.headers["x-total"],
         )
 
     def get_project(
@@ -265,7 +269,8 @@ class Client:
                         Project to send to `core` api.
         """
         result = self.post(
-            f"{self._endpoint}/projects/", project.to_post_dict()
+            f"{self._endpoint}/projects/",
+            project.to_post_dict(),
         )  # type: ignore
 
         if isinstance(result, requests.Response):
@@ -303,11 +308,13 @@ class Client:
 
         payload = {"page": page, "per_page": per_page}
         result_jobs = self.get(
-            f"{self._endpoint}/projects/{project_id}/jobs/", params=payload
+            f"{self._endpoint}/projects/{project_id}/jobs/",
+            params=payload,
         )
 
         if not isinstance(result_project, requests.Response) or not isinstance(
-            result_jobs, requests.Response
+            result_jobs,
+            requests.Response,
         ):
             return None
 
@@ -342,7 +349,7 @@ class Client:
             return None
 
         result_job = self.get(
-            f"{self._endpoint}/projects/{project_id}/jobs/{job_id}"
+            f"{self._endpoint}/projects/{project_id}/jobs/{job_id}",
         )
         if not isinstance(result_job, requests.Response) or (
             isinstance(result_job, requests.Response)
@@ -351,7 +358,9 @@ class Client:
             return None
 
         return Job.from_dict(
-            result_job.json(), project_id, result_project.json()["name"]
+            result_job.json(),
+            project_id,
+            result_project.json()["name"],
         )
 
     def post_job(self, project_id: int, job: Job) -> Optional[int]:
@@ -391,7 +400,9 @@ class Client:
             return result.json()["detail"]
 
     def change_job_status(
-        self, project_id: int, job_id: int
+        self,
+        project_id: int,
+        job_id: int,
     ) -> tuple[Optional[str], Optional[str]]:
         """Change job status.
 
@@ -477,7 +488,11 @@ class Client:
         return True
 
     def get_objects(
-        self, project_id: int, job_id: int, start: int, length: int
+        self,
+        project_id: int,
+        job_id: int,
+        start: int,
+        length: int,
     ) -> Optional[tuple[list[Object], int]]:
         """Get a list of Objects for `job_id` from `start` to `start + length`.
 

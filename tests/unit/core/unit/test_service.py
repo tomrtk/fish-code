@@ -1,16 +1,15 @@
 """Unit tests for service functions in core."""
-from unittest.mock import patch
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
+from core import interface, services
 from core.model import Object, Status
-from core import interface
-from core import services
 from core.services import (
+    _bulk_job_status_change,
     get_directory_listing,
     get_job_objects,
-    _bulk_job_status_change,
     process_job,
 )
 
@@ -69,7 +68,7 @@ def test_get_job_objects_wrong_start_length(make_test_project_repo):
 def test_get_directory_listing():
     """Tests the accociated function that it generates the correct jsTree json."""
     response = get_directory_listing(
-        "tests/integration/test_data/test_directory_listing_folder"
+        "tests/integration/test_data/test_directory_listing_folder",
     )
 
     result = [
@@ -111,7 +110,7 @@ def test_get_directory_listing():
                     "type": "video/mp4",
                 },
             ],
-        }
+        },
     ]
 
     assert response[0] is not None
@@ -123,7 +122,7 @@ def test_get_directory_listing():
 
     # Test normpath
     response = get_directory_listing(
-        "tests//////integration/test_data//////test_directory_listing_folder//////"
+        "tests//////integration/test_data//////test_directory_listing_folder//////",
     )
     assert response[0] is not None
     assert isinstance(response[0], dict)
@@ -134,7 +133,7 @@ def test_get_directory_listing():
 
     with pytest.raises(NotADirectoryError):
         get_directory_listing(
-            "tests/integration/test_data/test_directory_listing_folder/emptyfile"
+            "tests/integration/test_data/test_directory_listing_folder/emptyfile",
         )
 
     with pytest.raises(FileNotFoundError):
@@ -204,7 +203,7 @@ def test_process_job_errors(
                 [
                     "test",
                 ],
-            )
+            ),
         ]
         with patch.object(services.Detector, "predict") as mock_2:
 

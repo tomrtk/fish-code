@@ -1,10 +1,10 @@
 """Unit tests for `api/schema.py`."""
 from datetime import datetime
 
+import pytest
+
 from core import model
 from core.api import schema
-
-import pytest
 
 
 def test_object():
@@ -42,7 +42,9 @@ def test_job_stats_happycase():
     assert jobstats.labels == {schema.get_label(1): 1}
 
     jobstats = schema.JobStat(
-        total_objects=1, total_labels=1, labels={"label": 1}
+        total_objects=1,
+        total_labels=1,
+        labels={"label": 1},
     )
     assert jobstats.total_labels == 1
     assert jobstats.total_objects == 1
@@ -58,5 +60,7 @@ def test_job_stats_not_happycase():
     """Checking badcases for JobStat."""
     with pytest.raises(TypeError):
         _ = schema.JobStat(
-            total_objects=2, total_labels=2, labels={[1, 2]: 1, "label": 2}
+            total_objects=2,
+            total_labels=2,
+            labels={[1, 2]: 1, "label": 2},
         )

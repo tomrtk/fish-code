@@ -49,7 +49,12 @@ def mock_client(
         "x-next-page": "1",
     }
     project = ProjectBare(
-        1, "Test name", "location", "this is a project", "NINA-123", 0
+        1,
+        "Test name",
+        "location",
+        "this is a project",
+        "NINA-123",
+        0,
     )
     projects = [
         asdict(project),
@@ -67,12 +72,12 @@ def mock_client(
                         0.9656107425689697,
                         0.9641051292419434,
                         0.9641051292419434,
-                    ]
+                    ],
                 },
                 "time_in": "2021-01-01T00:00:00",
                 "time_out": "2021-01-01T00:00:01",
                 "video_ids": [1],
-            }
+            },
         ],
     }
     job = {
@@ -123,7 +128,7 @@ def mock_client(
                 },
             ],
             "type": "root",
-        }
+        },
     ]
 
     child = [
@@ -134,12 +139,14 @@ def mock_client(
                 {"id": 4, "text": "Child node 3"},
                 {"id": 5, "text": "Child node 4"},
             ],
-        }
+        },
     ]
 
     # mock for Client.get_projects() call to core api
     requests_mock.get(
-        f"{TEST_API_URI}/projects/", headers=header, json=projects
+        f"{TEST_API_URI}/projects/",
+        headers=header,
+        json=projects,
     )
 
     # mock for Client.check_api()
@@ -147,7 +154,9 @@ def mock_client(
 
     # mock for Client.get_project
     requests_mock.get(
-        f"{TEST_API_URI}/projects/1", headers=header, json=asdict(project)
+        f"{TEST_API_URI}/projects/1",
+        headers=header,
+        json=asdict(project),
     )
 
     # mock Client.get_objects
@@ -168,7 +177,9 @@ def mock_client(
 
     # mock Client.get_job - broken
     requests_mock.get(
-        f"{TEST_API_URI}/projects/13", json={}, status_code=HTTPStatus.NOT_FOUND
+        f"{TEST_API_URI}/projects/13",
+        json={},
+        status_code=HTTPStatus.NOT_FOUND,
     )
     requests_mock.get(
         f"{TEST_API_URI}/projects/1/jobs/31",
@@ -190,7 +201,8 @@ def mock_client(
     requests_mock.get(f"{TEST_API_URI}/storage/Lw==", json=root)
     requests_mock.get(f"{TEST_API_URI}/projects/storage/Lw==", json=root)
     requests_mock.get(
-        f"{TEST_API_URI}/storage/L21udC9zdW1tZXItMjAyMQ==", json=child
+        f"{TEST_API_URI}/storage/L21udC9zdW1tZXItMjAyMQ==",
+        json=child,
     )
 
     # permissionerror

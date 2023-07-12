@@ -47,7 +47,7 @@ class SqlAlchemyObjectRepository(_ObjectRepository):
         obj: model.Object
             Object to add
 
-        Return
+        Return:
         ------
         model.Object
 
@@ -59,7 +59,7 @@ class SqlAlchemyObjectRepository(_ObjectRepository):
         """
         if obj.time_in is None or obj.time_out is None:
             raise RuntimeError(
-                "Adding object with time_in or time_out of type None"
+                "Adding object with time_in or time_out of type None",
             )
 
         self.session.add(obj)
@@ -75,7 +75,7 @@ class SqlAlchemyObjectRepository(_ObjectRepository):
         object_id: int
             ID of object to get
 
-        Return
+        Return:
         ------
         Optional[model.Object]
         """
@@ -84,7 +84,7 @@ class SqlAlchemyObjectRepository(_ObjectRepository):
     def list(self) -> list[model.Object]:
         """Get all objects.
 
-        Return
+        Return:
         ------
         List[model.Object]
         """

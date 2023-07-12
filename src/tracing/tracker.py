@@ -107,7 +107,7 @@ class BBox:
     def to_dict(self) -> dict[str, float]:
         """Convert boundingbox to dict.
 
-        Return
+        Return:
         ------
         Dict[str, float] :
             {"x1": float, "y1": float, "x2": float, "y2": float}
@@ -157,7 +157,7 @@ class Detection:
     def to_dict(self) -> dict[str, Any]:
         """Convert self to dict.
 
-        Return
+        Return:
         ------
         Dict[str, Any] :
             {"bbox" : Dict[str, float], "label": int, "score": float, "frame": int }
@@ -231,7 +231,7 @@ class Object:
         tracing.tracker.Tracker
         """
         self.track_id: int = track_id
-        self.detections: list[Detection] = list()
+        self.detections: list[Detection] = []
         self.label: int | None = None
 
     def update(self, detection: Detection) -> None:
@@ -247,7 +247,7 @@ class Object:
         """
         if detection.frame in [detect.frame for detect in self.detections]:
             raise ValueError(
-                f"A detection with frame number {detection.frame} already exist"
+                f"A detection with frame number {detection.frame} already exist",
             )
 
         self.detections.append(detection)
@@ -275,7 +275,7 @@ class AbstractTracker(abc.ABC):
     """Abstract tracker class."""
 
     def __init__(self) -> None:
-        self._objects: dict[int, Object] = dict()
+        self._objects: dict[int, Object] = {}
 
     @abc.abstractmethod
     def update(self, detections: list[Detection]) -> None:
@@ -340,7 +340,7 @@ class SortTracker(AbstractTracker):
             this must still be called with an empty list.
 
 
-        Return
+        Return:
         ------
         np.ndarray(2,5) :
             A list of tracked objects as [x1, y1, x2, y2, track_id]
@@ -349,7 +349,7 @@ class SortTracker(AbstractTracker):
             tracks = np.empty((0, 5))
         else:
             tracks = np.array(
-                [self._convert(detection) for detection in detecions]
+                [self._convert(detection) for detection in detecions],
             )
 
         self._connect_bb(
@@ -361,13 +361,13 @@ class SortTracker(AbstractTracker):
     def _convert(detection: Detection) -> np.ndarray:
         """Convert a detection to work with SORT.
 
-        Return
+        Return:
         ------
         np.ndarray(1,5) :
             Detection as [x1, y1, x2, y2, score]
         """
         return np.array(
-            np.append(detection.bbox.to_list(), detection.probability)
+            np.append(detection.bbox.to_list(), detection.probability),
         )
 
     def _connect_bb(self, tracked: np.ndarray, detect: list[Detection]) -> None:

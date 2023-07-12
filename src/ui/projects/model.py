@@ -55,7 +55,10 @@ class JobBare(JobBase):
 
     @classmethod
     def from_dict(
-        cls, job_data: dict[str, Any], project_id: int, project_name: str
+        cls,
+        job_data: dict[str, Any],
+        project_id: int,
+        project_name: str,
     ) -> JobBare:
         """Create job from dict data."""
         return cls(
@@ -87,7 +90,7 @@ class Job(JobBase):
     def to_post_dict(self) -> dict[str, str | list[str]]:
         """Return prepared dict for posting.
 
-        Return
+        Return:
         ------
         Dict[str, str] :
             Job ready to be submitted via the API.
@@ -105,7 +108,10 @@ class Job(JobBase):
 
     @classmethod
     def from_dict(
-        cls, job_data: dict[str, Any], project_id: int, project_name: str
+        cls,
+        job_data: dict[str, Any],
+        project_id: int,
+        project_name: str,
     ) -> Job:
         """Create job from dict data."""
         return cls(
@@ -153,7 +159,7 @@ class Project:
     def to_post_dict(self) -> dict[str, str]:
         """Return prepared dict for posting.
 
-        Return
+        Return:
         ------
         Dict[str, str] :
             Project ready to be submitted via the API.
@@ -168,7 +174,7 @@ class Project:
     @classmethod
     def from_dict(cls, project_data: dict[str, Any]) -> Project:
         """Convert text to a new Project object."""
-        project_jobs: list[Job] = list()
+        project_jobs: list[Job] = []
 
         if "jobs" in project_data:
             for job in list(project_data["jobs"]):
