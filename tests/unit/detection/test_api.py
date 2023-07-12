@@ -12,6 +12,7 @@ TEST_FILE_PATH = Path(__file__).parent / "test_data"
 
 @pytest.fixture(scope="module")
 def client():
+    """Create the TestClient."""
     with TestClient(detection_api) as client:
         yield client
 

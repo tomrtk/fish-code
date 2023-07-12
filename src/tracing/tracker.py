@@ -28,7 +28,7 @@ class BBox:
         self.y2: float = y2
 
     @classmethod
-    def from_list(cls, list: list[float]) -> BBox:
+    def from_list(cls, coordinate_list: list[float]) -> BBox:
         """Create a bounding box from a list.
 
         Paramters
@@ -42,10 +42,12 @@ class BBox:
             Bounding box
 
         """
-        if len(list) != 4:
-            raise ValueError(f"Length of bbox is {len(list)}, expected 4")
+        if len(coordinate_list) != 4:
+            raise ValueError(
+                f"Length of bbox is {len(coordinate_list)}, expected 4"
+            )
 
-        return cls(*list)
+        return cls(*coordinate_list)
 
     def to_list(self) -> list[float]:
         """Return the boundingbox as a list.
