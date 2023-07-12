@@ -47,7 +47,7 @@ def setup(db_name: Optional[str] = None) -> None:
     # Make a scoped session to be used by other threads in processing.
     # https://docs.sqlalchemy.org/en/13/orm/contextual.html#sqlalchemy.orm.scoping.scoped_session
     sessionfactory = scoped_session(
-        sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        sessionmaker(autocommit=False, autoflush=False, bind=engine),
     )
 
     # Map db tables to objects.
@@ -62,7 +62,8 @@ def shutdown() -> None:
 
 
 def main(
-    argsv: Optional[Sequence[str]] = None, db_path: Optional[str] = None
+    argsv: Optional[Sequence[str]] = None,
+    db_path: Optional[str] = None,
 ) -> int:
     """Start runtime of core module."""
     # Handle any command argument.
@@ -72,7 +73,9 @@ def main(
     parser.add_argument("--port", type=int, help="Port")
     parser.add_argument("--test", default=False, action="store_true")
     parser.add_argument(
-        "--dev", default=False, action="store_true"
+        "--dev",
+        default=False,
+        action="store_true",
     )  # No ops, needed for root-app.
     args, _ = parser.parse_known_args(argsv)
     hostname = config.get("CORE", "hostname", fallback="127.0.0.1")
@@ -82,8 +85,9 @@ def main(
     if args.host:
         logger.info(
             "Overriding core API hostname from {} to {}".format(
-                config.get("CORE", "hostname"), args.host
-            )
+                config.get("CORE", "hostname"),
+                args.host,
+            ),
         )
         hostname = args.host
 
@@ -91,8 +95,9 @@ def main(
     if args.port:
         logger.info(
             "Overriding core API port from {} to {}".format(
-                config.getint("CORE", "port"), args.port
-            )
+                config.getint("CORE", "port"),
+                args.port,
+            ),
         )
         port = args.port
 

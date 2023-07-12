@@ -100,10 +100,10 @@ def test_object_from_api():
                     "frame": 900,
                     "frame_id": 1,
                     "video_id": 1,
-                }
+                },
             ],
             "label": 7,
-        }
+        },
     ]
     objects = [Object.from_api(**obj) for obj in json]
 
@@ -168,7 +168,7 @@ def test_object_from_api_multiple():
                     "frame": 900,
                     "frame_id": 1,
                     "video_id": 1,
-                }
+                },
             ],
             "label": 7,
         },

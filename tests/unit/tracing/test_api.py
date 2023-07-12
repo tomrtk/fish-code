@@ -23,7 +23,7 @@ def test_track():
                             "label": 1,
                             "probability": 1.0,
                             "frame": 0,
-                        }
+                        },
                     ],
                     "timestamp": None,
                 },
@@ -40,7 +40,7 @@ def test_track():
                             "label": 1,
                             "probability": 1.0,
                             "frame": 1,
-                        }
+                        },
                     ],
                     "timestamp": None,
                 },
@@ -57,7 +57,7 @@ def test_track():
                             "label": 1,
                             "probability": 1.0,
                             "frame": 2,
-                        }
+                        },
                     ],
                     "timestamp": None,
                 },

@@ -105,7 +105,9 @@ def detection_api():
     --------
     check_api()
     """
-    detection_process = Process(target=detection_main, args=(None,), daemon=True)
+    detection_process = Process(
+        target=detection_main, args=(None,), daemon=True
+    )
     detection_process.start()
     check_api(host="localhost", port="8003")
     yield

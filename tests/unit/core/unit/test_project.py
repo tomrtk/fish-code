@@ -8,16 +8,19 @@ from core.model import Job, Project
 def make_test_project() -> Project:
     """Create a test project for testing."""
     project = Project(
-        "Test name", "NINA-123", "Test description", "Test location"
+        "Test name",
+        "NINA-123",
+        "Test description",
+        "Test location",
     )
     project.add_job(
-        Job("Test job name 1", "Test description 1", "Test location")
+        Job("Test job name 1", "Test description 1", "Test location"),
     )
     project.add_job(
-        Job("Test job name 2", "Test description 2", "Test location")
+        Job("Test job name 2", "Test description 2", "Test location"),
     )
     project.add_job(
-        Job("Test job name 3", "Test description 3", "Test location")
+        Job("Test job name 3", "Test description 3", "Test location"),
     )
     return project
 
@@ -34,7 +37,7 @@ def test_make_project_and_add_job(make_test_project):
     """Tests creation of a project, and adding of jobs to it."""
     project = make_test_project
     project.add_job(
-        Job("This test is new", "Test description 2", "Test location")
+        Job("This test is new", "Test description 2", "Test location"),
     )
 
     assert project.number_of_jobs == 4
@@ -118,7 +121,10 @@ def test_add_job(caplog):
     import logging
 
     project = Project(
-        "Test name", "NINA-123", "Test description", "Test location"
+        "Test name",
+        "NINA-123",
+        "Test description",
+        "Test location",
     )
     job = Job("test", "test", "test")
     job.id = 1

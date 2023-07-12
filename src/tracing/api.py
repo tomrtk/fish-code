@@ -67,7 +67,8 @@ class Object(BaseModel):
 
 @tracking.post("/tracking/track", response_model=list[Object])
 def track_frames(
-    frames: list[Frame], trk: tracker.SortTracker = Depends(make_tracker)
+    frames: list[Frame],
+    trk: tracker.SortTracker = Depends(make_tracker),
 ) -> list[Object]:
     """Create a tracker to track the recieved frames.
 

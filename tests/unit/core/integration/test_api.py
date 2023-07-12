@@ -13,20 +13,20 @@ from sqlalchemy.orm.session import close_all_sessions
 import core
 import core.main
 from core import api, model
+from core.repository.orm import metadata
 from core.repository.project import (
     SqlAlchemyProjectRepository as ProjectRepository,
 )
-from core.repository.orm import metadata
 
 logger = logging.getLogger(__name__)
 
 TEST_VIDEO_NO_TIME = str(
-    (Path(__file__).parent.parent / "unit" / "test-no-time.mp4").resolve()
+    (Path(__file__).parent.parent / "unit" / "test-no-time.mp4").resolve(),
 )
 TEST_VIDEO = str(
     (
         Path(__file__).parent / "test-abbor[2021-01-01_00-00-00]-000-small.mp4"
-    ).resolve()
+    ).resolve(),
 )
 
 
@@ -68,13 +68,13 @@ def make_test_data(setup):
     )
     obj1 = model.Object(1)
     obj1.add_detection(
-        model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1, 1, 1)
+        model.Detection(model.BBox(10, 20, 30, 40), 0.7, 1, 1, 1, 1),
     )
     obj1.add_detection(
-        model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2, 2, 1)
+        model.Detection(model.BBox(15, 25, 35, 45), 0.6, 1, 2, 2, 1),
     )
     obj1.add_detection(
-        model.Detection(model.BBox(20, 30, 40, 50), 0.7, 2, 3, 3, 1)
+        model.Detection(model.BBox(20, 30, 40, 50), 0.7, 2, 3, 3, 1),
     )
     obj1.time_in = datetime(2020, 3, 28, 10, 20, 30)
     obj1.time_out = datetime(2020, 3, 28, 10, 30, 30)
@@ -83,13 +83,13 @@ def make_test_data(setup):
 
     obj2 = model.Object(2)
     obj2.add_detection(
-        model.Detection(model.BBox(40, 50, 60, 70), 0.7, 2, 2, 1, 1)
+        model.Detection(model.BBox(40, 50, 60, 70), 0.7, 2, 2, 1, 1),
     )
     obj2.add_detection(
-        model.Detection(model.BBox(45, 55, 65, 75), 0.6, 2, 3, 2, 1)
+        model.Detection(model.BBox(45, 55, 65, 75), 0.6, 2, 3, 2, 1),
     )
     obj2.add_detection(
-        model.Detection(model.BBox(50, 60, 70, 100), 0.7, 1, 4, 3, 1)
+        model.Detection(model.BBox(50, 60, 70, 100), 0.7, 1, 4, 3, 1),
     )
     obj2.time_in = datetime(2020, 3, 28, 20, 20, 30)
     obj2.time_out = datetime(2020, 3, 28, 20, 30, 30)
@@ -286,7 +286,7 @@ def test_add_and_get_job(setup):
                 "video_count": 0,
                 "progress": 0,
                 "stats": {"total_objects": 0, "total_labels": 0, "labels": {}},
-            }
+            },
         ]
 
         # test adding job with video without timestamp
@@ -443,12 +443,12 @@ def test_start_job(setup):
         job_id = job_data["id"]
 
         response_wrong_project = client.post(
-            f"/projects/{project_id+99999}/jobs/{job_id}/start"
+            f"/projects/{project_id+99999}/jobs/{job_id}/start",
         )
         assert response_wrong_project.status_code == 404
 
         response_wrong_job = client.post(
-            f"/projects/{project_id}/jobs/{job_id+99999}/start"
+            f"/projects/{project_id}/jobs/{job_id+99999}/start",
         )
         assert response_wrong_job.status_code == 404
 
@@ -572,7 +572,7 @@ def test_get_storage():
         assert response.status_code == 400
 
         encoded_path = base64.urlsafe_b64encode(
-            b"tests/integration/test_data/test_directory_listing_folder"
+            b"tests/integration/test_data/test_directory_listing_folder",
         )
 
         response = client.get(

@@ -59,7 +59,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         """Entrypoint for the blueprint."""
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = request.args.get(
-            get_per_page_parameter(), type=int, default=10
+            get_per_page_parameter(),
+            type=int,
+            default=10,
         )
 
         projects = client.get_projects(page=page, per_page=per_page)  # type: ignore
@@ -93,7 +95,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     "number": request.form["project_id"],
                     "description": request.form["project_desc"],
                     "location": request.form["project_location"],
-                }
+                },
             )
 
             client.post_project(project)
@@ -107,7 +109,9 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         """View a single project."""
         page = request.args.get(get_page_parameter(), type=int, default=1)
         per_page = request.args.get(
-            get_per_page_parameter(), type=int, default=12
+            get_per_page_parameter(),
+            type=int,
+            default=12,
         )
 
         project = client.get_project(project_id)
@@ -137,19 +141,23 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>")
     def projects_job(
-        project_id: int, job_id: int
+        project_id: int,
+        job_id: int,
     ) -> Union[str, tuple[str, int]]:
         """View a single job."""
         job = client.get_job(project_id, job_id)
         if job is None:
             return abort(
-                404, f"Job {job_id} in project {project_id} was not found."
+                404,
+                f"Job {job_id} in project {project_id} was not found.",
             )
 
         obj_stats = job.get_object_stats()
 
         return render_template(
-            "projects/job.html", job=job, obj_stats=obj_stats
+            "projects/job.html",
+            job=job,
+            obj_stats=obj_stats,
         )
 
     @projects_bp.route(
@@ -157,7 +165,8 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         methods=["POST"],
     )
     def projects_job_objects(
-        project_id: int, job_id: int
+        project_id: int,
+        job_id: int,
     ) -> Union[Response, tuple[str, int]]:
         """Get list of Objects to a job."""
         try:
@@ -169,7 +178,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
             if validated_project_id is None or validated_job_id is None:
                 logger.warning(
                     f"Provided id(s) are invalid: project_id:{project_id}"
-                    f" job_id:{job_id}. Should be greater of equal to 1."
+                    f" job_id:{job_id}. Should be greater of equal to 1.",
                 )
                 return abort(422, "Invalid project or job id.")
 
@@ -178,11 +187,15 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         length = int(flask.request.form["length"])
 
         response = client.get_objects(
-            validated_project_id, validated_job_id, start, length
+            validated_project_id,
+            validated_job_id,
+            start,
+            length,
         )
         if response is None:
             return abort(
-                500, f"Could not get objects for job {job_id} from core api."
+                500,
+                f"Could not get objects for job {job_id} from core api.",
             )
 
         objects, count = response[0], response[1]
@@ -215,10 +228,12 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 return abort(422, f"Object id {object_id} not valid.")
 
     @projects_bp.route(
-        "/<int:project_id>/jobs/<int:job_id>/toggle", methods=["PUT"]
+        "/<int:project_id>/jobs/<int:job_id>/toggle",
+        methods=["PUT"],
     )
     def projects_job_toggle(
-        project_id: int, job_id: int
+        project_id: int,
+        job_id: int,
     ) -> Union[str, tuple[Response, int]]:
         """Toogle job status."""
         old_status, new_status = client.change_job_status(project_id, job_id)
@@ -249,7 +264,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     form_data=request.form,
                 )
             logger.debug(
-                f"Video received from ui: {request.form.get('tree_data')}"
+                f"Video received from ui: {request.form.get('tree_data')}",
             )
 
             videos = [
@@ -265,7 +280,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     "_status": "Pending",
                     "videos": videos,
                     "location": request.form["job_location"],
-                }
+                },
             )
 
             result = client.post_job(project_id, job)
@@ -283,22 +298,25 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                     "projects_bp.projects_job",
                     project_id=project_id,
                     job_id=result,
-                )
+                ),
             )
 
         return render_template(
-            "projects/job_new.html", project_name=project.get_name()
+            "projects/job_new.html",
+            project_name=project.get_name(),
         )
 
     @projects_bp.route("/<int:project_id>/jobs/<int:job_id>/csv")
     def projects_job_make_csv(
-        project_id: int, job_id: int
+        project_id: int,
+        job_id: int,
     ) -> Union[tuple[str, int], Response]:
         """Download results of a job as a csv-file."""
         job = client.get_job(project_id, job_id)
         if job is None or not isinstance(job, Job) or job.stats is None:
             return abort(
-                404, f"Job {job_id} in project {project_id} not found."
+                404,
+                f"Job {job_id} in project {project_id} not found.",
             )
 
         num_objs = job.stats.get("total_objects", 0)
@@ -317,12 +335,13 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
         objects = result[0]
 
         with tempfile.NamedTemporaryFile(
-            suffix=".csv", delete=False
+            suffix=".csv",
+            delete=False,
         ) as csv_file:
             # write headers to file
             csv_file.write(
                 b"id,label,time_in,time_out,probability,"
-                b"detection_label,detection_prob\n"
+                b"detection_label,detection_prob\n",
             )
 
             for idx, obj in enumerate(objects, start=1):
@@ -332,8 +351,8 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                             str.encode(
                                 f"{idx},{obj.label},{obj.time_in},"
                                 f"{obj.time_out},{obj.probability},"
-                                f"{detection_label},{detection_prob}\n"
-                            )
+                                f"{detection_label},{detection_prob}\n",
+                            ),
                         )
 
             csv_file.seek(0)
@@ -355,7 +374,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 jsonify(
                     {
                         "error": "permission_error",
-                    }
+                    },
                 ),
                 403,
             )
@@ -386,7 +405,7 @@ def construct_projects_bp(cfg: Config) -> Blueprint:
                 jsonify(
                     {
                         "error": "permission_error",
-                    }
+                    },
                 ),
                 403,
             )

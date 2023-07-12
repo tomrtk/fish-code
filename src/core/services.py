@@ -42,7 +42,7 @@ class VideoLoader:
     def __len__(self) -> int:
         """Get total sum of frames in all video files.
 
-        Return
+        Return:
         ------
         int     :
             Number of frames in total over all videos.
@@ -53,7 +53,7 @@ class VideoLoader:
     def _total_batches(self) -> int:
         """Get total batches in this video loader.
 
-        Return
+        Return:
         ------
         int     :
             Number of batches in total over all videos.
@@ -68,7 +68,7 @@ class VideoLoader:
         frame   :   int
             Absolute frame number over all videos in this video loader.
 
-        Return
+        Return:
         ------
         (int, int)  :
             Tuple of index of video, along with local frame offset in indexed video.
@@ -92,7 +92,8 @@ class VideoLoader:
         raise IndexError(f"Cannot find video index of frame {frame}.")
 
     def generate_batches(
-        self, batch_index: int = 0
+        self,
+        batch_index: int = 0,
     ) -> Generator[
         tuple[
             int,
@@ -127,7 +128,7 @@ class VideoLoader:
         """
         if batch_index > self._total_batches:
             raise IndexError(
-                f"Start batch index {batch_index} is too big, total videos are {len(self.videos)}."
+                f"Start batch index {batch_index} is too big, total videos are {len(self.videos)}.",
             )
 
         start_frame = self.batchsize * batch_index
@@ -139,13 +140,13 @@ class VideoLoader:
         batch = []
         timestamps = []
         framenumbers: list[int] = []
-        video_for_frame: dict[int, Video] = dict()
+        video_for_frame: dict[int, Video] = {}
         current_batch = batch_index
         batch_start_time = time.time()
         for vid in self.videos[start_vid:]:
             if start_frame > vid.frame_count:
                 raise IndexError(
-                    f"Start frame of {start_frame} is too big, total frame in video is {vid.frame_count}."
+                    f"Start frame of {start_frame} is too big, total frame in video is {vid.frame_count}.",
                 )
             for n, frame in enumerate(vid.iter_from(start_frame)):
                 batch.append(frame)
@@ -154,7 +155,7 @@ class VideoLoader:
                 video_for_frame[n + start_frame] = vid
                 if len(batch) == self.batchsize:
                     progress = round(
-                        ((current_batch + 1) / self._total_batches) * 100
+                        ((current_batch + 1) / self._total_batches) * 100,
                     )
 
                     yield current_batch, (
@@ -171,14 +172,14 @@ class VideoLoader:
                             self._total_batches,
                             round(time.time() - batch_start_time, 2),
                             progress,
-                        )
+                        ),
                     )
                     batch_start_time = time.time()
                     current_batch += 1
                     batch = []
                     timestamps = []
                     framenumbers = []
-                    video_for_frame = dict()
+                    video_for_frame = {}
 
             start_frame = 0
 
@@ -193,7 +194,10 @@ class VideoLoader:
 
 
 def process_job(
-    project_id: int, job_id: int, event: threading.Event, session: Session
+    project_id: int,
+    job_id: int,
+    event: threading.Event,
+    session: Session,
 ) -> None:
     """Process all videos in a job and find objects.
 
@@ -230,12 +234,12 @@ def process_job(
             logger.warning("Job is already marked started, resuming.")
         else:
             logger.error(
-                "Job must either be of status queued, paused or running to start processing."
+                "Job must either be of status queued, paused or running to start processing.",
             )
             return
     else:
         logger.info(
-            "Job processing aborted, not updating job status to running."
+            "Job processing aborted, not updating job status to running.",
         )
         return
 
@@ -300,7 +304,8 @@ def process_job(
                     break
 
                 assert isinstance(
-                    batch, np.ndarray
+                    batch,
+                    np.ndarray,
                 ), "Batch must be of type np.ndarray"
                 assert isinstance(batchnr, int), "Batch number must be int"
 
@@ -347,7 +352,7 @@ def process_job(
 
                     # store detections
                     video_for_frame[framenumbers[n]].add_detection_frame(
-                        frames[n]
+                        frames[n],
                     )
 
                     # frame.idx = abs_frame_nr
@@ -362,7 +367,7 @@ def process_job(
 
         except KeyboardInterrupt:
             logger.warning(
-                "Job processing interrupted under processing, stopping."
+                "Job processing interrupted under processing, stopping.",
             )
             _pause_job_if_running(job)
             event.clear()
@@ -428,7 +433,9 @@ def schedule(event: threading.Event) -> None:
             continue  # timeout, check if event is set.
 
         logger.info(
-            "processing job %s from project %s", next_task[1], next_task[0]
+            "processing job %s from project %s",
+            next_task[1],
+            next_task[0],
         )
 
         if isinstance(next_task, tuple):
@@ -448,7 +455,9 @@ schedule_event = threading.Event()
 schedule_event.set()
 # Defining scheduler thread
 schedule_thread = SchedulerThread(
-    target=schedule, args=(schedule_event,), daemon=True
+    target=schedule,
+    args=(schedule_event,),
+    daemon=True,
 )
 
 
@@ -547,7 +556,7 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
             job.queue()
             repo.save()
             logger.info(
-                f"{job.status()} job {job_id} in project {project_id} scheduled to be processed."
+                f"{job.status()} job {job_id} in project {project_id} scheduled to be processed.",
             )
             job_queue.put((project_id, job_id))
             return
@@ -555,12 +564,15 @@ def queue_job(project_id: int, job_id: int, session: Session) -> None:
             raise JobStatusException
     except JobStatusException:
         logger.error(
-            f"Cannot queue job {job_id}, it's of status {job.status()}."
+            f"Cannot queue job {job_id}, it's of status {job.status()}.",
         )
 
 
 def get_job_objects(
-    project_id: int, job_id: int, start: int, length: int
+    project_id: int,
+    job_id: int,
+    start: int,
+    length: int,
 ) -> dict[str, Any] | None:
     """Collect a set of `Objects` from job.
 
@@ -636,15 +648,17 @@ def get_directory_listing(
     """
     if path is None:
         directory = config.get(
-            "CORE", "video_root_path", fallback=str(get_video_root_path())
+            "CORE",
+            "video_root_path",
+            fallback=str(get_video_root_path()),
         )
     else:
         directory = path
 
     normalized_path = pathlib.Path(directory)
 
-    tree: list[dict[str, Any] | str | None] = list()
-    root_node: dict[str, Any] = dict()
+    tree: list[dict[str, Any] | str | None] = []
+    root_node: dict[str, Any] = {}
     child_list = []
 
     if isfile(normalized_path):
@@ -652,12 +666,12 @@ def get_directory_listing(
 
     if not isdir(normalized_path):
         raise FileNotFoundError(
-            f"Directory at '{normalized_path}' was not found."
+            f"Directory at '{normalized_path}' was not found.",
         )
 
     if not os.access(normalized_path, os.R_OK):
         raise PermissionError(
-            f"Directory at '{normalized_path}' is inaccessable."
+            f"Directory at '{normalized_path}' is inaccessable.",
         )
 
     for p in normalized_path.iterdir():
@@ -668,7 +682,7 @@ def get_directory_listing(
                     "text": p.name,
                     "type": "folder",
                     "children": True,
-                }
+                },
             )
         else:
             child_list.append(
@@ -678,7 +692,7 @@ def get_directory_listing(
                     "type": str(guess_type(p)[0])
                     if guess_type(p)[0]
                     else "file",
-                }
+                },
             )
 
     # Create root node

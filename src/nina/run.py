@@ -31,12 +31,12 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
         help="Run web server in development mode.",
     )
     main_args, _ = main_parser.parse_known_args(argsv)
-    processes: list[Process] = list()
+    processes: list[Process] = []
 
     # Let dev argument override global config parameter
     if main_args.dev:
         logger.info(
-            "Overriding config and enabling development mode."
+            "Overriding config and enabling development mode.",
         )  # pragma: no cover
         config["GLOBAL"]["development"] = str(main_args.dev)  # pragma: no cover
 

@@ -47,7 +47,7 @@ class SqlAlchemyVideoRepository(_VideoRepository):
         vid: model.Video
             Video to add
 
-        Return
+        Return:
         ------
         model.Video
         """
@@ -63,7 +63,7 @@ class SqlAlchemyVideoRepository(_VideoRepository):
         video_id: int
             ID of video to get
 
-        Return
+        Return:
         ------
         Optional[model.Video]
         """
@@ -72,7 +72,7 @@ class SqlAlchemyVideoRepository(_VideoRepository):
     def list(self) -> list[model.Video]:
         """Get all videos.
 
-        Return
+        Return:
         ------
         List[model.Video]
         """

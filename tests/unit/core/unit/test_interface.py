@@ -41,10 +41,10 @@ def mock_to_track(requests_mock: Mocker):
                     "frame": 0,
                     "frame_id": 0,
                     "video_id": 0,
-                }
+                },
             ],
             "label": 0,
-        }
+        },
     ]
 
     error = {"detail": [{"loc": ["string"], "msg": "string", "type": "string"}]}
@@ -58,7 +58,8 @@ def mock_to_track(requests_mock: Mocker):
     )
     # mock normal response
     requests_mock.post(
-        f"{TEST_API_URI}:{TEST_API_PORT}/tracking/track", json=json_expected
+        f"{TEST_API_URI}:{TEST_API_PORT}/tracking/track",
+        json=json_expected,
     )
     return requests_mock
 
@@ -88,7 +89,7 @@ def mock_detector(requests_mock: Mocker):
             "testy": [
                 "test",
                 "tester",
-            ]
+            ],
         },
     )
 
@@ -104,7 +105,7 @@ def mock_detector(requests_mock: Mocker):
                     "y2": 0,
                     "confidence": 0,
                     "label": 0,
-                }
+                },
             ],
             2: [],
             3: [
@@ -115,7 +116,7 @@ def mock_detector(requests_mock: Mocker):
                     "y2": 0,
                     "confidence": 0,
                     "label": 0,
-                }
+                },
             ],
         },
     )
@@ -200,7 +201,8 @@ def test_detector_model_no_connection():
 
 
 def test_detector_prediction_no_connection(
-    mock_detector: Mocker, make_image: np.ndarray
+    mock_detector: Mocker,
+    make_image: np.ndarray,
 ):
     """Test logic for no api connection."""
     _ = mock_detector

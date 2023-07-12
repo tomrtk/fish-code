@@ -103,7 +103,7 @@ def get_video_root_path() -> str:
         return str(Path(os.environ["HOME"]))
     else:
         logger.debug(
-            "Unable to determine video root directory, defaulting to filesystem root."
+            "Unable to determine video root directory, defaulting to filesystem root.",
         )
         return str(Path(sys.executable).anchor)
 
@@ -136,7 +136,8 @@ def get_default_config() -> configparser.ConfigParser:
 
 
 def load_config(
-    default: bool = False, path: Optional[str] = None
+    default: bool = False,
+    path: Optional[str] = None,
 ) -> configparser.ConfigParser:
     """Load configuration data from disk into ConfigParser object.
 
@@ -172,20 +173,20 @@ def load_config(
             logger.error("Parsing error occured in config file.")
         except OSError:
             logger.error(
-                f"Unable to read configuration file from {config_path}"
+                f"Unable to read configuration file from {config_path}",
             )
         else:
             return config
 
         logger.warning(
-            "Falling back to default configuration, errors occured with config file."
+            "Falling back to default configuration, errors occured with config file.",
         )
         return get_default_config()
 
     else:
         logger.warning(
             f"Could not find config file at {config_path}, using defaults."
-            f"Saving it to {config_path}"
+            f"Saving it to {config_path}",
         )
         config = get_default_config()
         write_config(config, config_path)

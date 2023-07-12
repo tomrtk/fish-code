@@ -27,7 +27,7 @@ def to_track(
     port: str
         Port for API. Default is "8001"
 
-    Return
+    Return:
     ------
     Optional[List[Object]] :
         List of objects that have been tracked. None if none found.
@@ -110,7 +110,9 @@ class Detector:
     """
 
     def __init__(
-        self, host: str = "http://127.0.0.1", port: str = "8003"
+        self,
+        host: str = "http://127.0.0.1",
+        port: str = "8003",
     ) -> None:
         self.host: str = host
         self.port: str = port
@@ -118,7 +120,9 @@ class Detector:
         logger.debug("Interface detector constructed")
 
     def predict(
-        self, frames: np.ndarray, model_name: str
+        self,
+        frames: np.ndarray,
+        model_name: str,
     ) -> list[core.model.Frame]:
         """Call `/predictions/{model_name}/` endpoint to do inference.
 
@@ -181,7 +185,7 @@ class Detector:
             )
             raise RuntimeError(
                 f"Unexpected HTTP status code from Detection API: "
-                f"{response.status_code}"
+                f"{response.status_code}",
             )
 
         result: list[core.model.Frame] = []
@@ -207,7 +211,7 @@ class Detector:
                             )
                             for detection in detections
                         ],
-                    )
+                    ),
                 )
 
         return result
@@ -234,4 +238,4 @@ class Detector:
             response.json(),
         )
 
-        return list()
+        return []

@@ -11,7 +11,7 @@ from tracing.tracker import BBox
 def bbox_list() -> list[float]:
     """Create a list for creating BBox.
 
-    Return
+    Return:
     ------
     List[float]
         A list that BBox accepts.

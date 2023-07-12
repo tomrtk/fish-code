@@ -47,8 +47,9 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if args.host:
         logger.info(
             "Overriding detection API hostname from {} to {}".format(
-                config.get("DETECTION", "hostname"), args.host
-            )
+                config.get("DETECTION", "hostname"),
+                args.host,
+            ),
         )
         hostname = args.host
 
@@ -56,8 +57,9 @@ def main(argsv: Optional[Sequence[str]] = None) -> int:
     if args.port:
         logger.info(
             "Overriding detection API port from {} to {}".format(
-                config.getint("DETECTION", "port"), args.port
-            )
+                config.getint("DETECTION", "port"),
+                args.port,
+            ),
         )
         port = args.port
 

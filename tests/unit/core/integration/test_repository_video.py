@@ -20,10 +20,20 @@ def test_add_object(sqlite_session_factory):
     repo = SqlAlchemyVideoRepository(session)
 
     vid1 = model.Video(
-        "/some/path", 30, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/path",
+        30,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
     vid2 = model.Video(
-        "/some/other/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/other/path",
+        20,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
 
     repo.add(vid1)
@@ -44,7 +54,12 @@ def test_change_object(sqlite_session_factory):
     repo = SqlAlchemyVideoRepository(session)
 
     obj1 = model.Video(
-        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/path",
+        20,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
     repo.add(obj1)
     repo.save()
@@ -64,7 +79,12 @@ def test_remove_object(sqlite_session_factory):
     repo = SqlAlchemyVideoRepository(session)
 
     vid = model.Video(
-        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/path",
+        20,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
     repo.add(vid)
     repo.save()
@@ -86,7 +106,12 @@ def test_add_video_with_frame(sqlite_session_factory):
     repo = SqlAlchemyVideoRepository(session)
 
     vid = model.Video(
-        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/path",
+        20,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
 
     frame = model.Frame(
@@ -120,7 +145,12 @@ def test_video_with_frame_exceptions(sqlite_session_factory):
     repo = SqlAlchemyVideoRepository(session)
 
     vid = model.Video(
-        "/some/path", 20, 25, 512, 512, datetime(2020, 3, 28, 10, 20, 30)
+        "/some/path",
+        20,
+        25,
+        512,
+        512,
+        datetime(2020, 3, 28, 10, 20, 30),
     )
 
     repo.add(vid)

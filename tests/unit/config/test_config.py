@@ -1,21 +1,24 @@
 """Unit test of config package functionality."""
-from pathlib import Path
-from unittest.mock import patch
 import configparser
 import logging
 import os
 import os.path
-import pytest
 import sys
+from pathlib import Path
+from unittest.mock import patch
 
-from config import find_config_directory
-from config import find_data_directory
-from config import load_config
-from config import get_default_config
-from config import get_config_file_path
-from config import write_config
-from config import get_os_name
-from config import get_video_root_path
+import pytest
+
+from config import (
+    find_config_directory,
+    find_data_directory,
+    get_config_file_path,
+    get_default_config,
+    get_os_name,
+    get_video_root_path,
+    load_config,
+    write_config,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +103,7 @@ def test_read_config_garbage_data(caplog) -> None:
     """Test that malformed configuration files throws error, and gives default conf."""
     with caplog.at_level(logging.WARNING):
         parser = load_config(
-            path="./tests/integration/test_data/malformed_config.ini"
+            path="./tests/integration/test_data/malformed_config.ini",
         )
         assert (
             caplog.records[0].getMessage()
@@ -110,7 +113,7 @@ def test_read_config_garbage_data(caplog) -> None:
 
     with caplog.at_level(logging.WARNING):
         parser = load_config(
-            path="./tests/integration/test_data/missing_header.ini"
+            path="./tests/integration/test_data/missing_header.ini",
         )
         assert (
             caplog.records[2].getMessage()
@@ -120,7 +123,8 @@ def test_read_config_garbage_data(caplog) -> None:
 
 
 @pytest.mark.skipif(
-    sys.platform == "win32", reason="Should not run on win32 platforms."
+    sys.platform == "win32",
+    reason="Should not run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "name, env, config_path, expected",
@@ -136,17 +140,23 @@ def test_read_config_garbage_data(caplog) -> None:
     ],
 )
 def test_find_config_dir(
-    name: str, env: str, config_path: str, expected: str
+    name: str,
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application config directory based on os."""
     with patch("os.name", return_value=name), patch.dict(
-        "os.environ", {env: config_path}, clear=True
+        "os.environ",
+        {env: config_path},
+        clear=True,
     ):
         assert find_config_directory() == Path(expected)
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    not sys.platform == "win32",
+    reason="Should only run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -159,7 +169,9 @@ def test_find_config_dir(
     ],
 )
 def test_find_config_dir_windows(
-    env: str, config_path: str, expected: str
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application config directory based on os."""
     with patch.dict("os.environ", {env: config_path}, clear=True):
@@ -167,7 +179,8 @@ def test_find_config_dir_windows(
 
 
 @pytest.mark.skipif(
-    sys.platform == "win32", reason="Should not run on win32 platforms."
+    sys.platform == "win32",
+    reason="Should not run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "name, env, config_path, expected",
@@ -183,17 +196,23 @@ def test_find_config_dir_windows(
     ],
 )
 def test_find_data_dir(
-    name: str, env: str, config_path: str, expected: str
+    name: str,
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application data directory based on os."""
     with patch("os.name", name), patch.dict(
-        "os.environ", {env: config_path}, clear=True
+        "os.environ",
+        {env: config_path},
+        clear=True,
     ):
         assert find_data_directory() == Path(expected)
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    not sys.platform == "win32",
+    reason="Should only run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -206,7 +225,9 @@ def test_find_data_dir(
     ],
 )
 def test_find_data_dir_windows(
-    env: str, config_path: str, expected: str
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application data directory based on os."""
     with patch.dict("os.environ", {env: config_path}, clear=True):
@@ -214,7 +235,8 @@ def test_find_data_dir_windows(
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    not sys.platform == "win32",
+    reason="Should only run on win32 platforms.",
 )
 def test_get_os_name_windows() -> None:
     """Test get os name."""
@@ -222,7 +244,8 @@ def test_get_os_name_windows() -> None:
 
 
 @pytest.mark.skipif(
-    not os.name == "posix", reason="Should only run on POSIX platforms."
+    not os.name == "posix",
+    reason="Should only run on POSIX platforms.",
 )
 def test_get_os_name_posix() -> None:
     """Test get os name."""
@@ -230,7 +253,8 @@ def test_get_os_name_posix() -> None:
 
 
 @pytest.mark.skipif(
-    not sys.platform == "win32", reason="Should only run on win32 platforms."
+    not sys.platform == "win32",
+    reason="Should only run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -243,7 +267,9 @@ def test_get_os_name_posix() -> None:
     ],
 )
 def test_video_root_dir_windows(
-    env: str, config_path: str, expected: str
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application video root directory based on os."""
     with patch.dict("os.environ", {env: config_path}, clear=True):
@@ -251,7 +277,8 @@ def test_video_root_dir_windows(
 
 
 @pytest.mark.skipif(
-    sys.platform == "win32", reason="Should not run on win32 platforms."
+    sys.platform == "win32",
+    reason="Should not run on win32 platforms.",
 )
 @pytest.mark.parametrize(
     "env, config_path, expected",
@@ -261,7 +288,9 @@ def test_video_root_dir_windows(
     ],
 )
 def test_video_root_dir_others(
-    env: str, config_path: str, expected: str
+    env: str,
+    config_path: str,
+    expected: str,
 ) -> None:
     """Test finding application video root directory based on os."""
     with patch.dict("os.environ", {env: config_path}, clear=True):

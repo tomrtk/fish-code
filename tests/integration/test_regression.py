@@ -3,8 +3,8 @@ import logging
 import time
 from pathlib import Path
 
-import requests
 import pytest
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +13,7 @@ TEST_VIDEO = str(
         Path(__file__).parent
         / "test_data"
         / "test-abbor-small[2021-01-02_00-00-00]-000.mp4"
-    ).resolve()
+    ).resolve(),
 )
 
 

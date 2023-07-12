@@ -28,7 +28,8 @@ def make_image() -> np.ndarray:
 
 @pytest.mark.usefixtures("detection_api")
 def test_detection_api_interface(
-    make_images: np.ndarray, make_image: np.ndarray
+    make_images: np.ndarray,
+    make_image: np.ndarray,
 ):
     """Test detection interface in core with detection api."""
     frames = make_images

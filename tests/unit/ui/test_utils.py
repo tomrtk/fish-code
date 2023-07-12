@@ -2,7 +2,7 @@
 import pytest
 from pydantic.error_wrappers import ValidationError
 
-from ui.projects.utils import validate_int, SQLITE_INTEGER_LIMIT
+from ui.projects.utils import SQLITE_INTEGER_LIMIT, validate_int
 
 
 def test_validate_int() -> None:
