@@ -49,7 +49,6 @@ dev = [
   "mypy>=0.902",
   "pip-tools>=6.12.1",
   "pre-commit>=2.17",
-  "pydocstyle[tomli]>=6.2.1",
   "pyproject-fmt>=0.5",
   "pyupgrade>=2.31",
   "sqlalchemy[mypy]>=1.4.21",
@@ -93,13 +92,19 @@ write_to = "src/nina/version.py"
 # Tools Configuration #
 #######################
 
-[tool.ruff]
-target-version = "py39"
+[tool.black]
 line-length = 80
+target-version = ['py39']
 
-extend-select = [
-    "UP",
-]
+include = '(src|tests)/.*\.pyi?$'
+extend-exclude = 'src/vendor'
+
+[tool.ruff]
+line-length = 80
+target-version = "py39"
+
+# Set this to define first party files.
+src = ["src", "tests"]
 
 exclude = [
     ".git",
@@ -108,12 +113,32 @@ exclude = [
     "build",
     "dist",
     "src/vendor",
+    "scripts",
     "venv",
 ]
+
+extend-select = [
+    "A", # flake8-builtin
+    "C4", # flake8-comprehensions
+    "D", # pydocstyle
+    "I", # isort
+    "Q", # flake8-quotes
+    "UP", # pyupgrade
+    "W", # warning
+]
+
 ignore = [
+    "A003",
+    "D104",
     "E501",
     "F403",
 ]
+
+[tool.ruff.isort]
+known-local-folder = ["vendor.sort"]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -160,9 +185,6 @@ disallow_untyped_defs = false
 [[tool.mypy.overrides]]
 module = "vendor.*"
 ignore_errors = true
-
-[tool.pydocstyle]
-convention = "numpy"
 
 [tool.tox]
 legacy_tox_ini = '''
