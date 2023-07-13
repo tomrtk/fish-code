@@ -28,6 +28,8 @@ jobs:
       - name: Download weights
         run: |
           python -m scripts.download_weights
+      - name: Build UI
+        uses: ./.github/actions/build-ui
       - name: Build package
         run: |
           python -m build

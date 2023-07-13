@@ -188,6 +188,7 @@ legacy_tox_ini = '''
 [tox]
 envlist = py{39,310}
   coverage
+  ui
 isolated_build = true
 requires = pip >= 22.0.3
   setuptools >= 60.8.0
@@ -213,4 +214,10 @@ setenv =
 commands = coverage combine
   coverage report -m
   coverage xml
+
+[testenv:ui]
+use_develop = false
+extras = testing
+allowlist_externals = pytest
+commands = pytest tests/integration/test_ui.py
 '''
