@@ -217,7 +217,6 @@ commands = coverage combine
 
 [testenv:ui]
 use_develop = false
-extras = testing
 allowlist_externals = pytest
 commands = pytest tests/integration/test_ui.py
 '''
