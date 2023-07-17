@@ -1,0 +1,31 @@
+---
+name: build and test ui
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - ".github/actions/build-ui"
+      - ".github/workflows/test-ui.yaml"
+      - "src/ui/package.json"
+      - "src/ui/package-lock.json"
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - uses: ./.github/actions/build-ui
+      - run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install --upgrade tox virtualenv
+      - run: |
+          python -m scripts.download_weights
+      - run: |
+          tox -e ui
