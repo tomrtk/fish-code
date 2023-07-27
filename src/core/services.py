@@ -655,7 +655,7 @@ def get_directory_listing(
     else:
         directory = path
 
-    normalized_path = pathlib.Path(directory)
+    normalized_path = pathlib.Path(os.path.normpath(directory))
 
     tree: list[dict[str, Any] | str | None] = []
     root_node: dict[str, Any] = {}
