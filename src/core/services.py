@@ -646,16 +646,19 @@ def get_directory_listing(
     Dict
         jsTree formatted json containing information about root node at path.
     """
+    video_root = config.get(
+        "CORE",
+        "video_root_path",
+        fallback=str(get_video_root_path()),
+    )
     if path is None:
-        directory = config.get(
-            "CORE",
-            "video_root_path",
-            fallback=str(get_video_root_path()),
-        )
+        directory = video_root
     else:
         directory = path
 
     normalized_path = pathlib.Path(os.path.normpath(directory))
+    if not str(normalized_path).startswith(video_root):
+        raise NotADirectoryError("fishy path")
 
     tree: list[dict[str, Any] | str | None] = []
     root_node: dict[str, Any] = {}
