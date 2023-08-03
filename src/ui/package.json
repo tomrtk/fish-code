@@ -12,6 +12,8 @@
     "prettier-format": "prettier **/* --ignore-unknown  --list-different"
   },
   "dependencies": {
+    "@types/jquery": "^3.5.16",
+    "@types/jstree": "^3.3.43",
     "bootstrap-icons": "^1.10.5",
     "datatables.net": "^1.13.6",
     "datatables.net-dt": "^1.13.6",
@@ -21,8 +23,6 @@
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.4",
-    "@types/jquery": "^3.5.16",
-    "@types/jstree": "^3.3.43",
     "autoprefixer": "^10.4.14",
     "concurrently": "^8.2.0",
     "cssnano": "^6.0.1",

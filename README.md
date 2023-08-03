@@ -13,21 +13,22 @@ computer scientists at the Norwegian University of Science and Technology
 Nature Research (NINA) who wanted a more efficient way of gather statistics of
 video material they had collected at various locations.
 
+## Requirements
+
+- [Python](https://www.python.org) >= 3.8
+
+* [NodeJS](https://nodejs.org) >= 18
+  - [pnpm](https://pnpm.io) - for compiling UI assets
+
 ## Installation
 
-It is recommended to install the application in a virtual environment using
-for example [virtualenv](https://virtualenv.pypa.io/en/latest/).
-
-Running `nina` requires:
-
-- Python 3.9 or higher
-- [`venv`](https://docs.python.org/3/library/venv.html) or
-  [`virtualenv`](https://virtualenv.pypa.io) (recommended)
-- The URL for downloading the package
+It is recommended to install the application in a virtual environment using for
+example [virtualenv](https://virtualenv.pypa.io) or
+[`venv`](https://docs.python.org/3/library/venv.html).
 
 Find url to latest `whl`
-[here](https://github.com/MindTooth/fish-code/releases/latest) for use in
-the commands below.
+[here](https://github.com/MindTooth/fish-code/releases/latest) for use in the
+commands below.
 
 ### Steps
 
