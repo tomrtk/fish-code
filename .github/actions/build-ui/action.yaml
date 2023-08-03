@@ -1,0 +1,16 @@
+---
+name: Compile UI assets
+description: Actions for building the UI assets
+runs:
+  using: composite
+  steps:
+    - name: Configure pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: 8
+        run_install: |
+          - cwd: src/ui
+    - name: Compile Development assets
+      run: |
+        pnpm -C src/ui run build:dev
+      shell: bash

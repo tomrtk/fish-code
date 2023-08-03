@@ -18,13 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
-          run_install: |
-            - cwd: src/ui
-      - run: |
-          pnpm -C src/ui run build:dev
+
+      - name: Compile UI assets
+        uses: .github/actions/build-ui
+
       - uses: actions/setup-python@v4
         with:
           python-version: "3.10"
