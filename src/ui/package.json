@@ -1,5 +1,4 @@
 {
-  "packageManager": "pnpm",
   "scripts": {
     "watch": "concurrently \"npm:*:watch\"",
     "build:dev": "concurrently \"npm:*:build:dev\"",
