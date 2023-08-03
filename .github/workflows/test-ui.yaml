@@ -10,7 +10,7 @@ on:
       - ".github/actions/build-ui"
       - ".github/workflows/test-ui.yaml"
       - "src/ui/package.json"
-      - "src/ui/package-lock.json"
+      - "src/ui/pnpm-lock.yaml"
   workflow_dispatch:
 
 jobs:

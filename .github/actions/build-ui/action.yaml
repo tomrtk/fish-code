@@ -1,13 +1,20 @@
+---
 runs:
   using: composite
   steps:
+    - uses: pnpm/action-setup@v2
+      with:
+        package_json_file: src/ui/package.json
+        run_install: |
+          - cwd: src/ui
     - uses: actions/setup-node@v3
       with:
+        cache: pnpm
         node-version: 18
     - name: Build UI
       shell: bash
       run: |
         set -euxo pipefail
         cd src/ui
-        npm ci --no-audit
-        npm run build:prod
+        pnpm install
+        pnpm run build:prod
