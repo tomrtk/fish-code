@@ -9,8 +9,9 @@ runs:
           - cwd: src/ui
     - uses: actions/setup-node@v3
       with:
-        cache: pnpm
         node-version: 18
+        cache: pnpm
+        cache-dependency-path: src/ui
     - name: Build UI
       shell: bash
       run: |
