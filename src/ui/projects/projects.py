@@ -24,7 +24,7 @@ from flask_paginate import (
     get_page_parameter,
     get_per_page_parameter,
 )
-from pydantic.error_wrappers import ValidationError
+from pydantic import ValidationError
 from werkzeug.exceptions import HTTPException
 from werkzeug.wrappers import Response
 
