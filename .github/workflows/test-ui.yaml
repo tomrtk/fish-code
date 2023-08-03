@@ -18,14 +18,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
       - uses: pnpm/action-setup@v2
         with:
           version: 8
           run_install: |
             - cwd: src/ui
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          cache: "pip"
       - run: |
           pnpm -C src/ui run build:dev
       - run: |
