@@ -27,7 +27,7 @@ example [virtualenv](https://virtualenv.pypa.io) or
 [`venv`](https://docs.python.org/3/library/venv.html).
 
 Find url to latest `whl`
-[here](https://github.com/MindTooth/fish-code/releases/latest) for use in the
+[here](https://github.com/tomrtk/fish-code/releases/latest) for use in the
 commands below.
 
 ### Steps
