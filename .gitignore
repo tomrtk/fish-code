@@ -23,7 +23,7 @@ typings/
 .cache
 
 dist
-!src/ui/static/dist
+!src/ui/static/dist/images
 src/ui/static/dist/js/projects.min.js.map
 
 # Gatsby files

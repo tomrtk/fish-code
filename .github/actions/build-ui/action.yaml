@@ -1,13 +1,16 @@
+---
+name: Compile UI assets
+description: Actions for building the UI assets
 runs:
   using: composite
   steps:
-    - uses: actions/setup-node@v3
+    - name: Configure pnpm
+      uses: pnpm/action-setup@v2
       with:
-        node-version: 18
-    - name: Build UI
-      shell: bash
+        version: 8
+        run_install: |
+          - cwd: src/ui
+    - name: Compile Development assets
       run: |
-        set -euxo pipefail
-        cd src/ui
-        npm ci --no-audit
-        npm run build:prod
+        pnpm -C src/ui run build:dev
+      shell: bash
