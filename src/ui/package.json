@@ -21,7 +21,6 @@
     "@types/jquery": "^3.5.16",
     "@types/jstree": "^3.3.43",
     "bootstrap-icons": "^1.10.5",
-    "datatables.net": "^1.13.6",
     "datatables.net-dt": "^1.13.6",
     "jquery": "^3.7.0",
     "jstree": "^3.3.15"

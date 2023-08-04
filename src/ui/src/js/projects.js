@@ -17,13 +17,10 @@
 // Seems that it is not supported using {$, jQuery}, hence the double
 // import.
 import $ from "jquery";
-
 window.$ = window.jQuery = jQuery = $;
 
 import { attach_jstree } from "./jstree.js";
-
-import dt from "datatables.net";
-dt(window, $);
+import DataTable from "datatables.net-dt";
 
 /* https://stackoverflow.com/a/3291856/182868 */
 String.prototype.capitalize = function () {
@@ -160,7 +157,9 @@ $(function () {
   };
 
   // Create table
-  var table = $("#object_list").DataTable(table_template);
+  let table = new DataTable("#object_list", {
+    table_template,
+  });
 
   /*
    * Preview Dialog

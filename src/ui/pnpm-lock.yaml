@@ -14,9 +14,6 @@ dependencies:
   bootstrap-icons:
     specifier: ^1.10.5
     version: 1.10.5
-  datatables.net:
-    specifier: ^1.13.6
-    version: 1.13.6
   datatables.net-dt:
     specifier: ^1.13.6
     version: 1.13.6
