@@ -14,7 +14,7 @@ depends on whether it runs in development or production.
 
 ### Compile changes to CSS/JavaScript
 
-Using the command below, but are compiled at once. View `pnpm run` for other options.
+Use the command below. View `pnpm run` for other options.
 
 ```sh
 pnpm install
