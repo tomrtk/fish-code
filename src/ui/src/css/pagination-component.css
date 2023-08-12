@@ -1,7 +1,7 @@
 /* Pagination */
 
 .pagination {
-  @apply block mt-4 text-center text-gray-600;
+  @apply mt-4 block text-center text-gray-600;
 }
 
 .pagination > ul {
@@ -13,7 +13,7 @@
 }
 
 .pagination > ul > li > a {
-  @apply py-1 px-3 inline-block;
+  @apply inline-block px-3 py-1;
 }
 
 /* Top Pagination */
@@ -55,11 +55,11 @@ div#bottom-pagination > div > ul > li.disabled {
 /* First/Last Buttons */
 
 .pagination > ul > li.previous {
-  @apply hidden sm:inline-block flex-grow text-left hover:border-white;
+  @apply hidden flex-grow text-left hover:border-white sm:inline-block;
 }
 
 .pagination > ul > li.next {
-  @apply hidden sm:inline-block  flex-grow text-right hover:border-white;
+  @apply hidden flex-grow  text-right hover:border-white sm:inline-block;
 }
 
 .pagination > ul > li.previous > a {

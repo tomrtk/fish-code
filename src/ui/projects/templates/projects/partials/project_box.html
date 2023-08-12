@@ -1,5 +1,5 @@
-<div class="flex-1 flex flex-col lg:flex-row mb-2">
-  <div class="lg:w-48 mr-2">
+<div class="mb-2 flex flex-1 flex-col lg:flex-row">
+  <div class="mr-2 lg:w-48">
     <img
       class="rounded object-contain shadow-sm"
       src="{{ url_for('static', filename='dist/images/placeholder.svg') }}"
@@ -7,11 +7,11 @@
     />
   </div>
   <div class="lg:w-4/6">
-    <h3 class="text-xl font-medium mb-1 truncate">{{ project.name }}</h3>
-    <p class="text-gray-700 mb-2">{{ project.description }}</p>
+    <h3 class="mb-1 truncate text-xl font-medium">{{ project.name }}</h3>
+    <p class="mb-2 text-gray-700">{{ project.description }}</p>
     <div class="flex flex-row items-center">
       <svg
-        class="inline w-4 h-4 mr-2"
+        class="mr-2 inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -28,7 +28,7 @@
     </div>
     <div class="flex flex-row items-center">
       <svg
-        class="inline w-4 h-4 mr-2"
+        class="mr-2 inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -51,7 +51,7 @@
     </div>
     <div class="flex flex-row items-center">
       <svg
-        class="inline w-4 h-4 mr-2"
+        class="mr-2 inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

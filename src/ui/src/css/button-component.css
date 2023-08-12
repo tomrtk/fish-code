@@ -1,69 +1,69 @@
 .btn {
-  @apply py-1 px-3 rounded-lg border-2 shadow-sm transition duration-300;
+  @apply rounded-lg border-2 px-3 py-1 shadow-sm transition duration-300;
 }
 
 /* Regular & Form Buttons */
 
 .btn-cancel {
-  @apply text-gray-900 bg-gray-200 border-gray-200 hover:border-gray-300 hover:bg-gray-300;
+  @apply border-gray-200 bg-gray-200 text-gray-900 hover:border-gray-300 hover:bg-gray-300;
 }
 
 .btn-new {
-  @apply text-gray-600 bg-gray-100 border-gray-100 hover:text-gray-900 hover:bg-gray-200 hover:border-gray-200 active:bg-gray-300 font-semibold shadow;
+  @apply border-gray-100 bg-gray-100 font-semibold text-gray-600 shadow hover:border-gray-200 hover:bg-gray-200 hover:text-gray-900 active:bg-gray-300;
 }
 
 .btn-submit {
-  @apply text-gray-50 bg-gray-700 border-gray-700 hover:border-gray-500 hover:bg-gray-500 disabled:opacity-50 disabled:hover:text-gray-50 disabled:hover:bg-gray-700;
+  @apply border-gray-700 bg-gray-700 text-gray-50 hover:border-gray-500 hover:bg-gray-500 disabled:opacity-50 disabled:hover:bg-gray-700 disabled:hover:text-gray-50;
 }
 
 /* Status Buttons (Job Action) */
 
 .btn-pending {
-  @apply text-gray-600 bg-gray-100 border-gray-100 hover:text-gray-900 hover:bg-gray-200 hover:border-gray-200 active:bg-gray-300 font-semibold shadow;
+  @apply border-gray-100 bg-gray-100 font-semibold text-gray-600 shadow hover:border-gray-200 hover:bg-gray-200 hover:text-gray-900 active:bg-gray-300;
 }
 
 .btn-pending::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
-  @apply float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6;
 }
 
 .btn-queued {
-  @apply text-gray-900 border-white shadow-none italic cursor-default;
+  @apply cursor-default border-white italic text-gray-900 shadow-none;
 }
 
 .btn-queued::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
-  @apply float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6;
 }
 
 .btn-paused {
-  @apply text-gray-900 hover:text-gray-800 bg-yellow-400 border-yellow-400 hover:border-yellow-300 hover:bg-yellow-300;
+  @apply border-yellow-400 bg-yellow-400 text-gray-900 hover:border-yellow-300 hover:bg-yellow-300 hover:text-gray-800;
 }
 
 .btn-paused::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
-  @apply float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6;
 }
 
 .btn-paused:hover::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>');
-  @apply float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6;
 }
 
 .btn-running {
-  @apply text-gray-900 italic shadow-none border-white cursor-auto;
+  @apply cursor-auto border-white italic text-gray-900 shadow-none;
 }
 
 .btn-running::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>');
-  @apply animate-spin float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6 animate-spin;
 }
 
 .btn-done {
-  @apply text-gray-900 border-white shadow-none italic cursor-auto;
+  @apply cursor-auto border-white italic text-gray-900 shadow-none;
 }
 
 .btn-done::before {
   content: url('data:image/svg+xml;utf8,<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>');
-  @apply float-left inline-block h-6 w-6 mr-1;
+  @apply float-left mr-1 inline-block h-6 w-6;
 }

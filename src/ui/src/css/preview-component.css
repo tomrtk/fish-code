@@ -1,12 +1,12 @@
 /* Dialog */
 
 #preview-dialog-bg {
-  @apply fixed inset-0 p-4 flex justify-center items-center bg-black bg-opacity-50;
+  @apply fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4;
   z-index: 8000;
 }
 
 #preview-dialog {
-  @apply flex-1 max-w-2xl p-4 bg-gray-200 shadow-lg rounded-lg relative;
+  @apply relative max-w-2xl flex-1 rounded-lg bg-gray-200 p-4 shadow-lg;
   z-index: 9000;
 }
 
@@ -16,5 +16,5 @@
 
 #preview-dialog button {
   z-index: 9002;
-  @apply absolute rounded-full -top-4 -right-4 bg-gray-100 text-gray-700 border shadow w-10 h-10 flex justify-center items-center;
+  @apply absolute -right-4 -top-4 flex h-10 w-10 items-center justify-center rounded-full border bg-gray-100 text-gray-700 shadow;
 }

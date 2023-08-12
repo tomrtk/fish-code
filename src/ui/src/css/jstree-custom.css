@@ -4,7 +4,7 @@
  */
 
 a.jstree-disabled::after {
-  @apply ml-2 text-red-400 italic !important;
+  @apply ml-2 italic text-red-400 !important;
   content: "Permission denied.";
 }
 

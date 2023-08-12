@@ -6,7 +6,7 @@
     </li>
     <li class="inline">
       <svg
-        class="inline w-4 h-4"
+        class="inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -23,17 +23,17 @@
     <li class="inline font-medium">Projects</li>
   </ul>
 </nav>
-<main class="container flex flex-col mx-auto p-8">
+<main class="container mx-auto flex flex-col p-8">
   <div class="flex-none text-center">
     <h1 class="py-1 text-3xl">Projects</h1>
   </div>
-  <nav class="flex flex-none justify-end mt-3 px-2">
+  <nav class="mt-3 flex flex-none justify-end px-2">
     <a
       class="btn btn-new flex flex-row items-center"
       href="{{ url_for('projects_bp.projects_project_new') }}"
     >
       <svg
-        class="w-6 h-6 mr-2"
+        class="mr-2 h-6 w-6"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -52,10 +52,10 @@
   <div class="mt-4">
     {% if projects|length > 0 %}
     <div id="top-pagination">{{ pagination.links }}</div>
-    <ul class="grid md:grid-cols-2 gap-4 mt-4">
+    <ul class="mt-4 grid gap-4 md:grid-cols-2">
       {% for project in projects %}
       <li
-        class="flex flex-col border border-gray-200 p-4 rounded-md shadow-md bg-gray-100"
+        class="flex flex-col rounded-md border border-gray-200 bg-gray-100 p-4 shadow-md"
       >
         {% include "projects/partials/project_box.html" %}
       </li>
