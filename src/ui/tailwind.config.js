@@ -1,6 +1,8 @@
+// Tailwind Config
 const colors = require("tailwindcss/colors");
 
-module.exports = {
+/** @type {import('tailwindcss').Config} */
+const config = {
   mode: "jit",
   content: [
     "./templates/**/*.html",
@@ -32,3 +34,5 @@ module.exports = {
     }),
   ],
 };
+
+export default config;
