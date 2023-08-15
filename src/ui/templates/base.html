@@ -14,17 +14,17 @@
       rel="stylesheet"
     />
   </head>
-  <body class="h-full bg-gray-100 relative">
+  <body class="relative h-full bg-gray-100">
     <div class="p-6">
       <div
-        class="bg-white flex flex-col mx-auto container max-w-screen-xl rounded-lg shadow-lg"
+        class="container mx-auto flex max-w-screen-xl flex-col rounded-lg bg-white shadow-lg"
       >
         <header
-          class="flex-none flex flex-row justify-center bg-gradient-to-r from-nina-teal to-nina-orange rounded-t-lg"
+          class="flex flex-none flex-row justify-center rounded-t-lg bg-gradient-to-r from-nina-teal to-nina-orange"
         >
           <a href="{{ url_for('index') }}">
             <img
-              class="m-2 filter drop-shadow-lg"
+              class="m-2 drop-shadow-lg filter"
               src="{{ url_for('static', filename='dist/images/nina.png') }}"
               alt="NINA Logo"
             />

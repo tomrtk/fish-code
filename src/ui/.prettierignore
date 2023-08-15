@@ -1,0 +1,6 @@
+# .prettierignore
+
+.cache
+pnpm-lock.yaml
+pyproject.toml
+static

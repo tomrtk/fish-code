@@ -6,7 +6,7 @@
     </li>
     <li class="inline">
       <svg
-        class="inline w-4 h-4"
+        class="inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -29,7 +29,7 @@
     </li>
     <li class="inline">
       <svg
-        class="inline w-4 h-4"
+        class="inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -53,7 +53,7 @@
     </li>
     <li class="inline">
       <svg
-        class="inline w-4 h-4"
+        class="inline h-4 w-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
@@ -70,18 +70,18 @@
     <li class="inline font-medium">{{ job.name }}</li>
   </ul>
 </nav>
-<main class="container flex flex-col mx-auto p-8">
+<main class="container mx-auto flex flex-col p-8">
   <div
-    class="flex flex-col w-full max-w-2xl mx-auto justify-center items-center mb-8"
+    class="mx-auto mb-8 flex w-full max-w-2xl flex-col items-center justify-center"
   >
-    <h3 class="block py-1 mb-3 text-2xl">{{ job.name }}</h3>
-    <p class="block w-full text-left mb-4 pb-2 text-gray-800">
+    <h3 class="mb-3 block py-1 text-2xl">{{ job.name }}</h3>
+    <p class="mb-4 block w-full pb-2 text-left text-gray-800">
       {{ job.description }}
     </p>
-    <div class="flex flex-row w-full mb-8 pb-2 border-b-2">
-      <div class="flex flex-row items-center text-gray-800 italic">
+    <div class="mb-8 flex w-full flex-row border-b-2 pb-2">
+      <div class="flex flex-row items-center italic text-gray-800">
         <svg
-          class="inline w-4 h-4 mr-2"
+          class="mr-2 inline h-4 w-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -102,13 +102,13 @@
         >{{ job.location }}
       </div>
     </div>
-    <div class="mb-8 w-full max-w-lg flex flex-col items-center">
-      <h4 class="block text-xl text-center mb-2">Statistics</h4>
+    <div class="mb-8 flex w-full max-w-lg flex-col items-center">
+      <h4 class="mb-2 block text-center text-xl">Statistics</h4>
       {% if job._status == "Done" %}
-      <div class="flex flex-row w-full max-w-md">
+      <div class="flex w-full max-w-md flex-row">
         <div class="w-1/2">
-          <h5 class="block text-center font-semibold mb-2">Total</h5>
-          <ul class="border-r border-gray-100 table pr-4">
+          <h5 class="mb-2 block text-center font-semibold">Total</h5>
+          <ul class="table border-r border-gray-100 pr-4">
             <li class="table-row">
               <span class="table-cell w-full">Objects</span
               ><span class="table-cell text-right"
@@ -124,8 +124,8 @@
           </ul>
         </div>
         <div class="w-1/2">
-          <h5 class="block text-center font-semibold mb-2">Counter</h5>
-          <ul class="pl-8 border-l border-gray-100 table pr-4">
+          <h5 class="mb-2 block text-center font-semibold">Counter</h5>
+          <ul class="table border-l border-gray-100 pl-8 pr-4">
             {% for label, count in job.stats["labels"].items()|sort %}
             <li class="table-row">
               <span class="table-cell w-full">{{ label }}</span
@@ -136,13 +136,13 @@
         </div>
       </div>
       {% else %}
-      <span class="inline-block m-4 text-gray-700 italic"
+      <span class="m-4 inline-block italic text-gray-700"
         >Not enough information gathered to display statistics.</span
       >
       {% endif %}
     </div>
   </div>
-  <div class="flex-none text-center mb-2 tabbed relative">
+  <div class="tabbed relative mb-2 flex-none text-center">
     <a
       class="btn btn-submit absolute -top-2 right-4"
       href="{{ url_for('projects_bp.projects_job_make_csv', job_id = job.id, project_id=job.project_id)}}"
@@ -151,10 +151,10 @@
     </a>
     <input name="tabbed" id="tabbed1" type="radio" checked />
     <section>
-      <h3 class="py-1 mb-3 text-2xl">
+      <h3 class="mb-3 py-1 text-2xl">
         <label for="tabbed1"
           ><svg
-            class="inline w-6 h-6 mr-2"
+            class="mr-2 inline h-6 w-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -178,21 +178,21 @@
       </h3>
       <div class="border-2">
         {% if job._status == "Done" %}
-        <table id="object_list" class="display table-auto w-full border">
-          <thead class="bg-gray-100 border-b">
+        <table id="object_list" class="display w-full table-auto border">
+          <thead class="border-b bg-gray-100">
             <tr class="font-bold">
-              <td class="number p-2 w-6"></td>
-              <td style="display: none" class="number p-2 w-6"></td>
-              <td class="p-2 w-28">Label</td>
+              <td class="number w-6 p-2"></td>
+              <td style="display: none" class="number w-6 p-2"></td>
+              <td class="w-28 p-2">Label</td>
               <td class="p-2">Time in</td>
               <td class="p-2">Time Out</td>
-              <td class="p-2 w-28">Probability</td>
-              <td class="p-2 w-28">Video ID</td>
+              <td class="w-28 p-2">Probability</td>
+              <td class="w-28 p-2">Video ID</td>
               <td class="w-8"></td>
             </tr>
           </thead>
         </table>
-        {% else %}<span class="py-8 px-4 inline-block">
+        {% else %}<span class="inline-block px-4 py-8">
           <button
             class="btn btn-{{ job._status|lower }} flex flex-row
             items-center"
@@ -206,11 +206,11 @@
       </div>
     </section>
     <input name="tabbed" id="tabbed2" type="radio" />
-    <section class="flex-none text-center mb-2">
-      <h3 class="py-1 mb-3 text-2xl">
+    <section class="mb-2 flex-none text-center">
+      <h3 class="mb-3 py-1 text-2xl">
         <label for="tabbed2"
           ><svg
-            class="inline w-6 h-6 mr-2"
+            class="mr-2 inline h-6 w-6"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -226,21 +226,21 @@
         >
       </h3>
       <div class="border-2">
-        <table class="table-auto w-full border">
-          <thead class="bg-gray-100 border-b">
+        <table class="w-full table-auto border">
+          <thead class="border-b bg-gray-100">
             <tr class="text-lg">
-              <td class="px-2 w-12">ID</td>
+              <td class="w-12 px-2">ID</td>
               <td class="px-2">Path</td>
-              <td class="px-2 w-24">Frames</td>
-              <td class="px-2 w-52">Timestamp</td>
+              <td class="w-24 px-2">Frames</td>
+              <td class="w-52 px-2">Timestamp</td>
             </tr>
           </thead>
           <tbody class="">
             {% for video in job.videos %}
             <tr class="h-8 border-b">
-              <td class="text-right px-2 border-r">{{ video.id }}</td>
-              <td class="text-left px-2 border-r">{{ video._path }}</td>
-              <td class="text-right px-2 border-r">{{ video.frame_count }}</td>
+              <td class="border-r px-2 text-right">{{ video.id }}</td>
+              <td class="border-r px-2 text-left">{{ video._path }}</td>
+              <td class="border-r px-2 text-right">{{ video.frame_count }}</td>
               <td class="px-2">{{ video.timestamp }}</td>
             </tr>
             {% endfor %}
