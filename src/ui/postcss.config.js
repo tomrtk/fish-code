@@ -6,7 +6,6 @@ const config = {
     "postcss-import": {},
     "postcss-url": { url: "inline" },
     tailwindcss: {},
-    "postcss-nesting": {},
     autoprefixer: {},
     ...(process.env.NODE_ENV === "production" ? { cssnano: {} } : {}),
   },
