@@ -7,7 +7,7 @@ const config = {
   content: [
     "./templates/**/*.html",
     "./projects/templates/**/*.html",
-    "./src/js/projects.js",
+    "./src/**/*.{css,js}",
   ],
   theme: {
     extend: {
@@ -28,7 +28,6 @@ const config = {
     },
   },
   plugins: [
-    require("@tailwindcss/aspect-ratio"),
     require("@tailwindcss/forms")({
       strategy: "class",
     }),

@@ -6,7 +6,7 @@
 }
 
 #preview-dialog {
-  @apply relative max-w-2xl flex-1 rounded-lg bg-gray-200 p-4 shadow-lg;
+  @apply relative max-w-screen-sm flex-1 rounded-lg bg-gray-200 p-4 shadow-lg;
   z-index: 9000;
 }
 
