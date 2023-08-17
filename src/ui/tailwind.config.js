@@ -4,11 +4,7 @@ const colors = require("tailwindcss/colors");
 /** @type {import('tailwindcss').Config} */
 const config = {
   mode: "jit",
-  content: [
-    "./templates/**/*.html",
-    "./projects/templates/**/*.html",
-    "./src/**/*.{css,js}",
-  ],
+  content: ["./{projects,templates}/**/*.html", "./src/**/*.{css,js}"],
   theme: {
     extend: {
       colors: {

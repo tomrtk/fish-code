@@ -1,21 +1,10 @@
 /*
- * projects.js - entrypoint
+ * datatables.js  *
  *
- * This file contain all the necessary JavaScript for the project.  We
- * use imports to extract code from `node_modules`.  They are pulled
- * by npm.  It's easier and should reduce calls in the html to just
- * one get.  Now all is bundled into one file
- * `static/dist/js/projects.min.js`.
+ * Holdes the code for DataTables.
  *
- * Since jQuery is not a native module, we need to import $ manually.
- *
- * The custom code is also wrapped inside a function() to make sure that
- * all the JavaScript is loaded only after all the HTML/CSS is loaded.
- * This is to reduce popins that might occur.
  */
 
-// Seems that it is not supported using {$, jQuery}, hence the double
-// import.
 import DataTable from "datatables.net-dt";
 
 const createIframeMarkup = function (objectId) {
@@ -45,7 +34,9 @@ const createPreviewLinkIcon = function (objectId) {
 
 // Create table
 let table = new DataTable("#object_list", {
+  order: [[1, "asc"]],
   ordering: false,
+  pageLength: 25,
   processing: false,
   searching: false,
   serverSide: true,
@@ -56,11 +47,10 @@ let table = new DataTable("#object_list", {
     dataSrc: "data",
   },
 
-  order: [[1, "asc"]],
   columns: [
     {
       data: "enumarate",
-      render: function (data, type, row, meta) {
+      render: function (_1, _2, _3, meta) {
         return meta.row + meta.settings._iDisplayStart + 1;
       },
     },
@@ -70,19 +60,17 @@ let table = new DataTable("#object_list", {
     { data: "time_out" },
     {
       data: "probability",
-      render: function (data, type, row) {
-        var color = "black";
-        if (data < 0.5) {
-          color = "red";
-        }
-        var val = $.fn.dataTable.render.number("", ".", 2, "").display(data);
+      render: function (data, _2, _3) {
+        const color = data >= 0.5 ? "black" : "red";
+        const val = DataTable.render.number("", ".", 2, "").display(data);
+
         return '<span style="color:' + color + '">' + val + "</span>";
       },
     },
     { data: "video_ids" },
     {
       data: "preview",
-      render: function (data, type, row, meta) {
+      render: function (_1, _2, row, _4) {
         return createPreviewLinkIcon(row.id);
       },
     },
@@ -94,7 +82,7 @@ let table = new DataTable("#object_list", {
  */
 
 table.on("preDraw", function () {
-  table.rows().every(function (index, tableLoop, rowLoop) {
+  table.rows().every(function () {
     var row = $(this.node());
     var obj = table.row(this).data();
 
