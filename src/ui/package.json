@@ -10,9 +10,9 @@
     "css:watch": "postcss ./src/css/style.css -o ./static/dist/css/style.min.css --watch --verbose",
     "eslint": "eslint --cache --cache-location .cache/eslint .",
     "eslint-fix": "eslint --cache --cache-location .cache/eslint --fix .",
-    "js:build:dev": "esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --sourcemap",
-    "js:build:prod": "esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --minify",
-    "js:watch": "esbuild src/js/projects.js --bundle --outfile=static/dist/js/projects.min.js --sourcemap --watch",
+    "js:build:dev": "NODE_ENV=development esbuild src/js/index.js --bundle --outfile=static/dist/js/index.min.js --sourcemap",
+    "js:build:prod": "NODE_ENV=production esbuild src/js/index.js --bundle --outfile=static/dist/js/index.min.js --minify",
+    "js:watch": "NODE_ENV=development esbuild src/js/index.js --bundle --outfile=static/dist/js/index.min.js --sourcemap --watch",
     "prettier": "prettier --cache --cache-location .cache/prettier --check .",
     "prettier-fix": "prettier --cache --cache-location .cache/prettier --write .",
     "watch": "concurrently \"npm:*:watch\""
@@ -21,13 +21,11 @@
     "@types/jquery": "^3.5.16",
     "@types/jstree": "^3.3.43",
     "bootstrap-icons": "^1.10.5",
-    "datatables.net": "^1.13.6",
     "datatables.net-dt": "^1.13.6",
     "jquery": "^3.7.0",
     "jstree": "^3.3.15"
   },
   "devDependencies": {
-    "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.4",
     "@types/eslint": "^8.44.2",
     "autoprefixer": "^10.4.15",

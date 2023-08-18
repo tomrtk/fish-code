@@ -4,11 +4,7 @@ const colors = require("tailwindcss/colors");
 /** @type {import('tailwindcss').Config} */
 const config = {
   mode: "jit",
-  content: [
-    "./templates/**/*.html",
-    "./projects/templates/**/*.html",
-    "./src/js/projects.js",
-  ],
+  content: ["./{projects,templates}/**/*.html", "./src/**/*.{css,js}"],
   theme: {
     extend: {
       colors: {
@@ -28,7 +24,6 @@ const config = {
     },
   },
   plugins: [
-    require("@tailwindcss/aspect-ratio"),
     require("@tailwindcss/forms")({
       strategy: "class",
     }),
