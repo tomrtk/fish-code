@@ -9,7 +9,7 @@ authors = [
   { name = "Kristian André Dahl Haugen" },
   { name = "Tom-Ruben Traavik Kvalvaag" },
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.9,<3.12"
 classifiers = [
   "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
   "Programming Language :: Python :: 3 :: Only",
