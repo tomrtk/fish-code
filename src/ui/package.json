@@ -18,9 +18,9 @@
     "watch": "concurrently \"npm:*:watch\""
   },
   "dependencies": {
-    "@types/jquery": "^3.5.27",
+    "@types/jquery": "^3.5.29",
     "@types/jstree": "^3.3.46",
-    "bootstrap-icons": "^1.11.1",
+    "bootstrap-icons": "^1.11.2",
     "datatables.net-dt": "^1.13.8",
     "jquery": "^3.7.1",
     "jstree": "^3.3.16"
@@ -31,7 +31,7 @@
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "cssnano": "^6.0.1",
-    "esbuild": "^0.19.6",
+    "esbuild": "^0.19.8",
     "eslint": "^8.54.0",
     "eslint-config-jquery": "^3.0.2",
     "eslint-config-prettier": "^9.0.0",
