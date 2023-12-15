@@ -1,4 +1,7 @@
 # NINA
+**Deprecation Notice**
+
+This project has been deprecated and no longer managed or supported.
 
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/MindTooth/fish-code/master.svg)](https://results.pre-commit.ci/latest/github/MindTooth/fish-code/master)
 [![GitHub](https://img.shields.io/github/license/MindTooth/fish-code)](./LICENSE)
