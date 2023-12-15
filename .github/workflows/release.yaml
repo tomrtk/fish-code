@@ -9,7 +9,6 @@ on:
       tag:
         description: "tag name to use"
         required: true
-        default: ${{ github.ref }}
 
 jobs:
   build_package:
